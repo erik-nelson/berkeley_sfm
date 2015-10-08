@@ -22,9 +22,11 @@
 
 #include <string>
 
-#include <cimg/CImg.h>
+#include <CImg.h>
 
-namespace cider {
+namespace bsfm {
+
+void dumbfunc();
 
 template <typename T>
 class Image {
@@ -130,6 +132,6 @@ const T& Image<T>::operator()(size_t u, size_t v, size_t c) const {
   return image_(u, v, 0, c);
 }
 
-} //\namespace cider
+} //\namespace bsfm
 
 #endif

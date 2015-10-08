@@ -19,12 +19,12 @@
 
 #include <image/image.h>
 
-#include <gtest/gtest.h>
 #include <gflags/gflags.h>
+#include <gtest/gtest.h>
 
 DEFINE_string(image_file, "", "Name of the image used for testing.");
 
-namespace cider {
+namespace bsfm {
 
 TEST(Image, TestLoadImage) {
   cimg_library::CImg<double> image1(FLAGS_image_file.c_str());
@@ -38,4 +38,9 @@ TEST(Image, TestLoadImage) {
       ASSERT_EQ(image1(r, c), image2(r, c));
 }
 
-} //\namespace cider
+} //\namespace bsfm
+
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

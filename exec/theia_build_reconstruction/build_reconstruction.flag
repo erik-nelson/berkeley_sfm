@@ -1,0 +1,61 @@
+# Input/output files.
+# Set these if a matches file is not present. Images should be a filepath with a
+# wildcard e.g., /home/my_username/my_images/*.jpg
+--images=/Users/eanelson/Git/virtual_berkeley/data/strecha_statue/*.png
+--output_matches_file=
+
+# If a matches file has already been created, set the filepath here. This avoids
+# having to recompute all features and matches.
+--matches_file=
+
+# The calibration file indicates possibly known calibration e.g, from EXIF or
+# explicit calibration. Theia attempts to extract EXIF focal lengths if calibration
+# is not supplied for a given image.
+--calibration_file=
+--output_reconstruction=/Users/eanelson/Git/virtual_berkeley/data/reconstructions/strecha_statue.reconstruction
+
+# Feature extraction and two view matching.
+--descriptor=SIFT
+# Sift blob detector parameters.
+--sift_num_octaves=-1
+--sift_num_levels=3
+--sift_first_octave=-1
+--sift_edge_threshold=10.0
+--sift_peak_threshold=1.7
+# Disable if regular sift descriptor is desired.
+--root_sift=true
+--matching_strategy=CASCADE_HASHING
+--lowes_ratio=0.75
+--min_num_inliers_for_valid_match=30
+--max_sampson_error_for_verified_match=4.0
+--bundle_adjust_two_view_geometry=true
+--keep_only_symmetric_matches=true
+
+# Building a reconstruction.
+--reconstruction_estimator=NONLINEAR
+--max_track_length=50
+--reconstruct_largest_connected_component=false
+--only_calibrated_views=false
+--constant_camera_intrinsics=true
+--max_reprojection_error_pixels=4.0
+--num_retriangulation_iterations=1
+# View graph filtering.
+--post_rotation_filtering_degrees=5.0
+# NOTE: this refinement is very unstable for rotation-only motions.
+--refine_relative_translations_after_rotation_estimation=false
+
+# Position estimation.
+--position_estimation_min_num_tracks_per_view=3
+
+# Triangulation options.
+--min_triangulation_angle_degrees=4.0
+--triangulation_reprojection_error_pixels=15.0
+--bundle_adjust_tracks=true
+
+# Set to the number of threads you want to use.
+--num_threads=8
+
+# Logging verbosity.
+--logtostderr
+# Increase this number to get more verbose logging.
+--v=2

@@ -20,7 +20,6 @@ if (BUILD_TESTS)
    message("Including test   \"${BoldBlue}${test_no_ext}${ColorReset}\".")
  endforeach()
  add_executable(${test_target} ${test_srcs})
- target_link_libraries(${test_target} berkeley_sfm ${bsfm_LINKER_LIBS} gtest)
+ target_link_libraries(${test_target} berkeley_sfm ${berkeley_sfm_LIBRARIES} gtest)
  bsfm_default_properties(${test_target})
-
 endif(BUILD_TESTS)

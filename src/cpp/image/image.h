@@ -26,8 +26,6 @@
 
 namespace bsfm {
 
-void dumbfunc();
-
 template <typename T>
 class Image {
  public:

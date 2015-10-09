@@ -5,11 +5,6 @@ find_package( OpenCV REQUIRED )
 include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
 list(APPEND berkeley_sfm_LIBRARIES ${OpenCV_LIBS})
 
-# Find Cimg.
-find_package( CImg REQUIRED )
-include_directories(SYSTEM ${CIMG_INCLUDE_DIR})
-list(APPEND berkeley_sfm_LIBRARIES ${CIMG_LIBRARIES})
-
 # Find Theia.
 find_package( Theia REQUIRED )
 include_directories(SYSTEM ${THEIA_INCLUDE_DIRS})

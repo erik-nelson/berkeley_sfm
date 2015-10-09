@@ -71,7 +71,7 @@ function(bsfm_default_properties target)
   set_target_properties(${target} PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib"
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
   if (DEFINED external_project_dependencies)
     add_dependencies(${target} ${external_project_dependencies})
   endif()

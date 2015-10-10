@@ -35,41 +35,19 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
-#define BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
+#ifndef BSFM_IMAGE_DESCRIPTOR_H
+#define BSFM_IMAGE_DESCRIPTOR_H
 
-#include "../image/image.h"
-#include "descriptor.h"
-#include "feature.h"
-#include "keypoint_detector.h"
-
-#include <opencv2/features2d/features2d.hpp>
+#include <Eigen/Core>
 
 namespace bsfm {
 
-// When extracting N-dimensional descriptors from a set of M keypoints, OpenCV
-// will store the descriptors in a (M-K)xN matrix, where K is the number of
-// keypoints that OpenCV failed to compute a descriptor for. In other words,
-// rows correspond to keypoints, and columns to indices of the descriptor.
-typedef cv::Mat DescriptorList;
-
-class DescriptorExtractor {
- public:
-  DescriptorExtractor();
-  ~DescriptorExtractor() { }
-
-  // The descriptor type must be set prior to calling ExtractDescriptors().
-  bool SetDescriptor(const std::string& descriptor_type);
-
-  // Creates a list of features by extracting descriptors for each keypoint and
-  // associating the two together into an object.
-  bool DescribeFeatures(const Image& image, KeypointList& keypoints,
-                        std::vector<Feature>& features_out);
-
- private:
-  std::string descriptor_type_;
-  cv::Ptr<cv::DescriptorExtractor> extractor_;
-};  //\class DescriptorExtractor
+// Single descriptors are represented as Eigen vectors (for linear algebra
+// operations). A conversion from DescriptorLists to Descriptors is provied
+// below.
+typedef Eigen::VectorXf Descriptor;
 
 }  //\namespace bsfm
+
 #endif
+

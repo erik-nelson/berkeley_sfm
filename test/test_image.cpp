@@ -147,7 +147,7 @@ TEST(Image, TestEigen) {
 
   // Convert back from Eigen to OpenCV.
   cv::Mat cv_mat;
-  EigenToOpenCV(eigen_mat, cv_mat);
+  EigenMatToOpenCV(eigen_mat, cv_mat);
 
   // Make sure that the two matrices are equivalent.
   for (size_t c = 0; c < image.Width(); ++c)

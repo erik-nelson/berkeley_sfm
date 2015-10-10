@@ -78,7 +78,7 @@ void Image::GetCV(cv::Mat& out) const {
 
 void Image::ToEigen(Eigen::MatrixXf& eigen_out) {
   CHECK(image_.get()) << "Image data is not allocated.";
-  OpenCVToEigen(*image_, eigen_out);
+  OpenCVToEigenMat(*image_, eigen_out);
 }
 
 void Image::Read(const std::string& filename, bool grayscale) {
@@ -173,20 +173,41 @@ void Image::ImShow(const std::string& window_name, unsigned int wait_time) {
 }
 
 // Non-member conversion from OpenCV to Eigen matrices.
-void OpenCVToEigen(const cv::Mat& cv_mat, Eigen::MatrixXf& eigen_mat) {
+void OpenCVToEigenMat(const cv::Mat& cv_mat, Eigen::MatrixXf& eigen_mat) {
   // Make sure the data is grayscale before converting to an eigen matrix.
   if (cv_mat.channels() != 1) {
-    cv::Mat grayscale_image;
-    cv::cvtColor(cv_mat, grayscale_image, CV_RGB2GRAY);
-    cv::cv2eigen(grayscale_image, eigen_mat);
+    cv::Mat grayscale_mat;
+    cv::cvtColor(cv_mat, grayscale_mat, CV_RGB2GRAY);
+    cv::cv2eigen(grayscale_mat, eigen_mat);
   } else {
     cv::cv2eigen(cv_mat, eigen_mat);
   }
 }
 
+// Non-member conversion from OpenCV to Eigen vectors.
+void OpenCVToEigenVec(const cv::Mat& cv_vec, Eigen::VectorXf& eigen_vec) {
+  // Make sure the data is grayscale before converting to an eigen matrix.
+  eigen_vec.resize(cv_vec.total());
+  if (cv_vec.channels() != 1) {
+    cv::Mat grayscale_vec;
+    cv::cvtColor(cv_vec, grayscale_vec, CV_RGB2GRAY);
+    for (size_t ii = 0; ii < grayscale_vec.total(); ++ii)
+      eigen_vec(ii) = grayscale_vec.at<float>(ii);
+  } else {
+    for (size_t ii = 0; ii < cv_vec.total(); ++ii)
+      eigen_vec(ii) = cv_vec.at<float>(ii);
+  }
+}
+
 // Non-member conversion from Eigen to OpenCV matrices.
-void EigenToOpenCV(const Eigen::MatrixXf& eigen_mat, cv::Mat& cv_mat) {
+void EigenMatToOpenCV(const Eigen::MatrixXf& eigen_mat, cv::Mat& cv_mat) {
   cv::eigen2cv(eigen_mat, cv_mat);
+}
+
+// Non-member conversion from Eigen to OpenCV vectors.
+void EigenVecToOpenCV(const Eigen::VectorXf& eigen_vec, cv::Mat& cv_vec) {
+  Eigen::MatrixXf eigen_mat = eigen_vec;
+  cv::eigen2cv(eigen_mat, cv_vec);
 }
 
 } //\namespace bsfm

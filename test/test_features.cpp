@@ -37,6 +37,7 @@
 
 #include <image/image.h>
 #include <matching/descriptor_extractor.h>
+#include <matching/feature.h>
 #include <matching/keypoint_detector.h>
 #include <strings/join_filepath.h>
 
@@ -96,7 +97,7 @@ TEST_F(TestFeatures, TestDetectKeypoints) {
   }
 }
 
-TEST_F(TestFeatures, TestExtractDescriptors) {
+TEST_F(TestFeatures, TestDescribeFeatures) {
   // Load the test image.
   Image image(test_image.c_str());
 
@@ -114,13 +115,19 @@ TEST_F(TestFeatures, TestExtractDescriptors) {
     EXPECT_TRUE(extractor.SetDescriptor(descriptor_types[ii]));
 
     // Extract descriptors.
-    DescriptorList descriptors;
-    EXPECT_TRUE(extractor.ExtractDescriptors(image, keypoints, descriptors));
+    std::vector<Feature> features;
+    EXPECT_TRUE(extractor.DescribeFeatures(image, keypoints, features));
 
-    // Descriptors should have the correct dimensions.
-    EXPECT_EQ(expected_descriptor_counts[ii], descriptors.rows);
-    LOG(INFO) << "Extracted " << descriptors.rows << " descriptors with "
-              << descriptors.cols << " dimensions using descriptor type "
+    // We should get the right number of descriptors.
+    EXPECT_EQ(expected_descriptor_counts[ii], features.size());
+
+    // All descriptors should have the correct dimensions.
+    for (size_t jj = 0; jj < features.size(); ++jj) {
+      EXPECT_EQ(expected_descriptor_lengths[ii], features[jj].descriptor.size());
+    }
+
+    LOG(INFO) << "Extracted " << features.size() << " descriptors with "
+              << features[0].descriptor.size() << " dimensions using descriptor type "
               << descriptor_types[ii] << ".";
   }
 }

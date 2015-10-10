@@ -35,41 +35,30 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
-#define BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
+///////////////////////////////////////////////////////////////////////////////
+//
+// This class defines a naive feature matcher. The matcher keypoints and
+// descriptors from two images and searches for the best pairwise matches,
+// a naive strategy that results in O(n^2).
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef BSFM_MATCHING_NAIVE_FEATURE_MATCHER_H
+#define BSFM_MATCHING_NAIVE_FEATURE_MATCHER_H
 
 #include "../image/image.h"
-#include "descriptor.h"
-#include "feature.h"
-#include "keypoint_detector.h"
-
-#include <opencv2/features2d/features2d.hpp>
 
 namespace bsfm {
 
-// When extracting N-dimensional descriptors from a set of M keypoints, OpenCV
-// will store the descriptors in a (M-K)xN matrix, where K is the number of
-// keypoints that OpenCV failed to compute a descriptor for. In other words,
-// rows correspond to keypoints, and columns to indices of the descriptor.
-typedef cv::Mat DescriptorList;
-
-class DescriptorExtractor {
+class NaiveFeatureMatcher : FeatureMatcher<DistanceMetric> {
  public:
-  DescriptorExtractor();
-  ~DescriptorExtractor() { }
+  NaiveFeatureMatcher() { }
+  ~NaiveFeatureMatcher() { }
 
-  // The descriptor type must be set prior to calling ExtractDescriptors().
-  bool SetDescriptor(const std::string& descriptor_type);
-
-  // Creates a list of features by extracting descriptors for each keypoint and
-  // associating the two together into an object.
-  bool DescribeFeatures(const Image& image, KeypointList& keypoints,
-                        std::vector<Feature>& features_out);
-
+  MatchImages(
  private:
-  std::string descriptor_type_;
-  cv::Ptr<cv::DescriptorExtractor> extractor_;
-};  //\class DescriptorExtractor
+};  //\class NaiveFeatureMatcher
 
 }  //\namespace bsfm
+
 #endif

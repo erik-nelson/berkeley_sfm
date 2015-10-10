@@ -35,41 +35,26 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
-#define BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
+#ifndef BSFM_MATCHING_DISTANCE_METRIC_H
+#define BSFM_MATCHING_DISTANCE_METRIC_H
 
-#include "../image/image.h"
-#include "descriptor.h"
-#include "feature.h"
-#include "keypoint_detector.h"
+#include "descriptor_extractor.h"
 
-#include <opencv2/features2d/features2d.hpp>
+#include <Eigen/Core>
+#include <glog/logging.h>
 
 namespace bsfm {
 
-// When extracting N-dimensional descriptors from a set of M keypoints, OpenCV
-// will store the descriptors in a (M-K)xN matrix, where K is the number of
-// keypoints that OpenCV failed to compute a descriptor for. In other words,
-// rows correspond to keypoints, and columns to indices of the descriptor.
-typedef cv::Mat DescriptorList;
+// Compute the L2 norm of two descriptor vectors. If both descriptors have unit
+// length, the L2 norm is equal to 2*(1-x.y).
+struct DistanceL2 {
+  double operator()(const Descriptor& descriptor1,
+                    const Descriptor& descriptor2) {
+    CHECK_EQ(descriptor1.size(), descriptor2.size());
+    return 2.0 * (1.0 - Eigen::dot(descriptor1, descriptor2));
+  }
+}
 
-class DescriptorExtractor {
- public:
-  DescriptorExtractor();
-  ~DescriptorExtractor() { }
+} //\namespace bsfm
 
-  // The descriptor type must be set prior to calling ExtractDescriptors().
-  bool SetDescriptor(const std::string& descriptor_type);
-
-  // Creates a list of features by extracting descriptors for each keypoint and
-  // associating the two together into an object.
-  bool DescribeFeatures(const Image& image, KeypointList& keypoints,
-                        std::vector<Feature>& features_out);
-
- private:
-  std::string descriptor_type_;
-  cv::Ptr<cv::DescriptorExtractor> extractor_;
-};  //\class DescriptorExtractor
-
-}  //\namespace bsfm
 #endif

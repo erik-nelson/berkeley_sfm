@@ -72,9 +72,9 @@ bool DescriptorExtractor::SetDescriptor(const std::string& descriptor_type) {
   return valid_descriptor_type;
 }
 
-bool DescriptorExtractor::ExtractDescriptors(const Image& image,
-                                             KeypointList& keypoints,
-                                             DescriptorList& descriptors_out) {
+bool DescriptorExtractor::DescribeFeatures(const Image& image,
+                                           KeypointList& keypoints,
+                                           std::vector<Feature>& features_out) {
   // Make the user has called SetDescriptor().
   if (descriptor_type_.empty()) {
     VLOG(1)
@@ -84,6 +84,7 @@ bool DescriptorExtractor::ExtractDescriptors(const Image& image,
   }
 
   CHECK(extractor_) << "The descriptor extractor is null.";
+  features_out.clear();
 
   // Convert the input image to OpenCV's format. Note that descriptors must be
   // extracted on the grayscale image, and that the image format must be CV_8U.
@@ -92,11 +93,21 @@ bool DescriptorExtractor::ExtractDescriptors(const Image& image,
   cv_image.convertTo(cv_image, CV_8U, 255);
 
   // Extract descriptors from the provided keypoints in the image.
+  cv::Mat descriptors;
   try {
-    extractor_->compute(cv_image, keypoints, descriptors_out);
+    extractor_->compute(cv_image, keypoints, descriptors);
   } catch (const std::exception& e) {
     VLOG(1) << "Failed to extract descriptors: " << e.what();
     return false;
+  }
+
+  // Convert the output to a list of features.
+  for (size_t ii = 0; ii < keypoints.size(); ++ii) {
+    Feature feature;
+    feature.u = keypoints[ii].pt.x;
+    feature.v = keypoints[ii].pt.y;
+    OpenCVToEigenVec(descriptors.row(ii), feature.descriptor);
+    features_out.push_back(feature);
   }
 
   return true;

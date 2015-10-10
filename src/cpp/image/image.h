@@ -115,10 +115,12 @@ class Image {
 }; //\class Image
 
 // Non-member conversion from OpenCV to Eigen matrices.
-void OpenCVToEigen(const cv::Mat& cv_mat, Eigen::MatrixXf& eigen_mat);
+void OpenCVToEigenMat(const cv::Mat& cv_mat, Eigen::MatrixXf& eigen_mat);
+void OpenCVToEigenVec(const cv::Mat& cv_vec, Eigen::VectorXf& eigen_vec);
 
-// Non-member conversion from Eigen to OpenCV matrices.
-void EigenToOpenCV(const Eigen::MatrixXf& eigen_mat, cv::Mat& cv_mat);
+// Non-member conversions from Eigen to OpenCV matrices.
+void EigenMatToOpenCV(const Eigen::MatrixXf& eigen_mat, cv::Mat& cv_mat);
+void EigenVecToOpenCV(const Eigen::VectorXf& eigen_vec, cv::Mat& cv_vec);
 
 // ------------------- Implementation ------------------- //
 

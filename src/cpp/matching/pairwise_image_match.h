@@ -35,41 +35,30 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
-#define BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
+///////////////////////////////////////////////////////////////////////////////
+//
+// This class defines a pairwise match between two images, as determined by
+// matches between their features.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef BSFM_MATCHING_PAIRWISE_IMAGE_MATCH_H
+#define BSFM_MATCHING_PAIRWISE_IMAGE_MATCH_H
 
 #include "../image/image.h"
-#include "descriptor.h"
-#include "feature.h"
-#include "keypoint_detector.h"
-
-#include <opencv2/features2d/features2d.hpp>
 
 namespace bsfm {
 
-// When extracting N-dimensional descriptors from a set of M keypoints, OpenCV
-// will store the descriptors in a (M-K)xN matrix, where K is the number of
-// keypoints that OpenCV failed to compute a descriptor for. In other words,
-// rows correspond to keypoints, and columns to indices of the descriptor.
-typedef cv::Mat DescriptorList;
+struct PairwiseImageMatch {
+  // The image-space locations of the matched features in each image.
+  std::vector<FeatureMatch> matches;
 
-class DescriptorExtractor {
- public:
-  DescriptorExtractor();
-  ~DescriptorExtractor() { }
-
-  // The descriptor type must be set prior to calling ExtractDescriptors().
-  bool SetDescriptor(const std::string& descriptor_type);
-
-  // Creates a list of features by extracting descriptors for each keypoint and
-  // associating the two together into an object.
-  bool DescribeFeatures(const Image& image, KeypointList& keypoints,
-                        std::vector<Feature>& features_out);
-
- private:
-  std::string descriptor_type_;
-  cv::Ptr<cv::DescriptorExtractor> extractor_;
-};  //\class DescriptorExtractor
+  // The indices of the two images in the image list owned by whichever feature
+  // matcher that found this match.
+  int image1_index;
+  int image2_index;
+};  //\class PairwiseImageMatch
 
 }  //\namespace bsfm
+
 #endif

@@ -37,7 +37,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This class defines a naive feature matcher. The matcher keypoints and
+// This class defines a naive feature matcher. The matcher takes keypoints and
 // descriptors from two images and searches for the best pairwise matches,
 // a naive strategy that results in O(n^2).
 //
@@ -55,7 +55,7 @@ class NaiveFeatureMatcher : FeatureMatcher<DistanceMetric> {
   NaiveFeatureMatcher() { }
   ~NaiveFeatureMatcher() { }
 
-  MatchImages(
+  void MatchImages();
  private:
 };  //\class NaiveFeatureMatcher
 

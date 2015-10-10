@@ -101,7 +101,7 @@ bool DescriptorExtractor::DescribeFeatures(const Image& image,
     return false;
   }
 
-  // Convert the output to a list of features.
+  // Convert the computed descriptors and keypoints into a list of features.
   for (size_t ii = 0; ii < keypoints.size(); ++ii) {
     Feature feature;
     feature.u = keypoints[ii].pt.x;

@@ -43,8 +43,7 @@
 namespace bsfm {
 
 // Single descriptors are represented as Eigen vectors (for linear algebra
-// operations). A conversion from DescriptorLists to Descriptors is provied
-// below.
+// operations).
 typedef Eigen::VectorXf Descriptor;
 
 }  //\namespace bsfm

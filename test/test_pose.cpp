@@ -35,54 +35,31 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_POSE_H
-#define BSFM_POSE_H
-
-#include <glog/logging.h>
-#include <Eigen/Dense>
+#include <pose/pose.h>
 #include <iostream>
+#include <Eigen/Dense>
+
+#include <gflags/gflags.h>
+#include <gtest/gtest.h>
 
 namespace bsfm {
 
-class Pose {
+TEST(Pose, TestPoseAxisAngle) {
 
-private:
-  Eigen::Matrix4d Rt_; // 4x4 homogeneous Pose matrix
-  Eigen::Vector3d aa_; // axis-angle representation
+  // create a simple rotation matrix and random translation vector
+  Eigen::Matrix3d R1;
+  R1 << 
+    cos(0.5), -sin(0.5), 0,
+    sin(0.5), cos(0.5), 0,
+    0, 0, 1;
+  Eigen::Vector3d t1 = Eigen::Vector3d::Random();
+  Pose p1 = Pose(R1, t1);
+  Pose p2 = p1;
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  // convert to/from axis angle representation and check nothing has changed
+  p2.toAxisAngle();
+  p2.fromAxisAngle();
+  EXPECT_TRUE(p1.isApprox(p2));
+}
 
-  // Construct a new Pose from a rotation matrix and translation vector.
-  Pose(Eigen::Matrix3d &, Eigen::Vector3d &);
-
-  // Deep copy constructor.
-  Pose(const Pose &);
-  
-  // Destroy this Pose.
-  ~Pose();
-
-  // Project a 3D point into this Pose.
-  Eigen::Vector2d project(Eigen::Vector3d &);
-
-  // Compose this Pose with the given pose so that both refer to the identity Pose as 
-  // specified by the given Pose.
-  void compose(Pose &);
-
-  // Print to StdOut.
-  void print();
-
-  // Test if this pose (Rt_ only) is approximately equal to another pose.
-  bool isApprox(Pose &);
-
-  // Convert to axis-angle representation.
-  Eigen::VectorXd toAxisAngle();
-
-  // Convert to matrix representation.
-  Eigen::Matrix4d fromAxisAngle();
-
-};
-
-}; // namespace bsfm
-
-#endif
+} // namespace bsfm

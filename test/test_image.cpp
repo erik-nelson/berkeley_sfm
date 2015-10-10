@@ -49,12 +49,13 @@ const std::string test_image =
     strings::JoinFilepath(BSFM_TEST_DATA_DIR, FLAGS_image_file.c_str());
 
 TEST(Image, TestLoadImage) {
+  // Load an OpenCV image and convert it to floating point RGB.
   cv::Mat image1 =
       cv::imread(test_image.c_str(), CV_LOAD_IMAGE_COLOR);
   image1.convertTo(image1, CV_32FC3, 1.f / 255.f);
-
   cv::cvtColor(image1, image1, CV_BGR2RGB);
 
+  // Load the same image in our format.
   Image image2(test_image.c_str());
 
   size_t w = image1.cols;
@@ -112,6 +113,24 @@ TEST(Image, TestCopy) {
       ASSERT_EQ(image2.at<cv::Vec3f>(r, c), image3.at<cv::Vec3f>(r, c));
     }
   }
+}
+
+TEST(Image, TestLoadFromOpenCVMat) {
+  // Load an OpenCV image and convert it to floating point RGB.
+  cv::Mat image1 = cv::imread(test_image.c_str(), CV_LOAD_IMAGE_COLOR);
+  image1.convertTo(image1, CV_32FC3, 1.f / 255.f);
+  cv::cvtColor(image1, image1, CV_BGR2RGB);
+
+  // Load the same image in our format.
+  Image image2(test_image.c_str());
+
+  // Copy the OpenCV image to make a third image.
+  Image image3(image1);
+
+  // Check for equality.
+  for (size_t c = 0; c < image2.Width(); ++c)
+    for (size_t r = 0; r < image2.Width(); ++r)
+      ASSERT_EQ(image2.at<cv::Vec3f>(r, c), image3.at<cv::Vec3f>(r, c));
 }
 
 } //\namespace bsfm

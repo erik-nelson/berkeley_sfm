@@ -63,6 +63,12 @@ Image::Image(const std::string& filename, bool grayscale) : grayscale_(false) {
   Read(filename, grayscale);
 }
 
+// Construct form OpenCV mat.
+Image::Image(const cv::Mat& other) {
+  image_ = std::shared_ptr<cv::Mat>(new cv::Mat(other));
+  grayscale_ = (this->Channels() == 1);
+}
+
 void Image::GetCV(cv::Mat& out) const {
   CHECK(image_ != nullptr) << "Image data is not allocated.";
 

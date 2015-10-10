@@ -41,7 +41,9 @@
 
 namespace bsfm {
 
-KeypointDetector::KeypointDetector() { cv::initModule_nonfree(); }
+KeypointDetector::KeypointDetector() {
+  cv::initModule_nonfree();
+}
 
 bool KeypointDetector::SetDetector(const std::string& detector_type) {
   // Set the detector type.
@@ -87,11 +89,11 @@ bool KeypointDetector::DetectKeypoints(const Image& image,
   // Make the user has called SetDetector().
   if (detector_type_.empty()) {
     VLOG(1) << "Detector has not been specified via SetDetector(). Failed to "
-               "detect keypoints";
+               "detect keypoints.";
     return false;
   }
 
-  CHECK(detector_) << "Detector is null.";
+  CHECK(detector_) << "The feature detector is null.";
 
   // Convert the input image to OpenCV's format.
   cv::Mat cv_image;

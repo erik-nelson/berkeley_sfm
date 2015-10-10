@@ -67,6 +67,9 @@ class Image {
   // Ctor to load from file.
   explicit Image(const std::string& filename, bool grayscale = false);
 
+  // Construct from OpenCV mat.
+  explicit Image(const cv::Mat& other);
+
   // Access the pixel at (u, v), at a specific channel.
   template <typename T>
   T& at(size_t u, size_t v);

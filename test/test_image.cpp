@@ -41,12 +41,13 @@
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
-DEFINE_string(image_file, "lenna.png", "Name of the image used for testing.");
+DEFINE_string(testing_image_file, "lenna.png",
+              "Name of the image used for testing.");
 
 namespace bsfm {
 
 const std::string test_image =
-    strings::JoinFilepath(BSFM_TEST_DATA_DIR, FLAGS_image_file.c_str());
+    strings::JoinFilepath(BSFM_TEST_DATA_DIR, FLAGS_testing_image_file.c_str());
 
 TEST(Image, TestLoadImage) {
   // Load an OpenCV image and convert it to floating point RGB.
@@ -61,42 +62,42 @@ TEST(Image, TestLoadImage) {
   size_t w = image1.cols;
   size_t h = image1.rows;
 
-  ASSERT_EQ(w, image2.Width());
-  ASSERT_EQ(h, image2.Height());
+  EXPECT_EQ(w, image2.Width());
+  EXPECT_EQ(h, image2.Height());
 
   for (size_t c = 0; c < w; ++c)
    for (size_t r = 0; r < h; ++r)
-     ASSERT_EQ(image1.at<cv::Vec3f>(r, c), image2.at<cv::Vec3f>(r, c));
+     EXPECT_EQ(image1.at<cv::Vec3f>(r, c), image2.at<cv::Vec3f>(r, c));
 }
 
 TEST(Image, TestResize) {
   Image image1(test_image.c_str());
 
   image1.Resize(256, 256);
-  ASSERT_EQ(256, image1.Width());
-  ASSERT_EQ(256, image1.Height());
+  EXPECT_EQ(256, image1.Width());
+  EXPECT_EQ(256, image1.Height());
 
   image1.Resize(2.0);
-  ASSERT_EQ(512, image1.Width());
-  ASSERT_EQ(512, image1.Height());
+  EXPECT_EQ(512, image1.Width());
+  EXPECT_EQ(512, image1.Height());
 }
 
 TEST(Image, TestConvertColor) {
 
   Image image1(test_image.c_str());
-  ASSERT_EQ(3, image1.Channels());
+  EXPECT_EQ(3, image1.Channels());
 
   image1.ConvertToGrayscale();
-  ASSERT_EQ(1, image1.Channels());
+  EXPECT_EQ(1, image1.Channels());
 
   image1.ConvertToRGB();
-  ASSERT_EQ(3, image1.Channels());
+  EXPECT_EQ(3, image1.Channels());
 
   for (size_t c = 0; c < image1.Width(); ++c) {
     for (size_t r = 0; r < image1.Height(); ++r) {
       cv::Vec3f pixel = image1.at<cv::Vec3f>(r, c);
-      ASSERT_EQ(pixel[0], pixel[1]);
-      ASSERT_EQ(pixel[1], pixel[2]);
+      EXPECT_EQ(pixel[0], pixel[1]);
+      EXPECT_EQ(pixel[1], pixel[2]);
     }
   }
 }
@@ -109,8 +110,8 @@ TEST(Image, TestCopy) {
 
   for (size_t c = 0; c < image1.Width(); ++c) {
     for (size_t r = 0; r < image1.Height(); ++r) {
-      ASSERT_EQ(image1.at<cv::Vec3f>(r, c), image2.at<cv::Vec3f>(r, c));
-      ASSERT_EQ(image2.at<cv::Vec3f>(r, c), image3.at<cv::Vec3f>(r, c));
+      EXPECT_EQ(image1.at<cv::Vec3f>(r, c), image2.at<cv::Vec3f>(r, c));
+      EXPECT_EQ(image2.at<cv::Vec3f>(r, c), image3.at<cv::Vec3f>(r, c));
     }
   }
 }
@@ -130,12 +131,7 @@ TEST(Image, TestLoadFromOpenCVMat) {
   // Check for equality.
   for (size_t c = 0; c < image2.Width(); ++c)
     for (size_t r = 0; r < image2.Width(); ++r)
-      ASSERT_EQ(image2.at<cv::Vec3f>(r, c), image3.at<cv::Vec3f>(r, c));
+      EXPECT_EQ(image2.at<cv::Vec3f>(r, c), image3.at<cv::Vec3f>(r, c));
 }
 
 } //\namespace bsfm
-
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}

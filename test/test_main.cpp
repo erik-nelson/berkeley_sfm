@@ -35,41 +35,14 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
-#define BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
+#include <glog/logging.h>
+#include <gtest/gtest.h>
 
-#include "../image/image.h"
-#include "keypoint_detector.h"
-
-#include <opencv2/features2d/features2d.hpp>
-
-namespace bsfm {
-
-// When extracting N-dimensional descriptors from a set of M keypoints, OpenCV
-// will store the descriptors in a (M-K)xN matrix, where K is the number of
-// keypoints that OpenCV failed to compute a descriptor for. In other words,
-// rows correspond to keypoints, and columns to indices of the descriptor.
-typedef cv::Mat DescriptorList;
-
-class DescriptorExtractor {
- public:
-  DescriptorExtractor();
-  ~DescriptorExtractor() { }
-
-  // The descriptor type must be set prior to calling ExtractDescriptors().
-  bool SetDescriptor(const std::string& descriptor_type);
-
-  // Extracts descriptors for each keypoint in the provided keypoints list.
-  // OpenCV requires a non-const keypoint list to extract descriptors, but the
-  // keypoint list is an input.
-  bool ExtractDescriptors(const Image& image, KeypointList& keypoints,
-                          DescriptorList& descriptors_out);
-
- private:
-  std::string descriptor_type_;
-  cv::Ptr<cv::DescriptorExtractor> extractor_;
-
-};  //\class DescriptorExtractor
-
-}  //\namespace bsfm
-#endif
+int main(int argc, char** argv) {
+  std::string log_file = BSFM_TEST_DATA_DIR + std::string("/out.log");
+  google::SetLogDestination(0, log_file.c_str());
+  google::InitGoogleLogging(argv[0]);
+  ::testing::InitGoogleTest(&argc, argv);
+  LOG(INFO) << "Running all tests.";
+  return RUN_ALL_TESTS();
+}

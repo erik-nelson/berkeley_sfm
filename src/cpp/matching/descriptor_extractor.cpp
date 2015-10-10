@@ -59,8 +59,6 @@ bool DescriptorExtractor::SetDescriptor(const std::string& descriptor_type) {
     extractor_ = cv::DescriptorExtractor::create("BRIEF");
   } else if (descriptor_type_.compare("BRISK") == 0) {
     extractor_ = cv::DescriptorExtractor::create("BRISK");
-  } else if (descriptor_type_.compare("ORB") == 0) {
-    extractor_ = cv::DescriptorExtractor::create("ORB");
   } else if (descriptor_type_.compare("FREAK") == 0) {
     extractor_ = cv::DescriptorExtractor::create("FREAK");
   } else {
@@ -87,9 +85,11 @@ bool DescriptorExtractor::ExtractDescriptors(const Image& image,
 
   CHECK(extractor_) << "The descriptor extractor is null.";
 
-  // Convert the input image to OpenCV's format.
+  // Convert the input image to OpenCV's format. Note that descriptors must be
+  // extracted on the grayscale image, and that the image format must be CV_8U.
   cv::Mat cv_image;
   image.GetCV(cv_image);
+  cv_image.convertTo(cv_image, CV_8U, 255);
 
   // Extract descriptors from the provided keypoints in the image.
   try {

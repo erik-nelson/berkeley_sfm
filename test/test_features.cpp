@@ -54,8 +54,8 @@ class TestFeatures : public ::testing::Test {
       BSFM_TEST_DATA_DIR, FLAGS_features_image_file.c_str());
 
   const std::vector<std::string> detector_types = {
-      "SIFT",  "SURF", "FAST",   "STAR",   "ORB",
-      "BRISK", "MSER", "GFTT",   "HARRIS", "DENSE", "SIMPLEBLOB"
+      "SIFT",  "SURF", "FAST", "STAR",   "ORB",
+      "BRISK", "MSER", "GFTT", "HARRIS", "DENSE", "SIMPLEBLOB"
   };
 
   const std::vector<std::string> descriptor_types = {

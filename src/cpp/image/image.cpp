@@ -70,10 +70,15 @@ Image::Image(const cv::Mat& other) {
 }
 
 void Image::GetCV(cv::Mat& out) const {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
 
   // Convert from RGB (internal representation) to BGR (default in OpenCV).
   cv::cvtColor(*image_, out, CV_RGB2BGR);
+}
+
+void Image::ToEigen(Eigen::MatrixXf& eigen_out) {
+  CHECK(image_.get()) << "Image data is not allocated.";
+  OpenCVToEigen(*image_, eigen_out);
 }
 
 void Image::Read(const std::string& filename, bool grayscale) {
@@ -100,33 +105,33 @@ void Image::Write(const std::string& filename) const {
 }
 
 size_t Image::Width() const {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
   return image_->cols;
 }
 
 size_t Image::Height() const {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
   return image_->rows;
 }
 
 size_t Image::Channels() const {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
   return image_->channels();
 }
 
 void Image::Resize(double scale) {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
   cv::resize(*image_, *image_, cv::Size(), scale, scale, CV_INTER_LANCZOS4);
 }
 
 void Image::Resize(size_t new_width, size_t new_height) {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
   cv::resize(*image_, *image_, cv::Size(new_width, new_height),
              CV_INTER_LANCZOS4);
 }
 
 void Image::ConvertToGrayscale() {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
 
   if (grayscale_) {
     VLOG(1) << "Cannot convert image to grayscale, image is already grayscale.";
@@ -138,7 +143,7 @@ void Image::ConvertToGrayscale() {
 }
 
 void Image::ConvertToRGB() {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
 
   if (!grayscale_) {
     VLOG(1) << "Cannot convert image to RGB, image is already RGB.";
@@ -150,7 +155,7 @@ void Image::ConvertToRGB() {
 }
 
 void Image::ImShow(const std::string& window_name, unsigned int wait_time) {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK(image_.get()) << "Image data is not allocated.";
 
   cv::namedWindow(window_name.c_str(), CV_WINDOW_AUTOSIZE);
 
@@ -165,6 +170,23 @@ void Image::ImShow(const std::string& window_name, unsigned int wait_time) {
   }
 
   cv::waitKey(wait_time);
+}
+
+// Non-member conversion from OpenCV to Eigen matrices.
+void OpenCVToEigen(const cv::Mat& cv_mat, Eigen::MatrixXf& eigen_mat) {
+  // Make sure the data is grayscale before converting to an eigen matrix.
+  if (cv_mat.channels() != 1) {
+    cv::Mat grayscale_image;
+    cv::cvtColor(cv_mat, grayscale_image, CV_RGB2GRAY);
+    cv::cv2eigen(grayscale_image, eigen_mat);
+  } else {
+    cv::cv2eigen(cv_mat, eigen_mat);
+  }
+}
+
+// Non-member conversion from Eigen to OpenCV matrices.
+void EigenToOpenCV(const Eigen::MatrixXf& eigen_mat, cv::Mat& cv_mat) {
+  cv::eigen2cv(eigen_mat, cv_mat);
 }
 
 } //\namespace bsfm

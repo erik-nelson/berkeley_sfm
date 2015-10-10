@@ -71,31 +71,30 @@ TEST(Image, TestLoadImage) {
 }
 
 TEST(Image, TestResize) {
-  Image image1(test_image.c_str());
+  Image image(test_image.c_str());
 
-  image1.Resize(256, 256);
-  EXPECT_EQ(256, image1.Width());
-  EXPECT_EQ(256, image1.Height());
+  image.Resize(256, 256);
+  EXPECT_EQ(256, image.Width());
+  EXPECT_EQ(256, image.Height());
 
-  image1.Resize(2.0);
-  EXPECT_EQ(512, image1.Width());
-  EXPECT_EQ(512, image1.Height());
+  image.Resize(2.0);
+  EXPECT_EQ(512, image.Width());
+  EXPECT_EQ(512, image.Height());
 }
 
 TEST(Image, TestConvertColor) {
+  Image image(test_image.c_str());
+  EXPECT_EQ(3, image.Channels());
 
-  Image image1(test_image.c_str());
-  EXPECT_EQ(3, image1.Channels());
+  image.ConvertToGrayscale();
+  EXPECT_EQ(1, image.Channels());
 
-  image1.ConvertToGrayscale();
-  EXPECT_EQ(1, image1.Channels());
+  image.ConvertToRGB();
+  EXPECT_EQ(3, image.Channels());
 
-  image1.ConvertToRGB();
-  EXPECT_EQ(3, image1.Channels());
-
-  for (size_t c = 0; c < image1.Width(); ++c) {
-    for (size_t r = 0; r < image1.Height(); ++r) {
-      cv::Vec3f pixel = image1.at<cv::Vec3f>(r, c);
+  for (size_t c = 0; c < image.Width(); ++c) {
+    for (size_t r = 0; r < image.Height(); ++r) {
+      cv::Vec3f pixel = image.at<cv::Vec3f>(r, c);
       EXPECT_EQ(pixel[0], pixel[1]);
       EXPECT_EQ(pixel[1], pixel[2]);
     }
@@ -103,7 +102,6 @@ TEST(Image, TestConvertColor) {
 }
 
 TEST(Image, TestCopy) {
-
   Image image1(test_image.c_str());
   Image image2(image1);
   Image image3 = image1;
@@ -132,6 +130,29 @@ TEST(Image, TestLoadFromOpenCVMat) {
   for (size_t c = 0; c < image2.Width(); ++c)
     for (size_t r = 0; r < image2.Width(); ++r)
       EXPECT_EQ(image2.at<cv::Vec3f>(r, c), image3.at<cv::Vec3f>(r, c));
+}
+
+TEST(Image, TestEigen) {
+  Image image(test_image.c_str());
+
+  // Create an Eigen matrix from the image.
+  Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> eigen_mat;
+  image.ToEigen(eigen_mat);
+
+  // Make sure that the two matrices are equivalent.
+  image.ConvertToGrayscale();
+  for (size_t c = 0; c < image.Width(); ++c)
+    for (size_t r = 0; r < image.Width(); ++r)
+      EXPECT_EQ(image.at<float>(r, c), eigen_mat(r, c));
+
+  // Convert back from Eigen to OpenCV.
+  cv::Mat cv_mat;
+  EigenToOpenCV(eigen_mat, cv_mat);
+
+  // Make sure that the two matrices are equivalent.
+  for (size_t c = 0; c < image.Width(); ++c)
+    for (size_t r = 0; r < image.Width(); ++r)
+      EXPECT_EQ(image.at<float>(r, c), cv_mat.at<float>(r, c));
 }
 
 } //\namespace bsfm

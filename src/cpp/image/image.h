@@ -46,8 +46,10 @@
 
 #include <string>
 
+#include <Eigen/Dense>
 #include <glog/logging.h>
 #include <opencv2/core/core.hpp>
+#include <opencv2/core/eigen.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -80,6 +82,9 @@ class Image {
   // Access OpenCV mat.
   void GetCV(cv::Mat& out) const;
 
+  // Convert to Eigen matrix.
+  void ToEigen(Eigen::MatrixXf& eigen_out);
+
   // Save and load.
   void Read(const std::string& filename, bool grayscale = false);
   void Write(const std::string& filename) const;
@@ -109,6 +114,11 @@ class Image {
   std::shared_ptr<cv::Mat> image_;
 }; //\class Image
 
+// Non-member conversion from OpenCV to Eigen matrices.
+void OpenCVToEigen(const cv::Mat& cv_mat, Eigen::MatrixXf& eigen_mat);
+
+// Non-member conversion from Eigen to OpenCV matrices.
+void EigenToOpenCV(const Eigen::MatrixXf& eigen_mat, cv::Mat& cv_mat);
 
 // ------------------- Implementation ------------------- //
 

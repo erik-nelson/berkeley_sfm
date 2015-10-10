@@ -42,18 +42,31 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "descriptor.h"
-
 #ifndef BSFM_MATCHING_FEATURE_H
 #define BSFM_MATCHING_FEATURE_H
+
+#include <memory>
+#include <vector>
+
+#include "descriptor.h"
 
 namespace bsfm {
 
 struct Feature {
-  Descriptor descriptor;
-  int u;
-  int v;
+  typedef std::shared_ptr<Feature> Ptr;
+  typedef std::shared_ptr<const Feature> ConstPtr;
+
+  // Each feature contains a descriptor, and the (u, v) image space coordinates
+  // of the center of the feature.
+  Descriptor descriptor_;
+  int u_;
+  int v_;
+
+  // Delegate to the non-member NormalizeDescriptor in descriptor.h.
+  void NormalizeDescriptor() { ::bsfm::NormalizeDescriptor(descriptor_); }
 };  //\struct Feature
+
+typedef std::vector<Feature> FeatureList;
 
 }  //\namespace bsfm
 

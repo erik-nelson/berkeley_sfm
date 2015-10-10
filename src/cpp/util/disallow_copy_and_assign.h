@@ -35,38 +35,25 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_KEYPOINT_DETECTOR_H
-#define BSFM_IMAGE_KEYPOINT_DETECTOR_H
+///////////////////////////////////////////////////////////////////////////////
+//
+// This file defines a macro to disable copy construction and copy assignment
+// for a class. Put the DISALLOW_COPY_AND_ASSIGN macro under a class or struct's
+// private member variables.
+//
+///////////////////////////////////////////////////////////////////////////////
 
-#include "../image/image.h"
-#include "../util/disallow_copy_and_assign.h"
+// Check for c++11 support.
+#if __cplusplus > 199711L
 
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/nonfree/nonfree.hpp>
+#define DISALLOW_COPY_AND_ASSIGN(TypeName)    \
+    TypeName(const TypeName&) = delete;       \
+    void operator=(const TypeName&) = delete;
 
-namespace bsfm {
+#else
 
-typedef cv::KeyPoint Keypoint;
-typedef std::vector<cv::KeyPoint> KeypointList;
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+    TypeName(const TypeName&);             \
+    void operator=(const Typename&)
 
-class KeypointDetector {
- public:
-  KeypointDetector();
-  ~KeypointDetector() {}
-
-  // The detector must be set prior to calling DetectKeypoints().
-  bool SetDetector(const std::string& detector_type);
-
-  // Detects keypoints in the input image, returning them in the output list.
-  bool DetectKeypoints(const Image& image, KeypointList& keypoints_out);
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(KeypointDetector)
-
-  std::string detector_type_;
-  cv::Ptr<cv::FeatureDetector> detector_;
-
-};  //\class KeypointDetector
-
-}  //\namespace bsfm
 #endif

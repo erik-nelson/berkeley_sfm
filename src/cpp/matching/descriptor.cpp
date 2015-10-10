@@ -35,38 +35,13 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_KEYPOINT_DETECTOR_H
-#define BSFM_IMAGE_KEYPOINT_DETECTOR_H
-
-#include "../image/image.h"
-#include "../util/disallow_copy_and_assign.h"
-
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/nonfree/nonfree.hpp>
+#include "descriptor.h"
 
 namespace bsfm {
 
-typedef cv::KeyPoint Keypoint;
-typedef std::vector<cv::KeyPoint> KeypointList;
-
-class KeypointDetector {
- public:
-  KeypointDetector();
-  ~KeypointDetector() {}
-
-  // The detector must be set prior to calling DetectKeypoints().
-  bool SetDetector(const std::string& detector_type);
-
-  // Detects keypoints in the input image, returning them in the output list.
-  bool DetectKeypoints(const Image& image, KeypointList& keypoints_out);
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(KeypointDetector)
-
-  std::string detector_type_;
-  cv::Ptr<cv::FeatureDetector> detector_;
-
-};  //\class KeypointDetector
+// Normalizes a descriptor vector.
+void NormalizeDescriptor(Descriptor& descriptor) {
+  descriptor.normalize();
+}
 
 }  //\namespace bsfm
-#endif

@@ -44,6 +44,7 @@
 #ifndef BSFM_IMAGE_IMAGE_H
 #define BSFM_IMAGE_IMAGE_H
 
+#include <memory>
 #include <string>
 
 #include <Eigen/Dense>
@@ -57,6 +58,9 @@ namespace bsfm {
 
 class Image {
  public:
+  typedef std::shared_ptr<Image> Ptr;
+  typedef std::shared_ptr<const Image> ConstPtr;
+
   Image() : grayscale_(false) {}
   ~Image() {}
 

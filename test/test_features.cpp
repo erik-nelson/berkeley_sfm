@@ -123,11 +123,11 @@ TEST_F(TestFeatures, TestDescribeFeatures) {
 
     // All descriptors should have the correct dimensions.
     for (size_t jj = 0; jj < features.size(); ++jj) {
-      EXPECT_EQ(expected_descriptor_lengths[ii], features[jj].descriptor.size());
+      EXPECT_EQ(expected_descriptor_lengths[ii], features[jj].descriptor_.size());
     }
 
     LOG(INFO) << "Extracted " << features.size() << " descriptors with "
-              << features[0].descriptor.size() << " dimensions using descriptor type "
+              << features[0].descriptor_.size() << " dimensions using descriptor type "
               << descriptor_types[ii] << ".";
   }
 }

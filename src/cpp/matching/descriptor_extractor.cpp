@@ -104,9 +104,9 @@ bool DescriptorExtractor::DescribeFeatures(const Image& image,
   // Convert the computed descriptors and keypoints into a list of features.
   for (size_t ii = 0; ii < keypoints.size(); ++ii) {
     Feature feature;
-    feature.u = keypoints[ii].pt.x;
-    feature.v = keypoints[ii].pt.y;
-    OpenCVToEigenVec(descriptors.row(ii), feature.descriptor);
+    feature.u_ = keypoints[ii].pt.x;
+    feature.v_ = keypoints[ii].pt.y;
+    OpenCVToEigenVec(descriptors.row(ii), feature.descriptor_);
     features_out.push_back(feature);
   }
 

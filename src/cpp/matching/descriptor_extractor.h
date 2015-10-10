@@ -39,6 +39,8 @@
 #define BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
 
 #include "../image/image.h"
+#include "../util/disallow_copy_and_assign.h"
+
 #include "descriptor.h"
 #include "feature.h"
 #include "keypoint_detector.h"
@@ -67,6 +69,8 @@ class DescriptorExtractor {
                         std::vector<Feature>& features_out);
 
  private:
+  DISALLOW_COPY_AND_ASSIGN(DescriptorExtractor)
+
   std::string descriptor_type_;
   cv::Ptr<cv::DescriptorExtractor> extractor_;
 };  //\class DescriptorExtractor

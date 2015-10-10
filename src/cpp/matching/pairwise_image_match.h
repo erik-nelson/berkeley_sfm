@@ -45,19 +45,23 @@
 #ifndef BSFM_MATCHING_PAIRWISE_IMAGE_MATCH_H
 #define BSFM_MATCHING_PAIRWISE_IMAGE_MATCH_H
 
+#include <vector>
+
 #include "../image/image.h"
 
 namespace bsfm {
 
 struct PairwiseImageMatch {
   // The image-space locations of the matched features in each image.
-  std::vector<FeatureMatch> matches;
+  std::vector<FeatureMatch> feature_matches_;
 
   // The indices of the two images in the image list owned by whichever feature
   // matcher that found this match.
-  int image1_index;
-  int image2_index;
+  int image1_index_;
+  int image2_index_;
 };  //\class PairwiseImageMatch
+
+typedef std::vector<PairwiseImageMatch> PairwiseImageMatchList;
 
 }  //\namespace bsfm
 

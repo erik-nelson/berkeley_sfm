@@ -46,7 +46,9 @@ namespace bsfm {
 // operations).
 typedef Eigen::VectorXf Descriptor;
 
+// Normalizes a descriptor vector.
+void NormalizeDescriptor(Descriptor& descriptor);
+
 }  //\namespace bsfm
 
 #endif
-

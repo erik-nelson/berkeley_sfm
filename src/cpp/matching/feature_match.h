@@ -37,21 +37,62 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This class defines a match between two image features.
+// These classes define a match between two image features. The FeatureMatch
+// class contains the features themselves, while the LightFeatureMatch contains
+// only the indices corresponding to the features in their respective images, as
+// well as the distance computed between the two descriptors. The
+// LightFeatureMatch class is cheaper to sort/store.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef BSFM_MATCHING_FEATURE_MATCH_H
 #define BSFM_MATCHING_FEATURE_MATCH_H
 
+#include <memory>
+#include <vector>
+
 #include "../image/image.h"
 
 namespace bsfm {
 
 struct FeatureMatch {
-  Feature feature1;
-  Feature feature2;
+  typedef std::shared_ptr<FeatureMatch> Ptr;
+  typedef std::shared_ptr<const FeatureMatch> ConstPtr;
+
+  // Basic constructor
+  FeatureMatch(const Feature& feature1, const Feature& feature2)
+      : feature1_(feature1), feature2_(feature2) {}
+
+  Feature feature1_;
+  Feature feature2_;
 };  //\struct FeatureMatch
+
+struct LightFeatureMatch {
+  typedef std::shared_ptr<LightFeatureMatch> Ptr;
+  typedef std::shared_ptr<const LightFeatureMatch> ConstPtr;
+
+  // Basic constructor.
+  LightFeatureMatch(int feature_index1, int feature_index2, double distance)
+      : feature_index1_(feature_index1),
+        feature_index2_(feature_index2),
+        distance_(distance) {}
+
+  // Computed distance between the two features.
+  double distance_;
+
+  // Index of the feature in each image.
+  int feature_index1_;
+  int feature_index2_;
+
+  // A custom sorting function to find the match with the smallest distance.
+  bool SortByDistance(const LightFeatureMatch& lhs,
+                      const LightFeatureMatch& rhs) {
+    return lhs.distance_ < rhs.distance_;
+  }
+};  //\struct LightFeatureMatch
+
+typedef std::vector<FeatureMatch> FeatureMatchList;
+typedef std::vector<LightFeatureMatch> LightFeatureMatchList;
 
 }  //\namespace bsfm
 

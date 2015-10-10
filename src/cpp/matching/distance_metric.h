@@ -46,13 +46,16 @@
 namespace bsfm {
 
 // Compute the L2 norm of two descriptor vectors. If both descriptors have unit
-// length, the L2 norm is equal to 2*(1-x.y).
-struct DistanceL2 {
+// length, the L2 norm is equal to 2*(1-x.y). Since all distances are computed
+// this way, we can drop the leading 2*.
+struct ScaledL2Distance {
   double operator()(const Descriptor& descriptor1,
                     const Descriptor& descriptor2) {
     CHECK_EQ(descriptor1.size(), descriptor2.size());
-    return 2.0 * (1.0 - Eigen::dot(descriptor1, descriptor2));
+    return 1.0 - Eigen::dot(descriptor1, descriptor2);
   }
+
+  static bool RequiresNormalizedDescriptors() { return true; }
 }
 
 } //\namespace bsfm

@@ -35,38 +35,34 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_KEYPOINT_DETECTOR_H
-#define BSFM_IMAGE_KEYPOINT_DETECTOR_H
+///////////////////////////////////////////////////////////////////////////////
+//
+// This struct defines a set of options that are used during feature matching.
+//
+///////////////////////////////////////////////////////////////////////////////
 
-#include "../image/image.h"
-#include "../util/disallow_copy_and_assign.h"
-
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/nonfree/nonfree.hpp>
+#ifndef BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
+#define BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
 
 namespace bsfm {
 
-typedef cv::KeyPoint Keypoint;
-typedef std::vector<cv::KeyPoint> KeypointList;
+struct FeatureMatcherOptions {
 
-class KeypointDetector {
- public:
-  KeypointDetector();
-  ~KeypointDetector() {}
+  // Use the lowes ratio test for feature matching. Given n potential matches
+  // between a feature from this image and features in another image, we will
+  // only consider this feature matched if the best 2 matches differ by at most
+  // the lowes ratio.
+  // i.e. store the match if:
+  //   distance(best_match) < lowes_ratio^2 * distance(second_best_match)
+  bool use_lowes_ratio;
+  double lowes_ratio;
 
-  // The detector must be set prior to calling DetectKeypoints().
-  bool SetDetector(const std::string& detector_type);
+  // The minimum number of feature matches between two images required to
+  // consider the image pair a match.
+  unsigned int min_num_feature_matches;
 
-  // Detects keypoints in the input image, returning them in the output list.
-  bool DetectKeypoints(const Image& image, KeypointList& keypoints_out);
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(KeypointDetector)
-
-  std::string detector_type_;
-  cv::Ptr<cv::FeatureDetector> detector_;
-
-};  //\class KeypointDetector
+};  //\struct FeatureMatcherOptions
 
 }  //\namespace bsfm
+
 #endif

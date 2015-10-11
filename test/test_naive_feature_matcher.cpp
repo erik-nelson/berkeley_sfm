@@ -105,8 +105,11 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
   // Match images with symmetric feature matches enforced.
   PairwiseImageMatchList image_matches;
   ASSERT_TRUE(feature_matcher.MatchImages(options, image_matches));
-  EXPECT_EQ(expected_matched_features_symmetric,
-            image_matches[0].feature_matches_.size());
+
+  // Different OpenCV implementations will yield different numbers of
+  // keypoints/descriptors. Check for matches with some tolerance.
+  EXPECT_NEAR(expected_matched_features_symmetric,
+              image_matches[0].feature_matches_.size(), 10);
 
   // Draw feature matches.
   if (FLAGS_draw_feature_matches) {
@@ -118,8 +121,11 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
   image_matches = PairwiseImageMatchList();
   options.require_symmetric_matches = false;
   ASSERT_TRUE(feature_matcher.MatchImages(options, image_matches));
-  EXPECT_EQ(expected_matched_features_asymmetric,
-            image_matches[0].feature_matches_.size());
+
+  // Different OpenCV implementations will yield different numbers of
+  // keypoints/descriptors. Check for matches with some tolerance.
+  EXPECT_NEAR(expected_matched_features_asymmetric,
+              image_matches[0].feature_matches_.size(), 10);
 
   // Draw feature matches.
   if (FLAGS_draw_feature_matches) {

@@ -77,20 +77,20 @@ class RandomGenerator {
   double DoubleUniform(double min, double max);
 
   // Samples a double from a Gaussian distribution with parameters 'mean'
-  // and 'std'.
-  double DoubleGaussian(double mean, double std);
+  // and 'stddev'.
+  double DoubleGaussian(double mean, double stddev);
 
   // Generates 'count' random doubles in [0, 1).
   void Doubles(size_t count, std::vector<double>* doubles);
 
   // Generates 'count' random doubles between ['min', 'max').
   void DoublesUniform(size_t count, double min, double max,
-                      std::vector<double> *doubles);
+                      std::vector<double>* doubles);
 
   // Samples 'count' doubles from a Gaussian distribution with parameters
-  // 'mean' and 'std'.
-  void DoublesGaussian(size_t count, double mean, double std,
-                       std::vector<double> *doubles);
+  // 'mean' and 'stddev'.
+  void DoublesGaussian(size_t count, double mean, double stddev,
+                       std::vector<double>* doubles);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(RandomGenerator)

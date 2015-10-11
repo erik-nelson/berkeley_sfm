@@ -110,7 +110,7 @@ double RandomGenerator::DoubleUniform(double min, double max) {
     return min + static_cast<double>(Integer()) * coefficient;
 }
 
-double RandomGenerator::DoubleGaussian(double mean, double std) {
+double RandomGenerator::DoubleGaussian(double mean, double stddev) {
   // Use the box-muller transform to approximate a normal distribution:
   // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
   // u must be \in (0, 1], and v must be \in [0, 1).
@@ -118,7 +118,7 @@ double RandomGenerator::DoubleGaussian(double mean, double std) {
   double v = Double();
   double z = sqrt(-2.0 * log(u)) * cos(2.0 * M_PI * v);
 
-  return mean + std * z;
+  return mean + stddev * z;
 }
 
 void RandomGenerator::Doubles(size_t count, std::vector<double>* doubles) {
@@ -142,14 +142,14 @@ void RandomGenerator::DoublesUniform(size_t count, double min, double max,
   }
 }
 
-void RandomGenerator::DoublesGaussian(size_t count, double mean, double std,
+void RandomGenerator::DoublesGaussian(size_t count, double mean, double stddev,
                                       std::vector<double>* doubles) {
   if (doubles == nullptr) {
     return;
   }
 
   for (size_t i = 0; i < count; ++i) {
-    doubles->push_back(DoubleGaussian(mean, std));
+    doubles->push_back(DoubleGaussian(mean, stddev));
   }
 }
 

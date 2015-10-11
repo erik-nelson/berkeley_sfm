@@ -97,6 +97,7 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
   EXPECT_TRUE(feature_matcher.MatchImages(options, image_matches));
   EXPECT_EQ(exp_matched_features, image_matches[0].feature_matches_.size());
 
+#if 0
   // Annotate features as circles on the two images.
   drawing::AnnotateFeatures(features1, image1);
   drawing::AnnotateFeatures(features2, image2);
@@ -106,6 +107,7 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
                " of a tower.";
   drawing::DrawImageFeatureMatches(image1, image2, image_matches[0],
                                    "Matched Features");
+#endif
 }
 
 }  //\namespace bsfm

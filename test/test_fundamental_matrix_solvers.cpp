@@ -35,38 +35,18 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// This class defines a pairwise match between two images, as determined by
-// matches between their features.
-//
-///////////////////////////////////////////////////////////////////////////////
+#include <geometry/fundamental_matrix_solver.h>
+#include <geometry/eight_point_algorithm_solver.h>
 
-#ifndef BSFM_MATCHING_PAIRWISE_IMAGE_MATCH_H
-#define BSFM_MATCHING_PAIRWISE_IMAGE_MATCH_H
-
-#include <memory>
-#include <vector>
-
-#include "feature_match.h"
+#include <Eigen/Core>
+#include <gtest/gtest.h>
 
 namespace bsfm {
 
-struct PairwiseImageMatch {
-  typedef std::shared_ptr<PairwiseImageMatch> Ptr;
-  typedef std::shared_ptr<const PairwiseImageMatch> ConstPtr;
+TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
 
-  // The image-space locations of the matched features in each image.
-  FeatureMatchList feature_matches_;
+  EightPointAlgorithmSolver solver;
 
-  // The indices of the two images in the image list owned by whichever feature
-  // matcher that found this match.
-  int image1_index_;
-  int image2_index_;
-};  //\class PairwiseImageMatch
-
-typedef std::vector<PairwiseImageMatch> PairwiseImageMatchList;
+}
 
 }  //\namespace bsfm
-
-#endif

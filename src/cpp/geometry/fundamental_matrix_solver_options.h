@@ -37,35 +37,29 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This class defines a pairwise match between two images, as determined by
-// matches between their features.
+// This struct defines a set of options that are used when solving for the
+// fundamental matrix relating the geometry of two cameras.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_MATCHING_PAIRWISE_IMAGE_MATCH_H
-#define BSFM_MATCHING_PAIRWISE_IMAGE_MATCH_H
-
-#include <memory>
-#include <vector>
-
-#include "feature_match.h"
+#ifndef BSFM_GEOMETRY_FUNDAMENTAL_MATRIX_SOLVER_OPTIONS_H
+#define BSFM_GEOMETRY_FUNDAMENTAL_MATRIX_SOLVER_OPTIONS_H
 
 namespace bsfm {
 
-struct PairwiseImageMatch {
-  typedef std::shared_ptr<PairwiseImageMatch> Ptr;
-  typedef std::shared_ptr<const PairwiseImageMatch> ConstPtr;
+struct FundamentalMatrixSolverOptions {
 
-  // The image-space locations of the matched features in each image.
-  FeatureMatchList feature_matches_;
+  // Normalize the (u, v) image space positions features prior to computing the
+  // fundamental matrix. This is very nearly necessary for good results.
+  bool normalize_features = true;
 
-  // The indices of the two images in the image list owned by whichever feature
-  // matcher that found this match.
-  int image1_index_;
-  int image2_index_;
-};  //\class PairwiseImageMatch
+  // By definition the fundamental matrix is rank deficient (rank 2 for a 3x3
+  // matrix). However, most solution methods come up with answers that are not
+  // necessarily rank deficient. Enforcing rank deficiency improves results in
+  // most cases, but adds a tiny amount to computation time.
+  bool enforce_fundamental_matrix_rank_deficiency = true;
 
-typedef std::vector<PairwiseImageMatch> PairwiseImageMatchList;
+};  //\struct FundamentalMatrixSolverOptions
 
 }  //\namespace bsfm
 

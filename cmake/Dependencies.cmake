@@ -2,7 +2,7 @@ include(ExternalProject)
 set(berkeley_sfm_LIBRARIES "")
 
 # Find OpenCV.
-find_package( OpenCV REQUIRED 2.4 )
+find_package( OpenCV REQUIRED )
 include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
 list(APPEND berkeley_sfm_LIBRARIES ${OpenCV_LIBS})
 

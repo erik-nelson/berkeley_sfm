@@ -35,86 +35,99 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#include "pose.h"
+#include <pose/pose.h>
 
-using namespace Eigen;
-using namespace std;
+namespace bsfm {
 
 // Construct a new Pose from a rotation matrix and translation vector.
-Pose::Pose(Matrix3d &R, Vector3d &t) {
-  Rt = Matrix4d::Identity();
-  Rt.block(0, 0, 3, 3) = R;
-  Rt.col(3).head(3) = t;
+Pose::Pose(Eigen::Matrix3d &R, Eigen::Vector3d &t) {
+  Rt_ = Eigen::Matrix4d::Identity();
+  Rt_.block(0, 0, 3, 3) = R;
+  Rt_.col(3).head(3) = t;
 
-  aa = Vector3d::Zero();
+  aa_ = Eigen::Vector3d::Zero();
+}
+
+// Deep copy constructor.
+Pose::Pose(const Pose &other) {
+  Rt_ = Eigen::Matrix4d();
+  Rt_ << other.Rt_;
+  aa_ << other.aa_;
 }
 
 // Destroy this Pose.
 Pose::~Pose() {
-  cout << "Deleting Pose..." << endl;
+  //  std::cout << "Deleting Pose..." << std::endl;
 }
 
 // Project a 3D point into this Pose.
-Vector2d Pose::project(Vector3d &pt3d) {
-  Vector4d pt3d_h = Vector4d::Constant(1.0);
+Eigen::Vector2d Pose::project(Eigen::Vector3d &pt3d) {
+  Eigen::Vector4d pt3d_h = Eigen::Vector4d::Constant(1.0);
   pt3d_h.head(3) = pt3d;
 
-  Vector4d proj_h = Rt * pt3d_h;
-  Vector2d proj = proj_h.head(2);
+  Eigen::Vector4d proj_h = Rt_ * pt3d_h;
+  Eigen::Vector2d proj = proj_h.head(2);
   proj /= proj_h(2);
 
   return proj;
 }
 
+// Test if this pose (Rt_ only) is approximately equal to another pose.
+bool Pose::isApprox(Pose &other) {
+  return Rt_.isApprox(other.Rt_);
+}
+
 // Compose this Pose with the given pose so that both refer to the identity Pose as
 // specified by the given Pose.
 void Pose::compose(Pose &p) {
-  Rt *= p.Rt;
+  Rt_ *= p.Rt_;
 }
 
 // Convert to axis-angle representation.
-VectorXd Pose::toAxisAngle() {
-
+Eigen::VectorXd Pose::toAxisAngle() {
   // from https://en.wikipedia.org/wiki/Axis-angle-representation
-  double angle = acos(0.5 * (Rt.trace() - 2.0));
-  Vector3d axis = Vector3d(Rt(2, 1) - Rt(1, 2),
-			   Rt(0, 2) - Rt(2, 0),
-			   Rt(1, 0) - Rt(0, 1)) * 0.5 / sin(angle);
+  double angle = acos(0.5 * (Rt_.trace() - 2.0));
+  Eigen::Vector3d axis = Eigen::Vector3d(Rt_(2, 1) - Rt_(1, 2),
+					 Rt_(0, 2) - Rt_(2, 0),
+					 Rt_(1, 0) - Rt_(0, 1)) * 0.5 / sin(angle);
 
   axis /= axis.norm();
-  aa = axis * angle;
+  aa_ = axis * angle;
 
-  return aa;
+  return aa_;
 }
 
 // Convert to matrix representation.
-Matrix4d Pose::fromAxisAngle() {
+Eigen::Matrix4d Pose::fromAxisAngle() {
 
   // from https://en.wikipedia.org/wiki/Rotation_matrix
-  double angle = aa.norm();
-  Vector3d axis = aa / angle;
+  double angle = aa_.norm();
+  Eigen::Vector3d axis = aa_ / angle;
 
-  Matrix3d cross;
+  Eigen::Matrix3d cross;
   cross <<
     0.0, -axis(2), axis(1),
     axis(2), 0.0, -axis(0),
     -axis(1), axis(0), 0.0;
 
-  Matrix3d tensor;
+  Eigen::Matrix3d tensor;
   tensor <<
     axis(0)*axis(0), axis(0)*axis(1), axis(0)*axis(2),
     axis(0)*axis(1), axis(1)*axis(1), axis(1)*axis(2),
     axis(0)*axis(2), axis(1)*axis(2), axis(2)*axis(2);
 
-  Matrix3d R = cos(angle) * Matrix3d::Identity() + sin(angle) * cross + (1-cos(angle)) * tensor;
-  Rt.block(0, 0, 3, 3) = R;
+  Eigen::Matrix3d R =
+    cos(angle) * Eigen::Matrix3d::Identity() +
+    sin(angle) * cross + (1-cos(angle)) * tensor;
+  Rt_.block(0, 0, 3, 3) = R;
 
-  return Rt;
+  return Rt_;
 }
 
 // Print to StdOut.
 void Pose::print()  {
-  cout << "Pose matrix:\n" << Rt << endl;
-  cout << "Pose axis-angle:\n" << aa << endl;
+  std::cout << "Pose matrix:\n" << Rt_ << std::endl;
+  std::cout << "Pose axis-angle:\n" << aa_ << std::endl;
 }
 
+} // namespace bsfm

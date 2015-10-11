@@ -54,17 +54,15 @@ TEST(RandomGenerator, TestSeed) {
     EXPECT_EQ(int1, int2);
 
     // Create two random generators with seeds based on time and PID.
+    // With such a minute delay in between their declarations, they should
+    // produce identical values.
     math::RandomGenerator rng3(math::RandomGenerator::Seed());
-    int int3 = rng3.Integer();
-
-    // We need to wait a split second in between to ensure different timestamps.
-    usleep(10000);
-
     math::RandomGenerator rng4(math::RandomGenerator::Seed());
+    int int3 = rng3.Integer();
     int int4 = rng4.Integer();
 
-    // Check that the values they generate are not the same.
-    EXPECT_NE(int3, int4);
+    // Check that the values they generate are the same.
+    EXPECT_EQ(int3, int4);
   }
 }
 

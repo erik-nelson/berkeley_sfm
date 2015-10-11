@@ -1,4 +1,4 @@
-# Berkeley SFM
+# Berkeley S(tructure) F(rom) M(otion)
 
 [![Build Status](https://travis-ci.org/erik-nelson/berkeley_sfm.svg?branch=master)](https://travis-ci.org/erik-nelson/berkeley_sfm)
 [![License](https://img.shields.io/badge/license-BSD-blue.svg)](LICENSE)

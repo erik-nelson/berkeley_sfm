@@ -8,7 +8,7 @@ before_script:
   - cd ..
   - git clone https://github.com/Itseez/opencv.git
   - cd opencv
-  - git checkout 2.4
+  - git checkout 2.4.12
   - mkdir build
   - cd build
   - cmake ..

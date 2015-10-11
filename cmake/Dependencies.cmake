@@ -6,9 +6,9 @@ include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
 list(APPEND berkeley_sfm_LIBRARIES ${OpenCV_LIBS})
 
 # Find Theia.
-find_package( Theia REQUIRED )
-include_directories(SYSTEM ${THEIA_INCLUDE_DIRS})
-list(APPEND berkeley_sfm_LIBRARIES ${THEIA_LIBRARIES})
+#find_package( Theia REQUIRED )
+#include_directories(SYSTEM ${THEIA_INCLUDE_DIRS})
+#list(APPEND berkeley_sfm_LIBRARIES ${THEIA_LIBRARIES})
 
 # Find Eigen.
 find_package( Eigen3 REQUIRED )

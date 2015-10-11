@@ -8,7 +8,7 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - echo "OS: $TRAVIS_OS_NAME"
+  - echo $TRAVIS_OS_NAME
 
   # Linux: Get glog, eigen, and gflags, and update g++/gcc to 4.8.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:tuleu/precise-backports; fi

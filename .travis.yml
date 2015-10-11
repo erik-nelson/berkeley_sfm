@@ -8,21 +8,13 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - sudo apt-get install -qq python-dev python-numpy libeigen3-dev libgflags-dev libgoogle-glog
+  - add-apt-repository -y ppa:tuleu/precise-backports
+  - apt-get -y update
+  - apt-get install wget git curl python-dev python-numpy python3-dev libleveldb-dev libsnappy-dev libopencv-dev libgflags-dev libgoogle-glog-dev
 
 before_script:
-  - pwd && ls
-  - git clone https://github.com/Itseez/opencv.git
-  - cd opencv
-  - git checkout 2.4.12
   - mkdir build
   - cd build
-  - cmake ..
-  - make -j8
-  - sudo make -j8 install
-  - cd ..
-  - mkdir build
-  - cd build
-  - cmake ..
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
 
 script: make

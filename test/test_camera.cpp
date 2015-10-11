@@ -88,13 +88,15 @@ TEST(Camera, TestCameraExtrinsics) {
   EXPECT_EQ(cz + 6.0, wz);
 
   Eigen::Matrix<double, 3, 4> expected_extrinsic_matrix;
-  expected_extrinsic_matrix.Identity();
+  expected_extrinsic_matrix.Zero();
+  expected_extrinsic_matrix(1, 1) = 1.0;
+  expected_extrinsic_matrix(2, 2) = 1.0;
+  expected_extrinsic_matrix(3, 3) = 1.0;
   expected_extrinsic_matrix(0, 3) = 2.0;
   expected_extrinsic_matrix(1, 3) = -2.0;
   expected_extrinsic_matrix(2, 3) = -6.0;
-  EXPECT_EQ(expected_extrinsic_matrix, extrinsics.ExtrinsicsMatrix());
-
-}  //\test_camera_extrinsics
+  EXPECT_TRUE(expected_extrinsic_matrix == extrinsics.ExtrinsicsMatrix());
+}
 
 TEST(Camera, TestCameraIntrinsics) {
   const int kImageWidth = 1920;
@@ -141,7 +143,7 @@ TEST(Camera, TestCameraIntrinsics) {
   EXPECT_TRUE(intrinsics.CameraToImage(cx, cy, cz, &u, &v));
   EXPECT_FLOAT_EQ(0.25 * kImageHeight, v);
   EXPECT_FLOAT_EQ(expected_u, u);
-}  //\test_camera_intrinsics
+}
 
 TEST(Camera, TestCamera) {
   const int kImageWidth = 1920;
@@ -181,6 +183,6 @@ TEST(Camera, TestCamera) {
 
   // TODO (eanelson): Write test case.
 
-}  //\test_camera
+}
 
 }  //\namespace bsfm

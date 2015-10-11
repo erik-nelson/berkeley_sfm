@@ -88,13 +88,13 @@ namespace bsfm {
   // Check if a point is in front of the camera.
   bool Camera::CameraToImage(double cx, double cy, double cz,
 			     double *u_distorted, double *v_distorted) const {
-    intrinsics_.CameraToImage(cx, cy, cz, u_distorted, v_distorted);
+    return intrinsics_.CameraToImage(cx, cy, cz, u_distorted, v_distorted);
   }
 
   bool Camera::DirectionToImage(double u_normalized, double v_normalized,
 				double *u_distorted, double *v_distorted) const {
-    intrinsics_.DirectionToImage(u_normalized, v_normalized,
-                                 u_distorted, v_distorted);
+    return intrinsics_.DirectionToImage(u_normalized, v_normalized, u_distorted,
+                                        v_distorted);
   }
 
   void Camera::ImageToDirection(double u_distorted, double v_distorted,

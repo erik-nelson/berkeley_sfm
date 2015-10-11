@@ -56,12 +56,11 @@ namespace bsfm {
 
 class CameraIntrinsics {
  public:
-  
   // Initialize to zero.
   CameraIntrinsics();
 
   // Assume no radial distortion, and image left and top are both zero.
-  CameraIntrinsics(const Eigen::Matrix3d&, int, int);
+  CameraIntrinsics(const Eigen::Matrix3d& K, int image_width, int image_height);
 
   // Full initialization.
   CameraIntrinsics(int image_left, int image_top, int image_width,
@@ -70,25 +69,25 @@ class CameraIntrinsics {
                    double k5);
 
   // Set individual parameters.
-  void SetImageLeft(int);
-  void SetImageTop(int);
-  void SetImageWidth(int);
-  void SetImageHeight(int);
+  void SetImageLeft(int image_left);
+  void SetImageTop(int image_top);
+  void SetImageWidth(int image_width);
+  void SetImageHeight(int image_height);
 
-  void SetFU(double);
-  void SetFV(double);
-  void SetCU(double);
-  void SetCV(double);
+  void SetFU(double f_u);
+  void SetFV(double f_v);
+  void SetCU(double c_u);
+  void SetCV(double c_v);
 
-  void SetK(double, double, double, double, double);
-  void SetK1(double);
-  void SetK2(double);
-  void SetK3(double);
-  void SetK4(double);
-  void SetK5(double);
+  void SetK(double k1, double k2, double k3, double k4, double k5);
+  void SetK1(double k1);
+  void SetK2(double k2);
+  void SetK3(double k3);
+  void SetK4(double k4);
+  void SetK5(double k5);
 
-  void SetHorizontalFOV(double);
-  void SetVerticalFOV(double);
+  void SetHorizontalFOV(double horizontal_fov);
+  void SetVerticalFOV(double vertical_fov);
 
   // Extract parameters.
   int ImageLeft() const;

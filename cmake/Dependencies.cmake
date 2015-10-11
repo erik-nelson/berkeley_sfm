@@ -26,11 +26,13 @@ list(APPEND berkeley_sfm_LIBRARIES ${EIGEN3_LIBRARIES})
 #list(APPEND berkeley_sfm_LIBRARIES ${GLUT_LIBRARIES})
 
 # Find Google-gflags.
-include("cmake/External/gflags.cmake")
+#include("cmake/External/gflags.cmake")
+find_package( gflags REQUIRED )
 include_directories(SYSTEM ${GFLAGS_INCLUDE_DIRS})
 list(APPEND berkeley_sfm_LIBRARIES ${GFLAGS_LIBRARIES})
 
 # Find Google-glog.
-include("cmake/External/glog.cmake")
+#include("cmake/External/glog.cmake")
+find_package( Glog REQUIRED )
 include_directories(SYSTEM ${GLOG_INCLUDE_DIRS})
 list(APPEND berkeley_sfm_LIBRARIES ${GLOG_LIBRARIES})

@@ -8,29 +8,29 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo add-apt-repository -y ppa:tuleu/precise-backports
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install build-essential libgflags-dev libgoogle-glog-dev libeigen3-dev
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install python-software-properties
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install gcc-4.8 g++-4.8
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo update-alternatives --config gcc
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo update-alternatives --config g++
-  - if [ $TRAVIS_OS_NAME == osx ]; then brew tap homebrew/science && brew install opencv gflags glog eigen
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:tuleu/precise-backports
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install build-essential libgflags-dev libgoogle-glog-dev libeigen3-dev
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install python-software-properties
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install gcc-4.8 g++-4.8
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew tap homebrew/science && brew install opencv gflags glog eigen
 
 before_script:
-  - if [ $TRAVIS_OS_NAME == linux ]; then export CXX="g++-4.8"
-  - if [ $TRAVIS_OS_NAME == linux ]; then git clone https://github.com/Itseez/opencv.git
-  - if [ $TRAVIS_OS_NAME == linux ]; thencd opencv
-  - if [ $TRAVIS_OS_NAME == linux ]; then git checkout 2.4
-  - if [ $TRAVIS_OS_NAME == linux ]; then mkdir build
-  - if [ $TRAVIS_OS_NAME == linux ]; then cd build
-  - if [ $TRAVIS_OS_NAME == linux ]; then cmake -DBUILD_opencv_features2d=ON -DBUILD_opencv_highgui=ON -DBUILD_opencv_imgproc=ON -DBUILD_opencv_core=ON -DBUILD_opencv_nonfree=ON -DBUILD_opencv_calib3d=ON -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..
-  - if [ $TRAVIS_OS_NAME == linux ]; then make -j8
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo make -j8 install
-  - if [ $TRAVIS_OS_NAME == linux ]; then cd ../..
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://github.com/Itseez/opencv.git
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; thencd opencv
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git checkout 2.4
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd build
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DBUILD_opencv_features2d=ON -DBUILD_opencv_highgui=ON -DBUILD_opencv_imgproc=ON -DBUILD_opencv_core=ON -DBUILD_opencv_nonfree=ON -DBUILD_opencv_calib3d=ON -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make -j8 install
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..
   - mkdir build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=Release ..

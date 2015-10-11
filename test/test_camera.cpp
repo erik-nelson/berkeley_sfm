@@ -89,13 +89,14 @@ TEST(Camera, TestCameraExtrinsics) {
 
   Eigen::Matrix<double, 3, 4> expected_extrinsic_matrix;
   expected_extrinsic_matrix.Zero();
+  expected_extrinsic_matrix(0, 0) = 1.0;
   expected_extrinsic_matrix(1, 1) = 1.0;
   expected_extrinsic_matrix(2, 2) = 1.0;
-  expected_extrinsic_matrix(3, 3) = 1.0;
   expected_extrinsic_matrix(0, 3) = 2.0;
   expected_extrinsic_matrix(1, 3) = -2.0;
   expected_extrinsic_matrix(2, 3) = -6.0;
-  EXPECT_TRUE(expected_extrinsic_matrix == extrinsics.ExtrinsicsMatrix());
+
+  EXPECT_TRUE(expected_extrinsic_matrix.isApprox(extrinsics.ExtrinsicsMatrix()));
 }
 
 TEST(Camera, TestCameraIntrinsics) {

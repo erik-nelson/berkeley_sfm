@@ -26,7 +26,7 @@ before_script:
   - git checkout 2.4
   - mkdir build
   - cd build
-  - cmake -DBUILD_opencv_video=OFF -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=OFF -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF -DBUILD_opencv_legacy=OFF -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..
+  - cmake -DBUILD_opencv_features2d=ON -DBUILD_opencv_highgui=ON -DBUILD_opencv_imgproc=ON -DBUILD_opencv_core=ON -DBUILD_opencv_nonfree=ON -DBUILD_opencv_calib3d=ON -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..
   - make -j8
   - sudo make -j8 install
   - cd ../..

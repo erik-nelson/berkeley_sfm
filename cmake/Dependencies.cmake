@@ -1,3 +1,4 @@
+include(ExternalProject)
 set(berkeley_sfm_LIBRARIES "")
 
 # Find OpenCV.

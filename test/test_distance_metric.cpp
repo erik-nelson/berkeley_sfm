@@ -35,37 +35,64 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// This file defines distance metrics that can be used to compare feature
-// descriptors to one another to e.g. find the closest match between images.
-//
-///////////////////////////////////////////////////////////////////////////////
+#include <matching/distance_metric.h>
+#include <math/random_generator.h>
 
-#ifndef BSFM_MATCHING_DISTANCE_METRIC_H
-#define BSFM_MATCHING_DISTANCE_METRIC_H
-
-#include "descriptor_extractor.h"
-
-#include <Eigen/Core>
-#include <glog/logging.h>
+#include <Eigen/core>
+#include <gtest/gtest.h>
 
 namespace bsfm {
 
-// Compute the L2 norm of the difference between two descriptor vectors. If both
-// descriptors have unit length, the L2 norm is equal to 2*(1-x.y). Since all
-// distances are computed this way, we can drop the leading 2*. The L2 norm
-// induces an inner product space over R^{n}, and we can test as such.
-struct ScaledL2Distance {
-  double operator()(const Descriptor& descriptor1,
-                    const Descriptor& descriptor2) {
-    CHECK_EQ(descriptor1.size(), descriptor2.size());
-    return 1.0 - descriptor1.dot(descriptor2);
-  }
+// The L2 distance between two (descriptor) vectors induces an inner product
+// space. Test 2 of the properties of inner product spaces (the other 2,
+// scalar/vector linearity, won't hold unless we square our feature vectors, so
+// we don't need to care too much about that property). Check:
+// 1. (Symmetry)              <x, y> = <y, x>
+// 2. (Positive definiteness) <x, x> = 0 ==> x = 0
+//
+// Also test for the correct value.
 
-  static bool RequiresNormalizedDescriptors() { return true; }
-};  //\struct ScaledL2Distance
+TEST(ScaledL2Distance, TestSymmetry) {
+  // Create a distance metric.
+  ScaledL2Distance distance;
+
+  Eigen::VectorXf descriptor1(64);
+  Eigen::VectorXf descriptor2(64);
+  for (int ii = 0; ii < 1000; ++ii) {
+    descriptor1.setRandom().normalize();
+    descriptor2.setRandom().normalize();
+
+    EXPECT_NEAR(distance(descriptor1, descriptor2),
+                distance(descriptor2, descriptor1), 1e-4);
+  }
+}
+
+TEST(ScaledL2Distance, TestPositiveDefiniteness) {
+  // Create a distance metric.
+  ScaledL2Distance distance;
+
+  Eigen::VectorXf descriptor1(64);
+  for (int ii = 0; ii < 1000; ++ii) {
+    descriptor1.setRandom().normalize();
+
+    Eigen::VectorXf descriptor2 = descriptor1;
+    EXPECT_NEAR(0.0, distance(descriptor1, descriptor2), 1e-4);
+  }
+}
+
+TEST(ScaledL2Distance, TestValue) {
+  // Create a distance metric.
+  ScaledL2Distance distance;
+
+  Eigen::VectorXf descriptor1(64);
+  Eigen::VectorXf descriptor2(64);
+  for (int ii = 0; ii < 1000; ++ii) {
+    descriptor1.setRandom().normalize();
+    descriptor2.setRandom().normalize();
+
+    const double expected_dist = 1.0 - descriptor1.dot(descriptor2);
+    EXPECT_NEAR(expected_dist, distance(descriptor1, descriptor2), 1e-4);
+  }
+}
 
 }  //\namespace bsfm
-
-#endif

@@ -35,6 +35,7 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
+#include <image/drawing_utils.h>
 #include <image/image.h>
 #include <matching/distance_metric.h>
 #include <matching/naive_feature_matcher.h>
@@ -57,11 +58,11 @@ class TestNaiveFeatureMatcher : public ::testing::Test {
   const std::string test_image2 = strings::JoinFilepath(
       BSFM_TEST_DATA_DIR, FLAGS_matched_image1.c_str());
 
-  const unsigned int exp_matched_features = 227;
+  const unsigned int exp_matched_features = 471;
 };  //\class TestNaiveFeatureMatcher
 
 TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
-  // What happens when we provied no options?
+  // What happens when we provide no options?
 
   // Load two images.
   Image image1(test_image1.c_str());
@@ -83,6 +84,7 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
 
   DescriptorExtractor extractor;
   extractor.SetDescriptor("SIFT");
+
   FeatureList features1;
   FeatureList features2;
   extractor.DescribeFeatures(image1, keypoints1, features1);
@@ -94,6 +96,18 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
   PairwiseImageMatchList image_matches;
   EXPECT_TRUE(feature_matcher.MatchImages(options, image_matches));
   EXPECT_EQ(exp_matched_features, image_matches[0].feature_matches_.size());
+
+#if 0
+  // Annotate features as circles on the two images.
+  drawing::AnnotateFeatures(features1, image1);
+  drawing::AnnotateFeatures(features2, image2);
+
+  // Draw feature matches.
+  LOG(INFO) << "You should see a window of features matched between two images"
+               " of a tower.";
+  drawing::DrawImageFeatureMatches(image1, image2, image_matches[0],
+                                   "Matched Features");
+#endif
 }
 
 }  //\namespace bsfm

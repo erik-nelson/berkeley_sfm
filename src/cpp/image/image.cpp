@@ -69,11 +69,18 @@ Image::Image(const cv::Mat& other) {
   grayscale_ = (this->Channels() == 1);
 }
 
-void Image::GetCV(cv::Mat& out) const {
+void Image::ToCV(cv::Mat& out) const {
   CHECK(image_.get()) << "Image data is not allocated.";
 
   // Convert from RGB (internal representation) to BGR (default in OpenCV).
   cv::cvtColor(*image_, out, CV_RGB2BGR);
+}
+
+void Image::FromCV(const cv::Mat& in) {
+  CHECK(image_.get()) << "Image data is not allocated.";
+
+  // Convert from BGR (default in OpenCV) to RGB (internal representation).
+  cv::cvtColor(in, *image_, CV_BGR2RGB);
 }
 
 void Image::ToEigen(Eigen::MatrixXf& eigen_out) {
@@ -162,8 +169,7 @@ void Image::ImShow(const std::string& window_name, unsigned int wait_time) {
   // If the image is not grayscale, convert it from RGB to BGR.
   if (!grayscale_) {
     cv::Mat bgr_image;
-    GetCV(bgr_image);
-
+    ToCV(bgr_image);
     cv::imshow(window_name.c_str(), bgr_image);
   } else {
     cv::imshow(window_name.c_str(), *image_);

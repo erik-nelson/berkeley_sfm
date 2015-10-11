@@ -35,37 +35,64 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// This struct defines a set of options that are used during feature matching.
-//
-///////////////////////////////////////////////////////////////////////////////
+#include <matching/distance_metric.h>
+#include <math/random_generator.h>
 
-#ifndef BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
-#define BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
+#include <Eigen/core>
+#include <gtest/gtest.h>
 
 namespace bsfm {
 
-struct FeatureMatcherOptions {
+// The L2 distance between two (descriptor) vectors induces an inner product
+// space. Test 2 of the properties of inner product spaces (the other 2,
+// scalar/vector linearity, won't hold unless we square our feature vectors, so
+// we don't need to care too much about that property). Check:
+// 1. (Symmetry)              <x, y> = <y, x>
+// 2. (Positive definiteness) <x, x> = 0 ==> x = 0
+//
+// Also test for the correct value.
 
-  // Use the lowes ratio test for feature matching. Given n potential matches
-  // between a feature from this image and features in another image, we will
-  // only consider this feature matched if the best 2 matches differ by at most
-  // the lowes ratio.
-  // i.e. store the match if:
-  //   distance(best_match) < lowes_ratio^2 * distance(second_best_match)
-  bool use_lowes_ratio = true;
-  double lowes_ratio = 0.75;
+TEST(ScaledL2Distance, TestSymmetry) {
+  // Create a distance metric.
+  ScaledL2Distance distance;
 
-  // The minimum number of feature matches between two images required to
-  // consider the image pair a match.
-  unsigned int min_num_feature_matches = 20;
+  Eigen::VectorXf descriptor1(64);
+  Eigen::VectorXf descriptor2(64);
+  for (int ii = 0; ii < 1000; ++ii) {
+    descriptor1.setRandom().normalize();
+    descriptor2.setRandom().normalize();
 
-  // Only store matches that are the best feature match in both directions.
-  bool require_symmetric_matches = true;
+    EXPECT_NEAR(distance(descriptor1, descriptor2),
+                distance(descriptor2, descriptor1), 1e-4);
+  }
+}
 
-};  //\struct FeatureMatcherOptions
+TEST(ScaledL2Distance, TestPositiveDefiniteness) {
+  // Create a distance metric.
+  ScaledL2Distance distance;
+
+  Eigen::VectorXf descriptor1(64);
+  for (int ii = 0; ii < 1000; ++ii) {
+    descriptor1.setRandom().normalize();
+
+    Eigen::VectorXf descriptor2 = descriptor1;
+    EXPECT_NEAR(0.0, distance(descriptor1, descriptor2), 1e-4);
+  }
+}
+
+TEST(ScaledL2Distance, TestValue) {
+  // Create a distance metric.
+  ScaledL2Distance distance;
+
+  Eigen::VectorXf descriptor1(64);
+  Eigen::VectorXf descriptor2(64);
+  for (int ii = 0; ii < 1000; ++ii) {
+    descriptor1.setRandom().normalize();
+    descriptor2.setRandom().normalize();
+
+    const double expected_dist = 1.0 - descriptor1.dot(descriptor2);
+    EXPECT_NEAR(expected_dist, distance(descriptor1, descriptor2), 1e-4);
+  }
+}
 
 }  //\namespace bsfm
-
-#endif

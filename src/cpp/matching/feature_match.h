@@ -51,7 +51,7 @@
 #include <memory>
 #include <vector>
 
-#include "../image/image.h"
+#include "feature.h"
 
 namespace bsfm {
 

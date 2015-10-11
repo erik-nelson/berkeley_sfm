@@ -47,7 +47,7 @@
 
 #include <vector>
 
-#include "../image/image.h"
+#include "feature_match.h"
 
 namespace bsfm {
 

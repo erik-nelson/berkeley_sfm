@@ -162,8 +162,30 @@ void FeatureMatcher<DistanceMetric>::
 SymmetricMatches(const LightFeatureMatchList& feature_matches_lhs,
                  LightFeatureMatchList& feature_matches_rhs) {
 
-}
+  for (size_t ii = 0; ii < feature_matches_rhs.size(); ++ii) {
+    const LightFeatureMatch& match_rhs = feature_matches_rhs[ii];
 
+    // Iterate over the lhs to find an identical feature match object.
+    bool found_symmetric_match = false;
+    for (size_t jj = 0; jj < feature_matches_lhs.size(); ++jj) {
+      const LightFeatureMatch& match_lhs = feature_matches_lhs[jj];
+
+      // If we find an identical feature match, break out of the inner loop.
+      if (match_rhs.feature_index1_ == match_lhs.feature_index1_
+          && match_rhs.feature_index2_ == match_lhs.feature_index2_) {
+        found_symmetric_match = true;
+        break;
+      }
+    }
+
+    // If we couldn't find a symmetric match, we will need to remove the feature
+    // at index ii.
+    if (!found_symmetric_match) {
+      feature_matches_rhs.erase(feature_matches_rhs.begin() + ii);
+      ii--;
+    }
+  }
+}
 
 }  //\namespace bsfm
 #endif

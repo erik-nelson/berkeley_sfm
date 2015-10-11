@@ -35,37 +35,69 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// This struct defines a set of options that are used during feature matching.
-//
-///////////////////////////////////////////////////////////////////////////////
+#ifndef BSFM_MATH_RANDOM_GENERATOR_H
+#define BSFM_MATH_RANDOM_GENERATOR_H
 
-#ifndef BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
-#define BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
+#include <glog/logging.h>
+#include <math.h>
+#include <string.h>
+#include <time.h>
+#include <vector>
+
+#include "../util/disallow_copy_and_assign.h"
 
 namespace bsfm {
+namespace math {
 
-struct FeatureMatcherOptions {
+class RandomGenerator {
+ public:
+  // Construct with "RandomGenerator(RandomGenerator::Seed())".
+  explicit RandomGenerator(unsigned long seed);
 
-  // Use the lowes ratio test for feature matching. Given n potential matches
-  // between a feature from this image and features in another image, we will
-  // only consider this feature matched if the best 2 matches differ by at most
-  // the lowes ratio.
-  // i.e. store the match if:
-  //   distance(best_match) < lowes_ratio^2 * distance(second_best_match)
-  bool use_lowes_ratio = true;
-  double lowes_ratio = 0.75;
+  // Creates a damn good seed.
+  static unsigned long Seed();
 
-  // The minimum number of feature matches between two images required to
-  // consider the image pair a match.
-  unsigned int min_num_feature_matches = 20;
+  // Generates a random integer in [0, RAND_MAX).
+  int Integer();
 
-  // Only store matches that are the best feature match in both directions.
-  bool require_symmetric_matches = true;
+  // Generates a random integer in ['min', 'max').
+  int IntegerUniform(int min, int max);
 
-};  //\struct FeatureMatcherOptions
+  // Generates 'count' random integers in [0, RAND_MAX).
+  void Integers(size_t count, std::vector<int> *integers);
 
+  // Generates 'count' random integers between ['min', 'max').
+  void IntegersUniform(size_t count, int min, int max,
+                       std::vector<int> *integers);
+
+  // Generates a random double in [0, 1).
+  double Double();
+
+  // Generates a random double in ['min' and 'max').
+  double DoubleUniform(double min, double max);
+
+  // Samples a double from a Gaussian distribution with parameters 'mean'
+  // and 'stddev'.
+  double DoubleGaussian(double mean, double stddev);
+
+  // Generates 'count' random doubles in [0, 1).
+  void Doubles(size_t count, std::vector<double>* doubles);
+
+  // Generates 'count' random doubles between ['min', 'max').
+  void DoublesUniform(size_t count, double min, double max,
+                      std::vector<double>* doubles);
+
+  // Samples 'count' doubles from a Gaussian distribution with parameters
+  // 'mean' and 'stddev'.
+  void DoublesGaussian(size_t count, double mean, double stddev,
+                       std::vector<double>* doubles);
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(RandomGenerator)
+
+};  //\class RandomGenerator
+
+}  //\namespace math
 }  //\namespace bsfm
 
 #endif

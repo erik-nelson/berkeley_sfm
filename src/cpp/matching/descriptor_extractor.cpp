@@ -89,7 +89,7 @@ bool DescriptorExtractor::DescribeFeatures(const Image& image,
   // Convert the input image to OpenCV's format. Note that descriptors must be
   // extracted on the grayscale image, and that the image format must be CV_8U.
   cv::Mat cv_image;
-  image.GetCV(cv_image);
+  image.ToCV(cv_image);
   cv_image.convertTo(cv_image, CV_8U, 255);
 
   // Extract descriptors from the provided keypoints in the image.

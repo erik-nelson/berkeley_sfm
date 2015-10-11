@@ -35,6 +35,13 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// This file defines distance metrics that can be used to compare feature
+// descriptors to one another to e.g. find the closest match between images.
+//
+///////////////////////////////////////////////////////////////////////////////
+
 #ifndef BSFM_MATCHING_DISTANCE_METRIC_H
 #define BSFM_MATCHING_DISTANCE_METRIC_H
 
@@ -45,9 +52,10 @@
 
 namespace bsfm {
 
-// Compute the L2 norm of two descriptor vectors. If both descriptors have unit
-// length, the L2 norm is equal to 2*(1-x.y). Since all distances are computed
-// this way, we can drop the leading 2*.
+// Compute the L2 norm of the difference between two descriptor vectors. If both
+// descriptors have unit length, the L2 norm is equal to 2*(1-x.y). Since all
+// distances are computed this way, we can drop the leading 2*. The L2 norm
+// induces an inner product space over R^{n}, and we can test as such.
 struct ScaledL2Distance {
   double operator()(const Descriptor& descriptor1,
                     const Descriptor& descriptor2) {

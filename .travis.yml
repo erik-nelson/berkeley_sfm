@@ -2,8 +2,19 @@ language: cpp
 
 compiler:
   - gcc
+  - clang
 
 before_script:
+  - cd ..
+  - git clone https://github.com/Itseez/opencv.git
+  - cd opencv
+  - git checkout 2.4
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make -j8
+  - sudo make -j8 install
+  - cd -
   - mkdir build
   - cd build
   - cmake ..

@@ -31,34 +31,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * Please contact the author(s) of this library if you have any questions.
- * Authors: David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
- *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
+ * Authors: Erik Nelson            ( eanelson@eecs.berkeley.edu )
+ *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
-
-#include <Eigen/Dense>
-#include <iostream>
-#include <pose/pose.h>
-
-#include <gflags/gflags.h>
-#include <gtest/gtest.h>
-
-namespace bsfm {
-
-TEST(Pose, TestPoseAxisAngle) {
-  // Create a simple rotation matrix and random translation vector.
-  Eigen::Matrix3d R1;
-  R1 <<
-    cos(0.5), -sin(0.5), 0,
-    sin(0.5), cos(0.5), 0,
-    0, 0, 1;
-  const Eigen::Vector3d t1 = Eigen::Vector3d::Random();
-  const Pose p1 = Pose(R1, t1);
-  Pose p2 = p1;
-
-  // Convert to/from axis angle representation and check nothing has changed.
-  p2.ToAxisAngle();
-  p2.FromAxisAngle();
-  EXPECT_TRUE(p1.IsApprox(p2));
-}
-
-} // namespace bsfm

@@ -31,8 +31,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * Please contact the author(s) of this library if you have any questions.
- * Authors: Erik Nelson            ( eanelson@eecs.berkeley.edu )
- *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
+ * Authors: David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
+ *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
  */
 
 #ifndef BSFM_POSE_POSE_H
@@ -48,24 +48,42 @@ class Pose {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+  // Initialize to the identity.
+  Pose();
+
   // Construct a new Pose from a rotation matrix and translation vector.
   Pose(const Eigen::Matrix3d& R, const Eigen::Vector3d& t);
 
   // Deep copy constructor.
   Pose(const Pose& other);
 
+  // Construct a new Pose from a 4x4 Rt matrix.
+  Pose(const Eigen::Matrix4d&);
+
   // Destroy this Pose.
   ~Pose() { };
 
+  // Multiply two Poses.
+  Pose operator* (const Pose& other) const { return Pose(Rt_ * other.Rt_); }
+
+  // Multiply a homgenized point into a Pose.
+  Eigen::Vector4d Project(const Eigen::Vector4d&); 
+
   // Project a 3D point into this Pose.
-  Eigen::Vector2d Project(const Eigen::Vector3d& pt3d);
+  Eigen::Vector2d ProjectTo2D(const Eigen::Vector3d&);
 
   // Test if this pose (Rt_ only) is approximately equal to another pose.
-  bool IsApprox(const Pose& other) const;
+  bool IsApprox(const Pose&) const;
 
   // Compose this Pose with the given pose so that both refer to the identity
   // Pose as specified by the given Pose.
   void Compose(const Pose& other);
+
+  // Invert this pose.
+  Pose Inverse();
+
+  // Extract just the extrinsics matrix as a 3x4 matrix.
+  Eigen::Matrix<double, 3, 4> Dehomogenize();
 
   // Print to StdOut.
   void Print() const;

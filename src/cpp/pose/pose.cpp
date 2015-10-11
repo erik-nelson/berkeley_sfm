@@ -31,32 +31,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * Please contact the author(s) of this library if you have any questions.
- * Authors: Erik Nelson            ( eanelson@eecs.berkeley.edu )
- *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
+ * Authors: David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
+ *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
  */
 
 #include <pose/pose.h>
 
 namespace bsfm {
 
+// Initialize to the identity.
+Pose::Pose() {
+  Rt_ = Eigen::Matrix4d::Identity();
+  this->ToAxisAngle();
+}
+
 // Construct a new Pose from a rotation matrix and translation vector.
-Pose::Pose(const Eigen::Matrix3d &R, const Eigen::Vector3d &t) {
+Pose::Pose(const Eigen::Matrix3d& R, const Eigen::Vector3d& t) {
   Rt_ = Eigen::Matrix4d::Identity();
   Rt_.block(0, 0, 3, 3) = R;
   Rt_.col(3).head(3) = t;
+  this->ToAxisAngle();
+}
 
-  aa_ = Eigen::Vector3d::Zero();
+// Construct a new Pose from a 4x4 Rt matrix.
+Pose::Pose(const Eigen::Matrix4d& Rt) {
+  Rt_ << Rt;
+  this->ToAxisAngle();
 }
 
 // Deep copy constructor.
 Pose::Pose(const Pose& other) {
-  Rt_ = Eigen::Matrix4d();
   Rt_ << other.Rt_;
   aa_ << other.aa_;
 }
 
+// Multiply a homgenized point into a Pose.
+Eigen::Vector4d Pose::Project(const Eigen::Vector4d& pt3d) {
+  Eigen::Vector4d proj = Rt_ * pt3d;
+  return proj;
+} 
+
 // Project a 3D point into this Pose.
-Eigen::Vector2d Pose::Project(const Eigen::Vector3d& pt3d) {
+Eigen::Vector2d Pose::ProjectTo2D(const Eigen::Vector3d& pt3d) {
   Eigen::Vector4d pt3d_h = Eigen::Vector4d::Constant(1.0);
   pt3d_h.head(3) = pt3d;
 
@@ -76,6 +92,22 @@ bool Pose::IsApprox(const Pose& other) const {
 // specified by the given Pose.
 void Pose::Compose(const Pose& other) {
   Rt_ *= other.Rt_;
+}
+
+// Invert this Pose. 
+Pose Pose::Inverse() {
+  Pose inv = Pose(Rt_.inverse());
+  return inv;
+}
+
+// Multiply two Poses.
+Pose operator* (const Pose& lhs, const Pose& rhs) const { return lhs * rhs; }
+
+// Extract just the extrinsics matrix as a 3x4 matrix.
+Eigen::Matrix<double, 3, 4> Pose::Dehomogenize() {
+  Eigen::Matrix<double, 3, 4> extrinsics = Eigen::Matrix<double, 3, 4>();
+  extrinsics = Rt_.block(0, 0, 3, 4);
+  return extrinsics;
 }
 
 // Convert to axis-angle representation.

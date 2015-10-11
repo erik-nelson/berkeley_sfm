@@ -43,66 +43,76 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_CAMERA_CAMERA_H
-#define BSFM_CAMERA_CAMERA_H
-
-#include "camera_extrinsics.h"
-#include "camera_intrinsics.h"
+#include "camera.h"
 
 namespace bsfm {
 
-class Camera {
- public:
-
   // Constructor and destructor.
-  Camera();
-  ~Camera();
+  Camera::Camera() { }
+  Camera::~Camera() { }
 
   // Constructor given extrinsics and intrinsics.
-  Camera(CameraExtrinsics, CameraIntrinsics);
+  Camera::Camera(CameraExtrinsics extrinsics,
+		 CameraIntrinsics intrinsics)
+    : extrinsics_(extrinsics),
+      intrinsics_(intrinsics) {}
 
   // Set extrinsics.
-  void SetExtrinsics(const CameraExtrinsics&);
+  void Camera::SetExtrinsics(const CameraExtrinsics &extrinsics) {
+    extrinsics_ = extrinsics;
+  }
 
   // Set instrinsics.
-  void SetIntrinsics(const CameraIntrinsics&);
+  void Camera::SetIntrinsics(const CameraIntrinsics &intrinsics) {
+    intrinsics_ = intrinsics;
+  }
 
   // Extract mutable/immutable extrinsics/intrinsics.
-  CameraExtrinsics &MutableExtrinsics();
-  CameraIntrinsics &MutableIntrinsics();
-  const CameraExtrinsics& Extrinsics() const;
-  const CameraIntrinsics& Intrinsics() const;
+  CameraExtrinsics& Camera::MutableExtrinsics() { return extrinsics_; }
+  CameraIntrinsics& Camera::MutableIntrinsics() { return intrinsics_; }
+  const CameraExtrinsics& Camera::Extrinsics() const { return extrinsics_; }
+  const CameraIntrinsics& Camera::Intrinsics() const { return intrinsics_; }
 
   // Transform points from world to camera coordinates.
-  void WorldToCamera(double, double, double,
-                     double*, double*, double*) const;
+  void Camera::WorldToCamera(double wx, double wy, double wz,
+                     double *cx, double *cy, double *cz) const {
+    extrinsics_.WorldToCamera(wx, wy, wz, cx, cy, cz);
+  }
 
   // Transform points from camera to world coordinates.
-  void CameraToWorld(double, double, double,
-                     double*, double*, double*) const;
+  void Camera::CameraToWorld(double cx, double cy, double cz,
+			     double *wx, double *wy, double *wz) const {
+    extrinsics_.CameraToWorld(cx, cy, cz, wx, wy, wz);
+  }
 
   // Check if a point is in front of the camera.
-  bool CameraToImage(double, double, double,
-                     double*, double *) const;
+  bool Camera::CameraToImage(double cx, double cy, double cz,
+			     double *u_distorted, double *v_distorted) const {
+    intrinsics_.CameraToImage(cx, cy, cz, u_distorted, v_distorted);
+  }
 
-  bool DirectionToImage(double, double,
-                        double*, double*) const;
+  bool Camera::DirectionToImage(double u_normalized, double v_normalized,
+				double *u_distorted, double *v_distorted) const {
+    intrinsics_.DirectionToImage(u_normalized, v_normalized,
+                                 u_distorted, v_distorted);
+  }
 
-  void ImageToDirection(double, double,
-                        double*, double*) const;
+  void Camera::ImageToDirection(double u_distorted, double v_distorted,
+                        double *u_normalized, double *v_normalized) const {
+    intrinsics_.ImageToDirection(u_distorted, v_distorted,
+                                 u_normalized, v_normalized);
+  }
 
   // Warp a point into the image.
-  void Distort(double, double,
-               double*, double*) const;
+  void Camera::Distort(double u, double v,
+		       double *u_distorted, double *v_distorted) const {
+    intrinsics_.Distort(u, v, u_distorted, v_distorted);
+  }
 
   // Rectilinearize point.
-  void Undistort(double, double,
-                 double*, double*) const;
+  void Camera::Undistort(double u_distorted, double v_distorted,
+			 double *u, double *v) const {
+    intrinsics_.Undistort(u_distorted, v_distorted, u, v);
+  }
 
- private:
-  CameraExtrinsics extrinsics_;
-  CameraIntrinsics intrinsics_;
-};  //\class Camera
-
-}  //\bsfm
-#endif
+} // namespace bsfm

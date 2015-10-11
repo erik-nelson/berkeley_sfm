@@ -14,7 +14,12 @@ install:
   - sudo apt-get install build-essential libopencv-dev libgflags-dev libgoogle-glog-dev libeigen3-dev
   - sudo apt-get install python-software-properties
   - sudo apt-get install gcc-4.8 g++-4.8
-  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+  - sudo update-alternatives --remove-all gcc
+  - sudo update-alternatives --remove-all g++
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
+  - sudo update-alternatives --config gcc
+  - sudo update-alternatives --config g++
 
 before_script:
   - export CXX="g++-4.8"

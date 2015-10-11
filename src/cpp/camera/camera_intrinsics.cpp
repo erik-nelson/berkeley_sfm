@@ -205,12 +205,15 @@ double CameraIntrinsics::VerticalFOV() const { return vertical_fov_; }
 
 // Get intrinsics matrix.
 Eigen::Matrix3d CameraIntrinsics::IntrinsicsMatrix() const {
-  return Eigen::Matrix3d(f_u_, 0.0, c_u_, 0.0, f_v_, c_v_, 0.0, 0.0, 1.0);
+  Eigen::Matrix3d K = Eigen::Matrix3d();
+  K << f_u_, 0.0, c_u_, 0.0, f_v_, c_v_, 0.0, 0.0, 1.0;
+
+  return K;
 }
 
 // Get inverse of intrinsics matrix.
 Eigen::Matrix3d CameraIntrinsics::InverseIntrinsicsMatrix() const {
-  return IntrinsicsMatrix().Inverse();
+  return CameraIntrinsics::IntrinsicsMatrix().inverse();
 }
 
 // Test if a point is in the image.
@@ -251,11 +254,12 @@ bool CameraIntrinsics::DirectionToImage(double u_normalized,
   v = -v;
 
   // Make a homogeneous vector from the output.
-  Eigen::Vector3d p << u, v, 1.0;
+  Eigen::Vector3d p = Eigen::Vector3d();
+  p << u, v, 1.0;
 
   // Multiply the distorted direction vector by camera intrinsic matrix to get
   // the image space point.
-  const Eigen::Vector3d p_out = IntrinsicsMatrix() * p;
+  const Eigen::Vector3d p_out = CameraIntrinsics::IntrinsicsMatrix() * p;
   *u_distorted = p_out(0);
   *v_distorted = p_out(1);
 
@@ -269,11 +273,12 @@ void CameraIntrinsics::ImageToDirection(double u_distorted, double v_distorted,
   if (u_normalized == nullptr | v_normalized == nullptr) return;
 
   // Make a homogeneous image space point.
-  Eigen::Vector3d p_distorted << u_distorted, v_distorted, 1.0;
+  Eigen::Vector3d p_distorted = Eigen::Vector3d();
+  p_distorted << u_distorted, v_distorted, 1.0;
 
   // Multiply the distorted homogeneous image space point by the inverse
   // of the camera intrinsic matrix to get a distorted ray.
-  const Eigen::Vector3d p = InverseIntrinsicsMatrix() * p_distorted;
+  const Eigen::Vector3d p = CameraIntrinsics::InverseIntrinsicsMatrix() * p_distorted;
 
   // Undistort the ray to get the normalized direction vector.
   Undistort(p(0), p(1), u_normalized, v_normalized);
@@ -313,7 +318,7 @@ void CameraIntrinsics::Distort(double u, double v, double *u_distorted,
 // Rectilinearize point.
 void CameraIntrinsics::Undistort(double u_distorted, double v_distorted,
                                  double *u, double *v,
-                                 int iterations = 10) const {
+                                 int iterations) const {
   if (u == nullptr || v == nullptr) return;
 
   // Iteratively attempt to undo the radial distortion (see OpenCV help page

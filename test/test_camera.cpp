@@ -109,12 +109,12 @@ TEST(Camera, TestCameraIntrinsics) {
   // Setting vertical fov also sets f_v().
   intrinsics.SetVerticalFOV(kVerticalFov);
   // Setting f_u also sets horizontal fov.
-  intrinsics.Set_f_u(intrinsics.f_v());
-  intrinsics.Set_c_u(0.5 * kImageWidth);
-  intrinsics.Set_c_v(0.5 * kImageHeight);
+  intrinsics.SetFU(intrinsics.f_v());
+  intrinsics.SetCU(0.5 * kImageWidth);
+  intrinsics.SetCV(0.5 * kImageHeight);
 
   // No radial distortion.
-  intrinsics.Set_k(0.0, 0.0, 0.0, 0.0, 0.0);
+  intrinsics.SetK(0.0, 0.0, 0.0, 0.0, 0.0);
 
   Eigen::Matrix3d expected_intrinsic_matrix = Eigen::Matrix3d::Identity();
   expected_intrinsic_matrix(0, 0) = intrinsics.f_u();
@@ -122,7 +122,7 @@ TEST(Camera, TestCameraIntrinsics) {
   expected_intrinsic_matrix(0, 2) = intrinsics.c_u();
   expected_intrinsic_matrix(1, 2) = intrinsics.c_v();
 
-  EXPECT_TRUE(expected_intrinsic_matrix.Equals(intrinsics.IntrinsicsMatrix()));
+  EXPECT_TRUE(expected_intrinsic_matrix.isApprox(intrinsics.IntrinsicsMatrix()));
 
   // Camera to image on point behind the camera.
   double cx = 0.0, cy = 1.5, cz = -1.0;
@@ -133,14 +133,14 @@ TEST(Camera, TestCameraIntrinsics) {
   // Camera to image on point in front of camera.
   cz = 3.0;
   EXPECT_TRUE(intrinsics.CameraToImage(cx, cy, cz, &u, &v));
-  EXPECT_FLOAT_EQ(0.25 * kImageHeight, v, 1e-5);
-  EXPECT_FLOAT_EQ(0.5 * kImageWidth, u, 1e-5);
+  EXPECT_FLOAT_EQ(0.25 * kImageHeight, v);
+  EXPECT_FLOAT_EQ(0.5 * kImageWidth, u);
 
   cx = -3.0;
   double expected_u = kImageWidth / 2.0 - intrinsics.f_u();
-  BOOST_CHECK(intrinsics.CameraToImage(cx, cy, cz, &u, &v));
-  EXPECT_FLOAT_EQ(0.25 * kImageHeight, v, 1e-5);
-  EXPECT_FLOAT_EQ(expected_u, u, 1e-5);
+  EXPECT_TRUE(intrinsics.CameraToImage(cx, cy, cz, &u, &v));
+  EXPECT_FLOAT_EQ(0.25 * kImageHeight, v);
+  EXPECT_FLOAT_EQ(expected_u, u);
 }  //\test_camera_intrinsics
 
 TEST(Camera, TestCamera) {
@@ -156,12 +156,12 @@ TEST(Camera, TestCamera) {
   // Setting vertical fov also sets f_v().
   intrinsics.SetVerticalFOV(kVerticalFov);
   // Setting f_u also sets horizontal fov.
-  intrinsics.Set_f_u(intrinsics.f_v());
-  intrinsics.Set_c_u(0.5 * kImageWidth);
-  intrinsics.Set_c_v(0.5 * kImageHeight);
+  intrinsics.SetFU(intrinsics.f_v());
+  intrinsics.SetCU(0.5 * kImageWidth);
+  intrinsics.SetCV(0.5 * kImageHeight);
 
   // No radial distortion.
-  intrinsics.Set_k(0.0, 0.0, 0.0, 0.0, 0.0);
+  intrinsics.SetK(0.0, 0.0, 0.0, 0.0, 0.0);
 
   CameraExtrinsics extrinsics;
 
@@ -173,8 +173,9 @@ TEST(Camera, TestCamera) {
 
   // Make some points and project them into a second camera.
   Camera camera1, camera2;
+  Eigen::Matrix4d eye = Eigen::Matrix4d::Identity();
   camera1.SetIntrinsics(intrinsics);
-  camera1.SetExtrinsics(Eigen::Matrix4d::Identity());
+  camera1.SetExtrinsics(Pose(eye));
   camera2.SetIntrinsics(intrinsics);
   camera2.SetExtrinsics(extrinsics);
 

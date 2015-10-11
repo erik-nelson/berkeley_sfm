@@ -38,7 +38,7 @@
 #include <matching/distance_metric.h>
 #include <math/random_generator.h>
 
-#include <Eigen/core>
+#include <Eigen/Core>
 #include <gtest/gtest.h>
 
 namespace bsfm {

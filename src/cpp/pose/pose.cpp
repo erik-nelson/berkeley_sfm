@@ -35,7 +35,7 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#include "Pose.hpp"
+#include "pose.h"
 
 using namespace Eigen;
 using namespace std;
@@ -45,7 +45,7 @@ Pose::Pose(Matrix3d &R, Vector3d &t) {
   Rt = Matrix4d::Identity();
   Rt.block(0, 0, 3, 3) = R;
   Rt.col(3).head(3) = t;
-  
+
   aa = Vector3d::Zero();
 }
 
@@ -58,7 +58,7 @@ Pose::~Pose() {
 Vector2d Pose::project(Vector3d &pt3d) {
   Vector4d pt3d_h = Vector4d::Constant(1.0);
   pt3d_h.head(3) = pt3d;
-  
+
   Vector4d proj_h = Rt * pt3d_h;
   Vector2d proj = proj_h.head(2);
   proj /= proj_h(2);
@@ -66,7 +66,7 @@ Vector2d Pose::project(Vector3d &pt3d) {
   return proj;
 }
 
-// Compose this Pose with the given pose so that both refer to the identity Pose as 
+// Compose this Pose with the given pose so that both refer to the identity Pose as
 // specified by the given Pose.
 void Pose::compose(Pose &p) {
   Rt *= p.Rt;
@@ -74,7 +74,7 @@ void Pose::compose(Pose &p) {
 
 // Convert to axis-angle representation.
 VectorXd Pose::toAxisAngle() {
-  
+
   // from https://en.wikipedia.org/wiki/Axis-angle-representation
   double angle = acos(0.5 * (Rt.trace() - 2.0));
   Vector3d axis = Vector3d(Rt(2, 1) - Rt(1, 2),
@@ -95,13 +95,13 @@ Matrix4d Pose::fromAxisAngle() {
   Vector3d axis = aa / angle;
 
   Matrix3d cross;
-  cross << 
+  cross <<
     0.0, -axis(2), axis(1),
     axis(2), 0.0, -axis(0),
     -axis(1), axis(0), 0.0;
 
   Matrix3d tensor;
-  tensor << 
+  tensor <<
     axis(0)*axis(0), axis(0)*axis(1), axis(0)*axis(2),
     axis(0)*axis(1), axis(1)*axis(1), axis(1)*axis(2),
     axis(0)*axis(2), axis(1)*axis(2), axis(2)*axis(2);

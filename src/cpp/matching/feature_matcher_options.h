@@ -54,12 +54,15 @@ struct FeatureMatcherOptions {
   // the lowes ratio.
   // i.e. store the match if:
   //   distance(best_match) < lowes_ratio^2 * distance(second_best_match)
-  bool use_lowes_ratio;
-  double lowes_ratio;
+  bool use_lowes_ratio = true;
+  double lowes_ratio = 0.75;
 
   // The minimum number of feature matches between two images required to
   // consider the image pair a match.
-  unsigned int min_num_feature_matches;
+  unsigned int min_num_feature_matches = 20;
+
+  // Only store matches that are the best feature match in both directions.
+  bool ensure_symmetric_matches = true;
 
 };  //\struct FeatureMatcherOptions
 

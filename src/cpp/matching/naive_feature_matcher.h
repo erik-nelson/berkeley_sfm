@@ -55,6 +55,7 @@
 #include "distance_metric.h"
 #include "feature.h"
 #include "feature_match.h"
+#include "feature_matcher.h"
 
 namespace bsfm {
 
@@ -65,6 +66,8 @@ class NaiveFeatureMatcher : public FeatureMatcher<DistanceMetric> {
   virtual ~NaiveFeatureMatcher() { }
 
  private:
+  DISALLOW_COPY_AND_ASSIGN(NaiveFeatureMatcher)
+
   // Match two images together by doing a pairwise comparison of all of their
   // individual feature descriptors.
   bool MatchImagePair(int image_index1, int image_index2,
@@ -74,11 +77,8 @@ class NaiveFeatureMatcher : public FeatureMatcher<DistanceMetric> {
   // removed later on due to e.g. not being symmetric, etc.
   void ComputePutativeMatches(
       const FeatureList& features1,
-      const FeaturesList& features2,
-      LightFeatureMatchList& putative_matches) {
-
-  DISALLOW_COPY_AND_ASSIGN(NaiveFeatureMatcher)
-
+      const FeatureList& features2,
+      LightFeatureMatchList& putative_matches);
 };  //\class NaiveFeatureMatcher
 
 // ------------------- Implementation ------------------- //
@@ -91,8 +91,8 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
   feature_matches.clear();
 
   // Get the features corresponding to these two images.
-  FeatureList& features1 = image_features_[image_index1];
-  FeatureList& features2 = image_features_[image_index1];
+  FeatureList& features1 = this->image_features_[image_index1];
+  FeatureList& features2 = this->image_features_[image_index1];
 
   // Normalize descriptors if required.
   if (DistanceMetric::RequiresNormalizedDescriptors()) {
@@ -110,26 +110,26 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
 
   // Check that we got enough matches here. If we didn't, reverse matches won't
   // help us.
-  if (light_feature_matches.size() < options_.min_num_feature_matches) {
+  if (light_feature_matches.size() < this->options_.min_num_feature_matches) {
     return false;
   }
 
-  if (options_.compute_symmetric_matches) {
+  if (this->options_.ensure_symmetric_matches) {
     LightFeatureMatchList reverse_light_feature_matches;
     ComputePutativeMatches(features2, features1, reverse_light_feature_matches);
-    SymmetricMatches(reverse_light_feature_matches, &light_feature_matches);
+    this->SymmetricMatches(reverse_light_feature_matches, light_feature_matches);
   }
 
-  if (light_feature_matches.size() < options_.min_num_feature_matches) {
+  if (light_feature_matches.size() < this->options_.min_num_feature_matches) {
     return false;
   }
 
   // Convert from LightFeatureMatchList to FeatureMatchList for the output.
-  for (const auto& light_feature_match : light_feature_matches) {
+  for (const auto& match : light_feature_matches) {
     const Feature& matched_feature1 =
-        image_features_[image_index1][light_feature_match.feature_index1];
+        this->image_features_[image_index1][match.feature_index1_];
     const Feature& matched_feature2 =
-        image_features_[image_index2][light_feature_match.feature_index2];
+        this->image_features_[image_index2][match.feature_index2_];
     feature_matches.emplace_back(matched_feature1, matched_feature2);
   }
 
@@ -139,7 +139,7 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
 template <typename DistanceMetric>
 void NaiveFeatureMatcher<DistanceMetric>::ComputePutativeMatches(
     const FeatureList& features1,
-    const FeaturesList& features2,
+    const FeatureList& features2,
     LightFeatureMatchList& putative_matches) {
   putative_matches.clear();
 
@@ -148,29 +148,33 @@ void NaiveFeatureMatcher<DistanceMetric>::ComputePutativeMatches(
 
   // Store all matches and their distances.
   for (size_t ii = 0; ii < features1.size(); ++ii) {
-    LightFeatureMatchList features2_matches(features2.size());
-    for (size_t jj = 0; jj < features2.size(); ++jj)
-      features2_matches[jj] =
-          LightFeatureMatch(ii, jj, distance(features1[ii].descriptor_,
-                                             features2[ii].descriptor_));
+    LightFeatureMatchList one_way_matches;
+    // one_way_matches.reserve(features2.size());
+    for (size_t jj = 0; jj < features2.size(); ++jj) {
+      double dist =
+          distance(features1[ii].descriptor_, features2[ii].descriptor_);
+      one_way_matches.emplace_back(ii, jj, dist);
     }
 
-  // Store the best match for this element of features2.
-  if (options_.use_lowes_ratio) {
-    // Sort by distance. We only care about the distances between the best 2
-    // matches for the Lowes ratio test.
-    std::partial_sort(features2_matches.begin(),
-                      features2_matches.begin() + 1,
-                      features2_matches.end(),
-                      SortByDistance);
+    // Store the best match for this element of features2.
+    if (this->options_.use_lowes_ratio) {
+      // Sort by distance. We only care about the distances between the best 2
+      // matches for the Lowes ratio test.
+      std::partial_sort(one_way_matches.begin(),
+                        one_way_matches.begin() + 1,
+                        one_way_matches.end(),
+                        LightFeatureMatch::SortByDistance);
 
-    double lowes_ratio_squared = options_.lowes_ratio * options_.lowes_ratio;
-    if (features2_matches[0].distance <
-        lowes_ratio_squared * features2_matches[1].distance) {
-      putative_matches.emplace_back(features2_matches[0]);
+      // The second best match must be within the lowes ratio of the best match.
+      double lowes_ratio_squared =
+          this->options_.lowes_ratio * this->options_.lowes_ratio;
+      if (one_way_matches[0].distance_ <
+          lowes_ratio_squared * one_way_matches[1].distance_) {
+        putative_matches.emplace_back(one_way_matches[0]);
+      }
+    } else {
+      putative_matches.emplace_back(one_way_matches[0]);
     }
-  } else {
-    putative_matches.emplace_back(features2_matches[0]);
   }
 }
 

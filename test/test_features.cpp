@@ -115,7 +115,7 @@ TEST_F(TestFeatures, TestDescribeFeatures) {
     EXPECT_TRUE(extractor.SetDescriptor(descriptor_types[ii]));
 
     // Extract descriptors.
-    std::vector<Feature> features;
+    FeatureList features;
     EXPECT_TRUE(extractor.DescribeFeatures(image, keypoints, features));
 
     // We should get the right number of descriptors.

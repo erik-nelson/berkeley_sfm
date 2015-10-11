@@ -52,12 +52,12 @@ struct ScaledL2Distance {
   double operator()(const Descriptor& descriptor1,
                     const Descriptor& descriptor2) {
     CHECK_EQ(descriptor1.size(), descriptor2.size());
-    return 1.0 - Eigen::dot(descriptor1, descriptor2);
+    return 1.0 - descriptor1.dot(descriptor2);
   }
 
   static bool RequiresNormalizedDescriptors() { return true; }
-}
+};  //\struct ScaledL2Distance
 
-} //\namespace bsfm
+}  //\namespace bsfm
 
 #endif

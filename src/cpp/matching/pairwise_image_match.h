@@ -53,7 +53,7 @@ namespace bsfm {
 
 struct PairwiseImageMatch {
   // The image-space locations of the matched features in each image.
-  std::vector<FeatureMatch> feature_matches_;
+  FeatureMatchList feature_matches_;
 
   // The indices of the two images in the image list owned by whichever feature
   // matcher that found this match.

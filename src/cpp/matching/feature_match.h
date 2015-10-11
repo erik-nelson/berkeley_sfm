@@ -85,8 +85,8 @@ struct LightFeatureMatch {
   int feature_index2_;
 
   // A custom sorting function to find the match with the smallest distance.
-  bool SortByDistance(const LightFeatureMatch& lhs,
-                      const LightFeatureMatch& rhs) {
+  static bool SortByDistance(const LightFeatureMatch& lhs,
+                             const LightFeatureMatch& rhs) {
     return lhs.distance_ < rhs.distance_;
   }
 };  //\struct LightFeatureMatch

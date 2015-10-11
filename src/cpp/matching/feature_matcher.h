@@ -69,22 +69,26 @@ class FeatureMatcher {
   FeatureMatcher() { }
   virtual ~FeatureMatcher() { }
 
-  // Add a single image for matching.
-  virtual void AddImage(const FeatureList& image_features);
+  // Add a single image's features for matching.
+  virtual void AddImageFeatures(const FeatureList& image_features);
 
-  // Add a set of images for matching.
-  virtual void AddImages(const std::vector<FeatureList>& image_features);
+  // Add features from a set of images for matching.
+  virtual void AddImageFeatures(const std::vector<FeatureList>& image_features);
 
   // Match images together using the input options.
-  virtual void MatchImages(const FeatureMatcherOptions& options,
+  virtual bool MatchImages(const FeatureMatcherOptions& options,
                            PairwiseImageMatchList& image_matches);
 
  protected:
   // Abstract method to match a pair of images using the input options. Override
   // this in the derived feature matching strategy class to implement it.
   virtual bool MatchImagePair(int image_index1, int image_index2,
-                              const FeatureMatcherOptions& options,
                               FeatureMatchList& feature_matches) = 0;
+
+  // Find the set intersection of the two sets of input feature matches, and
+  // store that set in the second argument.
+  virtual void SymmetricMatches(const LightFeatureMatchList& feature_matches_lhs,
+                                LightFeatureMatchList& feature_matches_rhs);
 
   // Summarize each image by its list of features. This list contains a list of
   // features for each image.
@@ -103,23 +107,23 @@ class FeatureMatcher {
 // Append features from a single image to the list of all image features.
 template <typename DistanceMetric>
 void FeatureMatcher<DistanceMetric>::
-AddImage(const FeatureList& image_features) {
+AddImageFeatures(const FeatureList& image_features) {
   image_features_.push_back(image_features);
 }
 
 // Append features from a set of images to the list of all image features.
 template <typename DistanceMetric>
 void FeatureMatcher<DistanceMetric>::
-AddImages(const std::vector<FeatureList>& image_features) {
+AddImageFeatures(const std::vector<FeatureList>& image_features) {
   image_features_.insert(image_features_.end(),
                          image_features.begin(),
                          image_features.end());
 }
 
 template <typename DistanceMetric>
-void FeatureMatcher<DistanceMetric>::
+bool FeatureMatcher<DistanceMetric>::
 MatchImages(const FeatureMatcherOptions& options,
-            PairwiseImageMatchList& image_matches) const {
+            PairwiseImageMatchList& image_matches) {
   // Store the matching options locally.
   options_ = options;
 
@@ -138,18 +142,28 @@ MatchImages(const FeatureMatcherOptions& options,
 
       // Create an image match object and attempt to match image ii to image jj.
       PairwiseImageMatch image_match;
-      if (!MatchImagePair(ii, jj, image_match.feature_matches)) {
-        VLOG(1) << "Could not match image " << ii << " to image " << j << ".";
+      if (!MatchImagePair(ii, jj, image_match.feature_matches_)) {
+        VLOG(1) << "Could not match image " << ii << " to image " << jj << ".";
         continue;
       }
 
       // If the image match was successful, store it.
-      image_match.image1_index = ii;
-      image_match.image2_index = jj;
+      image_match.image1_index_ = ii;
+      image_match.image2_index_ = jj;
       image_matches.push_back(image_match);
     }
   }
+  // Return whether or not we found matches between any of the images.
+  return image_matches.size() > 0;
 }
+
+template <typename DistanceMetric>
+void FeatureMatcher<DistanceMetric>::
+SymmetricMatches(const LightFeatureMatchList& feature_matches_lhs,
+                 LightFeatureMatchList& feature_matches_rhs) {
+
+}
+
 
 }  //\namespace bsfm
 #endif

@@ -9,6 +9,7 @@ option(BUILD_TESTS "Enable testing" ON)
 
 # Add cmake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+message("Cmake module path: ${CMAKE_MODULE_PATH}")
 
 # Add cmake utilities.
 include(cmake/Utils.cmake)

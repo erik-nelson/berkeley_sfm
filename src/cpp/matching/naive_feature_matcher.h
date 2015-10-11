@@ -92,7 +92,7 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
 
   // Get the features corresponding to these two images.
   FeatureList& features1 = this->image_features_[image_index1];
-  FeatureList& features2 = this->image_features_[image_index1];
+  FeatureList& features2 = this->image_features_[image_index2];
 
   // Normalize descriptors if required.
   if (DistanceMetric::RequiresNormalizedDescriptors()) {

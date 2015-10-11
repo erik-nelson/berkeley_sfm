@@ -106,6 +106,13 @@ class Image {
   void Resize(double scale);
   void Resize(size_t new_width, size_t new_height);
 
+  // Transpose, rotate, and flip.
+  void Transpose();
+  void RotateClockwise();
+  void RotateCounterClockwise();
+  void FlipLR();
+  void FlipUD();
+
   // Convert between grayscale and 3-channel color.
   void ConvertToGrayscale();
   void ConvertToRGB();

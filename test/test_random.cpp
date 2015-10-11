@@ -59,7 +59,7 @@ TEST(RandomGenerator, TestUniform) {
   // Create a random generator.
   math::RandomGenerator rng(math::RandomGenerator::Seed());
 
-  for (int ii = 0; ii < 1000; ++ii) {
+  for (int ii = 1; ii < 1000; ++ii) {
     // Check that random numbers generated form a uniform distribution lie
     // within the bounds specified.
     int int1 = rng.IntegerUniform(0, ii);

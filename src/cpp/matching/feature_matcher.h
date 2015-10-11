@@ -49,6 +49,8 @@
 #ifndef BSFM_MATCHING_FEATURE_MATCHER_H
 #define BSFM_MATCHING_FEATURE_MATCHER_H
 
+#include <unordered_map>
+
 #include <glog/logging.h>
 
 #include "../image/image.h"
@@ -162,28 +164,32 @@ void FeatureMatcher<DistanceMetric>::
 SymmetricMatches(const LightFeatureMatchList& feature_matches_lhs,
                  LightFeatureMatchList& feature_matches_rhs) {
 
-  for (size_t ii = 0; ii < feature_matches_rhs.size(); ++ii) {
-    const LightFeatureMatch& match_rhs = feature_matches_rhs[ii];
+  std::unordered_map<int, int> feature_indices;
+  feature_indices.reserve(feature_matches_lhs.size());
 
-    // Iterate over the lhs to find an identical feature match object.
-    bool found_symmetric_match = false;
-    for (size_t jj = 0; jj < feature_matches_lhs.size(); ++jj) {
-      const LightFeatureMatch& match_lhs = feature_matches_lhs[jj];
+  // Add all LHS matches to the map.
+  for (const auto& feature_match : feature_matches_lhs) {
+    feature_indices.insert(std::make_pair(feature_match.feature_index1_,
+                                          feature_match.feature_index2_));
+  }
 
-      // If we find an identical feature match, break out of the inner loop.
-      if (match_rhs.feature_index1_ == match_lhs.feature_index1_
-          && match_rhs.feature_index2_ == match_lhs.feature_index2_) {
-        found_symmetric_match = true;
-        break;
+  // For each match in the RHS set, search for the same match in the LHS set.
+  // If the match is not symmetric, remove it from the RHS set.
+  auto rhs_iter = feature_matches_rhs.begin();
+  while (rhs_iter != feature_matches_rhs.end()) {
+    const auto& lhs_matched_iter =
+        feature_indices.find(rhs_iter->feature_index2_);
+
+    // If a symmetric match is found, keep it in the RHS set.
+    if (lhs_matched_iter != feature_indices.end()) {
+      if (lhs_matched_iter->second == rhs_iter->feature_index1_) {
+        ++rhs_iter;
+        continue;
       }
     }
 
-    // If we couldn't find a symmetric match, we will need to remove the feature
-    // at index ii.
-    if (!found_symmetric_match) {
-      feature_matches_rhs.erase(feature_matches_rhs.begin() + ii);
-      ii--;
-    }
+    // Remove the non-symmetric match and continue on.
+    feature_matches_rhs.erase(rhs_iter);
   }
 }
 

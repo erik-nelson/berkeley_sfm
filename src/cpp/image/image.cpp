@@ -102,7 +102,6 @@ void Image::Read(const std::string& filename, bool grayscale) {
   }
   CHECK(image_->data) << "Unable to read image file.";
 
-
   // Convert from BGR (default in OpenCV) to RGB.
   cv::cvtColor(*image_, *image_, CV_BGR2RGB);
 }
@@ -135,6 +134,33 @@ void Image::Resize(size_t new_width, size_t new_height) {
   CHECK(image_.get()) << "Image data is not allocated.";
   cv::resize(*image_, *image_, cv::Size(new_width, new_height),
              CV_INTER_LANCZOS4);
+}
+
+void Image::Transpose() {
+  CHECK(image_.get()) << "Image data is not allocated.";
+  cv::transpose(*image_, *image_);
+}
+
+void Image::RotateClockwise() {
+  CHECK(image_.get()) << "Image data is not allocated.";
+  Transpose();
+  FlipLR();
+}
+
+void Image::RotateCounterClockwise() {
+  CHECK(image_.get()) << "Image data is not allocated.";
+  Transpose();
+  FlipUD();
+}
+
+void Image::FlipLR() {
+  CHECK(image_.get()) << "Image data is not allocated.";
+  cv::flip(*image_, *image_, 1 /*about vertical axis*/);
+}
+
+void Image::FlipUD() {
+  CHECK(image_.get()) << "Image data is not allocated.";
+  cv::flip(*image_, *image_, 0 /*about horizontal axis*/);
 }
 
 void Image::ConvertToGrayscale() {

@@ -98,10 +98,6 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
   EXPECT_EQ(exp_matched_features, image_matches[0].feature_matches_.size());
 
 #if 0
-  // Annotate features as circles on the two images.
-  drawing::AnnotateFeatures(features1, image1);
-  drawing::AnnotateFeatures(features2, image2);
-
   // Draw feature matches.
   LOG(INFO) << "You should see a window of features matched between two images"
                " of a tower.";

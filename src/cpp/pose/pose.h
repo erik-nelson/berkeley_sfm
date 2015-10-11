@@ -64,10 +64,10 @@ class Pose {
   ~Pose() { };
 
   // Multiply two Poses.
-  Pose operator* (const Pose& other) const { return Pose(Rt_ * other.Rt_); }
+  Pose operator* (const Pose& other) const;
 
   // Multiply a homgenized point into a Pose.
-  Eigen::Vector4d Project(const Eigen::Vector4d&); 
+  Eigen::Vector4d Project(const Eigen::Vector4d&);
 
   // Project a 3D point into this Pose.
   Eigen::Vector2d ProjectTo2D(const Eigen::Vector3d&);

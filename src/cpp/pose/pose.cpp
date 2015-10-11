@@ -65,11 +65,16 @@ Pose::Pose(const Pose& other) {
   aa_ << other.aa_;
 }
 
+// Overloaded multiplication operator for composing two poses.
+Pose Pose::operator*(const Pose& other) const {
+  return Pose(Rt_ * other.Rt_);
+}
+
 // Multiply a homgenized point into a Pose.
 Eigen::Vector4d Pose::Project(const Eigen::Vector4d& pt3d) {
   Eigen::Vector4d proj = Rt_ * pt3d;
   return proj;
-} 
+}
 
 // Project a 3D point into this Pose.
 Eigen::Vector2d Pose::ProjectTo2D(const Eigen::Vector3d& pt3d) {
@@ -94,14 +99,11 @@ void Pose::Compose(const Pose& other) {
   Rt_ *= other.Rt_;
 }
 
-// Invert this Pose. 
+// Invert this Pose.
 Pose Pose::Inverse() {
   Pose inv = Pose(Rt_.inverse());
   return inv;
 }
-
-// Multiply two Poses.
-Pose operator* (const Pose& lhs, const Pose& rhs) const { return lhs * rhs; }
 
 // Extract just the extrinsics matrix as a 3x4 matrix.
 Eigen::Matrix<double, 3, 4> Pose::Dehomogenize() {

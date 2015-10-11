@@ -115,6 +115,12 @@ void DrawImageFeatureMatches(const Image& image1, const Image& image2,
     // Color channel values between [0, 1).
     const cv::Scalar color(rng.Double(), rng.Double(), rng.Double());
     cv::line(combined_image, feature1, feature2, color, line_thickness);
+
+    // Draw circles around each feature.
+    cv::circle(combined_image, feature1, line_thickness * 3 /*radius*/, color,
+               line_thickness * 2);
+    cv::circle(combined_image, feature2, line_thickness * 3 /*radius*/, color,
+               line_thickness * 2);
   }
 
   // Draw the new image in a named window.

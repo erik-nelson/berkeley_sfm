@@ -43,8 +43,6 @@
 #include <string.h>
 #include <time.h>
 #include <vector>
-// #include <iostream>
-// #include <unistd.h>
 
 #include "../util/disallow_copy_and_assign.h"
 
@@ -52,137 +50,54 @@ namespace bsfm {
 namespace math {
 
 class RandomGenerator {
-public:
-  explicit RandomGenerator(unsigned long seed) {
-    srand(seed);
-  }
+ public:
+  // Construct with "RandomGenerator(RandomGenerator::Seed())".
+  explicit RandomGenerator(unsigned long seed);
 
-  static unsigned long Seed() {
-    // Hash from: http://burtleburtle.net/bob/hash/doobs.html
-    // TODO(eanelson): Update this to read a seed from /dev/urandom instead.
-    unsigned long a = clock();
-    unsigned long b = time(NULL);
-    unsigned long c = getpid();
-    a-=b; a-=c; a^=(c >> 13); b-=c; b-=a; b^=(a << 8); c-=a; c-=b; c^=(b >> 13);
-    a-=b; a-=c; a^=(c >> 12); b-=c; b-=a; b^=(a << 16); c-=a; c-=b; c^=(b >> 5);
-    a-=b; a-=c; a^=(c >> 3); b-=c; b-=a; b^=(a << 10); c-=a; c-=b; c^=(b >> 15);
-    return c;
-  }
+  // Creates a damn good seed.
+  static unsigned long Seed();
 
   // Generates a random integer in [0, RAND_MAX).
-  int Integer() {
-    // TODO(eanelson): Use a threadsafe rng.
-    return rand();
-  }
+  int Integer();
 
   // Generates a random integer in ['min', 'max').
-  int IntegerUniform(int min, int max) {
-    if (min >= max) {
-      LOG(WARNING) << "min >= max. Returning min.";
-      // Eat a random number anyways and return min.
-      Integer();
-      return min;
-    }
+  int IntegerUniform(int min, int max);
 
-    return min + (Integer() % static_cast<int>(max - min + 1));
-  }
+  // Generates 'count' random integers in [0, RAND_MAX).
+  void Integers(size_t count, std::vector<int> *integers);
 
-  // Generates 'number' random integers in [0, RAND_MAX).
-  void Integers(size_t number, std::vector<int> *integers) {
-    if (integers == nullptr) {
-      return;
-    }
-
-    for (size_t i = 0; i < number; ++i) {
-      integers->push_back(Integer());
-    }
-  }
-
-  // Generates 'number' random integers between ['min', 'max').
-  void IntegersUniform(size_t number, int min, int max,
-                       std::vector<int> *integers) {
-    if (integers == nullptr) {
-      return;
-    }
-
-    for (size_t i = 0; i < number; ++i) {
-      integers->push_back(IntegerUniform(min, max));
-    }
-  }
+  // Generates 'count' random integers between ['min', 'max').
+  void IntegersUniform(size_t count, int min, int max,
+                       std::vector<int> *integers);
 
   // Generates a random double in [0, 1).
-  double Double() {
-    return static_cast<double>(Integer()) / static_cast<double>(RAND_MAX);
-  }
+  double Double();
 
   // Generates a random double in ['min' and 'max').
-  double DoubleUniform(double min, double max) {
-    if (min >= max) {
-      LOG(WARNING) << "min >= max. Returning min.";
-      // Eat a random number anyways and return min.
-      Integer();
-      return min;
-    }
-
-    double coefficient = (max - min) / static_cast<double>(RAND_MAX);
-    return min + static_cast<double>(Integer()) * coefficient;
-  }
+  double DoubleUniform(double min, double max);
 
   // Samples a double from a Gaussian distribution with parameters 'mean'
   // and 'std'.
-  double DoubleGaussian(double mean, double std) {
-    // Use the box-muller transform to approximate a normal distribution:
-    // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-    // u must be \in (0, 1], and v must be \in [0, 1).
-    double u = 1.0 - Double();
-    double v = Double();
-    double z = sqrt(-2.0 * log(u)) * cos(2.0 * M_PI * v);
+  double DoubleGaussian(double mean, double std);
 
-    return mean + std * z;
-  }
+  // Generates 'count' random doubles in [0, 1).
+  void Doubles(size_t count, std::vector<double>* doubles);
 
-  // Generates 'number' random doubles in [0, 1).
-  void Doubles(size_t number, std::vector<double> *doubles) {
-    if (doubles == nullptr) {
-      return;
-    }
+  // Generates 'count' random doubles between ['min', 'max').
+  void DoublesUniform(size_t count, double min, double max,
+                      std::vector<double> *doubles);
 
-    for (size_t i = 0; i < number; ++i) {
-      doubles->push_back(Double());
-    }
-  }
-
-  // Generates 'number' random doubles between ['min', 'max').
-  void DoublesUniform(size_t number, double min, double max,
-                      std::vector<double> *doubles) {
-    if (doubles == nullptr) {
-      return;
-    }
-
-    for (size_t i = 0; i < number; ++i) {
-      doubles->push_back(DoubleUniform(min, max));
-    }
-  }
-
-  // Samples 'number' doubles from a Gaussian distribution with parameters
+  // Samples 'count' doubles from a Gaussian distribution with parameters
   // 'mean' and 'std'.
-  void DoublesGaussian(size_t number, double mean, double std,
-                       std::vector<double> *doubles) {
-    if (doubles == nullptr) {
-      return;
-    }
+  void DoublesGaussian(size_t count, double mean, double std,
+                       std::vector<double> *doubles);
 
-    for (size_t i = 0; i < number; ++i) {
-      doubles->push_back(DoubleGaussian(mean, std));
-    }
-  }
-
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(RandomGenerator)
 
 };  //\class RandomGenerator
 
-} //\namespace math
-} //\namespace bsfm
+}  //\namespace math
+}  //\namespace bsfm
 
 #endif

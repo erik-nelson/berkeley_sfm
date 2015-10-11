@@ -6,7 +6,7 @@ compiler:
 
 os:
   - linux
-  - osx
+  #- osx
 
 branches:
   only:
@@ -31,7 +31,7 @@ install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++; fi
 
   # OSX: Get glog, opencv, eigen, and gflags.
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew tap homebrew/science && brew install opencv gflags glog eigen; fi
+  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew tap homebrew/science && brew install opencv gflags glog eigen; fi
 
 before_script:
   # Linux: Download OpenCV.

@@ -54,6 +54,5 @@ before_script:
 script:
   - make
   - cd ../bin/
-  - echo "Running the following tests: "
   - ./run_tests --gtest_list_tests
   - ./run_tests

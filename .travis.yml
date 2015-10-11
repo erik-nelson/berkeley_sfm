@@ -29,7 +29,7 @@ before_script:
   # Linux: Download OpenCV.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://github.com/Itseez/opencv.git; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; thencd opencv; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd opencv; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git checkout 2.4; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd build; fi

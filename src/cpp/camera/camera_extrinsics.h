@@ -62,19 +62,19 @@ public:
   CameraExtrinsics();
 
   // Constructor. Initialize only world_to_camera_.
-  CameraExtrinsics(const Pose &);
+  CameraExtrinsics(const Pose& world_to_camera);
 
   // Contructor. Initialize both world/body_to_camera_.
-  CameraExtrinsics(const Pose &, const Pose &);
+  CameraExtrinsics(const Pose& world_to_body, const Pose& body_to_camera);
 
   // Initialize world_to_body_ and make body_to_camera the identity.
-  void SetWorldToCamera(const Pose &);
+  void SetWorldToCamera(const Pose& world_to_camera);
 
   // Initialize world_to_body_.
-  void SetWorldToBody(const Pose &);
+  void SetWorldToBody(const Pose& world_to_body);
 
   // Initialize body_to_camera
-  void SetBodyToCamera(const Pose &);
+  void SetBodyToCamera(const Pose& body_to_camera);
 
   // Extract poses.
   Pose WorldToCamera() const;
@@ -89,12 +89,12 @@ public:
   Eigen::Matrix<double, 3, 4> ExtrinsicsMatrix() const;
 
   // Convert a world frame point into the camera frame.
-  void WorldToCamera(double, double, double,
-                     double*, double*, double*) const;
+  void WorldToCamera(double wx, double wy, double wz,
+                     double* cx, double* cy, double* cz) const;
 
   // Convert a camera frame point into the world frame.
-  void CameraToWorld(double, double, double,
-                     double*, double*, double*) const;
+  void CameraToWorld(double cx, double cy, double cz,
+                     double* wx, double* wy, double* wz) const;
 
 };  //\class CameraExtrinsics
 

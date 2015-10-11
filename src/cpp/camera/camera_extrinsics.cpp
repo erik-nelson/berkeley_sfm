@@ -57,9 +57,9 @@ CameraExtrinsics::CameraExtrinsics() {
 CameraExtrinsics::CameraExtrinsics(const Pose& world_to_camera)
   : world_to_body_(world_to_camera),
     body_to_camera_(Pose()) {}
-  
+
 // Contructor. Initialize both world_to_body_ and body_to_camera_.
-CameraExtrinsics::CameraExtrinsics(const Pose& world_to_body, 
+CameraExtrinsics::CameraExtrinsics(const Pose& world_to_body,
 				   const Pose& body_to_camera)
   : world_to_body_(world_to_body), body_to_camera_(body_to_camera) {}
 
@@ -80,20 +80,28 @@ void CameraExtrinsics::SetBodyToCamera(const Pose& body_to_camera) {
 }
 
 // Extract poses.
-Pose CameraExtrinsics::WorldToCamera() const { 
-  return body_to_camera_ * world_to_body_; 
+Pose CameraExtrinsics::WorldToCamera() const {
+  return body_to_camera_ * world_to_body_;
 }
-Pose CameraExtrinsics::WorldToBody() const { return world_to_body_; }
-Pose CameraExtrinsics::BodyToCamera() const { return body_to_camera_; }
-  
-Pose CameraExtrinsics::CameraToWorld() const { 
-  return CameraExtrinsics::WorldToCamera().Inverse(); 
+
+Pose CameraExtrinsics::WorldToBody() const {
+  return world_to_body_;
 }
-Pose CameraExtrinsics::BodyToWorld() const { 
-  return CameraExtrinsics::WorldToBody().Inverse(); 
+
+Pose CameraExtrinsics::BodyToCamera() const {
+  return body_to_camera_;
 }
-Pose CameraExtrinsics::CameraToBody() const { 
-  return CameraExtrinsics::BodyToCamera().Inverse(); 
+
+Pose CameraExtrinsics::CameraToWorld() const {
+  return CameraExtrinsics::WorldToCamera().Inverse();
+}
+
+Pose CameraExtrinsics::BodyToWorld() const {
+  return CameraExtrinsics::WorldToBody().Inverse();
+}
+
+Pose CameraExtrinsics::CameraToBody() const {
+  return CameraExtrinsics::BodyToCamera().Inverse();
 }
 
 // The extrinsics matrix is 3x4 matrix: [R | t].
@@ -103,15 +111,15 @@ Eigen::Matrix<double, 3, 4> CameraExtrinsics::ExtrinsicsMatrix() const {
 
 // Convert a world frame point into the camera frame.
 void CameraExtrinsics::WorldToCamera(double wx, double wy, double wz,
-				     double* cx, double* cy, double* cz) const {
+                                     double* cx, double* cy, double* cz) const {
 
   if (cx == nullptr || cy == nullptr || cz == nullptr) return;
-  
+
   Eigen::Vector4d w_h = Eigen::Vector4d();
   w_h << wx, wy, wz, 1.0;
-  
+
   const Eigen::Vector4d c_h = CameraExtrinsics::WorldToCamera().Project(w_h);
-  
+
   *cx = c_h(0);
   *cy = c_h(1);
   *cz = c_h(2);
@@ -119,15 +127,15 @@ void CameraExtrinsics::WorldToCamera(double wx, double wy, double wz,
 
 // Convert a camera frame point into the world frame.
 void CameraExtrinsics::CameraToWorld(double cx, double cy, double cz,
-				     double* wx, double* wy, double* wz) const {
+                                     double* wx, double* wy, double* wz) const {
 
   if (wx == nullptr || wy == nullptr || wz == nullptr) return;
-  
+
   Eigen::Vector4d c_h = Eigen::Vector4d();
   c_h << cx, cy, cz, 1.0;
-  
+
   const Eigen::Vector4d w_h = CameraExtrinsics::CameraToWorld().Project(c_h);
-  
+
   *wx = w_h(0);
   *wy = w_h(1);
   *wz = w_h(2);

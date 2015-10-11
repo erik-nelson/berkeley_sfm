@@ -117,7 +117,9 @@ void CameraIntrinsics::SetImageLeft(int image_left) {
   image_left_ = image_left;
 }
 
-void CameraIntrinsics::SetImageTop(int image_top) { image_top_ = image_top; }
+void CameraIntrinsics::SetImageTop(int image_top) {
+  image_top_ = image_top;
+}
 
 void CameraIntrinsics::SetImageWidth(int image_width) {
   image_width_ = image_width;
@@ -139,9 +141,13 @@ void CameraIntrinsics::SetFV(double f_v) {
   vertical_fov_ = 2.0 * atan2(0.5 * image_height_, f_v_);
 }
 
-void CameraIntrinsics::SetCU(double c_u) { c_u_ = c_u; }
+void CameraIntrinsics::SetCU(double c_u) {
+  c_u_ = c_u;
+}
 
-void CameraIntrinsics::SetCV(double c_v) { c_v_ = c_v; }
+void CameraIntrinsics::SetCV(double c_v) {
+  c_v_ = c_v;
+}
 
 void CameraIntrinsics::SetK(double k1, double k2, double k3, double k4,
                             double k5) {
@@ -152,15 +158,25 @@ void CameraIntrinsics::SetK(double k1, double k2, double k3, double k4,
   k5_ = k5;
 }
 
-void CameraIntrinsics::SetK1(double k1) { k1_ = k1; }
+void CameraIntrinsics::SetK1(double k1) {
+  k1_ = k1;
+}
 
-void CameraIntrinsics::SetK2(double k2) { k2_ = k2; }
+void CameraIntrinsics::SetK2(double k2) {
+  k2_ = k2;
+}
 
-void CameraIntrinsics::SetK3(double k3) { k3_ = k3; }
+void CameraIntrinsics::SetK3(double k3) {
+  k3_ = k3;
+}
 
-void CameraIntrinsics::SetK4(double k4) { k4_ = k4; }
+void CameraIntrinsics::SetK4(double k4) {
+  k4_ = k4;
+}
 
-void CameraIntrinsics::SetK5(double k5) { k5_ = k5; }
+void CameraIntrinsics::SetK5(double k5) {
+  k5_ = k5;
+}
 
 void CameraIntrinsics::SetHorizontalFOV(double horizontal_fov) {
   horizontal_fov_ = horizontal_fov;
@@ -173,35 +189,65 @@ void CameraIntrinsics::SetVerticalFOV(double vertical_fov) {
 }
 
 // Extract parameters.
-int CameraIntrinsics::ImageLeft() const { return image_left_; }
+int CameraIntrinsics::ImageLeft() const {
+  return image_left_;
+}
 
-int CameraIntrinsics::ImageTop() const { return image_top_; }
+int CameraIntrinsics::ImageTop() const {
+  return image_top_;
+}
 
-int CameraIntrinsics::ImageWidth() const { return image_width_; }
+int CameraIntrinsics::ImageWidth() const {
+  return image_width_;
+}
 
-int CameraIntrinsics::ImageHeight() const { return image_height_; }
+int CameraIntrinsics::ImageHeight() const {
+  return image_height_;
+}
 
-double CameraIntrinsics::f_u() const { return f_u_; }
+double CameraIntrinsics::f_u() const {
+  return f_u_;
+}
 
-double CameraIntrinsics::f_v() const { return f_v_; }
+double CameraIntrinsics::f_v() const {
+  return f_v_;
+}
 
-double CameraIntrinsics::c_u() const { return c_u_; }
+double CameraIntrinsics::c_u() const {
+  return c_u_;
+}
 
-double CameraIntrinsics::c_v() const { return c_v_; }
+double CameraIntrinsics::c_v() const {
+  return c_v_;
+}
 
-double CameraIntrinsics::k1() const { return k1_; }
+double CameraIntrinsics::k1() const {
+  return k1_;
+}
 
-double CameraIntrinsics::k2() const { return k2_; }
+double CameraIntrinsics::k2() const {
+  return k2_;
+}
 
-double CameraIntrinsics::k3() const { return k3_; }
+double CameraIntrinsics::k3() const {
+  return k3_;
+}
 
-double CameraIntrinsics::k4() const { return k4_; }
+double CameraIntrinsics::k4() const {
+  return k4_;
+}
 
-double CameraIntrinsics::k5() const { return k5_; }
+double CameraIntrinsics::k5() const {
+  return k5_;
+}
 
-double CameraIntrinsics::HorizontalFOV() const { return horizontal_fov_; }
+double CameraIntrinsics::HorizontalFOV() const {
+  return horizontal_fov_;
+}
 
-double CameraIntrinsics::VerticalFOV() const { return vertical_fov_; }
+double CameraIntrinsics::VerticalFOV() const {
+  return vertical_fov_;
+}
 
 // Get intrinsics matrix.
 Eigen::Matrix3d CameraIntrinsics::IntrinsicsMatrix() const {
@@ -317,8 +363,7 @@ void CameraIntrinsics::Distort(double u, double v, double *u_distorted,
 
 // Rectilinearize point.
 void CameraIntrinsics::Undistort(double u_distorted, double v_distorted,
-                                 double *u, double *v,
-                                 int iterations) const {
+                                 double *u, double *v, int iterations) const {
   if (u == nullptr || v == nullptr) return;
 
   // Iteratively attempt to undo the radial distortion (see OpenCV help page

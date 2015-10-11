@@ -4,8 +4,14 @@ compiler:
   - gcc
   - clang
 
+before_install:
+  - sudo apt-get update -qq
+
+install:
+  - sudo apt-get install -qq python-dev python-numpy libeigen3-dev libgflags-dev libgoogle-glog
+
 before_script:
-  - cd ..
+  - pwd && ls
   - git clone https://github.com/Itseez/opencv.git
   - cd opencv
   - git checkout 2.4.12
@@ -14,7 +20,7 @@ before_script:
   - cmake ..
   - make -j8
   - sudo make -j8 install
-  - cd -
+  - cd ..
   - mkdir build
   - cd build
   - cmake ..

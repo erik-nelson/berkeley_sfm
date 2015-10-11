@@ -57,8 +57,8 @@ TEST(RandomGenerator, TestSeed) {
     // With such a minute delay in between their declarations, they should
     // produce identical values.
     math::RandomGenerator rng3(math::RandomGenerator::Seed());
-    math::RandomGenerator rng4(math::RandomGenerator::Seed());
     int int3 = rng3.Integer();
+    math::RandomGenerator rng4(math::RandomGenerator::Seed());
     int int4 = rng4.Integer();
 
     // Check that the values they generate are the same.

@@ -4,10 +4,8 @@ if (NOT __GFLAGS_INCLUDED) # guard against multiple includes
   # use the system-wide gflags if present
   find_package(GFlags)
   if (GFLAGS_FOUND)
-    message("test1")
     set(GFLAGS_EXTERNAL FALSE)
   else()
-    message("test2")
     # gflags will use pthreads if it's available in the system, so we must link with it
     find_package(Threads)
 
@@ -25,7 +23,6 @@ if (NOT __GFLAGS_INCLUDED) # guard against multiple includes
     set(GFLAGS_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${GFLAGS_EXTRA_COMPILER_FLAGS})
     set(GFLAGS_C_FLAGS ${CMAKE_C_FLAGS} ${GFLAGS_EXTRA_COMPILER_FLAGS})
 
-    message("test3")
     ExternalProject_Add(gflags
       PREFIX ${gflags_PREFIX}
       GIT_REPOSITORY "https://github.com/gflags/gflags.git"
@@ -46,7 +43,6 @@ if (NOT __GFLAGS_INCLUDED) # guard against multiple includes
       LOG_DOWNLOAD 1
       LOG_INSTALL 1
       )
-    message("downloaded gflags")
 
     set(GFLAGS_FOUND TRUE)
     set(GFLAGS_INCLUDE_DIRS ${gflags_INSTALL}/include)
@@ -54,12 +50,7 @@ if (NOT __GFLAGS_INCLUDED) # guard against multiple includes
     set(GFLAGS_LIBRARY_DIRS ${gflags_INSTALL}/lib)
     set(GFLAGS_EXTERNAL TRUE)
 
-    message("should be under ${gflags_INSTALL}/include")
-
     list(APPEND external_project_dependencies gflags)
   endif()
 
-  message("test4")
-
 endif()
-message("test5")

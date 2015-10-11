@@ -45,4 +45,3 @@ notifications:
 
 os:
   - linux
-  - osx

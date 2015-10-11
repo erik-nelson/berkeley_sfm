@@ -58,7 +58,7 @@ TEST(RandomGenerator, TestSeed) {
     int int3 = rng3.Integer();
 
     // We need to wait a split second in between to ensure different timestamps.
-    usleep(10);
+    usleep(10000);
 
     math::RandomGenerator rng4(math::RandomGenerator::Seed());
     int int4 = rng4.Integer();

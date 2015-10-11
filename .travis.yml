@@ -35,3 +35,14 @@ before_script:
   - cmake -DCMAKE_BUILD_TYPE=Release ..
 
 script: make && cd ../bin/ && ./run_tests
+
+branches:
+  only:
+    - master
+
+notifications:
+  email: false
+
+os:
+  - linux
+  - osx

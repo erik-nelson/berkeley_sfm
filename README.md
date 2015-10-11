@@ -5,5 +5,6 @@
 
 Berkeley SFM is a structure from motion library created to explore new solutions
 to challenging 3D reconstruction problems (large scale, indoors, incremental,
-high uncertainty, etc.). It is developed by the Berkeley
-Vision and Learning Center ([BVLC](http://bvlc.eecs.berkeley.edu)).
+high uncertainty, etc.). It is developed by Erik Nelson and David
+Fridovich-Keil, members of the Berkeley Vision and Learning Center
+([BVLC](http://bvlc.eecs.berkeley.edu)).

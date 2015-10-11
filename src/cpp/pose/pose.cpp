@@ -40,7 +40,7 @@
 namespace bsfm {
 
 // Construct a new Pose from a rotation matrix and translation vector.
-Pose::Pose(Eigen::Matrix3d &R, Eigen::Vector3d &t) {
+Pose::Pose(const Eigen::Matrix3d &R, const Eigen::Vector3d &t) {
   Rt_ = Eigen::Matrix4d::Identity();
   Rt_.block(0, 0, 3, 3) = R;
   Rt_.col(3).head(3) = t;
@@ -49,23 +49,18 @@ Pose::Pose(Eigen::Matrix3d &R, Eigen::Vector3d &t) {
 }
 
 // Deep copy constructor.
-Pose::Pose(const Pose &other) {
+Pose::Pose(const Pose& other) {
   Rt_ = Eigen::Matrix4d();
   Rt_ << other.Rt_;
   aa_ << other.aa_;
 }
 
-// Destroy this Pose.
-Pose::~Pose() {
-  //  std::cout << "Deleting Pose..." << std::endl;
-}
-
 // Project a 3D point into this Pose.
-Eigen::Vector2d Pose::project(Eigen::Vector3d &pt3d) {
+Eigen::Vector2d Pose::Project(const Eigen::Vector3d& pt3d) {
   Eigen::Vector4d pt3d_h = Eigen::Vector4d::Constant(1.0);
   pt3d_h.head(3) = pt3d;
 
-  Eigen::Vector4d proj_h = Rt_ * pt3d_h;
+  const Eigen::Vector4d proj_h = Rt_ * pt3d_h;
   Eigen::Vector2d proj = proj_h.head(2);
   proj /= proj_h(2);
 
@@ -73,20 +68,20 @@ Eigen::Vector2d Pose::project(Eigen::Vector3d &pt3d) {
 }
 
 // Test if this pose (Rt_ only) is approximately equal to another pose.
-bool Pose::isApprox(Pose &other) {
+bool Pose::IsApprox(const Pose& other) const {
   return Rt_.isApprox(other.Rt_);
 }
 
 // Compose this Pose with the given pose so that both refer to the identity Pose as
 // specified by the given Pose.
-void Pose::compose(Pose &p) {
-  Rt_ *= p.Rt_;
+void Pose::Compose(const Pose& other) {
+  Rt_ *= other.Rt_;
 }
 
 // Convert to axis-angle representation.
-Eigen::VectorXd Pose::toAxisAngle() {
+Eigen::VectorXd Pose::ToAxisAngle() {
   // from https://en.wikipedia.org/wiki/Axis-angle-representation
-  double angle = acos(0.5 * (Rt_.trace() - 2.0));
+  const double angle = acos(0.5 * (Rt_.trace() - 2.0));
   Eigen::Vector3d axis = Eigen::Vector3d(Rt_(2, 1) - Rt_(1, 2),
 					 Rt_(0, 2) - Rt_(2, 0),
 					 Rt_(1, 0) - Rt_(0, 1)) * 0.5 / sin(angle);
@@ -98,7 +93,7 @@ Eigen::VectorXd Pose::toAxisAngle() {
 }
 
 // Convert to matrix representation.
-Eigen::Matrix4d Pose::fromAxisAngle() {
+Eigen::Matrix4d Pose::FromAxisAngle() {
 
   // from https://en.wikipedia.org/wiki/Rotation_matrix
   double angle = aa_.norm();
@@ -125,7 +120,7 @@ Eigen::Matrix4d Pose::fromAxisAngle() {
 }
 
 // Print to StdOut.
-void Pose::print()  {
+void Pose::Print() const {
   std::cout << "Pose matrix:\n" << Rt_ << std::endl;
   std::cout << "Pose axis-angle:\n" << aa_ << std::endl;
 }

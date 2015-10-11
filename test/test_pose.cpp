@@ -35,9 +35,9 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#include <pose/pose.h>
-#include <iostream>
 #include <Eigen/Dense>
+#include <iostream>
+#include <pose/pose.h>
 
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
@@ -45,21 +45,20 @@
 namespace bsfm {
 
 TEST(Pose, TestPoseAxisAngle) {
-
-  // create a simple rotation matrix and random translation vector
+  // Create a simple rotation matrix and random translation vector.
   Eigen::Matrix3d R1;
-  R1 << 
+  R1 <<
     cos(0.5), -sin(0.5), 0,
     sin(0.5), cos(0.5), 0,
     0, 0, 1;
-  Eigen::Vector3d t1 = Eigen::Vector3d::Random();
-  Pose p1 = Pose(R1, t1);
+  const Eigen::Vector3d t1 = Eigen::Vector3d::Random();
+  const Pose p1 = Pose(R1, t1);
   Pose p2 = p1;
 
-  // convert to/from axis angle representation and check nothing has changed
-  p2.toAxisAngle();
-  p2.fromAxisAngle();
-  EXPECT_TRUE(p1.isApprox(p2));
+  // Convert to/from axis angle representation and check nothing has changed.
+  p2.ToAxisAngle();
+  p2.FromAxisAngle();
+  EXPECT_TRUE(p1.IsApprox(p2));
 }
 
 } // namespace bsfm

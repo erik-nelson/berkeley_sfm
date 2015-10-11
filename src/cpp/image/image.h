@@ -83,8 +83,9 @@ class Image {
   template <typename T>
   const T& at(size_t u, size_t v) const;
 
-  // Access OpenCV mat.
-  void GetCV(cv::Mat& out) const;
+  // Copy to and from OpenCV mats.
+  void ToCV(cv::Mat& out) const;
+  void FromCV(const cv::Mat& in);
 
   // Convert to Eigen matrix.
   void ToEigen(Eigen::MatrixXf& eigen_out);

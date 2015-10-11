@@ -37,35 +37,40 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This struct defines a set of options that are used during feature matching.
+// This file defines helpful drawing/debugging utilities for images, feature
+// matching, and SFM.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
-#define BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
+#ifndef BSFM_IMAGE_DRAWING_UTILS_H
+#define BSFM_IMAGE_DRAWING_UTILS_H
+
+#include "image.h"
+#include "../matching/pairwise_image_match.h"
 
 namespace bsfm {
+namespace drawing {
 
-struct FeatureMatcherOptions {
+// Annotate an image by drawing features on it.
+void AnnotateFeatures(const FeatureList& features, Image& image,
+                      unsigned int radius = 3,
+                      unsigned int line_thickness = 2);
 
-  // Use the lowes ratio test for feature matching. Given n potential matches
-  // between a feature from this image and features in another image, we will
-  // only consider this feature matched if the best 2 matches differ by at most
-  // the lowes ratio.
-  // i.e. store the match if:
-  //   distance(best_match) < lowes_ratio^2 * distance(second_best_match)
-  bool use_lowes_ratio = true;
-  double lowes_ratio = 0.75;
+// Draw features as circles in an image.
+void DrawImageFeatures(const FeatureList& features, const Image& image,
+                       const std::string& window_name = std::string(),
+                       unsigned int radius = 3,
+                       unsigned int line_thickness = 2);
 
-  // The minimum number of feature matches between two images required to
-  // consider the image pair a match.
-  unsigned int min_num_feature_matches = 20;
+// Given two images, and data containing their features and matches between
+// those features, draw the two images side by side, with matches drawn as lines
+// between them.
+void DrawImageFeatureMatches(const Image& image1, const Image& image2,
+                             const PairwiseImageMatch& match_data,
+                             const std::string& window_name = std::string(),
+                             unsigned int line_thickness = 1);
 
-  // Only store matches that are the best feature match in both directions.
-  bool require_symmetric_matches = true;
-
-};  //\struct FeatureMatcherOptions
-
+}  //\namespace drawing
 }  //\namespace bsfm
 
 #endif

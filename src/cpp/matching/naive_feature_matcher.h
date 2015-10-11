@@ -114,7 +114,7 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
     return false;
   }
 
-  if (this->options_.ensure_symmetric_matches) {
+  if (this->options_.require_symmetric_matches) {
     LightFeatureMatchList reverse_light_feature_matches;
     ComputePutativeMatches(features2, features1, reverse_light_feature_matches);
     this->SymmetricMatches(reverse_light_feature_matches, light_feature_matches);
@@ -149,10 +149,9 @@ void NaiveFeatureMatcher<DistanceMetric>::ComputePutativeMatches(
   // Store all matches and their distances.
   for (size_t ii = 0; ii < features1.size(); ++ii) {
     LightFeatureMatchList one_way_matches;
-    // one_way_matches.reserve(features2.size());
     for (size_t jj = 0; jj < features2.size(); ++jj) {
       double dist =
-          distance(features1[ii].descriptor_, features2[ii].descriptor_);
+          distance(features1[ii].descriptor_, features2[jj].descriptor_);
       one_way_matches.emplace_back(ii, jj, dist);
     }
 

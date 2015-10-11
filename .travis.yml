@@ -51,9 +51,9 @@ before_script:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=Release ..
 
-  script:
-    make                                 && \
-    cd ../bin/                           && \
-    echo "Running the following tests: " && \
-    ./run_tests --gtest_list_tests       && \
-    ./run_tests
+script:
+  - make
+  - cd ../bin/
+  - echo "Running the following tests: "
+  - ./run_tests --gtest_list_tests
+  - ./run_tests

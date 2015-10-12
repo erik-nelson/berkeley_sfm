@@ -62,8 +62,9 @@ class FundamentalMatrixRansacDataElement : public RansacDataElement {
   FundamentalMatrixRansacDataElement(const FeatureMatch& match);
   virtual ~FundamentalMatrixRansacDataElement();
 
- private:
-  FeatureMatch match_;
+  // Public data variable (we need public so that base classes can access).
+  FeatureMatch data_;
+
 };  //\class FundamentalMatrixRansacDataElement
 
 
@@ -76,13 +77,13 @@ class FundamentalMatrixRansacModel : public RansacModel {
   virtual ~FundamentalMatrixRansacModel();
 
   // Return model error.
-  double Error() override;
+  virtual double Error() const;
 
   // Evaluate model on a single data element and update error.
-  bool IsGoodFit(const FundamentalMatrixRansacDataElement& data_point,
-                 double error_tolerance) override;
+  virtual bool IsGoodFit(const FundamentalMatrixRansacDataElement& data_point,
+                         double error_tolerance);
 
- private:
+  // Public member variables (we need public so that base classes can access).
   Eigen::Matrix3d F_;
   double error_;
 };  //\class FundamentalMatrixRansacModel
@@ -96,14 +97,17 @@ class FundamentalMatrixRansacProblem : public RansacProblem {
   virtual ~FundamentalMatrixRansacProblem();
 
   // Subsample the data.
-  std::vector<RansacDataElement> SampleData() override;
+  virtual std::vector<RansacDataElement> SampleData();
 
   // Return the data that was not sampled.
-  std::vector<RansacDataElement> RemainingData() override;
+  virtual std::vector<RansacDataElement> RemainingData() const;
 
   // Fit a model to the provided data using the 8-point algorithm.
-  RansacModel FitModel(
-      const std::vector<FundamentalMatrixRansacDataElement>& data) override;
+  virtual RansacModel FitModel(
+      const std::vector<FundamentalMatrixRansacDataElement>& input_data) const;
+
+ private:
+  std::vector<RansacDataElement> unsampled_data_;
 };  //\class FundamentalMatrixRansacProblem
 
 } //\namespace bsfm

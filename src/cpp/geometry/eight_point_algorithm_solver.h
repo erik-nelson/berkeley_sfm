@@ -66,21 +66,21 @@ class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
   EightPointAlgorithmSolver() { }
   virtual ~EightPointAlgorithmSolver() { }
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(EightPointAlgorithmSolver)
-
   // Use the eight point algorithm to compute the fundamental matrix for a set
   // of features matched between two images.
-  bool ComputeFundamentalMatrix(const FeatureMatchList& matched_features,
-                                Eigen::Matrix3d& fundamental_matrix);
+  virtual bool ComputeFundamentalMatrix(
+      const FeatureMatchList& matched_features,
+      Eigen::Matrix3d& fundamental_matrix) const;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(EightPointAlgorithmSolver)
 
   // Determine a normalization matrix for the specified set of features. Since
   // both sets of features are stored in the FeatureMatchList, the 'use_feature_set1'
   // parameter must be specified to pick out a normalization for either feature
   // set 1 or feature set 2.
   Eigen::Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
-                                       bool use_feature_set1);
-
+                                       bool use_feature_set1) const;
 };  //\class EightPointAlgorithmSolver
 
 
@@ -88,7 +88,7 @@ class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
 
 bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
     const FeatureMatchList& matched_features,
-    Eigen::Matrix3d& fundamental_matrix) {
+    Eigen::Matrix3d& fundamental_matrix) const {
   // Following: https://www8.cs.umu.se/kurser/TDBD19/VT05/reconstruct-4.pdf
 
   // First make sure we even have enough matches to run the eight-point
@@ -183,7 +183,7 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
 }
 
 Eigen::Matrix3d EightPointAlgorithmSolver::ComputeNormalization(
-    const FeatureMatchList& matched_features, bool use_feature_set1) {
+    const FeatureMatchList& matched_features, bool use_feature_set1) const {
   // Compute a mean translation from the origin.
   double mean_u = 0.0;
   double mean_v = 0.0;

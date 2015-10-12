@@ -126,4 +126,5 @@ bool Ransac::Run(RansacProblem& problem) const {
 }
 
 }  //\namespace bsfm
+
 #endif

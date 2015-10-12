@@ -48,7 +48,7 @@ DEFINE_string(matched_image1, "campanile_view1.jpg",
               "Name of the first image used to test feature matching.");
 DEFINE_string(matched_image2, "campanile_view2.jpg",
               "Name of the second image used to test feature matching.");
-DEFINE_bool(draw_feature_matches, true,
+DEFINE_bool(draw_feature_matches, false,
             "If true, open a window displaying feature matches for each test.");
 
 namespace bsfm {

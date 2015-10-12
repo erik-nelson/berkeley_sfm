@@ -70,8 +70,8 @@ class NaiveFeatureMatcher : public FeatureMatcher<DistanceMetric> {
 
   // Match two images together by doing a pairwise comparison of all of their
   // individual feature descriptors.
-  bool MatchImagePair(int image_index1, int image_index2,
-                      FeatureMatchList& feature_matches) override;
+  virtual bool MatchImagePair(int image_index1, int image_index2,
+                              FeatureMatchList& feature_matches);
 
   // Compute putative matches between features for an image pair. These might be
   // removed later on due to e.g. not being symmetric, etc.

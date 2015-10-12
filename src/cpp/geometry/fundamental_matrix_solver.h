@@ -80,7 +80,7 @@ class FundamentalMatrixSolver {
   // Override this in the derived solver class to implement it.
   virtual bool ComputeFundamentalMatrix(
       const FeatureMatchList& matched_features,
-      Eigen::Matrix3d& fundamental_matrix) = 0;
+      Eigen::Matrix3d& fundamental_matrix) const = 0;
 
  protected:
   // The matched image data contains a list of matched features for a set of

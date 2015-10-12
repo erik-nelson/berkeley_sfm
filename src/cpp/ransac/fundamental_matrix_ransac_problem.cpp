@@ -49,11 +49,11 @@
 #include "ransac_problem.h"
 #include "fundamental_matrix_ransac_problem.h"
 #include "../math/random_generator.h"
-#include "../geometry/fundamental_matrix_solver.h"
 #include "../geometry/eight_point_algorithm_solver.h"
+#include "../geometry/fundamental_matrix_solver_options.h"
 
-DEFINE_int(subsample_size, 8,
-           "Number of points required for each minimal sampling in RANSAC.");
+DEFINE_int64(subsample_size, 8,
+             "Number of points required for each minimal sampling in RANSAC.");
 
 namespace bsfm {
 
@@ -61,42 +61,42 @@ namespace bsfm {
 
 // RansacDataElement constructor.
 FundamentalMatrixRansacDataElement::FundamentalMatrixRansacDataElement(
-    const FeatureMatch& match)
-    : match_(match) {}
+    const FeatureMatch& data)
+    : data_(data) {}
 
 // RansacDataElement destructor.
 FundamentalMatrixRansacDataElement::~FundamentalMatrixRansacDataElement() {}
 
-
 // ------------ FundamentalMatrixRansacModel methods ------------ //
 
 // RansacModel constructor.
-FundamentalMatrixRansacModel::FundamentalMatrixRansacModel(const Eigen::Matrix3d& F)
+FundamentalMatrixRansacModel::FundamentalMatrixRansacModel(
+    const Eigen::Matrix3d& F)
     : F_(F), error_(0.0) {}
 
 // RansacModel destructor.
 FundamentalMatrixRansacModel::~FundamentalMatrixRansacModel() {}
 
 // Return model error.
-double FundamentalMatrixRansacModel::Error() {
+double FundamentalMatrixRansacModel::Error() const {
   return error_;
 }
 
 // Evaluate model on a single data element and update error.
 bool FundamentalMatrixRansacModel::IsGoodFit(
-    const FundamentalMatrixRansacDataElement& match, double error_tolerance) {
+    const FundamentalMatrixRansacDataElement& match,
+    double error_tolerance) {
   // Construct vectors for 2D points in match.
   Eigen::Vector3d kp1, kp2;
-  kp1 << match.feature1_.u_, match.feature1_.v_, 1;
-  kp2 << match.feature2_.u_, match.feature2_.v_, 1;
+  kp1 << match.data_.feature1_.u_, match.data_.feature1_.v_, 1;
+  kp2 << match.data_.feature2_.u_, match.data_.feature2_.v_, 1;
 
   // Compute error and record its square.
   double epipolar_condition = kp1.transpose() * F_ * kp2;
   error_ += epipolar_condition * epipolar_condition;
 
   // Test against the provided tolerance.
-  if (error_ < error_tolerance)
-    return true;
+  if (error_ < error_tolerance) return true;
   return false;
 }
 
@@ -109,43 +109,48 @@ FundamentalMatrixRansacProblem::FundamentalMatrixRansacProblem() {}
 FundamentalMatrixRansacProblem::~FundamentalMatrixRansacProblem() {}
 
 // Subsample the data.
-std::vector<RansacDataElement>
-FundamentalMatrixRansacProblem::SampleData() {
-
+std::vector<RansacDataElement> FundamentalMatrixRansacProblem::SampleData() {
   // Randomly shuffle the entire dataset and take the first 8 elements.
   std::random_shuffle(data_.begin(), data_.end());
 
-  std::vector<FundamentalMatrixRansacDataElement> samples;
+  std::vector<RansacDataElement> samples;
   for (size_t ii = 0; ii < FLAGS_subsample_size; ii++)
     samples.push_back(data_[ii]);
+
+  // Locally store which parts of the data we did not sample (for use in
+  // RemainingData()).
+  unsampled_data_ = std::vector<RansacDataElement>(
+      data_.begin() + FLAGS_subsample_size + 1, data_.end());
 
   return samples;
 }
 
 // Return all data that was not sampled.
-std::vector<RansacDataElement>
-FundamentalMatrixRansacProblem::RemainingData() {
-  // TODO: This should be all data that was not sampled.
-  return data_;
+std::vector<RansacDataElement> FundamentalMatrixRansacProblem::RemainingData() const {
+  return unsampled_data_;
 }
 
 // Fit a model to the provided data using the 8-point algorithm.
 RansacModel FundamentalMatrixRansacProblem::FitModel(
-    const std::vector<FundamentalMatrixRansacDataElement>& data) {
+    const std::vector<FundamentalMatrixRansacDataElement>& input_data) const {
   // Create an empty fundamental matrix.
   Eigen::Matrix3d F;
 
   // Run the 8-point algorithm with default options.
-  FundamentalMatrixSolver solver;
+  EightPointAlgorithmSolver solver;
   FundamentalMatrixSolverOptions options;
   solver.SetOptions(options);
 
-  if (solver.ComputeFundamentalMatrix(data, F)) {
+  // Convert data to an input that is useable by the solver.
+  std::vector<FeatureMatch> solver_input_data;
+  for (const auto& data_element : input_data) {
+    solver_input_data.push_back(data_element.data_);
+  }
+
+  if (solver.ComputeFundamentalMatrix(solver_input_data, F)) {
     return FundamentalMatrixRansacModel(F);
   }
-  return FundamentalMatrixRansacModel(Eigen::MatrixXd::Identity(3,3));
+  return FundamentalMatrixRansacModel(Eigen::MatrixXd::Identity(3, 3));
 }
 
-} //\namespace bsfm
-
-#endif
+}  //\namespace bsfm

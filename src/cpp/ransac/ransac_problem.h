@@ -68,9 +68,9 @@ class RansacModel {
   RansacModel() { }
   virtual ~RansacModel() { }
 
-  // Define these remaining methods in a derived class!
-  virtual double Error() const = delete;
-  virtual bool IsGoodFit(RansacDataElement, double error_tolerance) const = delete;
+  // ----- Define these remaining methods in a derived class! ----- //
+  virtual double Error() const;
+  virtual bool IsGoodFit(RansacDataElement, double error_tolerance);
 }; //\class RansacModel
 
 
@@ -86,11 +86,11 @@ class RansacProblem {
   virtual void SetData(const std::vector<RansacDataElement>& data);
   virtual bool SolutionFound();
 
-  // Define these remaining methods in a derived class!
-  virtual std::vector<RansacDataElement> SampleData() const = delete;
-  virtual std::vector<RansacDataElement> UnsampledData() const = delete;
-  virtual RansacModel FitModel(const std::vector<RansacDataElement>& data) =
-      delete;
+  // ----- Define these remaining methods in a derived class! ----- //
+  virtual std::vector<RansacDataElement> SampleData();
+  virtual std::vector<RansacDataElement> UnsampledData() const;
+  virtual RansacModel FitModel(
+      const std::vector<RansacDataElement>& input_data) const;
 
  protected:
   std::vector<RansacDataElement> data_;
@@ -124,4 +124,5 @@ bool RansacProblem::SolutionFound() {
 }
 
 }  //\namespace bsfm
+
 #endif

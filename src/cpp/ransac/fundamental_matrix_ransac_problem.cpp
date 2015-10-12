@@ -42,6 +42,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <algorithm>
 #include <Eigen/Core>
 #include <gflags/gflags.h>
 #include <vector>
@@ -114,13 +115,18 @@ std::vector<RansacDataElement> FundamentalMatrixRansacProblem::SampleData() {
   std::random_shuffle(data_.begin(), data_.end());
 
   std::vector<RansacDataElement> samples;
-  for (size_t ii = 0; ii < FLAGS_subsample_size; ii++)
+  size_t max_num_samples = std::min<size_t>(data_.size(), FLAGS_subsample_size);
+  for (size_t ii = 0; ii < max_num_samples; ii++)
     samples.push_back(data_[ii]);
 
   // Locally store which parts of the data we did not sample (for use in
   // RemainingData()).
-  unsampled_data_ = std::vector<RansacDataElement>(
-      data_.begin() + FLAGS_subsample_size + 1, data_.end());
+  if (data_.size() == max_num_samples) {
+    unsampled_data_ = std::vector<RansacDataElement>();
+  }else {
+    unsampled_data_ = std::vector<RansacDataElement>(
+        data_.begin() + max_num_samples, data_.end());
+  }
 
   return samples;
 }

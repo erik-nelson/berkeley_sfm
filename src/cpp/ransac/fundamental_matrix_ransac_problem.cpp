@@ -127,7 +127,8 @@ std::vector<RansacDataElement> FundamentalMatrixRansacProblem::SampleData() {
 }
 
 // Return all data that was not sampled.
-std::vector<RansacDataElement> FundamentalMatrixRansacProblem::RemainingData() const {
+std::vector<RansacDataElement> FundamentalMatrixRansacProblem::RemainingData()
+    const {
   // In Sample(), the data was shuffled and we took the first
   // FLAGS_subsample_size elements. Here, take the remaining elements.
   if (static_cast<size_t>(FLAGS_subsample_size) >= data_.size()) {
@@ -135,8 +136,8 @@ std::vector<RansacDataElement> FundamentalMatrixRansacProblem::RemainingData() c
   }
   CHECK(FLAGS_subsample_size >= 0);
 
-  return std::vector<RansacDataElement>(
-      data_.begin() + FLAGS_subsample_size, data_.end());
+  return std::vector<RansacDataElement>(data_.begin() + FLAGS_subsample_size,
+                                        data_.end());
 }
 
 // Fit a model to the provided data using the 8-point algorithm.

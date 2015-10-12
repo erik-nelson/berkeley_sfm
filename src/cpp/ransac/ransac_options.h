@@ -31,49 +31,41 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * Please contact the author(s) of this library if you have any questions.
- * Authors: David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
- *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
+ * Authors: Erik Nelson            ( eanelson@eecs.berkeley.edu )
+ *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This class defines the FundamentalMatrixRansacModel class API, which 
-// is derived from the abstract base class RansacModel.
+// This struct defines a set of options that are used for RANSAC (generic).
+// Note that because the Ransac class solves generic RANSAC problems, the
+// default values in these options could be very far from a good choice for the
+// specific RANSAC problem!
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "fundamental_matrix_ransac_model.h"
+#ifndef BSFM_RANSAC_RANSAC_OPTIONS_H
+#define BSFM_RANSAC_RANSAC_OPTIONS_H
 
 namespace bsfm {
 
-  // Constructor.
-  FundamentalMatrixRansacModel::FundamentalMatrixRansacModel(Eigen::Matrix3d& F) 
-    : F_(F), error_(0.0) {}
+struct RansacOptions {
 
-  // Destructor.
-  ~FundamentalMatrixRansacModel::FundamentalMatrixRansacDataElement() {}
-    
-  // Return model error.
-  double FundamentalMatrixRansacModel::Error() { return error_; }
+  // Number of iterations to run RANSAC for.
+  unsigned int iterations = 100;
 
-  // Evaluate model on a single data element and update error.
-  bool FundamentalMatrixRansacModel::IsGoodFit(FundamentalMatrixRansacDataElement match, 
-					       double error_tolerance) {
-    // Construct vectors for 2D points in match.
-    Eigen::Vector3d kp1, kp2;
-    kp1 << match.feature1_.u_, match.feature1_.v_, 1;
-    kp2 << match.feature2_.u_, match.feature2_.v_, 1;
+  // In order to be considered an inlier, a data point must fit the RANSAC model
+  // to at least this error. This value is extremely arbitrary - tweak it for
+  // the specific problem!
+  double acceptable_error = 1e-3;
 
-    // Compute error and record its square.
-    double epipolar_condition = kp1.transpose() * F_ * kp2;
-    error_ += epipolar_condition * epipolar_condition;
+  // The minimum number of inliers needed to consider a model "good". If ANY
+  // model is considered "good", then RANSAC has found a solution, and will
+  // simply try to find a better one until it has run out of iterations.
+  // Again, this value is extremely arbitrary!
+  unsigned int minimum_num_inliers = 10;
 
-    // Test against the provided tolerance.
-    if (error_ < error_tolerance)
-      return true;
-    return false;
-  }
+};  //\struct RansacOptions
 
-} //\namespace bsfm
-
+}  //\namespace bsfm
 #endif

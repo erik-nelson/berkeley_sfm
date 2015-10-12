@@ -44,8 +44,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef BSFM_MATCHING_RANSAC_PROBLEM_H
-#define BSFM_MATCHING_RANSAC_PROBLEM_H
+#ifndef BSFM_RANSAC_RANSAC_PROBLEM_H
+#define BSFM_RANSAC_RANSAC_PROBLEM_H
 
 #include <vector>
 
@@ -83,6 +83,7 @@ class RansacProblem {
 
   static RansacModel NullModel();
   virtual void SetModel(const RansacModel& model);
+  virtual void SetData(const std::vector<RansacDataElement>& data);
   virtual bool SolutionFound();
 
   // Define these remaining methods in a derived class!
@@ -112,6 +113,10 @@ RansacModel RansacProblem::NullModel() {
 
 void RansacProblem::SetModel(const RansacModel& model) {
   model_ = model;
+}
+
+void RansacProblem::SetData(const std::vector<RansacDataElement>& data) {
+  data_ = data;
 }
 
 bool RansacProblem::SolutionFound() {

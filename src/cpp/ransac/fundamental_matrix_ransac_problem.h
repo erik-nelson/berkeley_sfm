@@ -37,22 +37,75 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This class defines the FundamentalMatrixRansacDataElement class, which 
-// is derived from the abstract base class RansacDataElement.
+// These classes defines the FundamentalMatrixRansacProblem API, and derive from
+// the base RansacProblem, RansacDataElement, and RansacModel classes.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "fundamental_matrix_ransac_data_element.h"
+#ifndef BSFM_RANSAC_FUNDAMENTAL_MATRIX_RANSAC_PROBLEM_H
+#define BSFM_RANSAC_FUNDAMENTAL_MATRIX_RANSAC_PROBLEM_H
+
+#include <Eigen/Dense>
+#include <vector>
+
+#include "ransac_problem.h"
+#include "../matching/feature_match.h"
 
 namespace bsfm {
 
-  // Constructor.
-  FundamentalMatrixRansacDataElement::FundamentalMatrixRansacDataElement 
-  (FeatureMatch& match) : match_(match) {}
 
-  // Destructor.
-  ~FundamentalMatrixRansacDataElement::FundamentalMatrixRansacDataElement() {}
-    
-  }
+// --------- FundamentalMatrixRansacDataElement derived --------- //
+
+class FundamentalMatrixRansacDataElement : public RansacDataElement {
+ public:
+  // Define an additional constructor specifically for this model.
+  FundamentalMatrixRansacDataElement(const FeatureMatch& match);
+  virtual ~FundamentalMatrixRansacDataElement();
+
+ private:
+  FeatureMatch match_;
+};  //\class FundamentalMatrixRansacDataElement
+
+
+// ------------ FundamentalMatrixRansacModel derived ------------ //
+
+class FundamentalMatrixRansacModel : public RansacModel {
+ public:
+  // Define an additional constructor specifically for this model.
+  FundamentalMatrixRansacModel(const Eigen::Matrix3d& F);
+  virtual ~FundamentalMatrixRansacModel();
+
+  // Return model error.
+  double Error() override;
+
+  // Evaluate model on a single data element and update error.
+  bool IsGoodFit(const FundamentalMatrixRansacDataElement& data_point,
+                 double error_tolerance) override;
+
+ private:
+  Eigen::Matrix3d F_;
+  double error_;
+};  //\class FundamentalMatrixRansacModel
+
+
+// ------------ FundamentalMatrixRansacProblem derived ------------ //
+
+class FundamentalMatrixRansacProblem : public RansacProblem {
+ public:
+  FundamentalMatrixRansacProblem();
+  virtual ~FundamentalMatrixRansacProblem();
+
+  // Subsample the data.
+  std::vector<RansacDataElement> SampleData() override;
+
+  // Return the data that was not sampled.
+  std::vector<RansacDataElement> RemainingData() override;
+
+  // Fit a model to the provided data using the 8-point algorithm.
+  RansacModel FitModel(
+      const std::vector<FundamentalMatrixRansacDataElement>& data) override;
+};  //\class FundamentalMatrixRansacProblem
 
 } //\namespace bsfm
+
+#endif

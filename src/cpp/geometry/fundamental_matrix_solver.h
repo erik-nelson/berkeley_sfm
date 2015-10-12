@@ -69,18 +69,20 @@ class FundamentalMatrixSolver {
   virtual void AddMachedImagePairs(
       const PairwiseImageMatchList& matched_image_data);
 
+  // Set options.
+  virtual void SetOptions(const FundamentalMatrixSolverOptions& options);
+
   // Compute the fundamental matrix for each image pair.
   virtual bool ComputeFundamentalMatrices(
-      const FundamentalMatrixSolverOptions& options,
       std::vector<Eigen::Matrix3d>& fundamental_matrices);
 
- protected:
   // Abstract method to compute the fundamental matrix for a single image pair.
   // Override this in the derived solver class to implement it.
   virtual bool ComputeFundamentalMatrix(
       const FeatureMatchList& matched_features,
       Eigen::Matrix3d& fundamental_matrix) = 0;
 
+ protected:
   // The matched image data contains a list of matched features for a set of
   // images. The matched features contain (u, v) coordinates in each image. This
   // is a list because we can solve for a bunch of fundamental matrices for a
@@ -112,14 +114,15 @@ void FundamentalMatrixSolver::AddMachedImagePairs(
                              matched_image_data.end());
 }
 
+void FundamentalMatrixSolver::SetOptions(
+    const FundamentalMatrixSolverOptions& options) {
+  options_ = options;
+}
+
 bool FundamentalMatrixSolver::ComputeFundamentalMatrices(
-    const FundamentalMatrixSolverOptions& options,
     std::vector<Eigen::Matrix3d>& fundamental_matrices) {
   // Clear the output.
   fundamental_matrices.clear();
-
-  // Store the solver options locally.
-  options_ = options;
 
   // Determine a fundamental matrix for each pair of images.
   for (const auto& pair_data : matched_image_data_) {

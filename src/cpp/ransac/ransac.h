@@ -37,14 +37,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This class defines a generic RANSAC solver. The class is templated by the
-// RANSAC data and model, which are both problem-specific.
+// This class defines a generic RANSAC solver. The user may define a
+// RansacProblem derived class, and plug it in here.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef BSFM_MATCHING_RANSAC_H
-#define BSFM_MATCHING_RANSAC_H
+#ifndef BSFM_RANSAC_RANSAC_H
+#define BSFM_RANSAC_RANSAC_H
 
 #include <limits>
 #include <glog/logging.h>
@@ -94,7 +94,7 @@ bool Ransac::Run(RansacProblem& problem) const {
 
     // Which of the remaining points are also inliers under this model?
     std::vector<RansacDataElement> also_inliers;
-    std::vector<RansacDataElement> unsampled = problem.UnsampledData();
+    std::vector<RansacDataElement> unsampled = problem.RemainingData();
     for (const auto& not_sampled_data_point : unsampled) {
       if (initial_model.IsGoodFit(not_sampled_data_point, options_.acceptable_error)) {
         also_inliers.push_back(not_sampled_data_point);

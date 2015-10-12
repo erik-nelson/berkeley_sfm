@@ -118,12 +118,15 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
 
   // Test both with and without normalization.
   FundamentalMatrixSolverOptions options;
+  solver.SetOptions(options);
+
   std::vector<Eigen::Matrix3d> fundamental_matrices1;
   std::vector<Eigen::Matrix3d> fundamental_matrices2;
-  EXPECT_TRUE(solver.ComputeFundamentalMatrices(options, fundamental_matrices1));
+  EXPECT_TRUE(solver.ComputeFundamentalMatrices(fundamental_matrices1));
 
   options.normalize_features = false;
-  EXPECT_TRUE(solver.ComputeFundamentalMatrices(options, fundamental_matrices2));
+  solver.SetOptions(options);
+  EXPECT_TRUE(solver.ComputeFundamentalMatrices(fundamental_matrices2));
 
   // We should have 1 fundamental matrix (we only put in 1 image pair).
   if (fundamental_matrices1.size() > 0 && fundamental_matrices2.size() > 0) {

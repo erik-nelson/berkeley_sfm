@@ -46,6 +46,8 @@
 #ifndef BSFM_MATCHING_RANSAC_H
 #define BSFM_MATCHING_RANSAC_H
 
+#include <limits>
+
 #include "ransac_options.h"
 
 namespace bsfm {
@@ -78,7 +80,7 @@ void Ransac::SetOptions(const RansacOptions& options) {
 bool Ransac::Run(const typename RansacProblem::DataType& data,
                  typename RansacProblem::ModelType& best_model) const {
   // Set the initial error to something very large.
-  double best_error = std::numeric_limits<double>::infty();
+  double best_error = std::numeric_limits<double>::infinity();
 
   // Initialize the best model to a dummy. We will check if we still have this
   // model at the end to see if RANSAC found a solution.

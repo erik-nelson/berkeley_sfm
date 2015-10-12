@@ -108,8 +108,6 @@ class FundamentalMatrixRansacProblem : public RansacProblem {
 
  private:
   DISALLOW_COPY_AND_ASSIGN(FundamentalMatrixRansacProblem)
-
-  std::vector<RansacDataElement> unsampled_data_;
 };  //\class FundamentalMatrixRansacProblem
 
 } //\namespace bsfm

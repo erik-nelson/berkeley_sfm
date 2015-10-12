@@ -114,26 +114,28 @@ std::vector<RansacDataElement> FundamentalMatrixRansacProblem::SampleData() {
   // Randomly shuffle the entire dataset and take the first 8 elements.
   std::random_shuffle(data_.begin(), data_.end());
 
+  // Make sure we don't over step.
+  const size_t max_num_samples =
+      std::min<size_t>(data_.size(), FLAGS_subsample_size);
+
+  // Get samples.
   std::vector<RansacDataElement> samples;
-  size_t max_num_samples = std::min<size_t>(data_.size(), FLAGS_subsample_size);
   for (size_t ii = 0; ii < max_num_samples; ii++)
     samples.push_back(data_[ii]);
-
-  // Locally store which parts of the data we did not sample (for use in
-  // RemainingData()).
-  if (data_.size() == max_num_samples) {
-    unsampled_data_ = std::vector<RansacDataElement>();
-  }else {
-    unsampled_data_ = std::vector<RansacDataElement>(
-        data_.begin() + max_num_samples, data_.end());
-  }
 
   return samples;
 }
 
 // Return all data that was not sampled.
 std::vector<RansacDataElement> FundamentalMatrixRansacProblem::RemainingData() const {
-  return unsampled_data_;
+  // In Sample(), the data was shuffled and we took the first
+  // FLAGS_subsample_size elements. Here, take the remaining elements.
+  if (static_cast<size_t>(FLAGS_subsample_size) >= data_.size()) {
+    return std::vector<RansacDataElement>();
+  }
+
+  return std::vector<RansacDataElement>(
+      data_.begin() + FLAGS_subsample_size + 1, data_.end());
 }
 
 // Fit a model to the provided data using the 8-point algorithm.

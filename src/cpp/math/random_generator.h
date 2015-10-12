@@ -60,6 +60,9 @@ class RandomGenerator {
   // Generates a random integer in [0, RAND_MAX).
   int Integer();
 
+  // Generates a random integer in [0, 'max').
+  int IntegerUniform(int max);
+
   // Generates a random integer in ['min', 'max').
   int IntegerUniform(int min, int max);
 

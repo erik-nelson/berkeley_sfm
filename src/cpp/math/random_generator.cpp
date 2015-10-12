@@ -62,6 +62,20 @@ int RandomGenerator::Integer() {
   return rand();
 }
 
+// Generates a random integer in [0, 'max').
+int IntegerUniform(int max) {
+  if (max <= 0) {
+    LOG(WARNING) << "max <= 0. Returning 0.";
+    // Eat a random number anyways and return min.
+    Integer();
+    return 0;
+  }
+
+  return (Integer() % static_cast<int>(max + 1));
+
+}
+  
+
 int RandomGenerator::IntegerUniform(int min, int max) {
   if (min >= max) {
     LOG(WARNING) << "min >= max. Returning min.";

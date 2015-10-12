@@ -130,7 +130,7 @@ std::vector<RansacDataElement> FundamentalMatrixRansacProblem::SampleData() {
 std::vector<RansacDataElement> FundamentalMatrixRansacProblem::RemainingData()
     const {
   // In Sample(), the data was shuffled and we took the first
-  // FLAGS_subsample_size elements. Here, take the remaining elements.
+  // FLAGS_subsample_size - 1 elements. Here, take the remaining elements.
   if (static_cast<size_t>(FLAGS_subsample_size) >= data_.size()) {
     return std::vector<RansacDataElement>();
   }

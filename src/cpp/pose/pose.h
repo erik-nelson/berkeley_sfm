@@ -63,8 +63,12 @@ class Pose {
   // Destroy this Pose.
   ~Pose() { };
 
+  // Individual element accessor.
+  double& operator()(int i, int j);
+  const double& operator()(int i, int j) const;
+
   // Multiply two Poses.
-  Pose operator* (const Pose& other) const;
+  Pose operator*(const Pose& other) const;
 
   // Multiply a homgenized point into a Pose.
   Eigen::Vector4d Project(const Eigen::Vector4d&);
@@ -88,15 +92,32 @@ class Pose {
   // Print to StdOut.
   void Print() const;
 
-  // Convert to axis-angle representation.
+  // Output axis-angle representation.
   Eigen::VectorXd ToAxisAngle();
 
-  // Convert to matrix representation.
-  Eigen::Matrix4d FromAxisAngle();
+  // Set based on axis-angle input.
+  Eigen::Matrix4d FromAxisAngle(const Eigen::Vector3d& aa);
+
+  // Set translation directly.
+  void SetX(double x);
+  void SetY(double y);
+  void SetZ(double z);
+
+  // Get translation elements.
+  const double& X() const;
+  const double& Y() const;
+  const double& Z() const;
+  double& MutableX();
+  double& MutableY();
+  double& MutableZ();
+
+  // Translate.
+  void TranslateX(double dx);
+  void TranslateY(double dy);
+  void TranslateZ(double dz);
 
  private:
   Eigen::Matrix4d Rt_;  // 4x4 homogeneous Pose matrix
-  Eigen::Vector3d aa_;  // axis-angle representation
 };  //\class Pose
 
 };  // namespace bsfm

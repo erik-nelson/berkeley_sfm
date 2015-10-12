@@ -41,6 +41,9 @@
 // parameters from the OpenCV camera model:
 // http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
 //
+// By default, the camera is staring down its +Z axis. +X and +Y are the
+// camera's right-facing and upward-facing vectors in this coordinate frame.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef BSFM_CAMERA_CAMERA_H
@@ -55,8 +58,8 @@ class Camera {
  public:
 
   // Constructor and destructor.
-  Camera();
-  ~Camera();
+  Camera() { };
+  ~Camera() { };
 
   // Constructor given extrinsics and intrinsics.
   Camera(CameraExtrinsics, CameraIntrinsics);
@@ -74,30 +77,40 @@ class Camera {
   const CameraIntrinsics& Intrinsics() const;
 
   // Transform points from world to camera coordinates.
-  void WorldToCamera(double, double, double,
-                     double*, double*, double*) const;
+  void WorldToCamera(double wx, double wy, double wz, double* cx, double* cy,
+                     double* cz) const;
 
   // Transform points from camera to world coordinates.
-  void CameraToWorld(double, double, double,
-                     double*, double*, double*) const;
+  void CameraToWorld(double cx, double cy, double cz,
+                     double* wx, double* wy, double* wz) const;
 
-  // Check if a point is in front of the camera.
-  bool CameraToImage(double, double, double,
-                     double*, double *) const;
+  // Transform points from camera to image coordinates. Return whether the input
+  // point is in front of the camera.
+  bool CameraToImage(double cx, double cy, double cz,
+                     double* u_distorted, double* v_distorted) const;
 
-  bool DirectionToImage(double, double,
-                        double*, double*) const;
+  // Transform points from world to image coordinates. Return whether the input
+  // point is in front of the camera.
+  bool WorldToImage(double wx, double wy, double wz,
+                    double* u_distorted, double* v_distorted) const;
 
-  void ImageToDirection(double, double,
-                        double*, double*) const;
+  // Convert a normalized unit direction into the image by distorting it with
+  // the camera's radial distortion parameters.
+  bool DirectionToImage(double u_normalized, double v_normalized,
+                        double* u_distorted, double* v_distorted) const;
+
+  // Convert a distorted image coordinate pair to a normalized direction
+  // vector using the camera's radial distortion parameters.
+  void ImageToDirection(double u_distorted, double v_distorted,
+                        double* u_normalized, double* v_normalized) const;
 
   // Warp a point into the image.
-  void Distort(double, double,
-               double*, double*) const;
+  void Distort(double u, double v,
+               double* u_distorted, double* v_distorted) const;
 
   // Rectilinearize point.
-  void Undistort(double, double,
-                 double*, double*) const;
+  void Undistort(double u_distorted, double v_distorted,
+                 double* u, double* v) const;
 
  private:
   CameraExtrinsics extrinsics_;

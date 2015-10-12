@@ -59,6 +59,9 @@ struct FeatureMatch {
   typedef std::shared_ptr<FeatureMatch> Ptr;
   typedef std::shared_ptr<const FeatureMatch> ConstPtr;
 
+  // Default constructor.
+  FeatureMatch() { }
+
   // Basic constructor
   FeatureMatch(const Feature& feature1, const Feature& feature2)
       : feature1_(feature1), feature2_(feature2) {}

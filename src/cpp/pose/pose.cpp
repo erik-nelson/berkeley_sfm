@@ -42,7 +42,6 @@ namespace bsfm {
 // Initialize to the identity.
 Pose::Pose() {
   Rt_ = Eigen::Matrix4d::Identity();
-  this->ToAxisAngle();
 }
 
 // Construct a new Pose from a rotation matrix and translation vector.
@@ -50,19 +49,25 @@ Pose::Pose(const Eigen::Matrix3d& R, const Eigen::Vector3d& t) {
   Rt_ = Eigen::Matrix4d::Identity();
   Rt_.block(0, 0, 3, 3) = R;
   Rt_.col(3).head(3) = t;
-  this->ToAxisAngle();
 }
 
 // Construct a new Pose from a 4x4 Rt matrix.
 Pose::Pose(const Eigen::Matrix4d& Rt) {
   Rt_ << Rt;
-  this->ToAxisAngle();
 }
 
 // Deep copy constructor.
 Pose::Pose(const Pose& other) {
   Rt_ << other.Rt_;
-  aa_ << other.aa_;
+}
+
+// Access operators delegate to the Eigen access operators.
+double& Pose::operator()(int i, int j) {
+  return Rt_(i, j);
+}
+
+const double& Pose::operator()(int i, int j) const {
+  return Rt_(i, j);
 }
 
 // Overloaded multiplication operator for composing two poses.
@@ -114,24 +119,21 @@ Eigen::Matrix<double, 3, 4> Pose::Dehomogenize() {
 
 // Convert to axis-angle representation.
 Eigen::VectorXd Pose::ToAxisAngle() {
-  // from https://en.wikipedia.org/wiki/Axis-angle-representation
+  // From https://en.wikipedia.org/wiki/Axis-angle-representation.
   const double angle = acos(0.5 * (Rt_.trace() - 2.0));
   Eigen::Vector3d axis = Eigen::Vector3d(Rt_(2, 1) - Rt_(1, 2),
 					 Rt_(0, 2) - Rt_(2, 0),
 					 Rt_(1, 0) - Rt_(0, 1)) * 0.5 / sin(angle);
 
   axis /= axis.norm();
-  aa_ = axis * angle;
-
-  return aa_;
+  return axis * angle;
 }
 
 // Convert to matrix representation.
-Eigen::Matrix4d Pose::FromAxisAngle() {
-
-  // from https://en.wikipedia.org/wiki/Rotation_matrix
-  double angle = aa_.norm();
-  Eigen::Vector3d axis = aa_ / angle;
+Eigen::Matrix4d Pose::FromAxisAngle(const Eigen::Vector3d& aa) {
+  // From https://en.wikipedia.org/wiki/Rotation_matrix.
+  double angle = aa.norm();
+  Eigen::Vector3d axis = aa / angle;
 
   Eigen::Matrix3d cross;
   cross <<
@@ -153,10 +155,57 @@ Eigen::Matrix4d Pose::FromAxisAngle() {
   return Rt_;
 }
 
+void Pose::SetX(double x) {
+  Rt_(0, 3) = x;
+}
+
+void Pose::SetY(double y) {
+  Rt_(1, 3) = y;
+}
+
+void Pose::SetZ(double z) {
+  Rt_(2, 3) = z;
+}
+
+const double& Pose::X() const {
+  return Rt_(0, 3);
+}
+
+const double& Pose::Y() const {
+  return Rt_(1, 3);
+}
+
+const double& Pose::Z() const {
+  return Rt_(2, 3);
+}
+
+double& Pose::MutableX() {
+  return Rt_(0, 3);
+}
+
+double& Pose::MutableY() {
+  return Rt_(1, 3);
+}
+
+double& Pose::MutableZ() {
+  return Rt_(2, 3);
+}
+
+void Pose::TranslateX(double dx) {
+  Rt_(0, 3) += dx;
+}
+
+void Pose::TranslateY(double dy) {
+  Rt_(1, 3) += dy;
+}
+
+void Pose::TranslateZ(double dz) {
+  Rt_(2, 3) += dz;
+}
+
 // Print to StdOut.
 void Pose::Print() const {
   std::cout << "Pose matrix:\n" << Rt_ << std::endl;
-  std::cout << "Pose axis-angle:\n" << aa_ << std::endl;
 }
 
 } // namespace bsfm

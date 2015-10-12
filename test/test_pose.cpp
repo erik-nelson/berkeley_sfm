@@ -56,8 +56,8 @@ TEST(Pose, TestPoseAxisAngle) {
   Pose p2 = p1;
 
   // Convert to/from axis angle representation and check nothing has changed.
-  p2.ToAxisAngle();
-  p2.FromAxisAngle();
+  Eigen::Vector3d aa = p2.ToAxisAngle();
+  p2.FromAxisAngle(aa);
   EXPECT_TRUE(p1.IsApprox(p2));
 }
 

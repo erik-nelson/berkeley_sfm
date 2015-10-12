@@ -136,6 +136,8 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
     A(ii, 8) = 1    ;
   }
 
+  // std::cout << "A: " << std::endl << A << std::endl;
+
   // Get svd(A).
   Eigen::JacobiSVD<Eigen::MatrixXd> svd;
   svd.compute(A, Eigen::ComputeThinU | Eigen::ComputeThinV);
@@ -145,8 +147,7 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
   }
 
   // Get the fundamental matrix elements from the SVD decomposition.
-  const Eigen::MatrixXd V_t = svd.matrixV().transpose();
-  const Eigen::VectorXd f_vec = V_t.rightCols(1);
+  const Eigen::VectorXd f_vec = svd.matrixV().rightCols(1);
 
   // Turn the elements of the fundamental matrix into an actual matrix.
   fundamental_matrix.row(0) = f_vec.topRows(3).transpose();
@@ -156,16 +157,26 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
   // If requested, make sure that the computed fundamental matrix has rank 2.
   // This is step 2 of the eight-point algorithm from the slides.
   if (options_.enforce_fundamental_matrix_rank_deficiency) {
-    Eigen::Matrix3d S_deficient(Eigen::Matrix3d::Zero());
+    // Get svd(F).
+    svd.compute(fundamental_matrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    if (!svd.computeU() || !svd.computeV()) {
+      VLOG(1) << "Failed to compute a singular value decomposition of "
+                 "fundamental matrix.";
+      return false;
+    }
+
+    // Build a matrix of the first 8 singular values down the diagonal. Make the
+    // last diagonal entry 0.
+    Eigen::MatrixXd S_deficient(Eigen::MatrixXd::Zero(3, 3));
     S_deficient(0, 0) = svd.singularValues()(0);
     S_deficient(1, 1) = svd.singularValues()(1);
-    fundamental_matrix = svd.matrixU() * S_deficient * V_t;
+    fundamental_matrix = svd.matrixU() * S_deficient * svd.matrixV().transpose();
   }
 
   // If normalization was requested, we need to 'un-normalize' the fundamental
   // matrix.
   if (options_.normalize_features) {
-    fundamental_matrix = T1.transpose() * fundamental_matrix * T2;
+    fundamental_matrix = T2.transpose() * fundamental_matrix * T1;
   }
 
   return true;
@@ -193,7 +204,6 @@ Eigen::Matrix3d EightPointAlgorithmSolver::ComputeNormalization(
   // This uses Eqs. 1.28 - 1.37 from here:
   // http://www.ecse.rpi.edu/Homepages/qji/CV/8point.pdf
   double scale = 0.0;
-  double du = 0.0, dv = 0.0;
   for (size_t ii = 0; ii < matched_features.size(); ++ii) {
     double u = 0.0, v = 0.0;
     if (use_feature_set1) {
@@ -205,19 +215,25 @@ Eigen::Matrix3d EightPointAlgorithmSolver::ComputeNormalization(
     }
 
     scale += sqrt(((u - mean_u)*(u - mean_u) + (v - mean_v)*(v-mean_v)) / 2.0);
-    du += u - mean_u;
-    dv += v - mean_v;
   }
   scale /= static_cast<double>(matched_features.size());
-  du /= static_cast<double>(matched_features.size());
-  dv /= static_cast<double>(matched_features.size());
+
+  // If the calculated scale, for some reason, is ridiculously small (i.e.
+  // dividing by zero), return an identity output matrix. This will make us not
+  // normalize the data, but we should still get an okay fundamental matrix.
+  if (scale < 1e-4) {
+    LOG(WARNING) << "When normalizing feature coordinates for fundamental "
+                    "matrix computation, scale factor was nearly zero. "
+                    "Proceeding without normalizing data.";
+    return Eigen::MatrixXd::Identity(3, 3);
+  }
 
   // Populate the output matrix.
   Eigen::Matrix3d T(Eigen::MatrixXd::Identity(3, 3));
-  T(0, 0) = 1.0 / du;
-  T(1, 1) = 1.0 / dv;
-  T(0, 2) = -mean_u / du;
-  T(1, 2) = -mean_v / dv;
+  T(0, 0) = 1.0 / scale;
+  T(1, 1) = 1.0 / scale;
+  T(0, 2) = -mean_u / scale;
+  T(1, 2) = -mean_v / scale;
 
   return T;
 }

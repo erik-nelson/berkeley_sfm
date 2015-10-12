@@ -51,15 +51,15 @@ TEST(Camera, TestCameraExtrinsics) {
   double wx = 5.1283, wy = -1282.123, wz = 8713.1237;
   double cx = 0.0, cy = 0.0, cz = 0.0;
   extrinsics.WorldToCamera(wx, wy, wz, &cx, &cy, &cz);
-  EXPECT_EQ(wx, cx);
-  EXPECT_EQ(wy, cy);
-  EXPECT_EQ(wz, cz);
+  EXPECT_EQ(cx, wx);
+  EXPECT_EQ(cy, wz);
+  EXPECT_EQ(cz, -wy);
 
   cx = 2397.123897, cy = -1283.127836, cz = -8129.12387;
   extrinsics.CameraToWorld(cx, cy, cz, &wx, &wy, &wz);
   EXPECT_EQ(cx, wx);
-  EXPECT_EQ(cy, wy);
-  EXPECT_EQ(cz, wz);
+  EXPECT_EQ(cy, wz);
+  EXPECT_EQ(cz, -wy);
 
   // Make sure points are translated correctly.
   Eigen::Matrix4d w2b = Eigen::Matrix4d::Identity();

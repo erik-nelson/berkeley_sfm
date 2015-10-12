@@ -41,6 +41,12 @@
 // camera model:
 // http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
 //
+// The default camera frame is such that the camera is stares down its own +Z axis.
+// +X and +Y are the camera's right-facing and upward-facing vectors in this
+// coordinate frame. The camera's +Z axis is the world -Y axis (and therefore
+// world +X = camera +X). This convention can be seen in the static
+// DefaultBodyToCamera() member function.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef BSFM_CAMERA_CAMERA_EXTRINSICS_H
@@ -52,12 +58,7 @@ namespace bsfm {
 
 class CameraExtrinsics {
 
-private:
-  Pose world_to_body_;
-  Pose body_to_camera_;
-
 public:
-
   // Constructor. Initialize to identity.
   CameraExtrinsics();
 
@@ -66,6 +67,19 @@ public:
 
   // Contructor. Initialize both world/body_to_camera_.
   CameraExtrinsics(const Pose& world_to_body, const Pose& body_to_camera);
+
+  static Pose DefaultBodyToCamera() {
+    // Conversion does the following:
+    //   world +X --> camera +X
+    //   world +Y --> camera +Z
+    //   world +Z --> camera -Y
+    Eigen::Matrix4d b2c;
+    b2c << 1, 0, 0, 0,
+           0, 0, 1, 0,
+           0,-1, 0, 0,
+           0, 0, 0, 1;
+    return Pose(b2c);
+  }
 
   // Initialize world_to_body_ and make body_to_camera the identity.
   void SetWorldToCamera(const Pose& world_to_camera);
@@ -85,6 +99,11 @@ public:
   Pose BodyToWorld() const;
   Pose CameraToBody() const;
 
+  // Translate the world-to-body frame.
+  void TranslateX(double dx);
+  void TranslateY(double dy);
+  void TranslateZ(double dz);
+
   // The extrinsics matrix is 3x4 matrix: [R | t].
   Eigen::Matrix<double, 3, 4> ExtrinsicsMatrix() const;
 
@@ -95,6 +114,10 @@ public:
   // Convert a camera frame point into the world frame.
   void CameraToWorld(double cx, double cy, double cz,
                      double* wx, double* wy, double* wz) const;
+
+private:
+  Pose world_to_body_;
+  Pose body_to_camera_;
 
 };  //\class CameraExtrinsics
 

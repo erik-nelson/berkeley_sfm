@@ -106,7 +106,7 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
   PairwiseImageMatchList image_matches;
   ASSERT_TRUE(feature_matcher.MatchImages(options, image_matches));
 
-  // Different OpenCV implementations will yield different numbers of
+  // Different OpenCV versions will yield different numbers of
   // keypoints/descriptors. Check for matches with some tolerance.
   EXPECT_NEAR(expected_matched_features_symmetric,
               image_matches[0].feature_matches_.size(), 10);
@@ -122,7 +122,7 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
   options.require_symmetric_matches = false;
   ASSERT_TRUE(feature_matcher.MatchImages(options, image_matches));
 
-  // Different OpenCV implementations will yield different numbers of
+  // Different OpenCV versoins will yield different numbers of
   // keypoints/descriptors. Check for matches with some tolerance.
   EXPECT_NEAR(expected_matched_features_asymmetric,
               image_matches[0].feature_matches_.size(), 10);

@@ -80,7 +80,6 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
   // Translate the 2nd camera along its X axis (give it some known base-line).
   // Camera 2 will be 2.0 units to the right of camera 1.
   camera2.MutableExtrinsics().TranslateX(2.0);
-  camera2.MutableExtrinsics().TranslateZ(10.0);
 
   // Create a bunch of points in 3D.
   PairwiseImageMatch match_data;
@@ -117,14 +116,19 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
   EightPointAlgorithmSolver solver;
   solver.AddMatchedImagePair(match_data);
 
+  // Test both with and without normalization.
   FundamentalMatrixSolverOptions options;
+  std::vector<Eigen::Matrix3d> fundamental_matrices1;
+  std::vector<Eigen::Matrix3d> fundamental_matrices2;
+  EXPECT_TRUE(solver.ComputeFundamentalMatrices(options, fundamental_matrices1));
+
   options.normalize_features = false;
-  std::vector<Eigen::Matrix3d> fundamental_matrices;
-  EXPECT_TRUE(solver.ComputeFundamentalMatrices(options, fundamental_matrices));
+  EXPECT_TRUE(solver.ComputeFundamentalMatrices(options, fundamental_matrices2));
 
   // We should have 1 fundamental matrix (we only put in 1 image pair).
-  if (fundamental_matrices.size() > 0) {
-    Eigen::Matrix3d F = fundamental_matrices[0];
+  if (fundamental_matrices1.size() > 0 && fundamental_matrices2.size() > 0) {
+    Eigen::Matrix3d F_normalized = fundamental_matrices1[0];
+    Eigen::Matrix3d F_unnormalized = fundamental_matrices2[0];
 
     // For every feature pair, we should have x1^{T}*F*x2 = 0.
     for (const auto& match : match_data.feature_matches_) {
@@ -134,7 +138,8 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
 
       // This is going to be a crap estimate without normalization due to
       // floating point precision in Eigen's SVD/matrix multiplications.
-      EXPECT_NEAR(0.0, x1.transpose() * F * x2, 0.1);
+      EXPECT_NEAR(0.0, x1.transpose() * F_normalized * x2, 0.05);
+      EXPECT_NEAR(0.0, x1.transpose() * F_unnormalized * x2, 0.05);
     }
   }
 }

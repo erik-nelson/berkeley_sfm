@@ -48,9 +48,8 @@
 namespace bsfm {
 
 struct FundamentalMatrixSolverOptions {
-
-  // Normalize the (u, v) image space positions features prior to computing the
-  // fundamental matrix. This is very nearly necessary for good results.
+  // Normalize the (u, v) image space positions of features prior to computing
+  // the. fundamental matrix. This is pretty much necessary for good results.
   bool normalize_features = true;
 
   // By definition the fundamental matrix is rank deficient (rank 2 for a 3x3

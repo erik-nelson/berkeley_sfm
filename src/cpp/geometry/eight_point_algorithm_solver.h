@@ -76,8 +76,8 @@ class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
 
   // Determine a normalization matrix for the specified set of features. Since
   // both sets of features are stored in the FeatureMatchList, the 'use_feature_set1'
-  // must be specified to pick out a normalization for either feature set 1 or
-  // feature set 2.
+  // parameter must be specified to pick out a normalization for either feature
+  // set 1 or feature set 2.
   Eigen::Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
                                        bool use_feature_set1);
 
@@ -90,6 +90,14 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
     const FeatureMatchList& matched_features,
     Eigen::Matrix3d& fundamental_matrix) {
   // Following: https://www8.cs.umu.se/kurser/TDBD19/VT05/reconstruct-4.pdf
+
+  // First make sure we even have enough matches to run the eight-point
+  // algorithm.
+  if (matched_features.size() < 8) {
+    VLOG(1) << "Cannot use the eight-point algorithm with less than 8 feature "
+               "matches.";
+    return false;
+  }
 
   // Build the A matrix from matched features.
   Eigen::MatrixXd A;

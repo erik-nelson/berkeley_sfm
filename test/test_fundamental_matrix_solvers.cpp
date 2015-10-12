@@ -134,7 +134,7 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
 
       // This is going to be a crap estimate without normalization due to
       // floating point precision in Eigen's SVD/matrix multiplications.
-      EXPECT_NEAR(0.0, x1.transpose() * F * x2, 0.025);
+      EXPECT_NEAR(0.0, x1.transpose() * F * x2, 0.1);
     }
   }
 }

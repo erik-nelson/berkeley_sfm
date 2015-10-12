@@ -47,12 +47,13 @@
 #define BSFM_MATCHING_RANSAC_H
 
 #include <limits>
+#include <glog/logging.h>
 
 #include "ransac_options.h"
+#include "ransac_problem.h"
 
 namespace bsfm {
 
-template <typename RansacProblem>
 class Ransac {
  public:
   Ransac() { }
@@ -61,11 +62,10 @@ class Ransac {
   // Set options for the RANSAC solver.
   void SetOptions(const RansacOptions& options);
 
-  // Run RANSAC using the user's input data. Return the best model that RANSAC
-  // finds in options_.iterations iterations in 'model'. This returns false if
-  // RANSAC does not find any solution.
-  bool Run(const typename RansacProblem::DataType& data,
-           typename RansacProblem::ModelType& model) const;
+  // Run RANSAC using the user's input data (stored in 'problem'). Save the best
+  // model that RANSAC finds after options_.iterations iterations in the
+  // problem. This returns false if RANSAC does not find any solution.
+  bool Run(RansacProblem& problem) const;
 
  private:
       RansacOptions options_;
@@ -77,27 +77,26 @@ void Ransac::SetOptions(const RansacOptions& options) {
   options_ = options;
 }
 
-bool Ransac::Run(const typename RansacProblem::DataType& data,
-                 typename RansacProblem::ModelType& best_model) const {
+bool Ransac::Run(RansacProblem& problem) const {
   // Set the initial error to something very large.
   double best_error = std::numeric_limits<double>::infinity();
 
-  // Initialize the best model to a dummy. We will check if we still have this
-  // model at the end to see if RANSAC found a solution.
-  best_model = typename RansacProblem::ModelType::NullModel();
+  // Initialize the best model to a dummy.
+  problem.SetModel(RansacProblem::NullModel());
 
   // Proceed for options_.iterations iterations of RANSAC.
-  for (int iteration = 0; iteration < options_.iterations; ++iterations) {
+  for (unsigned int iter = 0; iter < options_.iterations; ++iter) {
     // Sample data points.
-    std::vector<typename RansacProblem::DataType> sampled = data.Sample();
+    std::vector<RansacDataElement> sampled = problem.SampleData();
 
     // Fit a model to the sampled data points.
-    model.Fit(sampled);
+    RansacModel initial_model = problem.FitModel(sampled);
 
     // Which of the remaining points are also inliers under this model?
-    std::vector<typename RansacProblem::DataType> also_inliers;
-    for (const auto& not_sampled_data_point : data.NotSampled()) {
-      if (model.IsGoodFit(not_sampled_data_point, options_.acceptable_error)) {
+    std::vector<RansacDataElement> also_inliers;
+    std::vector<RansacDataElement> unsampled = problem.UnsampledData();
+    for (const auto& not_sampled_data_point : unsampled) {
+      if (initial_model.IsGoodFit(not_sampled_data_point, options_.acceptable_error)) {
         also_inliers.push_back(not_sampled_data_point);
       }
     }
@@ -105,20 +104,19 @@ bool Ransac::Run(const typename RansacProblem::DataType& data,
     // Check if we have enough inliers to consider this a good model.
     if (also_inliers.size() >= options_.minimum_num_inliers) {
       // Test how good this model is.
-      typename RansacProblem::ModelType better_model;
-      better_model.Fit(also_inliers);
+      RansacModel better_model = problem.FitModel(also_inliers);
 
       // Is this the best model yet?
       double this_error = better_model.Error();
       if (this_error < best_error) {
         best_error = this_error;
-        best_model = better_model;
+        problem.SetModel(better_model);
       }
     }
   }
 
   // See if RANSAC found a solution.
-  if (best_model == typename RansacProblem::ModelType::NullModel()) {
+  if (!problem.SolutionFound()) {
     VLOG(1) << "RANSAC failed to find a solution in " << options_.iterations
             << " iterations.";
     return false;

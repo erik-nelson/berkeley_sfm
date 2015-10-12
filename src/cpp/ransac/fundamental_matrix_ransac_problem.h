@@ -50,9 +50,9 @@
 
 #include "ransac_problem.h"
 #include "../matching/feature_match.h"
+#include "../util/disallow_copy_and_assign.h"
 
 namespace bsfm {
-
 
 // --------- FundamentalMatrixRansacDataElement derived --------- //
 
@@ -107,6 +107,8 @@ class FundamentalMatrixRansacProblem : public RansacProblem {
       const std::vector<FundamentalMatrixRansacDataElement>& input_data) const;
 
  private:
+  DISALLOW_COPY_AND_ASSIGN(FundamentalMatrixRansacProblem)
+
   std::vector<RansacDataElement> unsampled_data_;
 };  //\class FundamentalMatrixRansacProblem
 

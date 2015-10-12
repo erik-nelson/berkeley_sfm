@@ -116,12 +116,12 @@ std::vector<RansacDataElement> FundamentalMatrixRansacProblem::SampleData() {
 
   // Make sure we don't over step.
   const size_t max_num_samples =
-      std::min<size_t>(data_.size(), FLAGS_subsample_size);
+      std::min<size_t>(data_.size(), FLAGS_subsample_size) - 1;
+  CHECK(max_num_samples >= 0);
 
   // Get samples.
-  std::vector<RansacDataElement> samples;
-  for (size_t ii = 0; ii < max_num_samples; ii++)
-    samples.push_back(data_[ii]);
+  std::vector<RansacDataElement> samples(data_.begin(),
+                                         data_.begin() + max_num_samples);
 
   return samples;
 }
@@ -133,9 +133,10 @@ std::vector<RansacDataElement> FundamentalMatrixRansacProblem::RemainingData() c
   if (static_cast<size_t>(FLAGS_subsample_size) >= data_.size()) {
     return std::vector<RansacDataElement>();
   }
+  CHECK(FLAGS_subsample_size >= 0);
 
   return std::vector<RansacDataElement>(
-      data_.begin() + FLAGS_subsample_size + 1, data_.end());
+      data_.begin() + FLAGS_subsample_size, data_.end());
 }
 
 // Fit a model to the provided data using the 8-point algorithm.

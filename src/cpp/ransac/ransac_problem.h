@@ -85,6 +85,7 @@ class RansacProblem {
   virtual void SetModel(const RansacModel& model);
   virtual void SetData(const std::vector<RansacDataElement>& data);
   virtual bool SolutionFound();
+  virtual RansacModel Model() const;
 
   // ----- Define these remaining methods in a derived class! ----- //
   virtual std::vector<RansacDataElement> SampleData();
@@ -121,6 +122,10 @@ void RansacProblem::SetData(const std::vector<RansacDataElement>& data) {
 
 bool RansacProblem::SolutionFound() {
   return solution_found_;
+}
+
+RansacModel RansacProblem::Model() const {
+  return model_;
 }
 
 }  //\namespace bsfm

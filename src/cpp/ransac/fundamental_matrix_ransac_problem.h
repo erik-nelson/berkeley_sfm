@@ -64,7 +64,6 @@ class FundamentalMatrixRansacDataElement : public RansacDataElement {
 
   // Public data variable (we need public so that base classes can access).
   FeatureMatch data_;
-
 };  //\class FundamentalMatrixRansacDataElement
 
 

@@ -54,6 +54,7 @@
 
 namespace bsfm {
 
+template <typename DataType, typename ModelType>
 class Ransac {
  public:
   Ransac() { }
@@ -65,7 +66,7 @@ class Ransac {
   // Run RANSAC using the user's input data (stored in 'problem'). Save the best
   // model that RANSAC finds after options_.iterations iterations in the
   // problem. This returns false if RANSAC does not find any solution.
-  bool Run(RansacProblem& problem) const;
+  bool Run(RansacProblem<DataType, ModelType>& problem) const;
 
  private:
       RansacOptions options_;
@@ -73,25 +74,28 @@ class Ransac {
 
 // -------------------- Implementation -------------------- //
 
-void Ransac::SetOptions(const RansacOptions& options) {
+template <typename DataType, typename ModelType>
+void Ransac<DataType, ModelType>::SetOptions(const RansacOptions& options) {
   options_ = options;
 }
 
-bool Ransac::Run(RansacProblem& problem) const {
+template <typename DataType, typename ModelType>
+bool Ransac<DataType, ModelType>::Run(
+    RansacProblem<DataType, ModelType>& problem) const {
   // Set the initial error to something very large.
   double best_error = std::numeric_limits<double>::infinity();
 
   // Proceed for options_.iterations iterations of RANSAC.
   for (unsigned int iter = 0; iter < options_.iterations; ++iter) {
     // Sample data points.
-    std::vector<RansacDataElement> sampled = problem.SampleData();
+    std::vector<RansacDataElement<DataType> > sampled = problem.SampleData();
 
     // Fit a model to the sampled data points.
-    RansacModel initial_model = problem.FitModel(sampled);
+    ModelType initial_model = problem.FitModel(sampled);
 
     // Which of the remaining points are also inliers under this model?
-    std::vector<RansacDataElement> also_inliers;
-    std::vector<RansacDataElement> unsampled = problem.RemainingData();
+    std::vector<RansacDataElement<DataType> > also_inliers;
+    std::vector<RansacDataElement<DataType> > unsampled = problem.RemainingData();
     for (const auto& not_sampled_data_point : unsampled) {
       if (initial_model.IsGoodFit(not_sampled_data_point,
                                   options_.acceptable_error)) {
@@ -102,7 +106,7 @@ bool Ransac::Run(RansacProblem& problem) const {
     // Check if we have enough inliers to consider this a good model.
     if (also_inliers.size() >= options_.minimum_num_inliers) {
       // Test how good this model is.
-      RansacModel better_model = problem.FitModel(also_inliers);
+      ModelType better_model = problem.FitModel(also_inliers);
 
       // Is this the best model yet?
       double this_error = better_model.Error();

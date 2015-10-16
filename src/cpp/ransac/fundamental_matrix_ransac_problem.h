@@ -56,20 +56,23 @@ namespace bsfm {
 
 // --------- FundamentalMatrixRansacDataElement derived --------- //
 
-class FundamentalMatrixRansacDataElement : public RansacDataElement {
+#if 0
+template <template DataType>
+class FundamentalMatrixRansacDataElement : public RansacDataElement<DataType> {
  public:
   // Define an additional constructor specifically for this model.
   FundamentalMatrixRansacDataElement(const FeatureMatch& match);
   virtual ~FundamentalMatrixRansacDataElement();
 
   // Public data variable (we need public so that base classes can access).
-  FeatureMatch data_;
+  // FeatureMatch data_;
 };  //\class FundamentalMatrixRansacDataElement
+#endif
 
 
 // ------------ FundamentalMatrixRansacModel derived ------------ //
 
-class FundamentalMatrixRansacModel : public RansacModel {
+class FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
  public:
   // Define an additional constructor specifically for this model.
   FundamentalMatrixRansacModel(const Eigen::Matrix3d& F);
@@ -79,7 +82,7 @@ class FundamentalMatrixRansacModel : public RansacModel {
   virtual double Error() const;
 
   // Evaluate model on a single data element and update error.
-  virtual bool IsGoodFit(const FundamentalMatrixRansacDataElement& data_point,
+  virtual bool IsGoodFit(const RansacDataElement<FeatureMatch>& data_point,
                          double error_tolerance);
 
   // Public member variables (we need public so that base classes can access).
@@ -90,20 +93,21 @@ class FundamentalMatrixRansacModel : public RansacModel {
 
 // ------------ FundamentalMatrixRansacProblem derived ------------ //
 
-class FundamentalMatrixRansacProblem : public RansacProblem {
+class FundamentalMatrixRansacProblem
+    : public RansacProblem<FeatureMatch, FundamentalMatrixRansacModel > {
  public:
   FundamentalMatrixRansacProblem();
   virtual ~FundamentalMatrixRansacProblem();
 
   // Subsample the data.
-  virtual std::vector<RansacDataElement> SampleData();
+  virtual std::vector<RansacDataElement<FeatureMatch> > SampleData();
 
   // Return the data that was not sampled.
-  virtual std::vector<RansacDataElement> RemainingData() const;
+  virtual std::vector<RansacDataElement<FeatureMatch> > RemainingData() const;
 
   // Fit a model to the provided data using the 8-point algorithm.
-  virtual RansacModel FitModel(
-      const std::vector<FundamentalMatrixRansacDataElement>& input_data) const;
+  virtual FundamentalMatrixRansacModel FitModel(
+      const std::vector<RansacDataElement<FeatureMatch> >& input_data) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(FundamentalMatrixRansacProblem)

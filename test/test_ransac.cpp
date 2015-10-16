@@ -133,16 +133,16 @@ TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
   FundamentalMatrixRansacProblem problem;
 
   // Store data in the RANSAC problem format.
-  std::vector<FundamentalMatrixRansacDataElement> ransac_data;
+  std::vector<RansacDataElement<FeatureMatch> > ransac_data;
   for (const auto& feature_match : data.feature_matches_) {
-    FundamentalMatrixRansacDataElement ransac_data_element(feature_match);
+    RansacDataElement<FeatureMatch> ransac_data_element(feature_match);
     ransac_data.push_back(ransac_data_element);
   }
   // Convert data to base class via template argument, and store.
-  problem.SetData<FundamentalMatrixRansacDataElement>(ransac_data);
+  problem.SetData(ransac_data);
 
   // Create the ransac solver, set options, and run RANSAC on the problem.
-  Ransac solver;
+  Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
   RansacOptions options;
   solver.SetOptions(options);
   solver.Run(problem);

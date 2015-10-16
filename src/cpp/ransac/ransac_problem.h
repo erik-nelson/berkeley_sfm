@@ -81,15 +81,17 @@ class RansacProblem {
   RansacProblem();
   virtual ~RansacProblem() { }
 
-  static RansacModel NullModel();
   virtual void SetModel(const RansacModel& model);
-  virtual void SetData(const std::vector<RansacDataElement>& data);
+
+  template <typename DataType>
+  void SetData(const std::vector<DataType>& data);
+
   virtual bool SolutionFound();
-  virtual RansacModel Model() const;
+  virtual const RansacModel& Model() const;
 
   // ----- Define these remaining methods in a derived class! ----- //
   virtual std::vector<RansacDataElement> SampleData();
-  virtual std::vector<RansacDataElement> UnsampledData() const;
+  virtual std::vector<RansacDataElement> RemainingData() const;
   virtual RansacModel FitModel(
       const std::vector<RansacDataElement>& input_data) const;
 
@@ -104,27 +106,22 @@ class RansacProblem {
 
 // -------------------- Implementation -------------------- //
 
-RansacProblem::RansacProblem() : solution_found_(false) {
-  model_ = NullModel();
-}
-
-RansacModel RansacProblem::NullModel() {
-  return RansacModel();
-}
+RansacProblem::RansacProblem() : solution_found_(false) {}
 
 void RansacProblem::SetModel(const RansacModel& model) {
   model_ = model;
 }
 
-void RansacProblem::SetData(const std::vector<RansacDataElement>& data) {
-  data_ = data;
+template <typename DataType>
+void RansacProblem::SetData(const std::vector<DataType>& data) {
+  data_ = std::vector<RansacDataElement>(data.begin(), data.end());
 }
 
 bool RansacProblem::SolutionFound() {
   return solution_found_;
 }
 
-RansacModel RansacProblem::Model() const {
+const RansacModel& RansacProblem::Model() const {
   return model_;
 }
 

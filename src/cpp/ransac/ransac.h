@@ -81,9 +81,6 @@ bool Ransac::Run(RansacProblem& problem) const {
   // Set the initial error to something very large.
   double best_error = std::numeric_limits<double>::infinity();
 
-  // Initialize the best model to a dummy.
-  problem.SetModel(RansacProblem::NullModel());
-
   // Proceed for options_.iterations iterations of RANSAC.
   for (unsigned int iter = 0; iter < options_.iterations; ++iter) {
     // Sample data points.
@@ -96,7 +93,8 @@ bool Ransac::Run(RansacProblem& problem) const {
     std::vector<RansacDataElement> also_inliers;
     std::vector<RansacDataElement> unsampled = problem.RemainingData();
     for (const auto& not_sampled_data_point : unsampled) {
-      if (initial_model.IsGoodFit(not_sampled_data_point, options_.acceptable_error)) {
+      if (initial_model.IsGoodFit(not_sampled_data_point,
+                                  options_.acceptable_error)) {
         also_inliers.push_back(not_sampled_data_point);
       }
     }

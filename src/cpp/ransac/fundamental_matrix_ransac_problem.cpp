@@ -78,12 +78,12 @@ double FundamentalMatrixRansacModel::Error() const {
 
 // Evaluate model on a single data element and update error.
 bool FundamentalMatrixRansacModel::IsGoodFit(
-    const RansacDataElement<FeatureMatch>& data_point,
+    const FeatureMatch& data_point,
     double error_tolerance) {
   // Construct vectors for 2D keypoints in match.
   Eigen::Vector3d kp1, kp2;
-  kp1 << data_point.data_.feature1_.u_, data_point.data_.feature1_.v_, 1;
-  kp2 << data_point.data_.feature2_.u_, data_point.data_.feature2_.v_, 1;
+  kp1 << data_point.feature1_.u_, data_point.feature1_.v_, 1;
+  kp2 << data_point.feature2_.u_, data_point.feature2_.v_, 1;
 
   // Compute error and record its square.
   const double epipolar_condition = kp1.transpose() * F_ * kp2;
@@ -103,8 +103,7 @@ FundamentalMatrixRansacProblem::FundamentalMatrixRansacProblem() {}
 FundamentalMatrixRansacProblem::~FundamentalMatrixRansacProblem() {}
 
 // Subsample the data.
-std::vector<RansacDataElement<FeatureMatch> >
-FundamentalMatrixRansacProblem::SampleData() {
+std::vector<FeatureMatch> FundamentalMatrixRansacProblem::SampleData() {
   // Randomly shuffle the entire dataset and take the first 8 elements.
   std::random_shuffle(data_.begin(), data_.end());
 
@@ -114,29 +113,29 @@ FundamentalMatrixRansacProblem::SampleData() {
   CHECK(max_num_samples >= 0);
 
   // Get samples.
-  std::vector<RansacDataElement<FeatureMatch> > samples(
+  std::vector<FeatureMatch> samples(
       data_.begin(), data_.begin() + max_num_samples);
 
   return samples;
 }
 
 // Return all data that was not sampled.
-std::vector<RansacDataElement<FeatureMatch> >
-FundamentalMatrixRansacProblem::RemainingData() const {
+std::vector<FeatureMatch> FundamentalMatrixRansacProblem::RemainingData()
+    const {
   // In Sample(), the data was shuffled and we took the first
   // FLAGS_subsample_size - 1 elements. Here, take the remaining elements.
   if (static_cast<size_t>(FLAGS_subsample_size) >= data_.size()) {
-    return std::vector<RansacDataElement<FeatureMatch> >();
+    return std::vector<FeatureMatch>();
   }
   CHECK(FLAGS_subsample_size >= 0);
 
-  return std::vector<RansacDataElement<FeatureMatch> >(
+  return std::vector<FeatureMatch>(
       data_.begin() + FLAGS_subsample_size, data_.end());
 }
 
 // Fit a model to the provided data using the 8-point algorithm.
 FundamentalMatrixRansacModel FundamentalMatrixRansacProblem::FitModel(
-    const std::vector<RansacDataElement<FeatureMatch> >& input_data) const {
+    const std::vector<FeatureMatch>& input_data) const {
   // Create an empty fundamental matrix.
   Eigen::Matrix3d F;
 
@@ -146,8 +145,8 @@ FundamentalMatrixRansacModel FundamentalMatrixRansacProblem::FitModel(
 
   // Convert data to an input that is useable by the solver.
   std::vector<FeatureMatch> solver_input_data;
-  for (const auto& data_element : input_data) {
-    solver_input_data.push_back(data_element.data_);
+  for (const auto& data_point : input_data) {
+    solver_input_data.push_back(data_point);
   }
 
   if (solver.ComputeFundamentalMatrix(solver_input_data, F)) {

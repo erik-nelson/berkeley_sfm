@@ -37,9 +37,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This class defines an abstract base class for RANSAC problems. Derived
-// classes will probide the specific details, data types, and model type that the
-// Ransac class will use.
+// This class defines an abstract base class for RANSAC problems.
+// Structs/classes deriving from the RansacProblem and RansacModel interfaces
+// will provide the specific details and model type that the the specific RANSAC
+// problem will use.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -53,28 +54,16 @@
 
 namespace bsfm {
 
-// Derive from this class when defining a specific RANSAC problem!
+// Derive from this struct when defining a specific RANSAC problem!
 template <typename DataType>
-class RansacDataElement {
- public:
-  RansacDataElement(const DataType& data) : data_(data) {}
-  virtual ~RansacDataElement() { }
-
-  DataType data_;
-}; //\class RansacDataElement
-
-
-
-// Derive from this class when defining a specific RANSAC problem!
-template <typename DataType>
-class RansacModel {
+struct RansacModel {
  public:
   RansacModel() { }
   virtual ~RansacModel() { }
 
   // ----- Define these remaining methods in a derived class! ----- //
   virtual double Error() const = 0;
-  virtual bool IsGoodFit(const RansacDataElement<DataType>& data_point,
+  virtual bool IsGoodFit(const DataType& data_point,
                          double error_tolerance) = 0;
 }; //\class RansacModel
 
@@ -89,20 +78,19 @@ class RansacProblem {
 
   virtual inline void SetModel(const ModelType& model);
   virtual inline void SetData(
-      const std::vector<RansacDataElement<DataType> >& data);
+      const std::vector<DataType>& data);
 
   virtual inline void SetSolutionFound(bool solution_found);
   virtual inline bool SolutionFound();
   virtual inline const ModelType& Model() const;
 
   // ----- Define these remaining methods in a derived class! ----- //
-  virtual std::vector<RansacDataElement<DataType> > SampleData() = 0;
-  virtual std::vector<RansacDataElement<DataType> > RemainingData() const = 0;
-  virtual ModelType FitModel(
-      const std::vector<RansacDataElement<DataType> >& input_data) const = 0;
+  virtual std::vector<DataType> SampleData() = 0;
+  virtual std::vector<DataType> RemainingData() const = 0;
+  virtual ModelType FitModel(const std::vector<DataType>& input_data) const = 0;
 
  protected:
-  std::vector<RansacDataElement<DataType> > data_;
+  std::vector<DataType> data_;
   ModelType model_;
   bool solution_found_;
 
@@ -123,7 +111,7 @@ void RansacProblem<DataType, ModelType>::SetModel(const ModelType& model) {
 
 template <typename DataType, typename ModelType>
 void RansacProblem<DataType, ModelType>::SetData(
-    const std::vector<RansacDataElement<DataType> >& data) {
+    const std::vector<DataType>& data) {
   data_ = data;
 }
 

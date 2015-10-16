@@ -131,14 +131,7 @@ TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
   // Define the RANSAC problem - we are attempting to determine the fundamental
   // matrix for a set of noiseless feature correspondences in images.
   FundamentalMatrixRansacProblem problem;
-
-  // Store data in the RANSAC problem format.
-  std::vector<RansacDataElement<FeatureMatch> > ransac_data;
-  for (const auto& feature_match : data.feature_matches_) {
-    RansacDataElement<FeatureMatch> ransac_data_element(feature_match);
-    ransac_data.push_back(ransac_data_element);
-  }
-  problem.SetData(ransac_data);
+  problem.SetData(data.feature_matches_);
 
   // Create the ransac solver, set options, and run RANSAC on the problem.
   Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
@@ -186,16 +179,9 @@ TEST_F(TestRansac, TestNeedAtLeastEight) {
   for (int ii = 0; ii <= 9; ++ii) {
     PairwiseImageMatch data = CreateFakeMatchedImagePair(ii);
 
-    // Define the RANSAC problem.
+    // Define the RANSAC problem and store data for processing.
     FundamentalMatrixRansacProblem problem;
-
-    // Store data in the RANSAC problem format.
-    std::vector<RansacDataElement<FeatureMatch> > ransac_data;
-    for (const auto& feature_match : data.feature_matches_) {
-      RansacDataElement<FeatureMatch> ransac_data_element(feature_match);
-      ransac_data.push_back(ransac_data_element);
-    }
-    problem.SetData(ransac_data);
+    problem.SetData(data.feature_matches_);
 
     // Create the ransac solver, set options, and run RANSAC on the problem.
     Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;

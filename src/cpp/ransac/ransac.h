@@ -91,13 +91,13 @@ bool Ransac<DataType, ModelType>::Run(
   // Proceed for options_.iterations iterations of RANSAC.
   for (unsigned int iter = 0; iter < options_.iterations; ++iter) {
     // Sample data points.
-    std::vector<RansacDataElement<DataType> > inliers = problem.SampleData();
+    std::vector<DataType> inliers = problem.SampleData();
 
     // Fit a model to the sampled data points.
     ModelType initial_model = problem.FitModel(inliers);
 
     // Which of the remaining points are also inliers under this model?
-    std::vector<RansacDataElement<DataType> > unsampled = problem.RemainingData();
+    std::vector<DataType> unsampled = problem.RemainingData();
     for (const auto& not_sampled_data_point : unsampled) {
       if (initial_model.IsGoodFit(not_sampled_data_point,
                                   options_.acceptable_error)) {

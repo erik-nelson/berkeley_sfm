@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // These classes defines the FundamentalMatrixRansacProblem API, and derive from
-// the base RansacProblem, RansacDataElement, and RansacModel classes.
+// the base RansacProblem and RansacModel class/struct.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -56,18 +56,19 @@ namespace bsfm {
 
 // ------------ FundamentalMatrixRansacModel derived ------------ //
 
-class FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
+struct FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
  public:
-  // Define an additional constructor specifically for this model.
   FundamentalMatrixRansacModel();
-  FundamentalMatrixRansacModel(const Eigen::Matrix3d& F);
   virtual ~FundamentalMatrixRansacModel();
+
+  // Define an additional constructor specifically for this model.
+  FundamentalMatrixRansacModel(const Eigen::Matrix3d& F);
 
   // Return model error.
   virtual double Error() const;
 
   // Evaluate model on a single data element and update error.
-  virtual bool IsGoodFit(const RansacDataElement<FeatureMatch>& data_point,
+  virtual bool IsGoodFit(const FeatureMatch& data_point,
                          double error_tolerance);
 
   // Public member variables (we need public so that base classes can access).
@@ -85,14 +86,14 @@ class FundamentalMatrixRansacProblem
   virtual ~FundamentalMatrixRansacProblem();
 
   // Subsample the data.
-  virtual std::vector<RansacDataElement<FeatureMatch> > SampleData();
+  virtual std::vector<FeatureMatch> SampleData();
 
   // Return the data that was not sampled.
-  virtual std::vector<RansacDataElement<FeatureMatch> > RemainingData() const;
+  virtual std::vector<FeatureMatch> RemainingData() const;
 
   // Fit a model to the provided data using the 8-point algorithm.
   virtual FundamentalMatrixRansacModel FitModel(
-      const std::vector<RansacDataElement<FeatureMatch> >& input_data) const;
+      const std::vector<FeatureMatch>& input_data) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(FundamentalMatrixRansacProblem)

@@ -124,11 +124,11 @@ class TestRansac : public ::testing::Test {
       // We can generate points in a larger box now.
       Eigen::Vector3d x_w1, x_w2;
       x_w1.x() = rng.DoubleUniform(-10.0, 12.0);
-      x_w1.y() = rng.DoubleUniform(-10.0, 12.0);
-      x_w1.z() = rng.DoubleUniform(-10.0, 12.0);
+      x_w1.y() = rng.DoubleUniform(-40.0, -10.0);
+      x_w1.z() = rng.DoubleUniform(-10.0, 10.0);
       x_w2.x() = rng.DoubleUniform(-10.0, 12.0);
-      x_w2.y() = rng.DoubleUniform(-10.0, 12.0);
-      x_w2.z() = rng.DoubleUniform(-10.0, 12.0);
+      x_w2.y() = rng.DoubleUniform(-40.0, -10.0);
+      x_w2.z() = rng.DoubleUniform(-10.0, 10.0);
 
       // Make sure the points are different enough in 3D.
       if ((x_w1 - x_w2).squaredNorm() < 1.0) {

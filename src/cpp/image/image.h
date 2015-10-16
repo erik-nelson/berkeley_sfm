@@ -78,10 +78,10 @@ class Image {
 
   // Access the pixel at (u, v), at a specific channel.
   template <typename T>
-  T& at(size_t u, size_t v);
+  inline T& at(size_t u, size_t v);
 
   template <typename T>
-  const T& at(size_t u, size_t v) const;
+  const inline T& at(size_t u, size_t v) const;
 
   // Copy to and from OpenCV mats.
   void ToCV(cv::Mat& out) const;

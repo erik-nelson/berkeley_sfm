@@ -57,17 +57,14 @@ namespace bsfm {
 // Derive from this struct when defining a specific RANSAC problem!
 template <typename DataType>
 struct RansacModel {
- public:
-  RansacModel() { }
-  virtual ~RansacModel() { }
+  RansacModel() {}
+  virtual ~RansacModel() {}
 
-  // ----- Define these remaining methods in a derived class! ----- //
+  // ----- Define these remaining methods in a derived struct! ----- //
   virtual double Error() const = 0;
   virtual bool IsGoodFit(const DataType& data_point,
                          double error_tolerance) = 0;
-}; //\class RansacModel
-
-
+};  //\struct RansacModel
 
 // Derive from this class when defining a specific RANSAC problem!
 template <typename DataType, typename ModelType>

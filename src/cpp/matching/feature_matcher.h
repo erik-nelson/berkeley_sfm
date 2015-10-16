@@ -72,14 +72,15 @@ class FeatureMatcher {
   virtual ~FeatureMatcher() { }
 
   // Add a single image's features for matching.
-  virtual void AddImageFeatures(const FeatureList& image_features);
+  virtual inline void AddImageFeatures(const FeatureList& image_features);
 
   // Add features from a set of images for matching.
-  virtual void AddImageFeatures(const std::vector<FeatureList>& image_features);
+  virtual inline void AddImageFeatures(
+      const std::vector<FeatureList>& image_features);
 
   // Match images together using the input options.
-  virtual bool MatchImages(const FeatureMatcherOptions& options,
-                           PairwiseImageMatchList& image_matches);
+  virtual inline bool MatchImages(const FeatureMatcherOptions& options,
+                                  PairwiseImageMatchList& image_matches);
 
  protected:
   // Abstract method to match a pair of images using the input options. Override
@@ -89,8 +90,9 @@ class FeatureMatcher {
 
   // Find the set intersection of the two sets of input feature matches, and
   // store that set in the second argument.
-  virtual void SymmetricMatches(const LightFeatureMatchList& feature_matches_lhs,
-                                LightFeatureMatchList& feature_matches_rhs);
+  virtual inline void SymmetricMatches(
+      const LightFeatureMatchList& feature_matches_lhs,
+      LightFeatureMatchList& feature_matches_rhs);
 
   // Summarize each image by its list of features. This list contains a list of
   // features for each image.

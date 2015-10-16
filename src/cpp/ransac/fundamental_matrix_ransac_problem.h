@@ -57,7 +57,6 @@ namespace bsfm {
 // ------------ FundamentalMatrixRansacModel derived ------------ //
 
 struct FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
- public:
   FundamentalMatrixRansacModel();
   virtual ~FundamentalMatrixRansacModel();
 
@@ -71,10 +70,10 @@ struct FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
   virtual bool IsGoodFit(const FeatureMatch& data_point,
                          double error_tolerance);
 
-  // Public member variables (we need public so that base classes can access).
+  // Model-specific member variables.
   Eigen::Matrix3d F_;
   double error_;
-};  //\class FundamentalMatrixRansacModel
+};  //\struct FundamentalMatrixRansacModel
 
 
 // ------------ FundamentalMatrixRansacProblem derived ------------ //

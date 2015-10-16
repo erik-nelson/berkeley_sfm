@@ -48,8 +48,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_GEOMETRY_EIGHT_POINT_ALGORITHM_H
-#define BSFM_GEOMETRY_EIGHT_POINT_ALGORITHM_H
+#ifndef BSFM_GEOMETRY_EIGHT_POINT_ALGORITHM_SOLVER_H
+#define BSFM_GEOMETRY_EIGHT_POINT_ALGORITHM_SOLVER_H
 
 #include <glog/logging.h>
 #include <Eigen/Core>
@@ -64,11 +64,11 @@ namespace bsfm {
 class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
  public:
   EightPointAlgorithmSolver() { }
-  virtual ~EightPointAlgorithmSolver() { }
+  virtual inline ~EightPointAlgorithmSolver() { }
 
   // Use the eight point algorithm to compute the fundamental matrix for a set
   // of features matched between two images.
-  virtual bool ComputeFundamentalMatrix(
+  virtual inline bool ComputeFundamentalMatrix(
       const FeatureMatchList& matched_features,
       Eigen::Matrix3d& fundamental_matrix) const;
 
@@ -79,8 +79,8 @@ class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
   // both sets of features are stored in the FeatureMatchList, the 'use_feature_set1'
   // parameter must be specified to pick out a normalization for either feature
   // set 1 or feature set 2.
-  Eigen::Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
-                                       bool use_feature_set1) const;
+  inline Eigen::Matrix3d ComputeNormalization(
+      const FeatureMatchList& matched_features, bool use_feature_set1) const;
 };  //\class EightPointAlgorithmSolver
 
 

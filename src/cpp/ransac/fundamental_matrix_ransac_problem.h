@@ -54,27 +54,12 @@
 
 namespace bsfm {
 
-// --------- FundamentalMatrixRansacDataElement derived --------- //
-
-#if 0
-template <template DataType>
-class FundamentalMatrixRansacDataElement : public RansacDataElement<DataType> {
- public:
-  // Define an additional constructor specifically for this model.
-  FundamentalMatrixRansacDataElement(const FeatureMatch& match);
-  virtual ~FundamentalMatrixRansacDataElement();
-
-  // Public data variable (we need public so that base classes can access).
-  // FeatureMatch data_;
-};  //\class FundamentalMatrixRansacDataElement
-#endif
-
-
 // ------------ FundamentalMatrixRansacModel derived ------------ //
 
 class FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
  public:
   // Define an additional constructor specifically for this model.
+  FundamentalMatrixRansacModel();
   FundamentalMatrixRansacModel(const Eigen::Matrix3d& F);
   virtual ~FundamentalMatrixRansacModel();
 

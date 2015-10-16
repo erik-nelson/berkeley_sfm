@@ -61,12 +61,12 @@ class Ransac {
   ~Ransac() { }
 
   // Set options for the RANSAC solver.
-  void SetOptions(const RansacOptions& options);
+  inline void SetOptions(const RansacOptions& options);
 
   // Run RANSAC using the user's input data (stored in 'problem'). Save the best
   // model that RANSAC finds after options_.iterations iterations in the
   // problem. This returns false if RANSAC does not find any solution.
-  bool Run(RansacProblem<DataType, ModelType>& problem) const;
+  inline bool Run(RansacProblem<DataType, ModelType>& problem) const;
 
  private:
       RansacOptions options_;
@@ -82,37 +82,40 @@ void Ransac<DataType, ModelType>::SetOptions(const RansacOptions& options) {
 template <typename DataType, typename ModelType>
 bool Ransac<DataType, ModelType>::Run(
     RansacProblem<DataType, ModelType>& problem) const {
+  // By default, a valid model has not been found.
+  problem.SetSolutionFound(false);
+
   // Set the initial error to something very large.
   double best_error = std::numeric_limits<double>::infinity();
 
   // Proceed for options_.iterations iterations of RANSAC.
   for (unsigned int iter = 0; iter < options_.iterations; ++iter) {
     // Sample data points.
-    std::vector<RansacDataElement<DataType> > sampled = problem.SampleData();
+    std::vector<RansacDataElement<DataType> > inliers = problem.SampleData();
 
     // Fit a model to the sampled data points.
-    ModelType initial_model = problem.FitModel(sampled);
+    ModelType initial_model = problem.FitModel(inliers);
 
     // Which of the remaining points are also inliers under this model?
-    std::vector<RansacDataElement<DataType> > also_inliers;
     std::vector<RansacDataElement<DataType> > unsampled = problem.RemainingData();
     for (const auto& not_sampled_data_point : unsampled) {
       if (initial_model.IsGoodFit(not_sampled_data_point,
                                   options_.acceptable_error)) {
-        also_inliers.push_back(not_sampled_data_point);
+        inliers.push_back(not_sampled_data_point);
       }
     }
 
     // Check if we have enough inliers to consider this a good model.
-    if (also_inliers.size() >= options_.minimum_num_inliers) {
+    if (inliers.size() >= options_.minimum_num_inliers) {
       // Test how good this model is.
-      ModelType better_model = problem.FitModel(also_inliers);
+      ModelType better_model = problem.FitModel(inliers);
 
       // Is this the best model yet?
       double this_error = better_model.Error();
       if (this_error < best_error) {
         best_error = this_error;
         problem.SetModel(better_model);
+        problem.SetSolutionFound(true);
       }
     }
   }

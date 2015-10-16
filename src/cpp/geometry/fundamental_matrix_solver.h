@@ -60,25 +60,26 @@ namespace bsfm {
 class FundamentalMatrixSolver {
  public:
   FundamentalMatrixSolver() {}
-  virtual ~FundamentalMatrixSolver() {}
+  virtual inline ~FundamentalMatrixSolver() {}
 
   // Add data from one matched image pair.
-  virtual void AddMatchedImagePair(const PairwiseImageMatch& matched_image_data);
+  virtual inline void AddMatchedImagePair(
+      const PairwiseImageMatch& matched_image_data);
 
   // Add data from a set of matched image pairs.
-  virtual void AddMachedImagePairs(
+  virtual inline void AddMachedImagePairs(
       const PairwiseImageMatchList& matched_image_data);
 
   // Set options.
-  virtual void SetOptions(const FundamentalMatrixSolverOptions& options);
+  virtual inline void SetOptions(const FundamentalMatrixSolverOptions& options);
 
   // Compute the fundamental matrix for each image pair.
-  virtual bool ComputeFundamentalMatrices(
+  virtual inline bool ComputeFundamentalMatrices(
       std::vector<Eigen::Matrix3d>& fundamental_matrices);
 
   // Abstract method to compute the fundamental matrix for a single image pair.
   // Override this in the derived solver class to implement it.
-  virtual bool ComputeFundamentalMatrix(
+  virtual inline bool ComputeFundamentalMatrix(
       const FeatureMatchList& matched_features,
       Eigen::Matrix3d& fundamental_matrix) const = 0;
 

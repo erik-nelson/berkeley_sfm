@@ -87,12 +87,13 @@ class RansacProblem {
   RansacProblem();
   virtual ~RansacProblem() { }
 
-  virtual void SetModel(const ModelType& model);
+  virtual inline void SetModel(const ModelType& model);
+  virtual inline void SetData(
+      const std::vector<RansacDataElement<DataType> >& data);
 
-  void SetData(const std::vector<RansacDataElement<DataType> >& data);
-
-  virtual bool SolutionFound();
-  virtual const ModelType& Model() const;
+  virtual inline void SetSolutionFound(bool solution_found);
+  virtual inline bool SolutionFound();
+  virtual inline const ModelType& Model() const;
 
   // ----- Define these remaining methods in a derived class! ----- //
   virtual std::vector<RansacDataElement<DataType> > SampleData() = 0;
@@ -112,7 +113,8 @@ class RansacProblem {
 // -------------------- Implementation -------------------- //
 
 template <typename DataType, typename ModelType>
-RansacProblem<DataType, ModelType>::RansacProblem() : solution_found_(false) {}
+RansacProblem<DataType, ModelType>::RansacProblem()
+    : model_(ModelType()), solution_found_(false) {}
 
 template <typename DataType, typename ModelType>
 void RansacProblem<DataType, ModelType>::SetModel(const ModelType& model) {
@@ -123,6 +125,11 @@ template <typename DataType, typename ModelType>
 void RansacProblem<DataType, ModelType>::SetData(
     const std::vector<RansacDataElement<DataType> >& data) {
   data_ = data;
+}
+
+template <typename DataType, typename ModelType>
+void RansacProblem<DataType, ModelType>::SetSolutionFound(bool solution_found) {
+  solution_found_ = solution_found;
 }
 
 template <typename DataType, typename ModelType>

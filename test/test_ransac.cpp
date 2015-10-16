@@ -55,7 +55,7 @@ class TestRansac : public ::testing::Test {
 
   // Make two camera views, and then create features and match them between the
   // views.
-  PairwiseImageMatch CreateFakeMatchedImagePair() {
+  PairwiseImageMatch CreateFakeMatchedImagePair(int num_features) {
     // Create a random number generator.
     math::RandomGenerator rng(math::RandomGenerator::Seed());
 
@@ -83,7 +83,7 @@ class TestRansac : public ::testing::Test {
 
     // Create a bunch of points in 3D.
     PairwiseImageMatch matched_images_out;
-    while(matched_images_out.feature_matches_.size() < kFeatureMatches_) {
+    while(matched_images_out.feature_matches_.size() < num_features) {
       // Since the camera's +Z faces down the world's -Y direction, make random
       // points back there somewhere.
       double x_world = rng.DoubleUniform(-5.0, 7.0);
@@ -118,7 +118,6 @@ class TestRansac : public ::testing::Test {
   const int kImageWidth_ = 1920;
   const int kImageHeight_ = 1080;
   const double kVerticalFov_ = 90.0 * M_PI / 180.0;
-  const double kFeatureMatches_ = 200;
 };  //\class TestNaiveFeatureMatcher
 
 
@@ -126,7 +125,8 @@ TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
 
   // Get some data. As input, we want a set of features that are matched across
   // two images.
-  PairwiseImageMatch data = CreateFakeMatchedImagePair();
+  const int kNumFeatures = 8;
+  PairwiseImageMatch data = CreateFakeMatchedImagePair(kNumFeatures);
 
   // Define the RANSAC problem - we are attempting to determine the fundamental
   // matrix for a set of noiseless feature correspondences in images.
@@ -138,12 +138,18 @@ TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
     RansacDataElement<FeatureMatch> ransac_data_element(feature_match);
     ransac_data.push_back(ransac_data_element);
   }
-  // Convert data to base class via template argument, and store.
   problem.SetData(ransac_data);
 
   // Create the ransac solver, set options, and run RANSAC on the problem.
   Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
   RansacOptions options;
+
+  // It should only take one iteration to find the right model.
+  // Every feature match should be considered an inlier with such a huge error.
+  options.iterations = 1;
+  options.acceptable_error = 100.0;
+  options.minimum_num_inliers = 8;
+
   solver.SetOptions(options);
   solver.Run(problem);
 
@@ -169,7 +175,48 @@ TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
   ASSERT_TRUE(solver2.ComputeFundamentalMatrix(data.feature_matches_,
                                                fundamental_matrix_ep));
 
-  EXPECT_EQ(fundamental_matrix_ep, fundamental_matrix_ransac);
+  // Make sure RANSAC comes up with the same solution.
+  EXPECT_TRUE(fundamental_matrix_ep.isApprox(fundamental_matrix_ransac, 1e-8));
+}
+
+TEST_F(TestRansac, TestNeedAtLeastEight) {
+  // Make sure that the fundamental matrix ransac solver fails when we don't
+  // have a sufficient number of input matches. Make sure the solver fails
+  // if we have >= 8 noiseless input matches.
+  for (int ii = 0; ii <= 9; ++ii) {
+    PairwiseImageMatch data = CreateFakeMatchedImagePair(ii);
+
+    // Define the RANSAC problem.
+    FundamentalMatrixRansacProblem problem;
+
+    // Store data in the RANSAC problem format.
+    std::vector<RansacDataElement<FeatureMatch> > ransac_data;
+    for (const auto& feature_match : data.feature_matches_) {
+      RansacDataElement<FeatureMatch> ransac_data_element(feature_match);
+      ransac_data.push_back(ransac_data_element);
+    }
+    problem.SetData(ransac_data);
+
+    // Create the ransac solver, set options, and run RANSAC on the problem.
+    Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
+    RansacOptions options;
+
+    // The 8 minimum inlier option is what will cause RANSAC to fail with less
+    // than 8 matches.
+    options.iterations = 10;
+    options.acceptable_error = 100.0;
+    options.minimum_num_inliers = 8;
+
+    solver.SetOptions(options);
+    solver.Run(problem);
+
+    // Make sure we don't get a solution until we have at least 8 matches.
+    if (ii < 8) {
+      ASSERT_FALSE(problem.SolutionFound());
+    } else {
+      ASSERT_TRUE(problem.SolutionFound());
+    }
+  }
 }
 
 }  //\namespace bsfm

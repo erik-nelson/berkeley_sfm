@@ -59,7 +59,7 @@ DEFINE_string(ransac_matched_image2, "lion2.jpg",
               "Name of the second image used to test RANSAC feature matching.");
 DEFINE_bool(ransac_draw_feature_matches, false,
             "If true, open a window displaying raw (noisy) feature matches and "
-            "RANSAC inlier feature matches.");
+            "post-RANSAC inlier feature matches.");
 
 namespace bsfm {
 

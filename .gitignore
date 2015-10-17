@@ -26,10 +26,3 @@ bin
 *.dylib
 *.la
 *.a
-
-# Generated documentation
-docs/_site
-docs/gathered
-_site
-doxygen
-docs/dev

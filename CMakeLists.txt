@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 2.8.7)
 project(berkeley_sfm C CXX)
 
 # Build options.
-option(BUILD_TESTS "Enable testing" ON)
-# .
-# .
-# .
+option(BUILD_TESTS "Build tests" ON)
+option(BUILD_DOCUMENTATION "Build documentation" ON)
 
 # Add cmake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
@@ -39,6 +37,17 @@ add_library(berkeley_sfm ${bsfm_srcs})
 # Set up output directory for executables.
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/)
 
-# Find and build executables and tests.
+# Find and build executables.
 add_subdirectory(exec)
-add_subdirectory(test)
+
+# Find and build tests.
+if (BUILD_TESTS)
+  message("Build tests is enabled.")
+  add_subdirectory(test)
+endif (BUILD_TESTS)
+
+# Find and build documentation.
+if (BUILD_DOCUMENTATION)
+  message("Build documentation is enabled.")
+  add_subdirectory(docs)
+endif (BUILD_DOCUMENTATION)

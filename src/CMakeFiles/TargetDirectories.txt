@@ -1,4 +1,0 @@
-/Users/davidfridovichkeil/Documents/Developer/berkeley_sfm/src/test/CMakeFiles/run_tests.dir
-/Users/davidfridovichkeil/Documents/Developer/berkeley_sfm/src/CMakeFiles/berkeley_sfm.dir
-/Users/davidfridovichkeil/Documents/Developer/berkeley_sfm/src/external/gtest/CMakeFiles/gtest_main.dir
-/Users/davidfridovichkeil/Documents/Developer/berkeley_sfm/src/external/gtest/CMakeFiles/gtest.dir

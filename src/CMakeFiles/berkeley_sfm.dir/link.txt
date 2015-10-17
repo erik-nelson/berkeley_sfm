@@ -1,2 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/ar cq libberkeley_sfm.a  CMakeFiles/berkeley_sfm.dir/cpp/image/image.cpp.o
-/Library/Developer/CommandLineTools/usr/bin/ranlib libberkeley_sfm.a

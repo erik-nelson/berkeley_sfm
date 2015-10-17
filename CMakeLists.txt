@@ -49,5 +49,5 @@ endif (BUILD_TESTS)
 # Find and build documentation.
 if (BUILD_DOCUMENTATION)
   message("Build documentation is enabled.")
-  add_subdirectory(docs)
+  add_subdirectory(documentation)
 endif (BUILD_DOCUMENTATION)

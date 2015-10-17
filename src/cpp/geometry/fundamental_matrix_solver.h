@@ -79,7 +79,7 @@ class FundamentalMatrixSolver {
 
   // Abstract method to compute the fundamental matrix for a single image pair.
   // Override this in the derived solver class to implement it.
-  virtual inline bool ComputeFundamentalMatrix(
+  virtual bool ComputeFundamentalMatrix(
       const FeatureMatchList& matched_features,
       Eigen::Matrix3d& fundamental_matrix) const = 0;
 

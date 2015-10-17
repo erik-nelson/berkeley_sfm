@@ -127,12 +127,20 @@ class Image {
 }; //\class Image
 
 // Non-member conversion from OpenCV to Eigen matrices.
-void OpenCVToEigenMat(const cv::Mat& cv_mat, Eigen::MatrixXf& eigen_mat);
-void OpenCVToEigenVec(const cv::Mat& cv_vec, Eigen::VectorXf& eigen_vec);
+template <typename MatrixType>
+inline void OpenCVToEigenMat(const cv::Mat& cv_mat, MatrixType& eigen_mat);
+
+template <typename VectorType>
+inline void OpenCVToEigenVec(const cv::Mat& cv_vec, VectorType& eigen_vec);
 
 // Non-member conversions from Eigen to OpenCV matrices.
-void EigenMatToOpenCV(const Eigen::MatrixXf& eigen_mat, cv::Mat& cv_mat);
-void EigenVecToOpenCV(const Eigen::VectorXf& eigen_vec, cv::Mat& cv_vec);
+template <typename MatrixType>
+inline void EigenMatToOpenCV(const MatrixType& eigen_mat, cv::Mat& cv_mat);
+
+template <typename VectorType>
+inline void EigenVecToOpenCV(const VectorType& eigen_vec, cv::Mat& cv_vec);
+
+
 
 // ------------------- Implementation ------------------- //
 
@@ -146,6 +154,47 @@ template <typename T>
 const T& Image::at(size_t u, size_t v) const {
   CHECK(image_ != nullptr) << "Image data is not allocated.";
   return image_->template at<T>(u, v);
+}
+
+// Non-member conversion from OpenCV to Eigen matrices.
+template <typename MatrixType>
+void OpenCVToEigenMat(const cv::Mat& cv_mat, MatrixType& eigen_mat) {
+  // Make sure the data is grayscale before converting to an eigen matrix.
+  if (cv_mat.channels() != 1) {
+    cv::Mat grayscale_mat;
+    cv::cvtColor(cv_mat, grayscale_mat, CV_RGB2GRAY);
+    cv::cv2eigen(grayscale_mat, eigen_mat);
+  } else {
+    cv::cv2eigen(cv_mat, eigen_mat);
+  }
+}
+
+// Non-member conversion from OpenCV to Eigen vectors.
+template <typename VectorType>
+void OpenCVToEigenVec(const cv::Mat& cv_vec, VectorType& eigen_vec) {
+  // Make sure the data is grayscale before converting to an eigen matrix.
+  eigen_vec.resize(cv_vec.total());
+  if (cv_vec.channels() != 1) {
+    cv::Mat grayscale_vec;
+    cv::cvtColor(cv_vec, grayscale_vec, CV_RGB2GRAY);
+    for (size_t ii = 0; ii < grayscale_vec.total(); ++ii)
+      eigen_vec(ii) = grayscale_vec.at<float>(ii);
+  } else {
+    for (size_t ii = 0; ii < cv_vec.total(); ++ii)
+      eigen_vec(ii) = cv_vec.at<float>(ii);
+  }
+}
+
+// Non-member conversion from Eigen to OpenCV matrices.
+template <typename MatrixType>
+void EigenMatToOpenCV(const MatrixType& eigen_mat, cv::Mat& cv_mat) {
+  cv::eigen2cv(eigen_mat, cv_mat);
+}
+
+// Non-member conversion from Eigen to OpenCV vectors.
+template <typename VectorType>
+void EigenVecToOpenCV(const VectorType& eigen_vec, cv::Mat& cv_vec) {
+  cv::eigen2cv(eigen_vec, cv_vec);
 }
 
 } //\namespace bsfm

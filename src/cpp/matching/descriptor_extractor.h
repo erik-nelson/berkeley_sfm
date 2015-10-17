@@ -151,7 +151,7 @@ bool DescriptorExtractor<Descriptor>::DescribeFeatures(
     features_out.push_back(feature);
 
     Descriptor descriptor;
-    OpenCVToEigenVec(cv_descriptors.row(ii), descriptor);
+    OpenCVToEigenVec<Descriptor>(cv_descriptors.row(ii), descriptor);
     descriptors_out.push_back(descriptor);
   }
 

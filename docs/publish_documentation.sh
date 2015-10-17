@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 # Settings.
-REPOSITORY_PATH=git@github.com:erik-nelson/berkeley_sfm.git
 HTML_PATH=docs/html
 BUILD_PATH=build
 COMMIT_USER="Automatic documentation builder"
@@ -12,6 +11,14 @@ COMMIT_EMAIL="eanelson"
 COMMIT_EMAIL="${COMMIT_EMAIL}@eecs"
 COMMIT_EMAIL="${COMMIT_EMAIL}.berkeley"
 COMMIT_EMAIL="${COMMIT_EMAIL}.edu"
+
+# Clone the documentation branch.
+git checkout -b gh-pages origin/gh-pages
+
+# Remove old documentation to prevent stale files.
+cd ${HTML_PATH}
+git rm -rf .
+cd -
 
 # Make the documentation.
 cd ${BUILD_PATH}

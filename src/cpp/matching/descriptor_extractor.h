@@ -158,9 +158,5 @@ bool DescriptorExtractor<Descriptor>::DescribeFeatures(
   return true;
 }
 
-// Explicit template instantiations.
-// template class DescriptorExtractor<std::vector<bool>>;
-// template class DescriptorExtractor<Eigen::VectorXf>;
-
 }  //\namespace bsfm
 #endif

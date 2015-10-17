@@ -396,7 +396,7 @@ TEST_F(TestRansac, TestDrawInliers) {
 
   ransac_options.iterations = 5000;
   ransac_options.acceptable_error = 1e-3;
-  ransac_options.minimum_num_inliers = 30;
+  ransac_options.minimum_num_inliers = 100;
   ransac_options.num_samples = 8;
 
   solver.SetOptions(ransac_options);

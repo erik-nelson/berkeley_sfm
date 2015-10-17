@@ -1,10 +1,35 @@
+# Data, build, binary directories
 data
 build
 bin
+
+# Swap files
 *.swp
 *.swo
-*.log*
-*.INFO
 *~
 #*#
-count_lines.sh
+
+# Glog log files
+*.log*
+*.INFO
+
+# OSX dir files
+.DS_store
+
+# Compiled object files
+*.slo
+*.lo
+*.o
+
+# Compiled dynamic and static libraries
+*.so
+*.dylib
+*.la
+*.a
+
+# Generated documentation
+docs/_site
+docs/gathered
+_site
+doxygen
+docs/dev

@@ -110,24 +110,28 @@ TEST_F(TestFeatures, TestDescribeFeatures) {
 
   // Run through the different descriptor types, extracting descriptors for each
   // keypoint.
-  DescriptorExtractor extractor;
+  typedef Eigen::VectorXf Descriptor;
+
+  DescriptorExtractor<Descriptor> extractor;
   for (size_t ii = 0; ii < descriptor_types.size(); ++ii) {
     EXPECT_TRUE(extractor.SetDescriptor(descriptor_types[ii]));
 
     // Extract descriptors.
-    FeatureList features;
-    EXPECT_TRUE(extractor.DescribeFeatures(image, keypoints, features));
+    std::vector<Feature> features;
+    std::vector<Descriptor> descriptors;
+    EXPECT_TRUE(
+        extractor.DescribeFeatures(image, keypoints, features, descriptors));
 
     // We should get the right number of descriptors.
     EXPECT_EQ(expected_descriptor_counts[ii], features.size());
 
     // All descriptors should have the correct dimensions.
-    for (size_t jj = 0; jj < features.size(); ++jj) {
-      EXPECT_EQ(expected_descriptor_lengths[ii], features[jj].descriptor_.size());
+    for (size_t jj = 0; jj < descriptors.size(); ++jj) {
+      EXPECT_EQ(expected_descriptor_lengths[ii], descriptors[jj].rows());
     }
 
     LOG(INFO) << "Extracted " << features.size() << " descriptors with "
-              << features[0].descriptor_.size() << " dimensions using descriptor type "
+              << descriptors[0].rows() << " dimensions using descriptor type "
               << descriptor_types[ii] << ".";
   }
 }

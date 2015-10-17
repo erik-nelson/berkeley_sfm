@@ -39,6 +39,11 @@
 //
 // This file defines distance metrics that can be used to compare feature
 // descriptors to one another to e.g. find the closest match between images.
+// Each distance metric struct should be a functor, defining three members:
+//
+// 1) A typedef'd Descriptor type.
+// 2) operator(), which operates on two Descriptor types to compute a distance.
+// 3) A 'RequiresNormalizedDescriptors' static method.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,10 +62,14 @@ namespace bsfm {
 // distances are computed this way, we can drop the leading 2*. The L2 norm
 // induces an inner product space over R^{n}, and we can test as such.
 struct ScaledL2Distance {
-  double operator()(const Descriptor& descriptor1,
+  // Descriptor type that ScaledL2Distance functor operates on.
+  typedef Eigen::VectorXf Descriptor;
+
+  // Functor method.
+  float operator()(const Descriptor& descriptor1,
                     const Descriptor& descriptor2) {
     CHECK_EQ(descriptor1.size(), descriptor2.size());
-    return 1.0 - descriptor1.dot(descriptor2);
+    return 1.0f - descriptor1.dot(descriptor2);
   }
 
   static bool RequiresNormalizedDescriptors() { return true; }

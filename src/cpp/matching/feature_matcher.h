@@ -68,15 +68,21 @@ namespace bsfm {
 template <typename DistanceMetric>
 class FeatureMatcher {
  public:
+  // Each DistanceMetric operates on a specific type of descriptor vector.
+  typedef typename DistanceMetric::Descriptor Descriptor;
+
   FeatureMatcher() { }
   virtual ~FeatureMatcher() { }
 
   // Add a single image's features for matching.
-  virtual inline void AddImageFeatures(const FeatureList& image_features);
+  virtual inline void AddImageFeatures(
+      const std::vector<Feature>& image_features,
+      const std::vector<Descriptor>& image_descriptors);
 
   // Add features from a set of images for matching.
   virtual inline void AddImageFeatures(
-      const std::vector<FeatureList>& image_features);
+      const std::vector<std::vector<Feature> >& image_features,
+      const std::vector<std::vector<Descriptor> >& image_descriptors);
 
   // Match images together using the input options.
   virtual inline bool MatchImages(const FeatureMatcherOptions& options,
@@ -86,17 +92,17 @@ class FeatureMatcher {
   // Abstract method to match a pair of images using the input options. Override
   // this in the derived feature matching strategy class to implement it.
   virtual bool MatchImagePair(int image_index1, int image_index2,
-                              FeatureMatchList& feature_matches) = 0;
+                              std::vector<FeatureMatch>& feature_matches) = 0;
 
   // Find the set intersection of the two sets of input feature matches, and
   // store that set in the second argument.
   virtual inline void SymmetricMatches(
-      const LightFeatureMatchList& feature_matches_lhs,
-      LightFeatureMatchList& feature_matches_rhs);
+      const std::vector<LightFeatureMatch>& feature_matches_lhs,
+      std::vector<LightFeatureMatch>& feature_matches_rhs);
 
-  // Summarize each image by its list of features. This list contains a list of
-  // features for each image.
-  std::vector<FeatureList> image_features_;
+  // Each image has a list of features and descriptors (one per feature).
+  std::vector<std::vector<Feature> > image_features_;
+  std::vector<std::vector<Descriptor> > image_descriptors_;
 
   // A set of options used for matching features and images.
   FeatureMatcherOptions options_;
@@ -111,17 +117,23 @@ class FeatureMatcher {
 // Append features from a single image to the list of all image features.
 template <typename DistanceMetric>
 void FeatureMatcher<DistanceMetric>::
-AddImageFeatures(const FeatureList& image_features) {
+AddImageFeatures(const std::vector<Feature>& image_features,
+                 const std::vector<Descriptor>& image_descriptors) {
   image_features_.push_back(image_features);
+  image_descriptors_.push_back(image_descriptors);
 }
 
 // Append features from a set of images to the list of all image features.
 template <typename DistanceMetric>
-void FeatureMatcher<DistanceMetric>::
-AddImageFeatures(const std::vector<FeatureList>& image_features) {
+void FeatureMatcher<DistanceMetric>::AddImageFeatures(
+    const std::vector<std::vector<Feature> >& image_features,
+    const std::vector<std::vector<Descriptor> >& image_descriptors) {
   image_features_.insert(image_features_.end(),
                          image_features.begin(),
                          image_features.end());
+  image_descriptors_.insert(image_descriptors_.end(),
+                            image_descriptors.begin(),
+                            image_descriptors.end());
 }
 
 template <typename DistanceMetric>
@@ -163,9 +175,9 @@ MatchImages(const FeatureMatcherOptions& options,
 }
 
 template <typename DistanceMetric>
-void FeatureMatcher<DistanceMetric>::
-SymmetricMatches(const LightFeatureMatchList& feature_matches_lhs,
-                 LightFeatureMatchList& feature_matches_rhs) {
+void FeatureMatcher<DistanceMetric>::SymmetricMatches(
+    const std::vector<LightFeatureMatch>& feature_matches_lhs,
+    std::vector<LightFeatureMatch>& feature_matches_rhs) {
 
   std::unordered_map<int, int> feature_indices;
   feature_indices.reserve(feature_matches_lhs.size());

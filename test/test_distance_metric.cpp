@@ -55,9 +55,10 @@ namespace bsfm {
 TEST(ScaledL2Distance, TestSymmetry) {
   // Create a distance metric.
   ScaledL2Distance distance;
+  typedef typename ScaledL2Distance::Descriptor Descriptor;
 
-  Eigen::VectorXf descriptor1(64);
-  Eigen::VectorXf descriptor2(64);
+  Descriptor descriptor1(64);
+  Descriptor descriptor2(64);
   for (int ii = 0; ii < 1000; ++ii) {
     descriptor1.setRandom().normalize();
     descriptor2.setRandom().normalize();
@@ -70,12 +71,13 @@ TEST(ScaledL2Distance, TestSymmetry) {
 TEST(ScaledL2Distance, TestPositiveDefiniteness) {
   // Create a distance metric.
   ScaledL2Distance distance;
+  typedef typename ScaledL2Distance::Descriptor Descriptor;
 
-  Eigen::VectorXf descriptor1(64);
+  Descriptor descriptor1(64);
   for (int ii = 0; ii < 1000; ++ii) {
     descriptor1.setRandom().normalize();
 
-    Eigen::VectorXf descriptor2 = descriptor1;
+    Descriptor descriptor2 = descriptor1;
     EXPECT_NEAR(0.0, distance(descriptor1, descriptor2), 1e-4);
   }
 }
@@ -83,9 +85,10 @@ TEST(ScaledL2Distance, TestPositiveDefiniteness) {
 TEST(ScaledL2Distance, TestValue) {
   // Create a distance metric.
   ScaledL2Distance distance;
+  typedef typename ScaledL2Distance::Descriptor Descriptor;
 
-  Eigen::VectorXf descriptor1(64);
-  Eigen::VectorXf descriptor2(64);
+  Descriptor descriptor1(64);
+  Descriptor descriptor2(64);
   for (int ii = 0; ii < 1000; ++ii) {
     descriptor1.setRandom().normalize();
     descriptor2.setRandom().normalize();

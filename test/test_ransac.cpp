@@ -366,18 +366,21 @@ TEST_F(TestRansac, TestDrawInliers) {
   detector.DetectKeypoints(image1, keypoints1);
   detector.DetectKeypoints(image2, keypoints2);
 
-  DescriptorExtractor extractor;
+  typedef typename ScaledL2Distance::Descriptor Descriptor;
+  DescriptorExtractor<Descriptor> extractor;
   extractor.SetDescriptor("SIFT");
 
-  FeatureList features1;
-  FeatureList features2;
-  extractor.DescribeFeatures(image1, keypoints1, features1);
-  extractor.DescribeFeatures(image2, keypoints2, features2);
+  std::vector<Feature> features1;
+  std::vector<Feature> features2;
+  std::vector<Descriptor> descriptors1;
+  std::vector<Descriptor> descriptors2;
+  extractor.DescribeFeatures(image1, keypoints1, features1, descriptors1);
+  extractor.DescribeFeatures(image2, keypoints2, features2, descriptors2);
 
   FeatureMatcherOptions matcher_options;
   NaiveFeatureMatcher<ScaledL2Distance> feature_matcher;
-  feature_matcher.AddImageFeatures(features1);
-  feature_matcher.AddImageFeatures(features2);
+  feature_matcher.AddImageFeatures(features1, descriptors1);
+  feature_matcher.AddImageFeatures(features2, descriptors2);
   PairwiseImageMatchList image_matches;
   feature_matcher.MatchImages(matcher_options, image_matches);
 

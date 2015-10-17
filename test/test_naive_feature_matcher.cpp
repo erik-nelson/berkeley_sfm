@@ -64,7 +64,9 @@ class TestNaiveFeatureMatcher : public ::testing::Test {
   const unsigned int expected_matched_features_asymmetric = 480;
 };  //\class TestNaiveFeatureMatcher
 
-TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
+TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcher) {
+  typedef Eigen::VectorXf Descriptor;
+
   // What happens when we provide no options?
 
   // Load two images.
@@ -89,18 +91,20 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
   LOG(INFO) << "Detected " << keypoints1.size() << " keypoints from image 1.";
   LOG(INFO) << "Detected " << keypoints2.size() << " keypoints from image 2.";
 
-  DescriptorExtractor extractor;
+  DescriptorExtractor<Descriptor> extractor;
   extractor.SetDescriptor("SIFT");
 
-  FeatureList features1;
-  FeatureList features2;
-  extractor.DescribeFeatures(image1, keypoints1, features1);
-  extractor.DescribeFeatures(image2, keypoints2, features2);
+  std::vector<Feature> features1;
+  std::vector<Feature> features2;
+  std::vector<Descriptor> descriptors1;
+  std::vector<Descriptor> descriptors2;
+  extractor.DescribeFeatures(image1, keypoints1, features1, descriptors1);
+  extractor.DescribeFeatures(image2, keypoints2, features2, descriptors2);
   LOG(INFO) << "Extracted " << features1.size() << " features from image 1.";
   LOG(INFO) << "Extracted " << features2.size() << " features from image 2.";
 
-  feature_matcher.AddImageFeatures(features1);
-  feature_matcher.AddImageFeatures(features2);
+  feature_matcher.AddImageFeatures(features1, descriptors1);
+  feature_matcher.AddImageFeatures(features2, descriptors2);
 
   // Match images with symmetric feature matches enforced.
   PairwiseImageMatchList image_matches;

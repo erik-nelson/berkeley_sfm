@@ -86,7 +86,7 @@ void DrawImageFeatures(const FeatureList& features, const Image& image,
 }
 
 void DrawImageFeatureMatches(const Image& image1, const Image& image2,
-                             const PairwiseImageMatch& match_data,
+                             const FeatureMatchList& feature_matches,
                              const std::string& window_name,
                              unsigned int line_thickness) {
   // Create a random number generator for random colors.
@@ -102,7 +102,7 @@ void DrawImageFeatureMatches(const Image& image1, const Image& image2,
   cv::hconcat(cv_image1, cv_image2, combined_image);
 
   // Draw lines between feature locations in the combined image.
-  for (const auto& feature_match : match_data.feature_matches_) {
+  for (const auto& feature_match : feature_matches) {
     cv::Point feature1;
     feature1.x = feature_match.feature1_.u_;
     feature1.y = feature_match.feature1_.v_;

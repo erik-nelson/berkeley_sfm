@@ -65,6 +65,10 @@ struct RansacOptions {
   // Again, this value is extremely arbitrary!
   unsigned int minimum_num_inliers = 10;
 
+  // Number of points required for each minimal sampling to compute a (possibly
+  // erroneous) RANSAC model.
+  unsigned int num_samples = 8;
+
 };  //\struct RansacOptions
 
 }  //\namespace bsfm

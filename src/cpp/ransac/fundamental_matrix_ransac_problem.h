@@ -70,6 +70,9 @@ struct FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
   virtual bool IsGoodFit(const FeatureMatch& data_point,
                          double error_tolerance);
 
+  // Compute x1' * F_ * x2 for the input match.
+  double EvaluateEpipolarCondition(const FeatureMatch& match) const;
+
   // Model-specific member variables.
   Eigen::Matrix3d F_;
   double error_;
@@ -85,10 +88,11 @@ class FundamentalMatrixRansacProblem
   virtual ~FundamentalMatrixRansacProblem();
 
   // Subsample the data.
-  virtual std::vector<FeatureMatch> SampleData();
+  virtual std::vector<FeatureMatch> SampleData(unsigned int num_samples);
 
   // Return the data that was not sampled.
-  virtual std::vector<FeatureMatch> RemainingData() const;
+  virtual std::vector<FeatureMatch> RemainingData(
+      unsigned int num_sampled_previously) const;
 
   // Fit a model to the provided data using the 8-point algorithm.
   virtual FundamentalMatrixRansacModel FitModel(

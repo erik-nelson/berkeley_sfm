@@ -113,7 +113,8 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
 
   // Draw feature matches.
   if (FLAGS_draw_feature_matches) {
-    drawing::DrawImageFeatureMatches(image1, image2, image_matches[0],
+    drawing::DrawImageFeatureMatches(image1, image2,
+                                     image_matches[0].feature_matches_,
                                      "Symmetric Matched Features");
   }
 
@@ -129,7 +130,8 @@ TEST_F(TestNaiveFeatureMatcher, TestDefaultMatcher) {
 
   // Draw feature matches.
   if (FLAGS_draw_feature_matches) {
-    drawing::DrawImageFeatureMatches(image1, image2, image_matches[0],
+    drawing::DrawImageFeatureMatches(image1, image2,
+                                     image_matches[0].feature_matches_,
                                      "Asymmetric Matched Features");
   }
 }

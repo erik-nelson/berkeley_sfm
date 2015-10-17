@@ -129,7 +129,7 @@ bool FundamentalMatrixSolver::ComputeFundamentalMatrices(
   for (const auto& pair_data : matched_image_data_) {
     Eigen::Matrix3d fundamental_matrix;
     if (ComputeFundamentalMatrix(pair_data.feature_matches_,
-                                  fundamental_matrix)) {
+                                 fundamental_matrix)) {
       fundamental_matrices.push_back(fundamental_matrix);
     } else {
       VLOG(1) << "Failed to compute funamental matrix between images "

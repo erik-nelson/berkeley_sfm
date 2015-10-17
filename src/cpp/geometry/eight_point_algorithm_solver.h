@@ -119,10 +119,10 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
     double v2 = matched_features[ii].feature2_.v_;
 
     if (options_.normalize_features) {
-      u1 = T1(0, 0) * u1 - T1(0, 2);
-      v1 = T1(1, 1) * v1 - T1(1, 2);
-      u2 = T2(0, 0) * u2 - T2(0, 2);
-      v2 = T2(1, 1) * v2 - T2(1, 2);
+      u1 = T1(0, 0) * u1 + T1(0, 2);
+      v1 = T1(1, 1) * v1 + T1(1, 2);
+      u2 = T2(0, 0) * u2 + T2(0, 2);
+      v2 = T2(1, 1) * v2 + T2(1, 2);
     }
 
     A(ii, 0) = u1*u2;
@@ -136,18 +136,16 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
     A(ii, 8) = 1    ;
   }
 
-  // std::cout << "A: " << std::endl << A << std::endl;
-
-  // Get svd(A).
+  // Get svd(A). Save some time and compute a thin U. We still need a full V.
   Eigen::JacobiSVD<Eigen::MatrixXd> svd;
-  svd.compute(A, Eigen::ComputeThinU | Eigen::ComputeThinV);
-  if (!svd.computeU() || !svd.computeV()) {
+  svd.compute(A, Eigen::ComputeThinU | Eigen::ComputeFullV);
+  if (!svd.computeV()) {
     VLOG(1) << "Failed to compute a singular value decomposition of A matrix.";
     return false;
   }
 
   // Get the fundamental matrix elements from the SVD decomposition.
-  const Eigen::VectorXd f_vec = svd.matrixV().rightCols(1);
+  const Eigen::VectorXd f_vec = svd.matrixV().col(8);
 
   // Turn the elements of the fundamental matrix into an actual matrix.
   fundamental_matrix.row(0) = f_vec.topRows(3).transpose();
@@ -157,8 +155,9 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
   // If requested, make sure that the computed fundamental matrix has rank 2.
   // This is step 2 of the eight-point algorithm from the slides.
   if (options_.enforce_fundamental_matrix_rank_deficiency) {
-    // Get svd(F).
-    svd.compute(fundamental_matrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    // Get svd(F). We need full U and V to reconstruct the rank deficient F.
+    svd.compute(fundamental_matrix, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    svd.compute(fundamental_matrix);
     if (!svd.computeU() || !svd.computeV()) {
       VLOG(1) << "Failed to compute a singular value decomposition of "
                  "fundamental matrix.";
@@ -176,7 +175,7 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
   // If normalization was requested, we need to 'un-normalize' the fundamental
   // matrix.
   if (options_.normalize_features) {
-    fundamental_matrix = T2.transpose() * fundamental_matrix * T1;
+    fundamental_matrix = T1.transpose() * fundamental_matrix * T2;
   }
 
   return true;

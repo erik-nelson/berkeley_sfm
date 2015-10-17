@@ -57,7 +57,7 @@ const int kFeatureMatches = 200;
 
 TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
   // Create a random number generator.
-  math::RandomGenerator rng(math::RandomGenerator::Seed());
+  math::RandomGenerator rng(0);
 
   // Create two cameras. By default they will have identity extrinsics.
   Camera camera1;
@@ -78,8 +78,8 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
   camera2.SetIntrinsics(intrinsics);
 
   // Translate the 2nd camera along its X axis (give it some known base-line).
-  // Camera 2 will be 2.0 units to the right of camera 1.
-  camera2.MutableExtrinsics().TranslateX(2.0);
+  // Camera 2 will be 200.0 pixels to the right of camera 1.
+  camera2.MutableExtrinsics().TranslateX(200.0);
 
   // Create a bunch of points in 3D.
   PairwiseImageMatch match_data;
@@ -87,15 +87,17 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
     // Since the camera's +Z faces down the world's -Y
     // direction, make the points back there somewhere.
 
-    double x_world = rng.DoubleUniform(-5.0, 7.0);
-    double y_world = rng.DoubleUniform(-30.0, -20.0);
-    double z_world = rng.DoubleUniform(-5.0, 5.0);
+    const double x_world = rng.DoubleUniform(-2000.0, 2200.0);
+    const double y_world = rng.DoubleUniform(-3000.0, -2000.0);
+    const double z_world = rng.DoubleUniform(-2000.0, 2000.0);
 
     // Project each of the 3D points into the two cameras.
     double u1 = 0.0, v1 = 0.0;
     double u2 = 0.0, v2 = 0.0;
-    bool in_camera1 = camera1.WorldToImage(x_world, y_world, z_world, &u1, &v1);
-    bool in_camera2 = camera2.WorldToImage(x_world, y_world, z_world, &u2, &v2);
+    const bool in_camera1 =
+        camera1.WorldToImage(x_world, y_world, z_world, &u1, &v1);
+    const bool in_camera2 =
+        camera2.WorldToImage(x_world, y_world, z_world, &u2, &v2);
 
     // Make sure the point is visible to both cameras... we want feature
     // matches.
@@ -139,10 +141,8 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
       x1 << match.feature1_.u_, match.feature1_.v_, 1;
       x2 << match.feature2_.u_, match.feature2_.v_, 1;
 
-      // This is going to be a crap estimate without normalization due to
-      // floating point precision in Eigen's SVD/matrix multiplications.
-      EXPECT_NEAR(0.0, x1.transpose() * F_normalized * x2, 0.05);
-      EXPECT_NEAR(0.0, x1.transpose() * F_unnormalized * x2, 0.05);
+      EXPECT_NEAR(0.0, x2.transpose() * F_normalized * x1, 1e-8);
+      EXPECT_NEAR(0.0, x2.transpose() * F_unnormalized * x1, 1e-8);
     }
   }
 }

@@ -46,7 +46,7 @@
 #define BSFM_IMAGE_DRAWING_UTILS_H
 
 #include "image.h"
-#include "../matching/pairwise_image_match.h"
+#include "../matching/feature_match.h"
 
 namespace bsfm {
 namespace drawing {
@@ -66,7 +66,7 @@ void DrawImageFeatures(const FeatureList& features, const Image& image,
 // those features, draw the two images side by side, with matches drawn as lines
 // between them.
 void DrawImageFeatureMatches(const Image& image1, const Image& image2,
-                             const PairwiseImageMatch& match_data,
+                             const FeatureMatchList& feature_matches,
                              const std::string& window_name = std::string(),
                              unsigned int line_thickness = 1);
 

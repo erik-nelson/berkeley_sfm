@@ -46,6 +46,7 @@
 #ifndef BSFM_MATCHING_NAIVE_FEATURE_MATCHER_H
 #define BSFM_MATCHING_NAIVE_FEATURE_MATCHER_H
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -124,11 +125,25 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
   }
 
   // Convert from LightFeatureMatchList to FeatureMatchList for the output.
-  for (const auto& match : light_feature_matches) {
+  // Return matches in sorted order.
+  std::sort(light_feature_matches.begin(), light_feature_matches.end(),
+            LightFeatureMatch::SortByDistance);
+
+  // Check how many features the user wants.
+  unsigned int num_features_out = light_feature_matches.size();
+  if (this->options_.only_keep_best_matches) {
+    num_features_out =
+        std::min(num_features_out, this->options_.num_best_matches);
+  }
+
+  for (int ii = 0; ii < num_features_out; ++ii) {
+    const auto& match = light_feature_matches[ii];
+
     const Feature& matched_feature1 =
         this->image_features_[image_index1][match.feature_index1_];
     const Feature& matched_feature2 =
         this->image_features_[image_index2][match.feature_index2_];
+
     feature_matches.emplace_back(matched_feature1, matched_feature2);
   }
 

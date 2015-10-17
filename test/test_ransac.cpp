@@ -39,14 +39,27 @@
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
 #include <geometry/eight_point_algorithm_solver.h>
+#include <image/drawing_utils.h>
+#include <image/image.h>
 #include <matching/feature_match.h>
+#include <matching/distance_metric.h>
+#include <matching/naive_feature_matcher.h>
 #include <matching/pairwise_image_match.h>
 #include <math/random_generator.h>
 #include <ransac/fundamental_matrix_ransac_problem.h>
 #include <ransac/ransac.h>
 #include <ransac/ransac_options.h>
+#include <strings/join_filepath.h>
 
 #include <gtest/gtest.h>
+
+DEFINE_string(ransac_matched_image1, "lion1.jpg",
+              "Name of the first image used to test RANSAC feature matching.");
+DEFINE_string(ransac_matched_image2, "lion2.jpg",
+              "Name of the second image used to test RANSAC feature matching.");
+DEFINE_bool(ransac_draw_feature_matches, false,
+            "If true, open a window displaying raw (noisy) feature matches and "
+            "RANSAC inlier feature matches.");
 
 namespace bsfm {
 
@@ -59,7 +72,7 @@ class TestRansac : public ::testing::Test {
   PairwiseImageMatch CreateFakeMatchedImagePair(int num_good_matches,
                                                 int num_bad_matches) {
     // Create a random number generator.
-    math::RandomGenerator rng(math::RandomGenerator::Seed());
+    math::RandomGenerator rng(0);
 
     // Create two cameras. By default they will have identity extrinsics.
     Camera camera1;
@@ -80,17 +93,17 @@ class TestRansac : public ::testing::Test {
     camera2.SetIntrinsics(intrinsics);
 
     // Translate the 2nd camera along its X-axis to give it a known baseline.
-    // Camera 2 will now be 2.0 units to the right of camera 1.
-    camera2.MutableExtrinsics().TranslateX(2.0);
+    // Camera 2 will now be 200.0 pixels to the right of camera 1.
+    camera2.MutableExtrinsics().TranslateX(200.0);
 
     // Create a bunch of good matches between points in 3D.
     PairwiseImageMatch matched_images_out;
     while(matched_images_out.feature_matches_.size() < num_good_matches) {
       // Since the camera's +Z faces down the world's -Y direction, make random
       // points back there somewhere.
-      const double x_world = rng.DoubleUniform(-5.0, 7.0);
-      const double y_world = rng.DoubleUniform(-30.0, -20.0);
-      const double z_world = rng.DoubleUniform(-5.0, 5.0);
+      const double x_world = rng.DoubleUniform(-2000.0, 2200.0);
+      const double y_world = rng.DoubleUniform(-3000.0, -2000.0);
+      const double z_world = rng.DoubleUniform(-2000.0, 2000.0);
 
       // Project each of the 3D points into the two cameras.
       double u1 = 0.0, v1 = 0.0;
@@ -123,15 +136,15 @@ class TestRansac : public ::testing::Test {
            num_good_matches + num_bad_matches) {
       // We can generate points in a larger box now.
       Eigen::Vector3d x_w1, x_w2;
-      x_w1.x() = rng.DoubleUniform(-10.0, 12.0);
-      x_w1.y() = rng.DoubleUniform(-40.0, -10.0);
-      x_w1.z() = rng.DoubleUniform(-10.0, 10.0);
-      x_w2.x() = rng.DoubleUniform(-10.0, 12.0);
-      x_w2.y() = rng.DoubleUniform(-40.0, -10.0);
-      x_w2.z() = rng.DoubleUniform(-10.0, 10.0);
+      x_w1.x() = rng.DoubleUniform(-2000.0, 2200.0);
+      x_w1.y() = rng.DoubleUniform(-4000.0, -1000.0);
+      x_w1.z() = rng.DoubleUniform(-2000.0, 2000.0);
+      x_w2.x() = rng.DoubleUniform(-2000.0, 2200.0);
+      x_w2.y() = rng.DoubleUniform(-4000.0, -1000.0);
+      x_w2.z() = rng.DoubleUniform(-2000.0, 2000.0);
 
       // Make sure the points are different enough in 3D.
-      if ((x_w1 - x_w2).squaredNorm() < 1.0) {
+      if ((x_w1 - x_w2).squaredNorm() < 500.0) {
         continue;
       }
 
@@ -163,6 +176,11 @@ class TestRansac : public ::testing::Test {
     return matched_images_out;
   }
 
+  const std::string test_image1 = strings::JoinFilepath(
+      BSFM_TEST_DATA_DIR, FLAGS_ransac_matched_image1.c_str());
+  const std::string test_image2 = strings::JoinFilepath(
+      BSFM_TEST_DATA_DIR, FLAGS_ransac_matched_image2.c_str());
+
  private:
   const int kImageWidth_ = 1920;
   const int kImageHeight_ = 1080;
@@ -170,7 +188,9 @@ class TestRansac : public ::testing::Test {
 };  //\class TestNaiveFeatureMatcher
 
 
-TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
+TEST_F(TestRansac, TestNoiselessMatches) {
+  // Test whether we can get a good estimate of the fundamental matrix when
+  // there is no noise.
 
   // Get some data. As input, we want a set of features that are matched across
   // two images.
@@ -194,6 +214,7 @@ TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
   options.iterations = 1;
   options.acceptable_error = 100.0;
   options.minimum_num_inliers = 8;
+  options.num_samples = 8;
 
   solver.SetOptions(options);
   solver.Run(problem);
@@ -205,9 +226,13 @@ TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
   Eigen::Matrix3d fundamental_matrix_ransac(Eigen::Matrix3d::Identity());
   if (problem.SolutionFound()) {
     const FundamentalMatrixRansacModel& model = problem.Model();
-    // const FundamentalMatrixRansacModel& model =
-        // dynamic_cast<const FundamentalMatrixRansacModel&>(problem.Model());
     fundamental_matrix_ransac = model.F_;
+
+    // Make sure this model has low error on every feature
+    for (const auto& feature_match : data.feature_matches_) {
+      const double error = model.EvaluateEpipolarCondition(feature_match);
+      EXPECT_NEAR(0.0, error, 1e-8);
+    }
   }
 
   // There was no noise in the matches, so this should be the same thing we
@@ -223,6 +248,65 @@ TEST_F(TestRansac, TestFundamentalMatrixNoiseless) {
 
   // Make sure RANSAC comes up with the same solution.
   EXPECT_TRUE(fundamental_matrix_ep.isApprox(fundamental_matrix_ransac, 1e-8));
+
+  // This is redundant, but just as a check - the fundamental matrix computed
+  // with the eight-point algorithm should also have very low error.
+  for (const auto& feature_match : data.feature_matches_) {
+    Eigen::Vector3d x1, x2;
+    x1 << feature_match.feature1_.u_, feature_match.feature1_.v_, 1;
+    x2 << feature_match.feature2_.u_, feature_match.feature2_.v_, 1;
+    EXPECT_NEAR(0.0, x2.transpose() * fundamental_matrix_ep * x1, 1e-8);
+  }
+}
+
+
+TEST_F(TestRansac, TestNoisyMatches) {
+  // See if we get a good fundamental matrix in the presence of noisy matches.
+  // Make sure that the recovered fundamental matrix has low error on the
+  // noiseless matches.
+
+  // Get some data. As input, we want a set of features that are matched across
+  // two images.
+  const int kNumGoodMatches = 100;
+  const int kNumBadMatches = 100;
+
+  PairwiseImageMatch data =
+      CreateFakeMatchedImagePair(kNumGoodMatches, kNumBadMatches);
+
+  // Define the RANSAC problem - we are attempting to determine the fundamental
+  // matrix for a set of noiseless feature correspondences in images.
+  FundamentalMatrixRansacProblem problem;
+  problem.SetData(data.feature_matches_);
+
+  // Create the ransac solver, set options, and run RANSAC on the problem.
+  Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
+  RansacOptions options;
+
+  // Run RANSAC for a bunch of iterations. It is very likely that in at least 1
+  // iteration, all samples will be from the set of good matches and will
+  // therefore result in an error of < 1e-8.
+  options.iterations = 10000;
+  options.acceptable_error = 1e-8;
+  options.num_samples = 8;
+  options.minimum_num_inliers = kNumGoodMatches;
+
+  solver.SetOptions(options);
+  solver.Run(problem);
+
+  // Get the solution from the problem object.
+  ASSERT_TRUE(problem.SolutionFound());
+
+  // If check not needed, but useful to show how to implement this.
+  if (problem.SolutionFound()) {
+    // Check that the fundamental matrix satisfies x1' * F * x2 = 0 for all of
+    // the good matches (x1, x2).
+    const FundamentalMatrixRansacModel& model = problem.Model();
+    for (int ii = 0; ii < kNumGoodMatches; ++ii) {
+      const double error =
+          model.EvaluateEpipolarCondition(data.feature_matches_[ii]);
+      EXPECT_NEAR(0.0, error, 1e-8);
+    }
+  }
 }
 
 TEST_F(TestRansac, TestNeedAtLeastEight) {
@@ -242,10 +326,9 @@ TEST_F(TestRansac, TestNeedAtLeastEight) {
     Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
     RansacOptions options;
 
-    // The 8 minimum inlier option is what will cause RANSAC to fail with less
-    // than 8 matches.
+    // RANSAC should fail if it does not find 8 inliers.
     options.iterations = 10;
-    options.acceptable_error = 100.0;
+    options.acceptable_error = 1e-5;
     options.minimum_num_inliers = 8;
 
     solver.SetOptions(options);
@@ -258,6 +341,73 @@ TEST_F(TestRansac, TestNeedAtLeastEight) {
       ASSERT_TRUE(problem.SolutionFound());
     }
   }
+}
+
+TEST_F(TestRansac, TestDrawInliers) {
+
+  // Load two images and compute feature matches. Draw matches with and without
+  // RANSAC.
+  if (!FLAGS_ransac_draw_feature_matches) {
+    return;
+  }
+
+  // Get some noisy feature matches.
+  Image image1(test_image1.c_str());
+  Image image2(test_image2.c_str());
+
+  image1.Resize(0.25);
+  image2.Resize(0.25);
+
+  KeypointDetector detector;
+  detector.SetDetector("SIFT");
+
+  KeypointList keypoints1;
+  KeypointList keypoints2;
+  detector.DetectKeypoints(image1, keypoints1);
+  detector.DetectKeypoints(image2, keypoints2);
+
+  DescriptorExtractor extractor;
+  extractor.SetDescriptor("SIFT");
+
+  FeatureList features1;
+  FeatureList features2;
+  extractor.DescribeFeatures(image1, keypoints1, features1);
+  extractor.DescribeFeatures(image2, keypoints2, features2);
+
+  FeatureMatcherOptions matcher_options;
+  NaiveFeatureMatcher<ScaledL2Distance> feature_matcher;
+  feature_matcher.AddImageFeatures(features1);
+  feature_matcher.AddImageFeatures(features2);
+  PairwiseImageMatchList image_matches;
+  feature_matcher.MatchImages(matcher_options, image_matches);
+
+  ASSERT_TRUE(image_matches.size() == 1);
+
+  // RANSAC the feature matches to get inliers.
+  FundamentalMatrixRansacProblem problem;
+  problem.SetData(image_matches[0].feature_matches_);
+
+  // Create the ransac solver, set options, and run RANSAC on the problem.
+  Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
+  RansacOptions ransac_options;
+
+  ransac_options.iterations = 5000;
+  ransac_options.acceptable_error = 1e-3;
+  ransac_options.minimum_num_inliers = 30;
+  ransac_options.num_samples = 8;
+
+  solver.SetOptions(ransac_options);
+  solver.Run(problem);
+
+  ASSERT_TRUE(problem.SolutionFound());
+
+  drawing::DrawImageFeatureMatches(image1, image2,
+                                   image_matches[0].feature_matches_,
+                                   "Noisy Matched Features");
+
+  const FeatureMatchList& inliers = problem.Inliers();
+  drawing::DrawImageFeatureMatches(image1, image2, inliers,
+                                   "Inlier Matched Features");
 }
 
 }  //\namespace bsfm

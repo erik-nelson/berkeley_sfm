@@ -157,6 +157,7 @@ MatchImages(const FeatureMatcherOptions& options,
       image_matches.push_back(image_match);
     }
   }
+
   // Return whether or not we found matches between any of the images.
   return image_matches.size() > 0;
 }

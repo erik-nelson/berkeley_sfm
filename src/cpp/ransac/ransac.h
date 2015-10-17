@@ -91,13 +91,14 @@ bool Ransac<DataType, ModelType>::Run(
   // Proceed for options_.iterations iterations of RANSAC.
   for (unsigned int iter = 0; iter < options_.iterations; ++iter) {
     // Sample data points.
-    std::vector<DataType> inliers = problem.SampleData();
+    std::vector<DataType> sampled = problem.SampleData(options_.num_samples);
 
     // Fit a model to the sampled data points.
-    ModelType initial_model = problem.FitModel(inliers);
+    ModelType initial_model = problem.FitModel(sampled);
 
     // Which of the remaining points are also inliers under this model?
-    std::vector<DataType> unsampled = problem.RemainingData();
+    std::vector<DataType> unsampled = problem.RemainingData(options_.num_samples);
+    std::vector<DataType> inliers(sampled);
     for (const auto& not_sampled_data_point : unsampled) {
       if (initial_model.IsGoodFit(not_sampled_data_point,
                                   options_.acceptable_error)) {
@@ -107,6 +108,7 @@ bool Ransac<DataType, ModelType>::Run(
 
     // Check if we have enough inliers to consider this a good model.
     if (inliers.size() >= options_.minimum_num_inliers) {
+
       // Test how good this model is.
       ModelType better_model = problem.FitModel(inliers);
 
@@ -115,6 +117,7 @@ bool Ransac<DataType, ModelType>::Run(
       if (this_error < best_error) {
         best_error = this_error;
         problem.SetModel(better_model);
+        problem.SetInliers(inliers);
         problem.SetSolutionFound(true);
       }
     }

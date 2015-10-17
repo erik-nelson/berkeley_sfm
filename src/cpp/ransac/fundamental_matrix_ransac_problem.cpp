@@ -42,6 +42,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>
+
 #include <algorithm>
 #include <Eigen/Core>
 #include <gflags/gflags.h>
@@ -52,9 +54,6 @@
 #include "../math/random_generator.h"
 #include "../geometry/eight_point_algorithm_solver.h"
 #include "../geometry/fundamental_matrix_solver_options.h"
-
-DEFINE_int64(subsample_size, 8,
-             "Number of points required for each minimal sampling in RANSAC.");
 
 namespace bsfm {
 
@@ -80,18 +79,25 @@ double FundamentalMatrixRansacModel::Error() const {
 bool FundamentalMatrixRansacModel::IsGoodFit(
     const FeatureMatch& data_point,
     double error_tolerance) {
+  const double error = EvaluateEpipolarCondition(data_point);
+
+  // Test squared error against the provided tolerance.
+  if (error * error < error_tolerance) {
+    return true;
+  }
+  return false;
+}
+
+double FundamentalMatrixRansacModel::EvaluateEpipolarCondition(
+    const FeatureMatch& match) const {
   // Construct vectors for 2D keypoints in match.
   Eigen::Vector3d kp1, kp2;
-  kp1 << data_point.feature1_.u_, data_point.feature1_.v_, 1;
-  kp2 << data_point.feature2_.u_, data_point.feature2_.v_, 1;
+  kp1 << match.feature1_.u_, match.feature1_.v_, 1;
+  kp2 << match.feature2_.u_, match.feature2_.v_, 1;
 
-  // Compute error and record its square.
-  const double epipolar_condition = kp1.transpose() * F_ * kp2;
-  error_ = epipolar_condition * epipolar_condition;
-
-  // Test against the provided tolerance.
-  if (error_ < error_tolerance) return true;
-  return false;
+  // Compute deviation from the epipolar condition.
+  const double epipolar_condition = kp2.transpose() * F_ * kp1;
+  return epipolar_condition;
 }
 
 // ------------ FundamentalMatrixRansacProblem methods ------------ //
@@ -103,34 +109,38 @@ FundamentalMatrixRansacProblem::FundamentalMatrixRansacProblem() {}
 FundamentalMatrixRansacProblem::~FundamentalMatrixRansacProblem() {}
 
 // Subsample the data.
-std::vector<FeatureMatch> FundamentalMatrixRansacProblem::SampleData() {
-  // Randomly shuffle the entire dataset and take the first 8 elements.
+std::vector<FeatureMatch> FundamentalMatrixRansacProblem::SampleData(
+    unsigned int num_samples) {
+  // Randomly shuffle the entire dataset and take the first elements.
   std::random_shuffle(data_.begin(), data_.end());
 
   // Make sure we don't over step.
-  const size_t max_num_samples =
-      std::min<size_t>(data_.size(), FLAGS_subsample_size);
-  CHECK(max_num_samples >= 0);
+
+  if (static_cast<size_t>(num_samples) > data_.size()) {
+    VLOG(1) << "Requested more RANSAC data samples than are available. "
+               "Returning all data.";
+    num_samples = data_.size();
+  }
 
   // Get samples.
   std::vector<FeatureMatch> samples(
-      data_.begin(), data_.begin() + max_num_samples);
+      data_.begin(), data_.begin() + static_cast<size_t>(num_samples));
 
   return samples;
 }
 
 // Return all data that was not sampled.
-std::vector<FeatureMatch> FundamentalMatrixRansacProblem::RemainingData()
-    const {
+std::vector<FeatureMatch> FundamentalMatrixRansacProblem::RemainingData(
+    unsigned int num_sampled_previously) const {
   // In Sample(), the data was shuffled and we took the first
-  // FLAGS_subsample_size - 1 elements. Here, take the remaining elements.
-  if (static_cast<size_t>(FLAGS_subsample_size) >= data_.size()) {
+  // 'num_sampled_previously' elements. Here, take the remaining elements.
+  if (num_sampled_previously >= data_.size()) {
+    VLOG(1) << "No remaining RANSAC data to sample.";
     return std::vector<FeatureMatch>();
   }
-  CHECK(FLAGS_subsample_size >= 0);
 
   return std::vector<FeatureMatch>(
-      data_.begin() + FLAGS_subsample_size, data_.end());
+      data_.begin() + num_sampled_previously, data_.end());
 }
 
 // Fit a model to the provided data using the 8-point algorithm.
@@ -141,18 +151,26 @@ FundamentalMatrixRansacModel FundamentalMatrixRansacProblem::FitModel(
 
   // Run the 8-point algorithm with default options.
   EightPointAlgorithmSolver solver;
-  solver.SetOptions(FundamentalMatrixSolverOptions());
+  FundamentalMatrixSolverOptions options;
+  solver.SetOptions(options);
 
-  // Convert data to an input that is useable by the solver.
-  std::vector<FeatureMatch> solver_input_data;
-  for (const auto& data_point : input_data) {
-    solver_input_data.push_back(data_point);
-  }
+  if (solver.ComputeFundamentalMatrix(input_data, F)) {
+    // Create a new RansacModel using the computed fundamental matrix.
+    FundamentalMatrixRansacModel model_out(F);
 
-  if (solver.ComputeFundamentalMatrix(solver_input_data, F)) {
-    return FundamentalMatrixRansacModel(F);
+    // Record sum of squared error over all matches.
+    model_out.error_ = 0.0;
+    for (const auto& feature_match : input_data) {
+      const double error = model_out.EvaluateEpipolarCondition(feature_match);
+      model_out.error_ += error * error;
+    }
+
+    return model_out;
   }
-  return FundamentalMatrixRansacModel(Eigen::Matrix3d::Identity());
+  // Set a large error - we didn't find a model that fits the data.
+  FundamentalMatrixRansacModel model_out(Eigen::Matrix3d::Identity());
+  model_out.error_ = std::numeric_limits<double>::infinity();
+  return model_out;
 }
 
 }  //\namespace bsfm

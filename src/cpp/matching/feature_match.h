@@ -66,8 +66,10 @@ struct FeatureMatch {
   FeatureMatch(const Feature& feature1, const Feature& feature2)
       : feature1_(feature1), feature2_(feature2) {}
 
+  // The same feature in each image.
   Feature feature1_;
   Feature feature2_;
+
 };  //\struct FeatureMatch
 
 struct LightFeatureMatch {

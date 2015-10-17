@@ -64,6 +64,13 @@ struct FeatureMatcherOptions {
   // Only store matches that are the best feature match in both directions.
   bool require_symmetric_matches = true;
 
+  // Only return the best matches.
+  bool only_keep_best_matches = false;
+
+  // If 'only_keep_best_matches' is true, this is the number of best matches to
+  // keep. Otherwise this option will not do anything.
+  unsigned int num_best_matches = 100;
+
 };  //\struct FeatureMatcherOptions
 
 }  //\namespace bsfm

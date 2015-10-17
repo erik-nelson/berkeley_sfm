@@ -71,7 +71,7 @@ class TestRansac : public ::testing::Test {
   // are intentionally incorrect, and also add Gaussian noise to match locations.
   PairwiseImageMatch CreateFakeMatchedImagePair(int num_good_matches,
                                                 int num_bad_matches,
-												int noise_stddev = 0.0) {
+                                                int noise_stddev = 0.0) {
     // Create a random number generator.
     math::RandomGenerator rng(0);
 
@@ -427,7 +427,7 @@ TEST_F(TestRansac, TestNoisyAndBadMatches) {
   // We must also set the noise standard deviation. This is the amount of noise that
   // is added to the image coordinates of each feature.
   const double noise_stddev = 1.0;
-  
+
   PairwiseImageMatch data =
       CreateFakeMatchedImagePair(kNumGoodMatches, kNumBadMatches, noise_stddev);
 
@@ -466,5 +466,5 @@ TEST_F(TestRansac, TestNoisyAndBadMatches) {
     }
   }
 }
-	
+
 }  //\namespace bsfm

@@ -19,6 +19,8 @@ include(cmake/Dependencies.cmake)
 
 # Check for C++11 features and enable.
 bsfm_enable_cpp11()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --stdlib=libc++")
+
 
 # Set the build type. Default to Release mode.
 if(NOT CMAKE_BUILD_TYPE)

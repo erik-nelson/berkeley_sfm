@@ -59,4 +59,4 @@ script:
 
 after_success:
   # Publish documentation.
-  #- ./docs/publish_documentation.sh
+  - ./docs/publish_documentation.sh

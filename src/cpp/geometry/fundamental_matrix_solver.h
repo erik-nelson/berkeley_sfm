@@ -65,9 +65,9 @@ class FundamentalMatrixSolver {
   // Add data from one matched image pair.
   virtual inline void AddMatchedImagePair(
       const PairwiseImageMatch& matched_image_data);
-
+	  
   // Add data from a set of matched image pairs.
-  virtual inline void AddMachedImagePairs(
+  virtual inline void AddMatchedImagePairs(
       const PairwiseImageMatchList& matched_image_data);
 
   // Set options.
@@ -108,7 +108,7 @@ void FundamentalMatrixSolver::AddMatchedImagePair(
 }
 
 // Append a set of data from two-view image matchesto the list of image matches.
-void FundamentalMatrixSolver::AddMachedImagePairs(
+void FundamentalMatrixSolver::AddMatchedImagePairs(
     const PairwiseImageMatchList& matched_image_data) {
   matched_image_data_.insert(matched_image_data_.end(),
                              matched_image_data.begin(),

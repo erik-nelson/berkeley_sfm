@@ -11,13 +11,12 @@ COMMIT_EMAIL="eanelson"
 COMMIT_EMAIL="${COMMIT_EMAIL}@eecs"
 COMMIT_EMAIL="${COMMIT_EMAIL}.berkeley"
 COMMIT_EMAIL="${COMMIT_EMAIL}.edu"
+git config user.name "${COMMIT_USER}"
+git config user.email "${COMMIT_EMAIL}"
 
 # Make sure branches are up to date.
 git remote set-branches --add origin gh-pages
 git fetch origin
-
-git config user.name "${COMMIT_USER}"
-git config user.email "${COMMIT_EMAIL}"
 
 # Remove stale documentation.
 git checkout -b gh-pages origin/gh-pages
@@ -35,7 +34,7 @@ if [ -d "${HTML_PATH}" ]; then
   cd ..
   git add -A
 
-  # Don't add the unencrypted ssh-key.
+  # Don't add the unencrypted ssh-key to the repository.
   git reset -- ssh_keys/travisci_rsa
   git commit -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
   git push origin gh-pages

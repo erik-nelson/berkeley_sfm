@@ -12,6 +12,9 @@ COMMIT_EMAIL="${COMMIT_EMAIL}@eecs"
 COMMIT_EMAIL="${COMMIT_EMAIL}.berkeley"
 COMMIT_EMAIL="${COMMIT_EMAIL}.edu"
 
+# Make sure branches are up to date.
+git fetch origin
+
 # Remove stale documentation.
 git checkout -b gh-pages origin/gh-pages
 if [ -d "${HTML_PATH}" ]; then

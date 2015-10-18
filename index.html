@@ -20,12 +20,13 @@
 
     <section class="main-content">
       <h1>
-<a id="berkeley-structure-from-motion" class="anchor" href="#berkeley-structure-from-motion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Berkeley S(tructure) f(rom) M(otion)</h1>
+<a id="berkeley-structure-from-motion" class="anchor" href="#berkeley-structure-from-motion" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="http://erik-nelson.github.io/berkeley_sfm/">Berkeley S(tructure) f(rom) M(otion)</a>
+</h1>
 
 <p><a href="https://travis-ci.org/erik-nelson/berkeley_sfm"><img src="https://travis-ci.org/erik-nelson/berkeley_sfm.svg?branch=master" alt="Build Status"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-BSD-blue.svg" alt="License"></a></p>
 
-<p>Berkeley SfM is a structure from motion library created to explore new solutions to challenging 3D reconstruction problems (large scale, indoors, incremental, homogeneously textured, etc.). It is developed by Erik Nelson and David Fridovich-Keil, members of the Berkeley Vision and Learning Center (<a href="http://bvlc.eecs.berkeley.edu">BVLC</a>).</p>
+<p>Berkeley SfM is a structure from motion library created to explore new solutions to challenging 3D reconstruction problems (large scale, indoors, incremental, homogeneously textured, etc.). It is developed by <strong>Erik Nelson</strong> and <strong>David Fridovich-Keil</strong>, members of the Berkeley Vision and Learning Center (<a href="http://bvlc.eecs.berkeley.edu">BVLC</a>).</p>
 
 <h2>
 <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h2>
@@ -40,6 +41,11 @@
 <div class="highlight highlight-source-shell"><pre>mkdir build <span class="pl-k">&amp;&amp;</span> <span class="pl-c1">cd</span> build <span class="pl-k">&amp;&amp;</span> cmake .. <span class="pl-k">&amp;&amp;</span> make</pre></div>
 
 <p>We have tested the build process on Mac OSX Yosemite and El Capitan, and on Ubuntu 14.04 Trusty. One difficulty we did encounter is the potential conflict between multiple copies of OpenCV on a system. For example, if you run Anaconda's (and/or Homebrew's) version of OpenCV it may not be compiled properly such that it will link to our repository. If you run into this problem, we suggest uninstalling all versions of OpenCV and rebuilding it from source with the default compiler on your system (not Homebrew's version of gcc/g++).</p>
+
+<h2>
+<a id="api-documentation" class="anchor" href="#api-documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>API Documentation</h2>
+
+<p>Auto-generated Doxygen API documentation is available <a href="http://erik-nelson.github.io/berkeley_sfm/documentation">from here</a>. Doxygen creates documentation from inline comments in project source and header files. Even though our comments are not tailored to Doxygen best-practices, it seems to do an okay job.</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/erik-nelson/berkeley_sfm">Berkeley SfM</a> is maintained by <a href="https://github.com/erik-nelson">erik-nelson</a>.</span>

@@ -6,7 +6,6 @@ compiler:
 
 os:
   - linux
-  #- osx
 
 branches:
   only:
@@ -14,6 +13,13 @@ branches:
 
 notifications:
   email: false
+
+before_install:
+  # Make sure travis has the ability to commit/push to the repository. This is
+  # needed to publish documentation after the build is finished.
+  - openssl aes-256-cbc -K $encrypted_6a2f0cd4845b_key -iv $encrypted_6a2f0cd4845b_iv -in travisci_rsa.enc -out documentation/travisci_rsa -d
+  - chmod 0600 documentation/travisci_rsa
+  - cp config/travisci_rsa ~/.ssh/id_rsa
 
 install:
   - echo $TRAVIS_OS_NAME
@@ -30,9 +36,6 @@ install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++; fi
 
-  # OSX: Get glog, opencv, eigen, and gflags.
-  #- if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew tap homebrew/science && brew install opencv gflags glog eigen; fi
-
 before_script:
   # Linux: Download OpenCV.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"; fi
@@ -41,7 +44,11 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git checkout 2.4; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd build; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DBUILD_opencv_features2d=ON -DBUILD_opencv_highgui=ON -DBUILD_opencv_imgproc=ON -DBUILD_opencv_core=ON -DBUILD_opencv_nonfree=ON -DBUILD_opencv_calib3d=ON -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DBUILD_opencv_features2d=ON -DBUILD_opencv_highgui=ON
+    -DBUILD_opencv_imgproc=ON -DBUILD_opencv_core=ON -DBUILD_opencv_nonfree=ON -DBUILD_opencv_calib3d=ON
+    -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON
+    -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF
+    -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make -j8 install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi

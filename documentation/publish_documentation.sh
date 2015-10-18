@@ -6,7 +6,7 @@ BUILD_PATH=build/
 CHANGESET=$(git rev-parse --verify HEAD)
 
 # Set username and email. Hide email from crawlers.
-COMMIT_USER="erik-nelson"
+COMMIT_USER="Automatic documentation builder"
 COMMIT_EMAIL="eanelson"
 COMMIT_EMAIL="${COMMIT_EMAIL}@eecs"
 COMMIT_EMAIL="${COMMIT_EMAIL}.berkeley"
@@ -21,22 +21,11 @@ git fetch origin
 # Remove stale documentation.
 git checkout -b gh-pages origin/gh-pages
 if [ -d "${HTML_PATH}" ]; then
-
-  # Make sure travis has the ability to push.
-  #openssl aes-256-cbc -K $encrypted_6a2f0cd4845b_key -iv $encrypted_6a2f0cd4845b_iv -in ssh_keys/travisci_rsa.enc -out ssh_keys/travisci_rsa -d
-  #chmod 0600 ssh_keys/travisci_rsa
-  #cp ssh_keys/travisci_rsa ~/.ssh
-
-  cd ${HTML_PATH}
-
   # Delete all documentation and push.
+  cd ${HTML_PATH}
   git rm -rf ./*
   cd ..
-  git add -A
-
-  #Don't add the unencrypted ssh-key to the repository.
-  #git reset -- ssh_keys/travisci_rsa
-  git commit -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
+  git commit -a -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
   git push origin gh-pages
 fi
 

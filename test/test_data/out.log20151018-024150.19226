@@ -1,0 +1,24 @@
+Log file created at: 2015/10/18 02:41:50
+Running on machine: testing-worker-linux-ac725767-1-27515-linux-8-85984280
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1018 02:41:50.338106 19226 test_main.cpp:46] Running all tests.
+I1018 02:41:52.041597 19226 test_naive_feature_matcher.cpp:91] Detected 486 keypoints from image 1.
+I1018 02:41:52.041631 19226 test_naive_feature_matcher.cpp:92] Detected 685 keypoints from image 2.
+I1018 02:41:52.334329 19226 test_naive_feature_matcher.cpp:103] Extracted 486 features from image 1.
+I1018 02:41:52.334352 19226 test_naive_feature_matcher.cpp:104] Extracted 685 features from image 2.
+I1018 02:41:52.728912 19226 test_features.cpp:95] Detected 1098 keypoints using detector type SIFT.
+I1018 02:41:52.920429 19226 test_features.cpp:95] Detected 1462 keypoints using detector type SURF.
+I1018 02:41:52.926188 19226 test_features.cpp:95] Detected 3603 keypoints using detector type FAST.
+I1018 02:41:52.940980 19226 test_features.cpp:95] Detected 180 keypoints using detector type STAR.
+I1018 02:41:52.952064 19226 test_features.cpp:95] Detected 500 keypoints using detector type ORB.
+I1018 02:41:53.416524 19226 test_features.cpp:95] Detected 163 keypoints using detector type BRISK.
+I1018 02:41:53.628612 19226 test_features.cpp:95] Detected 230 keypoints using detector type MSER.
+I1018 02:41:53.650017 19226 test_features.cpp:95] Detected 1000 keypoints using detector type GFTT.
+I1018 02:41:53.668517 19226 test_features.cpp:95] Detected 635 keypoints using detector type HARRIS.
+I1018 02:41:53.672086 19226 test_features.cpp:95] Detected 7396 keypoints using detector type DENSE.
+I1018 02:41:53.709506 19226 test_features.cpp:95] Detected 1 keypoints using detector type SIMPLEBLOB.
+I1018 02:41:54.069293 19226 test_features.cpp:133] Extracted 1098 descriptors with 128 dimensions using descriptor type SIFT.
+I1018 02:41:54.144558 19226 test_features.cpp:133] Extracted 1098 descriptors with 64 dimensions using descriptor type SURF.
+I1018 02:41:54.156374 19226 test_features.cpp:133] Extracted 1037 descriptors with 32 dimensions using descriptor type BRIEF.
+I1018 02:41:54.588081 19226 test_features.cpp:133] Extracted 1033 descriptors with 64 dimensions using descriptor type BRISK.
+I1018 02:41:54.647332 19226 test_features.cpp:133] Extracted 1019 descriptors with 64 dimensions using descriptor type FREAK.

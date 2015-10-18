@@ -1,0 +1,4 @@
+Log file created at: 2015/10/18 02:41:50
+Running on machine: testing-worker-linux-ac725767-1-27515-linux-8-85984280
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1018 02:41:50.310926 19216 test_main.cpp:46] Running all tests.

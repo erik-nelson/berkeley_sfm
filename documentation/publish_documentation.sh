@@ -4,36 +4,48 @@
 set -o errexit -o nounset
 
 # Settings.
-HTML_PATH=documentation/
-BUILD_PATH=build/
+DOCUMENTATION_PATH=documentation/
 CHANGESET=$(git rev-parse --verify HEAD)
 
 # Set username and email. Hide email from crawlers.
 COMMIT_USER="erik-nelson"
 COMMIT_EMAIL="eanelson"
-COMMIT_EMAIL="${COMMIT_EMAIL}@eecs"
-COMMIT_EMAIL="${COMMIT_EMAIL}.berkeley"
-COMMIT_EMAIL="${COMMIT_EMAIL}.edu"
+COMMIT_EMAIL="${COMMIT_EMAIL}@eecs.berkeley.edu"
 git config user.name "${COMMIT_USER}"
 git config user.email "${COMMIT_EMAIL}"
 
-cd ${HTML_PATH}
-
-git init
-git remote add upstream "https://$PA_TOKEN@github.com/${COMMIT_USER}/berkeley_sfm.git"
-git fetch upstream
-git reset upstream/gh-pages
-
-touch .
-git add -A .
-git commit -m "Automated documentation build for changeset ${CHANGESET}."
-git push -q upstream HEAD:gh-pages
-
-
-
 # Make sure branches are up to date.
-#git remote set-branches --add origin gh-pages
-#git fetch origin
+git remote set-branches --add origin gh-pages
+git fetch origin
+
+# Commit new documentation from master branch.
+touch ${DOCUMENTATION_PATH}
+git add ${DOCUMENTATION_PATH}
+git commit -m "Automated documentation for changeset ${CHANGESET}."
+
+# Check out gh-pages branch and merge documentation from master commit.
+git checkout -b gh-pages origin/gh-pages
+git checkout master ${DOCUMENTATION_PATH}
+
+# Add the merged changes and push.
+git add -A
+git commit -m "Automated documentation for changeset ${CHANGESET}."
+git push -u origin gh-pages
+
+echo "-- Successfully updated documentation!"
+
+#git init
+#git remote add upstream "https://$PA_TOKEN@github.com/${COMMIT_USER}/berkeley_sfm.git"
+#git fetch upstream
+#git reset upstream/gh-pages
+
+#touch ${DOCUMENTATION_PATH}
+#git add ${DOCUMENTATION_PATH}
+#git commit -m "Automated documentation build for changeset ${CHANGESET}."
+#git push -q upstream HEAD:gh-pages
+
+
+
 
 ## Remove stale documentation.
 #git checkout -b gh-pages origin/gh-pages

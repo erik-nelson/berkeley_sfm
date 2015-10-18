@@ -60,12 +60,13 @@ class TestNaiveFeatureMatcher : public ::testing::Test {
   const std::string test_image2 = strings::JoinFilepath(
       BSFM_TEST_DATA_DIR, FLAGS_matched_image2.c_str());
 
-  const unsigned int expected_matched_features_symmetric = 199;
-  const unsigned int expected_matched_features_asymmetric = 480;
+  const unsigned int expected_matched_features_symmetric_floating = 199;
+  const unsigned int expected_matched_features_asymmetric_floating = 480;
+  const unsigned int expected_matched_features_symmetric_binary = 785;
+  const unsigned int expected_matched_features_asymmetric_binary = 2351;
 };  //\class TestNaiveFeatureMatcher
 
-TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcher) {
-  typedef Eigen::VectorXf Descriptor;
+TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherSiftSift) {
 
   // What happens when we provide no options?
 
@@ -80,6 +81,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcher) {
 
   FeatureMatcherOptions options;
   NaiveFeatureMatcher<ScaledL2Distance> feature_matcher;
+  typedef ScaledL2Distance::Descriptor Descriptor;
 
   KeypointDetector detector;
   detector.SetDetector("SIFT");
@@ -91,7 +93,8 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcher) {
   LOG(INFO) << "Detected " << keypoints1.size() << " keypoints from image 1.";
   LOG(INFO) << "Detected " << keypoints2.size() << " keypoints from image 2.";
 
-  DescriptorExtractor<Descriptor> extractor;
+  // OpenCV extracts floating point descriptors as floats.
+  DescriptorExtractor<float> extractor;
   extractor.SetDescriptor("SIFT");
 
   std::vector<Feature> features1;
@@ -112,7 +115,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcher) {
 
   // Different OpenCV versions will yield different numbers of
   // keypoints/descriptors. Check for matches with some tolerance.
-  EXPECT_NEAR(expected_matched_features_symmetric,
+  EXPECT_NEAR(expected_matched_features_symmetric_floating,
               image_matches[0].feature_matches_.size(), 10);
 
   // Draw feature matches.
@@ -129,7 +132,81 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcher) {
 
   // Different OpenCV versoins will yield different numbers of
   // keypoints/descriptors. Check for matches with some tolerance.
-  EXPECT_NEAR(expected_matched_features_asymmetric,
+  EXPECT_NEAR(expected_matched_features_asymmetric_floating,
+              image_matches[0].feature_matches_.size(), 10);
+
+  // Draw feature matches.
+  if (FLAGS_draw_feature_matches) {
+    drawing::DrawImageFeatureMatches(image1, image2,
+                                     image_matches[0].feature_matches_,
+                                     "Asymmetric Matched Features");
+  }
+}
+
+TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherFastOrb) {
+  // Load two images.
+  Image image1(test_image1.c_str());
+  Image image2(test_image2.c_str());
+
+  image1.Resize(640.0, 480.0);
+  image2.Resize(640.0, 480.0);
+  image1.RotateClockwise();
+  image2.RotateClockwise();
+
+  FeatureMatcherOptions options;
+  NaiveFeatureMatcher<HammingDistance> feature_matcher;
+  typedef HammingDistance::Descriptor Descriptor;
+
+  KeypointDetector detector;
+  detector.SetDetector("FAST");
+
+  KeypointList keypoints1;
+  KeypointList keypoints2;
+  detector.DetectKeypoints(image1, keypoints1);
+  detector.DetectKeypoints(image2, keypoints2);
+  LOG(INFO) << "Detected " << keypoints1.size() << " keypoints from image 1.";
+  LOG(INFO) << "Detected " << keypoints2.size() << " keypoints from image 2.";
+
+  // OpenCV extracts binary descriptors as unsigned char.
+  DescriptorExtractor<unsigned char> extractor;
+  extractor.SetDescriptor("ORB");
+
+  std::vector<Feature> features1;
+  std::vector<Feature> features2;
+  std::vector<Descriptor> descriptors1;
+  std::vector<Descriptor> descriptors2;
+  extractor.DescribeFeatures(image1, keypoints1, features1, descriptors1);
+  extractor.DescribeFeatures(image2, keypoints2, features2, descriptors2);
+  LOG(INFO) << "Extracted " << features1.size() << " features from image 1.";
+  LOG(INFO) << "Extracted " << features2.size() << " features from image 2.";
+
+  feature_matcher.AddImageFeatures(features1, descriptors1);
+  feature_matcher.AddImageFeatures(features2, descriptors2);
+
+  // Match images with symmetric feature matches enforced.
+  PairwiseImageMatchList image_matches;
+  ASSERT_TRUE(feature_matcher.MatchImages(options, image_matches));
+
+  // Different OpenCV versions will yield different numbers of
+  // keypoints/descriptors. Check for matches with some tolerance.
+  EXPECT_NEAR(expected_matched_features_symmetric_binary,
+              image_matches[0].feature_matches_.size(), 10);
+
+  // Draw feature matches.
+  if (FLAGS_draw_feature_matches) {
+    drawing::DrawImageFeatureMatches(image1, image2,
+                                     image_matches[0].feature_matches_,
+                                     "Symmetric Matched Features");
+  }
+
+  // Match images without enforcing symmetric feature matches.
+  image_matches = PairwiseImageMatchList();
+  options.require_symmetric_matches = false;
+  ASSERT_TRUE(feature_matcher.MatchImages(options, image_matches));
+
+  // Different OpenCV versoins will yield different numbers of
+  // keypoints/descriptors. Check for matches with some tolerance.
+  EXPECT_NEAR(expected_matched_features_asymmetric_binary,
               image_matches[0].feature_matches_.size(), 10);
 
   // Draw feature matches.

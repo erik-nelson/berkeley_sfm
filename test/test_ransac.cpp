@@ -368,7 +368,7 @@ TEST_F(TestRansac, TestDrawInliers) {
   detector.DetectKeypoints(image2, keypoints2);
 
   typedef typename ScaledL2Distance::Descriptor Descriptor;
-  DescriptorExtractor<Descriptor> extractor;
+  DescriptorExtractor<float> extractor;
   extractor.SetDescriptor("SIFT");
 
   std::vector<Feature> features1;

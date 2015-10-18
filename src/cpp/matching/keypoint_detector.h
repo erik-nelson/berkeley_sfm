@@ -60,11 +60,31 @@ class KeypointDetector {
   // Detects keypoints in the input image, returning them in the output list.
   bool DetectKeypoints(const Image& image, KeypointList& keypoints_out);
 
+  // Turn on adaptive feature counts. Only works if the detector type is FAST,
+  // SURF, or STAR.
+  // - min:   minimum desired number of features.
+  // - max:   maximum desired number of features.
+  // - iters: number of iterations spend adjusting the feature detector
+  //          parameters. High numbers are fine for FAST, but time consuming
+  //          for SURF and STAR.
+  void SetAdaptiveOn(unsigned int min, unsigned int max, unsigned int iters);
+  void SetAdaptiveOff();
+
+  // Return whether or not the detector_type supports adaptive feature count
+  // adjustment.
+  bool SupportsAdaptiveAdjustment() const;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(KeypointDetector)
 
   std::string detector_type_;
   cv::Ptr<cv::FeatureDetector> detector_;
+  bool adaptive_;
+
+  // Adaptive feature count parameters. See 'SetAdaptiveOn()' for descriptions.
+  unsigned int adaptive_min_;
+  unsigned int adaptive_max_;
+  unsigned int adaptive_iters_;
 
 };  //\class KeypointDetector
 

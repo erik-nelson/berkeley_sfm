@@ -62,18 +62,36 @@ namespace bsfm {
 // distances are computed this way, we can drop the leading 2*. The L2 norm
 // induces an inner product space over R^{n}, and we can test as such.
 struct ScaledL2Distance {
-  // Descriptor type that ScaledL2Distance functor operates on.
+  // Descriptor type that the ScaledL2Distance functor operates on.
   typedef Eigen::VectorXf Descriptor;
 
   // Functor method.
   float operator()(const Descriptor& descriptor1,
-                    const Descriptor& descriptor2) {
+                   const Descriptor& descriptor2) {
     CHECK_EQ(descriptor1.size(), descriptor2.size());
     return 1.0f - descriptor1.dot(descriptor2);
   }
 
   static bool RequiresNormalizedDescriptors() { return true; }
 };  //\struct ScaledL2Distance
+
+// Compute the Hamming distance between two binary descriptor vectors. This is
+// the number of bits that are in disagreement (i.e. bit1 ^ bit2 == 1).
+struct HammingDistance {
+  // Descriptor type that the HammingDistance functor operates on.
+  typedef Eigen::Matrix<unsigned char, Eigen::Dynamic, 1> Descriptor;
+
+  // Functor method.
+  int operator()(const Descriptor& descriptor1, const Descriptor& descriptor2) {
+    CHECK_EQ(descriptor1.size(), descriptor2.size());
+    int sum = 0;
+    for (size_t ii = 0; ii < descriptor1.size(); ++ii)
+      sum += descriptor1(ii) ^ descriptor2(ii);
+    return sum;
+  }
+
+  static bool RequiresNormalizedDescriptors() { return false; }
+};  //\struct HammingDistance
 
 }  //\namespace bsfm
 

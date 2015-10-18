@@ -38,6 +38,7 @@
 #ifndef BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
 #define BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
 
+#include <iostream>
 #include "../image/image.h"
 #include "../util/disallow_copy_and_assign.h"
 
@@ -56,9 +57,11 @@ namespace bsfm {
 // rows correspond to keypoints, and columns to indices of the descriptor.
 typedef cv::Mat DescriptorList;
 
-template <typename Descriptor>
+template <typename DescriptorType>
 class DescriptorExtractor {
  public:
+  typedef Eigen::Matrix<DescriptorType, Eigen::Dynamic, 1> Descriptor;
+
   DescriptorExtractor() { }
   ~DescriptorExtractor() { }
 
@@ -81,8 +84,8 @@ class DescriptorExtractor {
 
 // -------------------- Implementation -------------------- //
 
-template <typename Descriptor>
-bool DescriptorExtractor<Descriptor>::SetDescriptor(
+template <typename DescriptorType>
+bool DescriptorExtractor<DescriptorType>::SetDescriptor(
     const std::string& descriptor_type) {
   // Set the descriptor type.
   descriptor_type_ = descriptor_type;
@@ -99,6 +102,8 @@ bool DescriptorExtractor<Descriptor>::SetDescriptor(
     extractor_ = cv::DescriptorExtractor::create("BRISK");
   } else if (descriptor_type_.compare("FREAK") == 0) {
     extractor_ = cv::DescriptorExtractor::create("FREAK");
+  } else if (descriptor_type_.compare("ORB") == 0) {
+    extractor_ = cv::DescriptorExtractor::create("ORB");
   } else {
     VLOG(1) << "Descriptor type \"" << descriptor_type
             << "\"is not available. Defaulting to SIFT.";
@@ -110,8 +115,8 @@ bool DescriptorExtractor<Descriptor>::SetDescriptor(
   return valid_descriptor_type;
 }
 
-template <typename Descriptor>
-bool DescriptorExtractor<Descriptor>::DescribeFeatures(
+template <typename DescriptorType>
+bool DescriptorExtractor<DescriptorType>::DescribeFeatures(
     const Image& image, KeypointList& keypoints,
     std::vector<Feature>& features_out,
     std::vector<Descriptor>& descriptors_out) {
@@ -151,7 +156,7 @@ bool DescriptorExtractor<Descriptor>::DescribeFeatures(
     features_out.push_back(feature);
 
     Descriptor descriptor;
-    OpenCVToEigenVec<Descriptor>(cv_descriptors.row(ii), descriptor);
+    OpenCVToEigenVec<DescriptorType>(cv_descriptors.row(ii), descriptor);
     descriptors_out.push_back(descriptor);
   }
 

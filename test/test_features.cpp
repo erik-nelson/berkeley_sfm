@@ -39,6 +39,7 @@
 #include <matching/descriptor_extractor.h>
 #include <matching/feature.h>
 #include <matching/keypoint_detector.h>
+#include <math/random_generator.h>
 #include <strings/join_filepath.h>
 
 #include <gflags/gflags.h>
@@ -112,7 +113,7 @@ TEST_F(TestFeatures, TestDescribeFeatures) {
   // keypoint.
   typedef Eigen::VectorXf Descriptor;
 
-  DescriptorExtractor<Descriptor> extractor;
+  DescriptorExtractor<float> extractor;
   for (size_t ii = 0; ii < descriptor_types.size(); ++ii) {
     EXPECT_TRUE(extractor.SetDescriptor(descriptor_types[ii]));
 
@@ -133,6 +134,68 @@ TEST_F(TestFeatures, TestDescribeFeatures) {
     LOG(INFO) << "Extracted " << features.size() << " descriptors with "
               << descriptors[0].rows() << " dimensions using descriptor type "
               << descriptor_types[ii] << ".";
+  }
+}
+
+TEST_F(TestFeatures, TestAdaptiveAdjustment) {
+  // Load the test image.
+  Image image(test_image.c_str());
+
+  KeypointDetector detector;
+
+  // Make sure only SURF, STAR, and FAST support adaptive adjustment.
+  detector.SetDetector("SIFT");
+  EXPECT_FALSE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("ORB");
+  EXPECT_FALSE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("BRISK");
+  EXPECT_FALSE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("MSER");
+  EXPECT_FALSE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("GFTT");
+  EXPECT_FALSE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("HARRIS");
+  EXPECT_FALSE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("DENSE");
+  EXPECT_FALSE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("SIMPLEBLOB");
+  EXPECT_FALSE(detector.SupportsAdaptiveAdjustment());
+
+  detector.SetDetector("SURF");
+  EXPECT_TRUE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("STAR");
+  EXPECT_TRUE(detector.SupportsAdaptiveAdjustment());
+  detector.SetDetector("FAST");
+  EXPECT_TRUE(detector.SupportsAdaptiveAdjustment());
+
+  // Keep adaptive adjustment off. Make sure we get the same feature count both
+  // multiple times.
+  KeypointList keypoints;
+  size_t size_old = 0;
+  for (int ii = 0; ii < 10; ++ii) {
+    detector.DetectKeypoints(image, keypoints);
+    if (ii > 1) {
+      EXPECT_EQ(size_old, keypoints.size());
+    }
+    size_old = keypoints.size();
+  }
+
+  // Turn on adaptive adjustment and make sure we always get the right number of
+  // features.
+  keypoints.clear();
+
+  int adaptive_iterations = 100;
+  math::RandomGenerator rng(0);
+  for (int ii = 0; ii < 100; ++ii) {
+    // Set a random minimum and maximum number of features.
+    int min_features = rng.IntegerUniform(0, ii*2);
+    int max_features = rng.IntegerUniform(min_features+1, ii*4);
+    detector.SetAdaptiveOn(min_features, max_features, adaptive_iterations);
+    detector.DetectKeypoints(image, keypoints);
+
+    // Did we get a number of features in the range we specified?
+    EXPECT_LE(min_features, keypoints.size());
+    EXPECT_GE(max_features, keypoints.size());
   }
 }
 

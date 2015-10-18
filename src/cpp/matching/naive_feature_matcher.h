@@ -130,18 +130,20 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
     return false;
   }
 
-  // Convert from LightFeatureMatchList to FeatureMatchList for the output.
-  // Return matches in sorted order.
-  std::sort(light_feature_matches.begin(), light_feature_matches.end(),
-            LightFeatureMatch::SortByDistance);
-
   // Check how many features the user wants.
   unsigned int num_features_out = light_feature_matches.size();
   if (this->options_.only_keep_best_matches) {
     num_features_out =
         std::min(num_features_out, this->options_.num_best_matches);
+
+    // Return relevant matches in sorted order.
+    std::partial_sort(light_feature_matches.begin(),
+                      light_feature_matches.begin() + num_features_out,
+                      light_feature_matches.end(),
+                      LightFeatureMatch::SortByDistance);
   }
 
+  // Convert from LightFeatureMatchList to FeatureMatchList for the output.
   for (int ii = 0; ii < num_features_out; ++ii) {
     const auto& match = light_feature_matches[ii];
 

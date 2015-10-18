@@ -63,6 +63,7 @@ TEST(ScaledL2Distance, TestSymmetry) {
     descriptor1.setRandom().normalize();
     descriptor2.setRandom().normalize();
 
+    // Check symmetry.
     EXPECT_NEAR(distance(descriptor1, descriptor2),
                 distance(descriptor2, descriptor1), 1e-4);
   }
@@ -96,6 +97,57 @@ TEST(ScaledL2Distance, TestValue) {
     const double expected_dist = 1.0 - descriptor1.dot(descriptor2);
     EXPECT_NEAR(expected_dist, distance(descriptor1, descriptor2), 1e-4);
   }
+}
+
+// For Hamming distance, test for symmetry, and also check that two binary
+// descriptors have a large distance when they have 0 matches, and have a 0
+// distance when they match exactly.
+TEST(HammingDistance, TestSymmetry) {
+  // Create a distance metric.
+  HammingDistance distance;
+  typedef typename HammingDistance::Descriptor Descriptor;
+
+  Descriptor descriptor1(32);
+  Descriptor descriptor2(32);
+  for (int ii = 0; ii < 1000; ++ii) {
+    descriptor1.setRandom();
+    descriptor2.setRandom();
+
+    // Check symmetry.
+    EXPECT_EQ(distance(descriptor1, descriptor2),
+              distance(descriptor2, descriptor1));
+  }
+}
+
+TEST(HammingDistance, TestValue) {
+  // Create a distance metric.
+  HammingDistance distance;
+  typedef typename HammingDistance::Descriptor Descriptor;
+
+  Descriptor descriptor1(32);
+  Descriptor descriptor2(32);
+  for (int ii = 0; ii < 1000; ++ii) {
+    descriptor1.setRandom();
+    descriptor2.setRandom();
+
+    int expected_dist = 0;
+    for (int jj = 0; jj < 32; ++jj) {
+      expected_dist += descriptor1(jj) ^ descriptor2(jj);
+    }
+    EXPECT_EQ(expected_dist, distance(descriptor1, descriptor2));
+  }
+
+  // Set the descriptors to exact opposites of one another.
+  for (int ii = 0; ii < 32; ++ii) {
+    descriptor1(ii) = static_cast<unsigned char>(ii % 2 == 0);
+    descriptor2(ii) = static_cast<unsigned char>(ii % 2 != 0);
+  }
+  // Check that we get a maximum value (32).
+  EXPECT_EQ(32, distance(descriptor1, descriptor2));
+
+  // Now set the descriptors to be equal, and check that we get a distance of 0.
+  descriptor2 = descriptor1;
+  EXPECT_EQ(0, distance(descriptor1, descriptor2));
 }
 
 }  //\namespace bsfm

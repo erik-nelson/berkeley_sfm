@@ -64,4 +64,5 @@ after_success:
   - echo "https://${PA_TOKEN}:@github.com" > .git/credentials
   - cd build
   - make documentation
-  #- if [ "$CXX" == "g++-4.8" ]; then ./documentation/publish_documentation.sh; fi
+  - cd ..
+  - if [ "$CXX" == "g++-4.8" ]; then ./documentation/publish_documentation.sh; fi

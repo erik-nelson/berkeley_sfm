@@ -1,63 +1,66 @@
 language: cpp
-
 compiler:
-  - gcc
-  - clang
-
+- gcc
+- clang
 os:
-  - linux
-
+- linux
 branches:
   only:
-    - master
-
+  - master
 notifications:
   email: false
-
 install:
-  - echo $TRAVIS_OS_NAME
-
-  # Linux: Get Doxygen, glog, eigen, and gflags, and update g++/gcc to 4.8.
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:tuleu/precise-backports; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install --yes build-essential doxygen libgflags-dev libgoogle-glog-dev libeigen3-dev; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install python-software-properties; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install gcc-4.8 g++-4.8; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++; fi
-
+- echo $TRAVIS_OS_NAME
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:tuleu/precise-backports;
+  fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test;
+  fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install --yes build-essential
+  doxygen libgflags-dev libgoogle-glog-dev libeigen3-dev; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install python-software-properties;
+  fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install gcc-4.8 g++-4.8;
+  fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/gcc
+  gcc /usr/bin/gcc-4.8 20; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/g++
+  g++ /usr/bin/g++-4.8 20; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc;
+  fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++;
+  fi
 before_script:
-  # Linux: Download OpenCV.
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://github.com/Itseez/opencv.git; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd opencv; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git checkout 2.4; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd build; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DBUILD_opencv_features2d=ON -DBUILD_opencv_highgui=ON
-    -DBUILD_opencv_imgproc=ON -DBUILD_opencv_core=ON -DBUILD_opencv_nonfree=ON -DBUILD_opencv_calib3d=ON
-    -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON
-    -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF
-    -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make -j8 install; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
-
-  # Generate a makefile for berkeley_sfm.
-  - mkdir build
-  - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
-
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://github.com/Itseez/opencv.git;
+  fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd opencv; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then git checkout 2.4; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd build; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DBUILD_opencv_features2d=ON -DBUILD_opencv_highgui=ON
+  -DBUILD_opencv_imgproc=ON -DBUILD_opencv_core=ON -DBUILD_opencv_nonfree=ON -DBUILD_opencv_calib3d=ON
+  -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON
+  -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF
+  -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF
+  ..; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make -j8 install; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
+- mkdir build
+- cd build
+- cmake -DCMAKE_BUILD_TYPE=Release ..
 script:
-  - make
-  - cd ../bin/
-  - ./run_tests --gtest_list_tests
-  - ./run_tests
-  - cd ..
-
+- make
+- cd ../bin/
+- ./run_tests --gtest_list_tests
+- ./run_tests
+- cd ..
 after_success:
-  # Publish documentation. Only publish from one of the build jobs.
+  - git config credential.helper "store --file=.git/credentials"
+  - echo "https://${PA_TOKEN}:@github.com" > .git/credentials
   - if [ "$CXX" == "g++-4.8" ]; then ./documentation/publish_documentation.sh; fi
+
+env:
+  global:
+    secure: J/owKvO86gYM/bfjTkdazE/bunNs2AasNsWMcjIcoI/e3YPnrO79RnI8Ur5LXztjMdP3qMUajc1IYi0LBDPZgMZPvbKgVnHU2664aa2Ei2uv6HLIl8wrs9ScnBWpW+CzOgcsIZyqcAgemqGBQ2GGU49xYWsO/KLMnxKsCf4/dImcjgU3j1UUyh1bwS0lUdKERJGoQXjhV3mhDlvwnihoug754k7f1nlYGPV57b9USSjXhNlfb0XTKESgyGSKxQctWxwDc4Ne7fo0+KIP2BUQjyob3+s7Fov7IjuwVapNgsztPt6G6QTEp+7v0rjP1Rpp3yCAqF8xLO7RAqHfTnRPh4CwKOztpwBVRDdEH+6Bt3OcUQCDPgkvmVujmtMZcOj3PQC0jiS1Bc3+0vzp+R9fDp7ZE20wyk4unPnAmHSwyuiiLY8/uooaI2QYieqGfwrHfXlGcGK7IzLVUdVHqIxLiFUB0ZISvjgRqyy6wR/I0HdV3u3A012FEmtDx3ALFIuG/Awc7nDfiUAwToaFGm0Qzr5pqES5bzEkQC+xIAzbIdj8egZVrFcRoPwUZH3OidKBc5kAiLWMFDEZidDDqmcVEbnsXVD/5wOJugV5sT8jQBCtmo5Gb97wGnAU5T1U57LOPKGy6rPe32B8GrFjtqDepNvFVildlEAxrgqoZ6LIkS0=

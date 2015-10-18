@@ -19,12 +19,12 @@ install:
   - echo $TRAVIS_OS_NAME
 
   # Linux: Get Doxygen, glog, eigen, and gflags, and update g++/gcc to 4.8.
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository --yes ppa:tuleu/precise-backports; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:tuleu/precise-backports; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install --yes build-essential doxygen libgflags-dev libgoogle-glog-dev libeigen3-dev; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install --yes python-software-properties; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install --yes gcc-4.8 g++-4.8; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install python-software-properties; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install gcc-4.8 g++-4.8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc; fi
@@ -52,7 +52,7 @@ before_script:
   - cmake -DCMAKE_BUILD_TYPE=Release ..
 
 script:
-  - make -j8
+  - make
   - cd ../bin/
   - ./run_tests --gtest_list_tests
   - ./run_tests

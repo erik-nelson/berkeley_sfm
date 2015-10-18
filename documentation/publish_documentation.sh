@@ -20,7 +20,7 @@ git fetch origin
 git checkout -b gh-pages origin/gh-pages
 if [ -d "${HTML_PATH}" ]; then
   cd ${HTML_PATH}
-  rm -rf .
+  rm -rf ./*
   cd -
 fi
 

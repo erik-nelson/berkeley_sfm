@@ -22,15 +22,16 @@ git config user.email "${COMMIT_EMAIL}"
 # Remove stale documentation.
 git checkout -b gh-pages origin/gh-pages
 if [ -d "${HTML_PATH}" ]; then
-  cd ${HTML_PATH}
 
   # Make sure travis has the ability to push.
-  openssl aes-256-cbc -K $encrypted_6a2f0cd4845b_key -iv $encrypted_6a2f0cd4845b_iv -in travisci_rsa.enc -out travisci_rsa -d
-  chmod 0600 travisci_rsa
-  cp travisci_rsa ~/.ssh
+  openssl aes-256-cbc -K $encrypted_6a2f0cd4845b_key -iv $encrypted_6a2f0cd4845b_iv -in ssh_keys/travisci_rsa.enc -out ssh_keys/travisci_rsa -d
+  chmod 0600 ssh_keys/travisci_rsa
+  cp ssh_keys/travisci_rsa ~/.ssh
+
+  cd ${HTML_PATH}
 
   # Delete all documentation and push.
-  git rm -rf ./* !(travisci_rsa*)
+  git rm -rf ./*
   cd ..
   git commit -a -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
   git push origin gh-pages

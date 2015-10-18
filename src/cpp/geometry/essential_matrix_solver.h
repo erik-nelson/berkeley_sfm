@@ -43,8 +43,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_ESSENTIAL_MATRIX_SOLVER_H
-#define BSFM_ESSENTIAL_MATRIX_SOLVER_H
+#ifndef BSFM_GEOMETRY_ESSENTIAL_MATRIX_SOLVER_H
+#define BSFM_GEOMETRY_ESSENTIAL_MATRIX_SOLVER_H
 
 #include <Eigen/Core>
 #include <glog/logging.h>
@@ -60,17 +60,17 @@ public:
   // Empty constructor and destructor. No member variables.
   EssentialMatrixSolver() {}
   ~EssentialMatrixSolver() {}
-  
+
   // Compute the essential matrix from a fundamental matrix and camera intrinsics.
   Eigen::Matrix3d ComputeEssentialMatrix(Eigen::Matrix3d F,
 					 CameraIntrinsics K1,
 					 CameraIntrinsics K2);
-  
+
   // Compute camera extrinsics from an essential matrix and a list of keypoint matches.
   bool ComputeExtrinsics(CameraExtrinsics& extrinsics,
-				     Eigen::Matrix3d E, 
+				     Eigen::Matrix3d E,
 				     PairwiseImageMatchList matches);
-    
+
 private:
   DISALLOW_COPY_AND_ASSIGN(EssentialMatrixSolver)
 
@@ -92,17 +92,17 @@ Eigen::Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(Eigen::Matrix3d F,
   Eigen::Matrix3d E = K2.transpose() * F * K1;
   return E;
 }
- 
+
 // Compute camera extrinsics from an essential matrix and a list of keypoint matches.
 // NOTE: this implementation is based on Hartley & Zisserman's MVG, pg. 258.
 bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics& extrinsics;
-					      Eigen::Matrix3d E, 
+					      Eigen::Matrix3d E,
 					      PairwiseImageMatchList matches) {
   // Initialize the W matrix.
   Eigen::Matrix3d W;
-  W << 
-    0.0, -1.0, 0.0, 
-    1.0, 0.0, 0.0, 
+  W <<
+    0.0, -1.0, 0.0,
+    1.0, 0.0, 0.0,
     0.0, 0.0, 1.0;
 
   // Perform an SVD on the essential matrix.
@@ -112,7 +112,7 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics& extrinsics;
     VLOG(1) << "Failed to compute a singular value decomposition of the essential matrix.";
     return false;
   }
-  
+
   // TODO: finish this!! Refer to SimpleSFM/BasicFunctions.E2Rt().
 
   return true;

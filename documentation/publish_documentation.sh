@@ -25,7 +25,7 @@ if [ -d "${HTML_PATH}" ]; then
   cd ${HTML_PATH}
   git rm -rf ./*
   cd ..
-  git commit -a -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
+  git commit -a -m "Automated documentation for changeset ${CHANGESET}: step 1 of 2 -  Deleting old documentation."
   git push origin gh-pages
 fi
 echo "-- Successfully removed stale documentation."
@@ -43,7 +43,7 @@ if [ -d "${BUILD_PATH}" ]; then
   # Publish the documentation.
   cd ${HTML_PATH}
   git add .
-  git commit -m "(2 of 2) Adding new documentation. Automated documentation build for changeset ${CHANGESET}."
+  git commit -m "Automated documentation for changeset ${CHANGESET}: step 2 of 2 - Adding new documentation."
   git push origin gh-pages
   cd -
 fi

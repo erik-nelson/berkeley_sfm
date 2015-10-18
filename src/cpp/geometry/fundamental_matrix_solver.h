@@ -44,8 +44,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_FUNDAMENTAL_MATRIX_SOLVER_H
-#define BSFM_FUNDAMENTAL_MATRIX_SOLVER_H
+#ifndef BSFM_GEOMETRY_FUNDAMENTAL_MATRIX_SOLVER_H
+#define BSFM_GEOMETRY_FUNDAMENTAL_MATRIX_SOLVER_H
 
 #include <Eigen/Core>
 #include <glog/logging.h>
@@ -65,7 +65,7 @@ class FundamentalMatrixSolver {
   // Add data from one matched image pair.
   virtual inline void AddMatchedImagePair(
       const PairwiseImageMatch& matched_image_data);
-	  
+
   // Add data from a set of matched image pairs.
   virtual inline void AddMatchedImagePairs(
       const PairwiseImageMatchList& matched_image_data);

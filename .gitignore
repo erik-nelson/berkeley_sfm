@@ -1,7 +1,5 @@
-# Ignore everything except for:
-*
-!documentation/*
-!ssh_keys
-!stylesheets
-!index.html
-!params.json
+bin
+build
+test
+opencv
+exec

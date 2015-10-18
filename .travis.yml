@@ -62,4 +62,6 @@ script:
 after_success:
   - git config credential.helper "store --file=.git/credentials"
   - echo "https://${PA_TOKEN}:@github.com" > .git/credentials
-  - if [ "$CXX" == "g++-4.8" ]; then ./documentation/publish_documentation.sh; fi
+  - cd build
+  - make documentation
+  #- if [ "$CXX" == "g++-4.8" ]; then ./documentation/publish_documentation.sh; fi

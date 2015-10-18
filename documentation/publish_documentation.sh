@@ -4,7 +4,7 @@
 set -o errexit -o nounset
 
 # Settings.
-DOCUMENTATION_PATH=documentation/
+DOCUMENTATION_PATH=documentation
 CHANGESET=$(git rev-parse --verify HEAD)
 
 # Set username and email. Hide email from crawlers.
@@ -25,6 +25,7 @@ git commit -m "Automated documentation for changeset ${CHANGESET}."
 
 # Check out gh-pages branch and merge documentation from master commit.
 git checkout -b gh-pages origin/gh-pages
+rm -r ${DOCUMENTATION_PATH}
 git checkout master ${DOCUMENTATION_PATH}
 
 # Add the merged changes and push.

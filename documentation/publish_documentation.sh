@@ -3,10 +3,10 @@
 # Settings.
 HTML_PATH=documentation/
 BUILD_PATH=build/
-COMMIT_USER="Automatic documentation builder"
 CHANGESET=$(git rev-parse --verify HEAD)
 
-# Hide email from crawlers.
+# Set username and email. Hide email from crawlers.
+COMMIT_USER="erik-nelson"
 COMMIT_EMAIL="eanelson"
 COMMIT_EMAIL="${COMMIT_EMAIL}@eecs"
 COMMIT_EMAIL="${COMMIT_EMAIL}.berkeley"
@@ -33,7 +33,11 @@ if [ -d "${HTML_PATH}" ]; then
   # Delete all documentation and push.
   git rm -rf ./*
   cd ..
-  git commit -a -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
+  git add -A
+
+  # Don't add the unencrypted ssh-key.
+  git reset -- ssh_keys/travisci_rsa
+  git commit -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
   git push origin gh-pages
 fi
 

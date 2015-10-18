@@ -13,6 +13,7 @@ COMMIT_EMAIL="${COMMIT_EMAIL}.berkeley"
 COMMIT_EMAIL="${COMMIT_EMAIL}.edu"
 
 # Make sure branches are up to date.
+git remote set-branches --add origin gh-pages
 git fetch origin
 
 # Remove stale documentation.

@@ -2,7 +2,7 @@ language: cpp
 
 compiler:
   - gcc
-  #- clang
+  - clang
 
 os:
   - linux
@@ -60,4 +60,4 @@ script:
 
 after_success:
   # Publish documentation. Only publish from one of the build jobs.
-  - ./documentation/publish_documentation.sh
+  - if [ "$CXX" == "g++" ]; then ./documentation/publish_documentation.sh; fi

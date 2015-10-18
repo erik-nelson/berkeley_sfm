@@ -116,7 +116,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherSiftSift) {
   // Different OpenCV versions will yield different numbers of
   // keypoints/descriptors. Check for matches with some tolerance.
   EXPECT_NEAR(expected_matched_features_symmetric_floating,
-              image_matches[0].feature_matches_.size(), 10);
+              image_matches[0].feature_matches_.size(), 20);
 
   // Draw feature matches.
   if (FLAGS_draw_feature_matches) {
@@ -133,7 +133,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherSiftSift) {
   // Different OpenCV versoins will yield different numbers of
   // keypoints/descriptors. Check for matches with some tolerance.
   EXPECT_NEAR(expected_matched_features_asymmetric_floating,
-              image_matches[0].feature_matches_.size(), 10);
+              image_matches[0].feature_matches_.size(), 20);
 
   // Draw feature matches.
   if (FLAGS_draw_feature_matches) {
@@ -190,7 +190,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherFastOrb) {
   // Different OpenCV versions will yield different numbers of
   // keypoints/descriptors. Check for matches with some tolerance.
   EXPECT_NEAR(expected_matched_features_symmetric_binary,
-              image_matches[0].feature_matches_.size(), 10);
+              image_matches[0].feature_matches_.size(), 20);
 
   // Draw feature matches.
   if (FLAGS_draw_feature_matches) {
@@ -207,7 +207,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherFastOrb) {
   // Different OpenCV versoins will yield different numbers of
   // keypoints/descriptors. Check for matches with some tolerance.
   EXPECT_NEAR(expected_matched_features_asymmetric_binary,
-              image_matches[0].feature_matches_.size(), 10);
+              image_matches[0].feature_matches_.size(), 20);
 
   // Draw feature matches.
   if (FLAGS_draw_feature_matches) {

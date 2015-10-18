@@ -6,7 +6,7 @@ BUILD_PATH=build/
 CHANGESET=$(git rev-parse --verify HEAD)
 
 # Set username and email. Hide email from crawlers.
-COMMIT_USER="Automatic documentation builder"
+COMMIT_USER="erik-nelson"
 COMMIT_EMAIL="eanelson"
 COMMIT_EMAIL="${COMMIT_EMAIL}@eecs"
 COMMIT_EMAIL="${COMMIT_EMAIL}.berkeley"

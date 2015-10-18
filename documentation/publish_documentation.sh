@@ -16,12 +16,17 @@ COMMIT_EMAIL="${COMMIT_EMAIL}.edu"
 git remote set-branches --add origin gh-pages
 git fetch origin
 
+git config user.name "${COMMIT_USER}"
+git config user.email "${COMMIT_EMAIL}"
+
 # Remove stale documentation.
 git checkout -b gh-pages origin/gh-pages
 if [ -d "${HTML_PATH}" ]; then
   cd ${HTML_PATH}
-  rm -rf ./*
-  cd -
+  git rm -rf ./*
+  cd ..
+  git commit -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
+  git push origin gh-pages
 fi
 
 # Make the documentation from source files on the master branch.
@@ -39,7 +44,7 @@ if [ -d "${BUILD_PATH}" ]; then
   git add .
   git config user.name "${COMMIT_USER}"
   git config user.email "${COMMIT_EMAIL}"
-  git commit -m "Automated documentation build for changeset ${CHANGESET}."
+  git commit -m "(2 of 2) Adding new documentation. Automated documentation build for changeset ${CHANGESET}."
   git push origin gh-pages
   cd -
 fi

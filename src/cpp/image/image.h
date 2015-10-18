@@ -44,7 +44,6 @@
 #ifndef BSFM_IMAGE_IMAGE_H
 #define BSFM_IMAGE_IMAGE_H
 
-#include <iostream>
 #include <memory>
 #include <string>
 

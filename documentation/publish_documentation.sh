@@ -28,6 +28,7 @@ if [ -d "${HTML_PATH}" ]; then
   git commit -a -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
   git push origin gh-pages
 fi
+echo "-- Successfully removed stale documentation."
 
 # Make the documentation from source files on the master branch.
 git checkout master
@@ -46,3 +47,4 @@ if [ -d "${BUILD_PATH}" ]; then
   git push origin gh-pages
   cd -
 fi
+echo "-- Successfully updated documentation!"

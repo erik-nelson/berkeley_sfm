@@ -86,7 +86,8 @@ bool Camera::CameraToImage(double cx, double cy, double cz, double *u_distorted,
   return intrinsics_.CameraToImage(cx, cy, cz, u_distorted, v_distorted);
 }
 
-bool Camera::WorldToImage(double wx, double wy, double wz, double* u_distorted, double* v_distorted) const {
+bool Camera::WorldToImage(double wx, double wy, double wz, double *u_distorted,
+                          double *v_distorted) const {
   double cx = 0.0, cy = 0.0, cz = 0.0;
   WorldToCamera(wx, wy, wz, &cx, &cy, &cz);
   return CameraToImage(cx, cy, cz, u_distorted, v_distorted);

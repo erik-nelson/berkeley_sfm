@@ -26,10 +26,3 @@ bin
 *.dylib
 *.la
 *.a
-
-# Documentation files. Everything except cmakelists, the doxygen config, and the
-# publishing script.
-documentation/
-!documentation/CMakeLists.txt
-!documentation/publish_documentation.sh
-!documentation/.Doxyfile

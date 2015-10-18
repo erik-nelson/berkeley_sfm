@@ -2,7 +2,7 @@
 
 # Settings.
 HTML_PATH=documentation/
-BUILD_PATH=build
+BUILD_PATH=build/
 COMMIT_USER="Automatic documentation builder"
 CHANGESET=$(git rev-parse --verify HEAD)
 
@@ -23,7 +23,14 @@ git config user.email "${COMMIT_EMAIL}"
 git checkout -b gh-pages origin/gh-pages
 if [ -d "${HTML_PATH}" ]; then
   cd ${HTML_PATH}
-  git rm -rf ./*
+
+  # Make sure travis has the ability to push.
+  openssl aes-256-cbc -K $encrypted_6a2f0cd4845b_key -iv $encrypted_6a2f0cd4845b_iv -in travisci_rsa.enc -out travisci_rsa -d
+  chmod 0600 travisci_rsa
+  cp travisci_rsa ~/.ssh
+
+  # Delete all documentation and push.
+  git rm -rf ./* !(travisci_rsa*)
   cd ..
   git commit -a -m "(1 of 2) Deleting documentation. Automated documentation build for changeset ${CHANGESET}."
   git push origin gh-pages
@@ -36,7 +43,7 @@ if [ -d "${BUILD_PATH}" ]; then
   make documentation
   cd -
 
-  # Checkout the documentation branch.
+  # Checkout the gh-pages branch, transferring all documentation.
   git checkout gh-pages
 
   # Publish the documentation.

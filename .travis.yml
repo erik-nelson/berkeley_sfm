@@ -60,4 +60,4 @@ script:
 
 after_success:
   # Publish documentation. Only publish from one of the build jobs.
-  - ./docs/publish_documentation.sh
+  - ./documentation/publish_documentation.sh

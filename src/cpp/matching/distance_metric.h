@@ -43,7 +43,7 @@
 //
 // 1) A typedef'd Descriptor type.
 // 2) operator(), which operates on two Descriptor types to compute a distance.
-// 3) A 'RequiresNormalizedDescriptors' static method.
+// 3) A 'MaybeNormalizeDescriptors' static method.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +72,13 @@ struct ScaledL2Distance {
     return 1.0f - descriptor1.dot(descriptor2);
   }
 
-  static bool RequiresNormalizedDescriptors() { return true; }
+  // Descriptors need normalization.
+  static bool MaybeNormalizeDescriptors(std::vector<Descriptor>& descriptors) {
+    for (auto& descriptor : descriptors) {
+      descriptor.normalize();
+    }
+    return true;
+  }
 };  //\struct ScaledL2Distance
 
 // Compute the Hamming distance between two binary descriptor vectors. This is
@@ -90,7 +96,10 @@ struct HammingDistance {
     return sum;
   }
 
-  static bool RequiresNormalizedDescriptors() { return false; }
+  // Descriptors don't need normalization.
+  static bool MaybeNormalizeDescriptors(std::vector<Descriptor>& descriptors) {
+    return false;
+  }
 };  //\struct HammingDistance
 
 }  //\namespace bsfm

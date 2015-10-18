@@ -98,15 +98,9 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
   std::vector<Descriptor>& descriptors1 = this->image_descriptors_[image_index1];
   std::vector<Descriptor>& descriptors2 = this->image_descriptors_[image_index2];
 
-  // Normalize descriptors if required.
-  if (DistanceMetric::RequiresNormalizedDescriptors()) {
-    for (auto& descriptor : descriptors1) {
-      descriptor.normalize();
-    }
-    for (auto& descriptor : descriptors1) {
-      descriptor.normalize();
-    }
-  }
+  // Normalize descriptors if required by the distance metric.
+  DistanceMetric::MaybeNormalizeDescriptors(descriptors1);
+  DistanceMetric::MaybeNormalizeDescriptors(descriptors2);
 
   // Compute forward (and reverse, if applicable) matches.
   LightFeatureMatchList light_feature_matches;

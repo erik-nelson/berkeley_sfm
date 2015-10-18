@@ -186,10 +186,10 @@ TEST_F(TestFeatures, TestAdaptiveAdjustment) {
 
   int adaptive_iterations = 100;
   math::RandomGenerator rng(0);
-  for (int ii = 0; ii < 100; ++ii) {
+  for (int ii = 0; ii < 1000; ii += 100) {
     // Set a random minimum and maximum number of features.
-    int min_features = rng.IntegerUniform(0, ii*2);
-    int max_features = rng.IntegerUniform(min_features+1, ii*4);
+    int min_features = rng.IntegerUniform(0, ii);
+    int max_features = rng.IntegerUniform(min_features+1, ii*2);
     detector.SetAdaptiveOn(min_features, max_features, adaptive_iterations);
     detector.DetectKeypoints(image, keypoints);
 

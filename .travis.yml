@@ -56,7 +56,8 @@ script:
   - cd ../bin/
   - ./run_tests --gtest_list_tests
   - ./run_tests
-  - cd -
+  # Go back to the top directory after running tests.
+  - cd ..
 
 after_success:
   # Publish documentation. Only publish from one of the build jobs.

@@ -2,7 +2,7 @@ language: cpp
 
 compiler:
   - gcc
-  - clang
+  #- clang
 
 os:
   - linux
@@ -52,11 +52,12 @@ before_script:
   - cmake -DCMAKE_BUILD_TYPE=Release ..
 
 script:
-  - make
+  - make -j8
   - cd ../bin/
   - ./run_tests --gtest_list_tests
   - ./run_tests
+  - cd -
 
 after_success:
-  # Publish documentation.
+  # Publish documentation. Only publish from one of the build jobs.
   - ./docs/publish_documentation.sh

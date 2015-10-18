@@ -56,7 +56,6 @@ script:
   - cd ../bin/
   - ./run_tests --gtest_list_tests
   - ./run_tests
-  # Go back to the top directory after running tests.
   - cd ..
 
 after_success:

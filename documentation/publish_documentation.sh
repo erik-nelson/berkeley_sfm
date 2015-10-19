@@ -29,8 +29,7 @@ sudo rm -r ${DOCUMENTATION_PATH}
 git checkout master ${DOCUMENTATION_PATH}
 
 # Add the merged changes and push.
-git add -A
-git commit -m "Automated documentation build for changeset ${CHANGESET}."
+git commit -a -m "Automated documentation build for changeset ${CHANGESET}."
 git push -u origin gh-pages
 
 echo "-- Successfully updated documentation!"

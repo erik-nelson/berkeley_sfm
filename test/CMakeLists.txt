@@ -21,7 +21,12 @@ if (BUILD_TESTS)
   endforeach()
   add_executable(${test_target} ${test_srcs})
   target_link_libraries(${test_target} berkeley_sfm ${berkeley_sfm_LIBRARIES} gtest)
-  bsfm_default_properties(${test_target})
+  add_test(${test_target} ${test_target})
+  bsfm_set_runtime_directory(${test_target} ${PROJECT_BINARY_DIR})
+
+  # Make "make check" run the tests.
+  add_custom_target(check COMMAND "${PROJECT_BINARY_DIR}/${test_target}")
+  add_dependencies(check ${test_target})
 
   # Define a variable storing the path to test data.
   add_definitions(-DBSFM_TEST_DATA_DIR="${CMAKE_SOURCE_DIR}/test/test_data")

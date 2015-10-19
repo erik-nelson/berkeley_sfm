@@ -36,6 +36,8 @@
  */
 
 #include <pose/pose.h>
+#include <camera/camera.h>
+#include <camera/camera_extrinsics.h>
 
 namespace bsfm {
 
@@ -94,17 +96,29 @@ Eigen::Vector2d Pose::ProjectTo2D(const Eigen::Vector3d& pt3d) {
 }
 
 // Test if a 3D point is in front of the camera represented by this Pose.
-bool IsInFront(const Eigen::Vector3d& pt3d) {
+bool Pose::IsInFront(const Eigen::Vector3d& pt3d) {
+
+  // Set up a new Camera with this Pose as the extrinsics matrix.
+  CameraExtrinsics extrinsics = CameraExtrinsics(*this);
+  Camera cam = Camera();
+  cam.SetExtrinsics(extrinsics);
+
+  // Project into the camera and see if the z-coordinate is positive.
+  double u = 0.0, v = 0.0;
+  return cam.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v);
+  
+  /*
+  // Compute directly whether or not the point is in front of the camera.
   Eigen::Matrix3d R = Rt_.block(0, 0, 3, 3);
   Eigen::Vector3d t = Rt_.col(3).head(3);
 
   if (R.bottomRows(1) * (pt3d + R.transpose() * t) > 0.0)
     return true;
   return false;
+  */
 }
 
-
-  // Test if this pose (Rt_ only) is approximately equal to another pose.
+// Test if this pose (Rt_ only) is approximately equal to another pose.
 bool Pose::IsApprox(const Pose& other) const {
   return Rt_.isApprox(other.Rt_);
 }

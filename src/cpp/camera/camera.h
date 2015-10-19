@@ -51,6 +51,7 @@
 
 #include "camera_extrinsics.h"
 #include "camera_intrinsics.h"
+#include <matching/feature_match.h>
 
 namespace bsfm {
 
@@ -112,7 +113,10 @@ class Camera {
   void Undistort(double u_distorted, double v_distorted,
                  double* u, double* v) const;
 
- private:
+  // Triangulate a feature match.
+  Eigen::Vector3d Triangulate(const FeatureMatch& match, const Camera& other);
+
+private:
   CameraExtrinsics extrinsics_;
   CameraIntrinsics intrinsics_;
 };  //\class Camera

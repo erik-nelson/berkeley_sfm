@@ -47,104 +47,37 @@
 #define BSFM_GEOMETRY_ESSENTIAL_MATRIX_SOLVER_H
 
 #include <Eigen/Core>
-#include <glog/logging.h>
-#include <vector>
 
 #include <camera/camera_intrinsics.h>
 #include <camera/camera_extrinsics.h>
 #include <pose/pose.h>
+#include "../util/disallow_copy_and_assign.h"
 
 namespace bsfm {
 
 class EssentialMatrixSolver {
+private:
+  DISALLOW_COPY_AND_ASSIGN(EssentialMatrixSolver)
+
 public:
   // Empty constructor and destructor. No member variables.
   EssentialMatrixSolver() {}
   ~EssentialMatrixSolver() {}
 
   // Compute the essential matrix from a fundamental matrix and camera intrinsics.
-  Eigen::Matrix3d ComputeEssentialMatrix(Eigen::Matrix3d F,
-					 CameraIntrinsics K1,
-					 CameraIntrinsics K2);
+  Eigen::Matrix3d ComputeEssentialMatrix(const Eigen::Matrix3d& F,
+					 const CameraIntrinsics& K1,
+					 const CameraIntrinsics& K2);
 
   // Compute camera extrinsics from an essential matrix and a list of keypoint matches.
-  bool ComputeExtrinsics(CameraExtrinsics& extrinsics,
-				     Eigen::Matrix3d E,
-				     PairwiseImageMatchList matches);
+  bool ComputeExtrinsics(CameraExtrinsics* extrinsics,
+			 const Eigen::Matrix3d& E,
+			 const FeatureMatchList& matches,
+			 const CameraIntrinsics& this_camera_intrinsics,
+			 const CameraIntrinsics& other_camera_intrinsics);
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(EssentialMatrixSolver)
 
 };  //\class EssentialMatrixSolver
 
-
-// ------------------- Implementation ------------------- //
-
-// Compute the essential matrix from a fundamental matrix and camera intrinsics.
-Eigen::Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(Eigen::Matrix3d F,
-							      CameraIntrinsics cam1,
-							      CameraIntrinsics cam2) {
-  // Extract intrinsics matrices.
-  Eigen::Matrix3d K1, K2;
-  K1 = cam1.IntrinsicsMatrix();
-  K2 = cam2.IntrinsicsMatrix();
-
-  // Calculate the essential matrix.
-  Eigen::Matrix3d E = K2.transpose() * F * K1;
-  return E;
-}
-
-// Compute camera extrinsics from an essential matrix and a list of keypoint matches.
-// NOTE: this implementation is based on Hartley & Zisserman's MVG, pg. 258.
-bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics& extrinsics;
-					      Eigen::Matrix3d E,
-					      PairwiseImageMatchList matches) {
-  // Initialize the W matrix.
-  Eigen::Matrix3d W;
-  W <<
-    0.0, -1.0, 0.0,
-    1.0, 0.0, 0.0,
-    0.0, 0.0, 1.0;
-
-  // Perform an SVD on the essential matrix.
-  Eigen::JacobiSVD<Eigen::Matrix3d> svd;
-  svd.compute(E, Eigen::ComputeFullU | Eigen::ComputeFullV);
-  if (!svd.computeU() || !svd.computeV()) {
-    VLOG(1) << "Failed to compute a singular value decomposition of "
-	    << "the essential matrix.";
-    return false;
-  }
-
-  // Compute two possibilities for rotation and translation.
-  Eigen::Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();
-  Eigen::Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();
-
-  Eigen::Vector3d t1 = svd.matrixU().rightCols(1);
-  Eigen::Vector3d t2 = -svd.matrixU().rightCols(1);
-
-  // Ensure positive determinants.
-  if (R1.determinant() < 0)
-    R1 = -R1;
-  if (R2.determinant() < 0)
-    R2 = -R2;
-
-  // Build four possible Poses.
-  std::vector<Pose> poses;
-  poses.push_back(Pose(R1, t1));
-  poses.push_back(Pose(R1, t2));
-  poses.push_back(Pose(R2, t1));
-  poses.push_back(Pose(R2, t2));
-
-  Pose identity_pose = Pose();
-  
-  // Test how many points are in front of each pose and the identity pose.
-  
-  
-  // TODO: finish this!! Refer to SimpleSFM/BasicFunctions.E2Rt().
-
-  return true;
-}
-
-}  //\namespace bsfm
-
+} //\namespace bsfm
 #endif

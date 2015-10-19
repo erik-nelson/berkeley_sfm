@@ -93,7 +93,18 @@ Eigen::Vector2d Pose::ProjectTo2D(const Eigen::Vector3d& pt3d) {
   return proj;
 }
 
-// Test if this pose (Rt_ only) is approximately equal to another pose.
+// Test if a 3D point is in front of the camera represented by this Pose.
+bool IsInFront(const Eigen::Vector3d& pt3d) {
+  Eigen::Matrix3d R = Rt_.block(0, 0, 3, 3);
+  Eigen::Vector3d t = Rt_.col(3).head(3);
+
+  if (R.bottomRows(1) * (pt3d + R.transpose() * t) > 0.0)
+    return true;
+  return false;
+}
+
+
+  // Test if this pose (Rt_ only) is approximately equal to another pose.
 bool Pose::IsApprox(const Pose& other) const {
   return Rt_.isApprox(other.Rt_);
 }

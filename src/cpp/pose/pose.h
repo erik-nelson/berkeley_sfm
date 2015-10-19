@@ -76,7 +76,10 @@ class Pose {
   // Project a 3D point into this Pose.
   Eigen::Vector2d ProjectTo2D(const Eigen::Vector3d&);
 
-  // Test if this pose (Rt_ only) is approximately equal to another pose.
+  // Test if a 3D point is in front of the camera represented by this Pose.
+  bool IsInFront(const Eigen::Vector3d&);
+  
+  // Test if this pose (Rt_ only) is approximately equal to another Pose.
   bool IsApprox(const Pose&) const;
 
   // Compose this Pose with the given pose so that both refer to the identity

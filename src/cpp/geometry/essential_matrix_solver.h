@@ -134,6 +134,10 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics& extrinsics;
   poses.push_back(Pose(R1, t2));
   poses.push_back(Pose(R2, t1));
   poses.push_back(Pose(R2, t2));
+
+  Pose identity_pose = Pose();
+  
+  // Test how many points are in front of each pose and the identity pose.
   
   
   // TODO: finish this!! Refer to SimpleSFM/BasicFunctions.E2Rt().

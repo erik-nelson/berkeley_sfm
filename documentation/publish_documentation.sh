@@ -3,9 +3,6 @@
 # Quit on errors.
 set -o errexit -o nounset
 
-# Get to the top directory.
-cd ..
-
 # Settings.
 DOCUMENTATION_PATH=documentation
 CHANGESET=$(git rev-parse --verify HEAD)

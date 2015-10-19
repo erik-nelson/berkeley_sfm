@@ -52,6 +52,7 @@
 
 #include <camera/camera_intrinsics.h>
 #include <camera/camera_extrinsics.h>
+#include <pose/pose.h>
 
 namespace bsfm {
 
@@ -108,11 +109,33 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics& extrinsics;
   // Perform an SVD on the essential matrix.
   Eigen::JacobiSVD<Eigen::Matrix3d> svd;
   svd.compute(E, Eigen::ComputeFullU | Eigen::ComputeFullV);
-  if (!svd.computeV()) {
-    VLOG(1) << "Failed to compute a singular value decomposition of the essential matrix.";
+  if (!svd.computeU() || !svd.computeV()) {
+    VLOG(1) << "Failed to compute a singular value decomposition of "
+	    << "the essential matrix.";
     return false;
   }
 
+  // Compute two possibilities for rotation and translation.
+  Eigen::Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();
+  Eigen::Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();
+
+  Eigen::Vector3d t1 = svd.matrixU().rightCols(1);
+  Eigen::Vector3d t2 = -svd.matrixU().rightCols(1);
+
+  // Ensure positive determinants.
+  if (R1.determinant() < 0)
+    R1 = -R1;
+  if (R2.determinant() < 0)
+    R2 = -R2;
+
+  // Build four possible Poses.
+  std::vector<Pose> poses;
+  poses.push_back(Pose(R1, t1));
+  poses.push_back(Pose(R1, t2));
+  poses.push_back(Pose(R2, t1));
+  poses.push_back(Pose(R2, t2));
+  
+  
   // TODO: finish this!! Refer to SimpleSFM/BasicFunctions.E2Rt().
 
   return true;

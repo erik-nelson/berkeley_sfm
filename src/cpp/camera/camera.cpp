@@ -157,12 +157,10 @@ Eigen::Vector3d Camera::Triangulate(const FeatureMatch& match, const Camera& oth
   Eigen::MatrixXd M(6, 4);
   M.topRows(3) = p1_cross * intrinsics_matrix * extrinsics_matrix;
   M.bottomRows(3) = p2_cross * other_intrinsics_matrix * other_extrinsics_matrix;
-  
+
   Eigen::MatrixXd A = M.leftCols(7);
   Eigen::VectorXd b = -M.rightCols(1);
 
-  std::cout << "RHS: " << b.transpose() << std::endl;
-  
   // Solve using SVD.
   Eigen::Vector3d pt3d = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(b);
   return pt3d;

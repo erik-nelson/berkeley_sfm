@@ -186,7 +186,7 @@ class TestRansac : public ::testing::Test {
   const int kImageWidth_ = 1920;
   const int kImageHeight_ = 1080;
   const double kVerticalFov_ = 90.0 * M_PI / 180.0;
-};  //\class TestNaiveFeatureMatcher
+};  //\class TestRansac
 
 
 TEST_F(TestRansac, TestNoiselessMatches) {

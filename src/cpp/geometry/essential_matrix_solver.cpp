@@ -57,7 +57,7 @@
 
 #include <gflags/gflags.h>
 
-DEFINE_double(min_points_visible_ratio, 0.25,
+DEFINE_double(min_points_visible_ratio, 0.05,
 	      "Fraction of keypoint matches whose triangulation must be visible from both cameras.");
 
 namespace bsfm {
@@ -120,7 +120,9 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
   poses.push_back(Pose(R2, t1));
   poses.push_back(Pose(R2, t2));
 
+  Pose identity_pose;
   CameraExtrinsics identity_extrinsics;
+  identity_extrinsics.SetWorldToCamera(identity_pose);
   Camera other_camera(identity_extrinsics, other_camera_intrinsics);
   
   // Test how many points are in front of each pose and the identity pose.
@@ -131,14 +133,14 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
   
   for (int i = 0; i < poses.size(); i++) {
     current_pose = poses[i];
-    CameraExtrinsics current_extrinsics(current_pose); 
+    CameraExtrinsics current_extrinsics;
+    current_extrinsics.SetWorldToCamera(current_pose); 
     Camera current_camera(current_extrinsics, this_camera_intrinsics);
     
     for (int j = 0; j < matches.size(); j++) {
 
       // Triangulate points and test if the 3D estimate is in front of both cameras.
       Eigen::Vector3d pt3d = current_camera.Triangulate(matches[j], other_camera);
-      std::cout << "Triangulated 3D point: " << pt3d.transpose() << std::endl;
       
       if (current_camera.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v) &&
 	  other_camera.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v))

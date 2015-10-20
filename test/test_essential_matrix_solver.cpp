@@ -152,6 +152,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
   EXPECT_TRUE(essential_solver.ComputeExtrinsics(&estimated_extrinsics,
 						 E, match_data.feature_matches_,
 						 camera1.Intrinsics(), camera2.Intrinsics()));
+
+  std::cout << estimated_extrinsics.ExtrinsicsMatrix() << std::endl;
   
   // Check that the estimated extrinsics are the same as the true extrinsics.
   EXPECT_TRUE(estimated_extrinsics.ExtrinsicsMatrix().isApprox(camera2.Extrinsics().ExtrinsicsMatrix()));

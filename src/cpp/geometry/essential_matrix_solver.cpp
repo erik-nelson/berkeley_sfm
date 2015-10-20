@@ -57,7 +57,7 @@
 
 #include <gflags/gflags.h>
 
-DEFINE_double(min_points_visible_ratio, 0.5,
+DEFINE_double(min_points_visible_ratio, 0.25,
 	      "Fraction of keypoint matches whose triangulation must be visible from both cameras.");
 
 namespace bsfm {
@@ -96,6 +96,7 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
   if (!svd.computeU() || !svd.computeV()) {
     VLOG(1) << "Failed to compute a singular value decomposition of "
 	    << "the essential matrix.";
+    //    std::cout << "Failted to compute SVD for the essential matrix." << std::endl;
     return false;
   }
 
@@ -137,7 +138,8 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
 
       // Triangulate points and test if the 3D estimate is in front of both cameras.
       Eigen::Vector3d pt3d = current_camera.Triangulate(matches[j], other_camera);
-
+      std::cout << "Triangulated 3D point: " << pt3d.transpose() << std::endl;
+      
       if (current_camera.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v) &&
 	  other_camera.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v))
 	cnt++;
@@ -152,8 +154,12 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
 
   // Return with false if not enough points found in front of the cameras.
   if (static_cast<double>(best_cnt) <
-      FLAGS_min_points_visible_ratio * static_cast<double>(matches.size()))
+      FLAGS_min_points_visible_ratio * static_cast<double>(matches.size())) {
+    VLOG(1) << "Did not find enough points in front of both cameras.";
+    std::printf("Did not find enough points in front of both cameras: %d / %d\n", best_cnt,
+		static_cast<int>(FLAGS_min_points_visible_ratio * static_cast<double>(matches.size())));
     return false;
+  }
   
   // Create camera extrinsics from the best pose and return.
   CameraExtrinsics estimated_extrinsics(best_pose);

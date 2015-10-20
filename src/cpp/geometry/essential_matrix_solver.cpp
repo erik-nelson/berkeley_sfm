@@ -43,18 +43,17 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_GEOMETRY_ESSENTIAL_MATRIX_SOLVER_H
-#define BSFM_GEOMETRY_ESSENTIAL_MATRIX_SOLVER_H
-
 #include "essential_matrix_solver.h"
 
 #include <Eigen/Core>
 #include <glog/logging.h>
 #include <vector>
 
+#include <camera/camera.h>
 #include <camera/camera_intrinsics.h>
 #include <camera/camera_extrinsics.h>
 #include <pose/pose.h>
+#include <matching/feature_match.h>
 
 #include <gflags/gflags.h>
 
@@ -120,25 +119,27 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
   poses.push_back(Pose(R2, t1));
   poses.push_back(Pose(R2, t2));
 
-  CameraExtrinsics identity_extrinsics = CameraExtrinsics();
-  Camera other_camera = Camera(other_camera_intrinsics, identity_extrinsics)
+  CameraExtrinsics identity_extrinsics;
+  Camera other_camera(identity_extrinsics, other_camera_intrinsics);
   
   // Test how many points are in front of each pose and the identity pose.
   int cnt = 0;
   int best_cnt = -1;
   Pose best_pose, current_pose;
+  double u = 0.0, v = 0.0;
   
   for (int i = 0; i < poses.size(); i++) {
     current_pose = poses[i];
-    CameraExtrinsics current_extrinics = CameraExtrinsics(current_pose); 
-    Camera current_camera = Camera(this_camera_intrinsics, current_extrinsics);
+    CameraExtrinsics current_extrinsics(current_pose); 
+    Camera current_camera(current_extrinsics, this_camera_intrinsics);
     
     for (int j = 0; j < matches.size(); j++) {
 
       // Triangulate points and test if the 3D estimate is in front of both cameras.
-      Eigen::Vector3d pt3d = current_camera.Triangulate(matches[j], identity_camera);
+      Eigen::Vector3d pt3d = current_camera.Triangulate(matches[j], other_camera);
 
-      if (current_camera.IsInFront(pt3d) && other_camera.IsInFront(pt3d))
+      if (current_camera.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v) &&
+	  other_camera.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v))
 	cnt++;
     }
 
@@ -151,11 +152,12 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
 
   // Return with false if not enough points found in front of the cameras.
   if (static_cast<double>(best_cnt) <
-      min_points_visible_ratio * static_cast<double>(matches.size()))
+      FLAGS_min_points_visible_ratio * static_cast<double>(matches.size()))
     return false;
   
   // Create camera extrinsics from the best pose and return.
-  *extrinsics = CameraExtrinscs(best_pose);
+  CameraExtrinsics estimated_extrinsics(best_pose);
+  *extrinsics = estimated_extrinsics;
   return true;
 }
 

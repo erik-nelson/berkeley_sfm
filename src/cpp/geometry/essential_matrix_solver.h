@@ -51,6 +51,7 @@
 #include <camera/camera_intrinsics.h>
 #include <camera/camera_extrinsics.h>
 #include <pose/pose.h>
+#include <matching/feature_match.h>
 #include "../util/disallow_copy_and_assign.h"
 
 namespace bsfm {
@@ -80,4 +81,5 @@ public:
 };  //\class EssentialMatrixSolver
 
 } //\namespace bsfm
+
 #endif

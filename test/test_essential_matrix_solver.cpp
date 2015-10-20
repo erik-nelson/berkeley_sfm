@@ -80,6 +80,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
   // Start out by running ransac to get the fundamental matrix.
 
   // Get some noisy feature matches.
+  math::RandomGenerator rng(0);
+  
   Image image1(test_image1.c_str());
   Image image2(test_image2.c_str());
 

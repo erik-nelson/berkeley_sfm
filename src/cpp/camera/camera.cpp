@@ -148,7 +148,7 @@ Eigen::Vector3d Camera::Triangulate(const FeatureMatch& match, const Camera& oth
   CameraIntrinsics other_intrinsics = other.Intrinsics();
 
   typedef Eigen::Matrix<double, 3, 4> Matrix34d;
-  Matrid34d other_extrinsics_matrix = other_extrinsics.ExtrinsicsMatrix();
+  Matrix34d other_extrinsics_matrix = other_extrinsics.ExtrinsicsMatrix();
   Matrix34d extrinsics_matrix = extrinsics_.ExtrinsicsMatrix();
 
   Eigen::Matrix3d other_intrinsics_matrix = other_intrinsics.IntrinsicsMatrix();

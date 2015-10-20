@@ -54,9 +54,12 @@ struct Feature {
   typedef std::shared_ptr<Feature> Ptr;
   typedef std::shared_ptr<const Feature> ConstPtr;
 
+  Feature() : u_(0.0), v_(0.0) {}
+  Feature(double u, double v) : u_(u), v_(v) {}
+
   // Each feature contains the (u, v) image space coordinates of the center of
   // the feature.
-  int u_, v_;
+  double u_, v_;
 };  //\struct Feature
 
 typedef std::vector<Feature> FeatureList;

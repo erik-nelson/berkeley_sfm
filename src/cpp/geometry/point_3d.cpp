@@ -124,11 +124,4 @@ double Point3D::Dot(const Point3D& other) const {
   return data_.dot(other.Get());
 }
 
-// The cross-product isn't really a point, but we can use this container to
-// represent it.
-Point3D Point3D::Cross(const Point3D& other) const {
-  Point3D out(data_.cross(other.Get()));
-  return out;
-}
-
 }  //\namespace bsfm

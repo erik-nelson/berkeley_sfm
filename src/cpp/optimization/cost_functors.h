@@ -37,64 +37,59 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// The Point3D class is a light-weight wrapper around an Eigen::Vector3d.
+// This file defines cost functors that can be used in conjunction with Google
+// Ceres solver to solve non-linear least-squares problems. Each functor must
+// define a public templated operator() method that takes in arguments const T*
+// const x, and T* residual, and returns a bool. 'x' will be the optimization
+// variable, and 'residual' will be the output cost.
+//
+// One can define more specific cost functions by adding other structure to the
+// functor, e.g. by passing in other parameters of the cost function to the
+// functor's  constructor.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_GEOMETRY_POINT_3D_H
-#define BSFM_GEOMETRY_POINT_3D_H
+#ifndef BSFM_OPTIMIZATION_COST_FUNCTORS_H
+#define BSFM_OPTIMIZATION_COST_FUNCTORS_H
 
 #include <Eigen/Core>
-#include <memory>
-#include <string>
-#include <vector>
+#include <glog/logging.h>
+
+#include "../geometry/point_3d.h"
+#include "../matching/feature.h"
 
 namespace bsfm {
 
-class Point3D {
- public:
-  typedef std::shared_ptr<Point3D> Ptr;
-  typedef std::shared_ptr<const Point3D> ConstPtr;
+// Geometric projection error is the distance in image space between a point x,
+// and a projected point PX, where X is a 3D homogeneous (4x1) point, P is a
+// camera projection matrix (3x4), and x is the corresponding image-space point
+// expressed in homogeneous coordinates (3x1). The geometric error can be
+// expressed as sum_i d(x_i, PX_i)^2, where d( , ) is the Euclidean distance
+// metric.
+struct GeometricProjectionError {
+  // We are trying to adjust our camera projection matrix, P, to satisfy
+  // x - PX = 0. Input is a 2D point in image space ('x'), and a 3D point in
+  // world space ('X').
+  Feature x_;
+  Point3D X_;
+  GeometricProjectionError(const Feature& x, const Point3D& X)
+      : x_(x), X_(X) {}
 
-  // Constructors.
-  Point3D();
-  Point3D(double x, double y, double z);
-  Point3D(const Point3D& in);
-  Point3D(const Eigen::Vector3d& in);
+  // Residual is 1-dimensional, P is 12-dimensional (number of elements in a
+  // camera projection matrix).
+  template <typename T>
+  bool operator()(const T* const P, T* residual) const {
 
-  // Destructor.
-  ~Point3D();
+    // Matrix multiplication: x - PX. Assume homogeneous coordinates are 1.0.
+    T dx = x_.u_ - (P[0] * X_.X() + P[1] * X_.Y() + P[2] * X_.Z() + P[3] * 1.0);
+    T dy = x_.v_ - (P[4] * X_.X() + P[5] * X_.Y() + P[6] * X_.Z() + P[7] * 1.0);
+    T dw = 1.0 - (P[8] * X_.X() + P[9] * X_.Y() + P[10] * X_.Z() + P[11] * 1.0);
 
-  // Setters.
-  void SetX(double x);
-  void SetY(double x);
-  void SetZ(double x);
-  void Set(double x, double y, double z);
-  void Set(const Point3D& in);
-  void Set(const Eigen::Vector3d& in);
+    residual[0] = sqrt(dx*dx + dy*dy + dw*dw);
 
-  // Getters.
-  double& operator()(int index);
-  const double& operator()(int index) const;
-  double X() const;
-  double Y() const;
-  double Z() const;
-  const Eigen::Vector3d& Get() const;
-
-  // Utility.
-  void Print(const std::string& prefix = std::string()) const;
-
-  // Math operations.
-  void Normalize();
-  Point3D Normalized() const;
-  double Dot(const Point3D& other) const;
-
- private:
-  Eigen::Vector3d data_;
-};  //\class Point3D
-
-// Define a list of Point3D objects.
-typedef std::vector<Point3D> Point3DList;
+    return true;
+  }
+};  //\struct GeometricProjectionError
 
 }  //\namespace bsfm
 

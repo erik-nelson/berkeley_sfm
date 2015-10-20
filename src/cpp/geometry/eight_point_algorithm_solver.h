@@ -51,11 +51,12 @@
 #ifndef BSFM_GEOMETRY_EIGHT_POINT_ALGORITHM_SOLVER_H
 #define BSFM_GEOMETRY_EIGHT_POINT_ALGORITHM_SOLVER_H
 
-#include <glog/logging.h>
 #include <Eigen/Core>
 #include <Eigen/SVD>
+#include <glog/logging.h>
 
 #include "fundamental_matrix_solver.h"
+#include "normalization.h"
 #include "../matching/feature_match.h"
 #include "../util/disallow_copy_and_assign.h"
 
@@ -75,12 +76,6 @@ class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
  private:
   DISALLOW_COPY_AND_ASSIGN(EightPointAlgorithmSolver)
 
-  // Determine a normalization matrix for the specified set of features. Since
-  // both sets of features are stored in the FeatureMatchList, the 'use_feature_set1'
-  // parameter must be specified to pick out a normalization for either feature
-  // set 1 or feature set 2.
-  inline Eigen::Matrix3d ComputeNormalization(
-      const FeatureMatchList& matched_features, bool use_feature_set1) const;
 };  //\class EightPointAlgorithmSolver
 
 
@@ -179,62 +174,6 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
   }
 
   return true;
-}
-
-Eigen::Matrix3d EightPointAlgorithmSolver::ComputeNormalization(
-    const FeatureMatchList& matched_features, bool use_feature_set1) const {
-  // Compute a mean translation from the origin.
-  double mean_u = 0.0;
-  double mean_v = 0.0;
-  for (size_t ii = 0; ii < matched_features.size(); ++ii) {
-    if (use_feature_set1) {
-      mean_u += matched_features[ii].feature1_.u_;
-      mean_v += matched_features[ii].feature1_.v_;
-    } else {
-      mean_u += matched_features[ii].feature2_.u_;
-      mean_v += matched_features[ii].feature2_.v_;
-    }
-  }
-  mean_u /= static_cast<double>(matched_features.size());
-  mean_v /= static_cast<double>(matched_features.size());
-
-  // Compute a scale factor such that after translation, all points will be an
-  // average distance of sqrt(2) away from the origin.
-  // This uses Eqs. 1.28 - 1.37 from here:
-  // http://www.ecse.rpi.edu/Homepages/qji/CV/8point.pdf
-  double scale = 0.0;
-  for (size_t ii = 0; ii < matched_features.size(); ++ii) {
-    double u = 0.0, v = 0.0;
-    if (use_feature_set1) {
-      u = matched_features[ii].feature1_.u_;
-      v = matched_features[ii].feature1_.v_;
-    } else {
-      u = matched_features[ii].feature2_.u_;
-      v = matched_features[ii].feature2_.v_;
-    }
-
-    scale += sqrt(((u - mean_u)*(u - mean_u) + (v - mean_v)*(v-mean_v)) / 2.0);
-  }
-  scale /= static_cast<double>(matched_features.size());
-
-  // If the calculated scale, for some reason, is ridiculously small (i.e.
-  // dividing by zero), return an identity output matrix. This will make us not
-  // normalize the data, but we should still get an okay fundamental matrix.
-  if (scale < 1e-4) {
-    LOG(WARNING) << "When normalizing feature coordinates for fundamental "
-                    "matrix computation, scale factor was nearly zero. "
-                    "Proceeding without normalizing data.";
-    return Eigen::MatrixXd::Identity(3, 3);
-  }
-
-  // Populate the output matrix.
-  Eigen::Matrix3d T(Eigen::MatrixXd::Identity(3, 3));
-  T(0, 0) = 1.0 / scale;
-  T(1, 1) = 1.0 / scale;
-  T(0, 2) = -mean_u / scale;
-  T(1, 2) = -mean_v / scale;
-
-  return T;
 }
 
 }  //\namespace bsfm

@@ -37,64 +37,39 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// The Point3D class is a light-weight wrapper around an Eigen::Vector3d.
+// This file defines functions used for feature normalization. In many geometry
+// problems, 2D image coordinates require normalization (i.e. zero-mean
+// coordinates, with an average distance of sqrt(2) from the origin). This is
+// because the homogeneous coordinate is typically chosen as 1, and most cameras
+// have resolutions ~ O(10^3). This is a big difference, leading to numerical
+// precision errors in many algorithm implementations.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_GEOMETRY_POINT_3D_H
-#define BSFM_GEOMETRY_POINT_3D_H
+#ifndef BSFM_GEOMETRY_NORMALIZATION_H
+#define BSFM_GEOMETRY_NORMALIZATION_H
 
 #include <Eigen/Core>
-#include <memory>
-#include <string>
-#include <vector>
+#include "point_3d.h"
+#include "../matching/feature.h"
+#include "../matching/feature_match.h"
 
 namespace bsfm {
 
-class Point3D {
- public:
-  typedef std::shared_ptr<Point3D> Ptr;
-  typedef std::shared_ptr<const Point3D> ConstPtr;
+// Compute a matrix that when used to left-multiply the input features will
+// normalize them. Since both sets of features are stored in the
+// FeatureMatchList, the 'use_feature_set1' parameter must be specified to
+// pick out a normalization for either feature set 1 or feature set 2.
+Eigen::Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
+                                     bool use_feature_set1);
 
-  // Constructors.
-  Point3D();
-  Point3D(double x, double y, double z);
-  Point3D(const Point3D& in);
-  Point3D(const Eigen::Vector3d& in);
+// Compute a matrix that when used to left-multiply the input features will
+// normalize them.
+Eigen::Matrix3d ComputeNormalization(const FeatureList& features);
 
-  // Destructor.
-  ~Point3D();
-
-  // Setters.
-  void SetX(double x);
-  void SetY(double x);
-  void SetZ(double x);
-  void Set(double x, double y, double z);
-  void Set(const Point3D& in);
-  void Set(const Eigen::Vector3d& in);
-
-  // Getters.
-  double& operator()(int index);
-  const double& operator()(int index) const;
-  double X() const;
-  double Y() const;
-  double Z() const;
-  const Eigen::Vector3d& Get() const;
-
-  // Utility.
-  void Print(const std::string& prefix = std::string()) const;
-
-  // Math operations.
-  void Normalize();
-  Point3D Normalized() const;
-  double Dot(const Point3D& other) const;
-
- private:
-  Eigen::Vector3d data_;
-};  //\class Point3D
-
-// Define a list of Point3D objects.
-typedef std::vector<Point3D> Point3DList;
+// Compute a matrix that when used to left-multiply the input points will
+// normalize them.
+Eigen::Matrix4d ComputeNormalization(const Point3DList& points);
 
 }  //\namespace bsfm
 

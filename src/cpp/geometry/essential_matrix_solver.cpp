@@ -57,7 +57,7 @@
 
 #include <gflags/gflags.h>
 
-DEFINE_double(min_points_visible_ratio, 0.05,
+DEFINE_double(min_points_visible_ratio, 0.5,
 	      "Fraction of keypoint matches whose triangulation must be visible from both cameras.");
 
 namespace bsfm {
@@ -126,12 +126,13 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
   Camera other_camera(identity_extrinsics, other_camera_intrinsics);
   
   // Test how many points are in front of each pose and the identity pose.
-  int cnt = 0;
   int best_cnt = -1;
   Pose best_pose, current_pose;
   double u = 0.0, v = 0.0;
   
   for (int i = 0; i < poses.size(); i++) {
+    int cnt = 0;
+    
     current_pose = poses[i];
     CameraExtrinsics current_extrinsics;
     current_extrinsics.SetWorldToCamera(current_pose); 
@@ -147,6 +148,8 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
 	cnt++;
     }
 
+    std::cout << cnt << std::endl;
+    
     // Update best_cnt and best_pose.
     if (cnt > best_cnt) {
       best_cnt = cnt;
@@ -162,9 +165,13 @@ bool EssentialMatrixSolver::ComputeExtrinsics(CameraExtrinsics* extrinsics,
 		static_cast<int>(FLAGS_min_points_visible_ratio * static_cast<double>(matches.size())));
     return false;
   }
+
+  std::printf("Found %d / %d points in front of both cameras.\n", best_cnt,
+	      static_cast<int>(FLAGS_min_points_visible_ratio * static_cast<double>(matches.size())));
   
   // Create camera extrinsics from the best pose and return.
-  CameraExtrinsics estimated_extrinsics(best_pose);
+  CameraExtrinsics estimated_extrinsics;
+  estimated_extrinsics.SetWorldToCamera(best_pose);
   *extrinsics = estimated_extrinsics;
   return true;
 }

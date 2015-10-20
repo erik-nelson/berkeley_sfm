@@ -57,18 +57,18 @@
 #include <gtest/gtest.h>
 #include <gflags/gflags.h>
 
-DEFINE_string(ransac_image1, "lion1.jpg",
+DEFINE_string(ransac_image1, "campanile_view1.jpg",
               "Name of the first image used to test RANSAC feature matching.");
-DEFINE_string(ransac_image2, "lion2.jpg",
+DEFINE_string(ransac_image2, "campanile_view2.jpg",
               "Name of the second image used to test RANSAC feature matching.");
 
 namespace bsfm {
 
 namespace {
-const int kImageWidth = 1920;
-const int kImageHeight = 1080;
+const int kImageWidth = 3264.0; //1920;
+const int kImageHeight = 2448.0; //1080;
 const double kVerticalFov = 90.0 * M_PI / 180.0;
-const int kFeatureMatches = 200;
+const int kFeatureMatches = 500;
 const std::string test_image1 = strings::JoinFilepath(
       BSFM_TEST_DATA_DIR, FLAGS_ransac_image1.c_str());
 const std::string test_image2 = strings::JoinFilepath(
@@ -123,8 +123,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
   RansacOptions ransac_options;
 
   ransac_options.iterations = 5000;
-  ransac_options.acceptable_error = 1e-3;
-  ransac_options.minimum_num_inliers = 100;
+  ransac_options.acceptable_error = 1e-1;
+  ransac_options.minimum_num_inliers = 50;
   ransac_options.num_samples = 8;
 
   solver.SetOptions(ransac_options);
@@ -139,12 +139,15 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
   CameraIntrinsics intrinsics;
   intrinsics.SetImageLeft(0);
   intrinsics.SetImageTop(0);
-  intrinsics.SetImageWidth(kImageWidth);
-  intrinsics.SetImageHeight(kImageHeight);
-  intrinsics.SetVerticalFOV(kVerticalFov);
-  intrinsics.SetFU(intrinsics.f_v());
-  intrinsics.SetCU(0.5 * kImageWidth);
-  intrinsics.SetCV(0.5 * kImageHeight);
+  intrinsics.SetImageWidth(0.25 * kImageWidth);
+  intrinsics.SetImageHeight(0.25 * kImageHeight);
+  intrinsics.SetVerticalFOV(0.5 * kVerticalFov);
+
+  // Set f_u, f_v with iPhone 5 specs.
+  intrinsics.SetFU(0.25 * 4100.0 / 1.4);
+  intrinsics.SetFV(0.25 * 4100.0 / 1.4);
+  intrinsics.SetCU(0.25 * 0.5 * kImageWidth);
+  intrinsics.SetCV(0.25 * 0.5 * kImageHeight);
 
   cam.SetIntrinsics(intrinsics);
   

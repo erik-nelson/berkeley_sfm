@@ -131,7 +131,7 @@ Eigen::Vector3d Camera::Triangulate(const FeatureMatch& match, const Camera& oth
   v1 = match.feature1_.v_;
   u2 = match.feature2_.u_;
   v2 = match.feature2_.v_;
-  
+
   // Set up cross product matrices.
   Eigen::Matrix3d p1_cross, p2_cross;
   p1_cross <<
@@ -147,8 +147,9 @@ Eigen::Vector3d Camera::Triangulate(const FeatureMatch& match, const Camera& oth
   CameraExtrinsics other_extrinsics = other.Extrinsics();
   CameraIntrinsics other_intrinsics = other.Intrinsics();
 
-  Eigen::Matrix<double, 3, 4> other_extrinsics_matrix = other_extrinsics.ExtrinsicsMatrix();
-  Eigen::Matrix<double, 3, 4> extrinsics_matrix = extrinsics_.ExtrinsicsMatrix();
+  typedef Eigen::Matrix<double, 3, 4> Matrix34d;
+  Matrid34d other_extrinsics_matrix = other_extrinsics.ExtrinsicsMatrix();
+  Matrix34d extrinsics_matrix = extrinsics_.ExtrinsicsMatrix();
 
   Eigen::Matrix3d other_intrinsics_matrix = other_intrinsics.IntrinsicsMatrix();
   Eigen::Matrix3d intrinsics_matrix = intrinsics_.IntrinsicsMatrix();
@@ -156,13 +157,15 @@ Eigen::Vector3d Camera::Triangulate(const FeatureMatch& match, const Camera& oth
   // Set up linear least squares.
   Eigen::MatrixXd M(6, 4);
   M.topRows(3) = p1_cross * intrinsics_matrix * extrinsics_matrix;
-  M.bottomRows(3) = p2_cross * other_intrinsics_matrix * other_extrinsics_matrix;
+  M.bottomRows(3) =
+      p2_cross * other_intrinsics_matrix * other_extrinsics_matrix;
 
   Eigen::MatrixXd A = M.leftCols(7);
   Eigen::VectorXd b = -M.rightCols(1);
 
   // Solve using SVD.
-  Eigen::Vector3d pt3d = A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(b);
+  Eigen::Vector3d pt3d =
+      A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(b);
   return pt3d;
 }
 

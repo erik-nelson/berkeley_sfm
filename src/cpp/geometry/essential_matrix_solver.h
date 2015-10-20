@@ -57,8 +57,6 @@
 namespace bsfm {
 
 class EssentialMatrixSolver {
-private:
-  DISALLOW_COPY_AND_ASSIGN(EssentialMatrixSolver)
 
 public:
   // Empty constructor and destructor. No member variables.
@@ -67,16 +65,18 @@ public:
 
   // Compute the essential matrix from a fundamental matrix and camera intrinsics.
   Eigen::Matrix3d ComputeEssentialMatrix(const Eigen::Matrix3d& F,
-					 const CameraIntrinsics& K1,
-					 const CameraIntrinsics& K2);
+                                         const CameraIntrinsics& intrinsics1,
+                                         const CameraIntrinsics& intrinsics2);
 
   // Compute camera extrinsics from an essential matrix and a list of keypoint matches.
-  bool ComputeExtrinsics(CameraExtrinsics* extrinsics,
-			 const Eigen::Matrix3d& E,
-			 const FeatureMatchList& matches,
-			 const CameraIntrinsics& this_camera_intrinsics,
-			 const CameraIntrinsics& other_camera_intrinsics);
+  bool ComputeExtrinsics(const Eigen::Matrix3d& E,
+                         const FeatureMatchList& matches,
+                         const CameraIntrinsics& this_camera_intrinsics,
+                         const CameraIntrinsics& other_camera_intrinsics,
+                         CameraExtrinsics& extrinsics);
 
+private:
+  DISALLOW_COPY_AND_ASSIGN(EssentialMatrixSolver)
 
 };  //\class EssentialMatrixSolver
 

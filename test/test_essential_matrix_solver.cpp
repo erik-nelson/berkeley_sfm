@@ -57,28 +57,28 @@
 #include <gtest/gtest.h>
 #include <gflags/gflags.h>
 
-DEFINE_string(ransac_image1, "campanile_view1.jpg",
+DEFINE_string(essential_matrix_image1, "campanile_view1.jpg",
               "Name of the first image used to test RANSAC feature matching.");
-DEFINE_string(ransac_image2, "campanile_view2.jpg",
+DEFINE_string(essential_matrix_image2, "campanile_view2.jpg",
               "Name of the second image used to test RANSAC feature matching.");
 
 namespace bsfm {
 
 namespace {
-const int kImageWidth = 3264.0; //1920;
-const int kImageHeight = 2448.0; //1080;
+const int kImageWidth = 3264.0;
+const int kImageHeight = 2448.0;
 const double kVerticalFov = 90.0 * M_PI / 180.0;
 const int kFeatureMatches = 500;
 const std::string test_image1 = strings::JoinFilepath(
-      BSFM_TEST_DATA_DIR, FLAGS_ransac_image1.c_str());
+      BSFM_TEST_DATA_DIR, FLAGS_essential_matrix_image1.c_str());
 const std::string test_image2 = strings::JoinFilepath(
-      BSFM_TEST_DATA_DIR, FLAGS_ransac_image2.c_str());
+      BSFM_TEST_DATA_DIR, FLAGS_essential_matrix_image2.c_str());
 } //\namespace
 
 TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
 
   // Start out by running ransac to get the fundamental matrix.
-  
+
   // Get some noisy feature matches.
   Image image1(test_image1.c_str());
   Image image2(test_image2.c_str());
@@ -122,9 +122,9 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
   Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
   RansacOptions ransac_options;
 
-  ransac_options.iterations = 5000;
-  ransac_options.acceptable_error = 1e-1;
-  ransac_options.minimum_num_inliers = 50;
+  ransac_options.iterations = 50;
+  ransac_options.acceptable_error = 1e-2;
+  ransac_options.minimum_num_inliers = 20;
   ransac_options.num_samples = 8;
 
   solver.SetOptions(ransac_options);
@@ -132,7 +132,7 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
 
   ASSERT_TRUE(problem.SolutionFound());
   const FeatureMatchList& inliers = problem.Inliers();
-  const Eigen::Matrix3d F = static_cast<FundamentalMatrixRansacModel>(problem.Model()).F_;
+  const Eigen::Matrix3d F = problem.Model().F_;
 
   // Now, create camera intrinsics and calculate the essential matrix.
   Camera cam;
@@ -150,21 +150,20 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
   intrinsics.SetCV(0.25 * 0.5 * kImageHeight);
 
   cam.SetIntrinsics(intrinsics);
-  
+
   // Now, given the fundamental matrix, calculate the essential matrix.
   EssentialMatrixSolver essential_solver;
-  const Eigen::Matrix3d E = essential_solver.ComputeEssentialMatrix(F,
-								    cam.Intrinsics(),
-								    cam.Intrinsics());
-  EXPECT_TRUE(F.isApprox(cam.Intrinsics().IntrinsicsMatrix().transpose().inverse() *
-			 E * cam.Intrinsics().IntrinsicsMatrix().inverse()));
+  const Eigen::Matrix3d E = essential_solver.ComputeEssentialMatrix(
+      F, cam.Intrinsics(), cam.Intrinsics());
+
+  EXPECT_TRUE(
+      F.isApprox(cam.Intrinsics().IntrinsicsMatrix().transpose().inverse() * E *
+                 cam.Intrinsics().IntrinsicsMatrix().inverse()));
 
   // Check that we can calculate extrinsics from the essential matrix.
   CameraExtrinsics estimated_extrinsics;
-  EXPECT_TRUE(essential_solver.ComputeExtrinsics(&estimated_extrinsics,
-						 E, inliers,
-						 cam.Intrinsics(),
-						 cam.Intrinsics()));
+  EXPECT_TRUE(essential_solver.ComputeExtrinsics(
+      E, inliers, cam.Intrinsics(), cam.Intrinsics(), estimated_extrinsics));
 }
 
 }  //\namespace bsfm

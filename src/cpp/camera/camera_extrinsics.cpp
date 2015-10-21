@@ -49,72 +49,37 @@ namespace bsfm {
 
 // Constructor. Initialize to identity.
 CameraExtrinsics::CameraExtrinsics() {
-  world_to_body_ = Pose();
-  body_to_camera_ = CameraExtrinsics::DefaultBodyToCamera();
+  world_to_camera_ = CameraExtrinsics::DefaultWorldToCamera();
 }
 
-// Constructor. Initialize world_to_camera_ and set body_to_camera as identity.
+// Constructor. Initialize world_to_camera_ .
 CameraExtrinsics::CameraExtrinsics(const Pose& world_to_camera)
-    : world_to_body_(world_to_camera) {
-  body_to_camera_ = CameraExtrinsics::DefaultBodyToCamera();
-}
+    : world_to_camera_(world_to_camera) {}
 
-// Contructor. Initialize both world_to_body_ and body_to_camera_.
-CameraExtrinsics::CameraExtrinsics(const Pose& world_to_body,
-                                   const Pose& body_to_camera)
-    : world_to_body_(world_to_body), body_to_camera_(body_to_camera) {}
-
-// Initialize world_to_body_ and make body_to_camera the identity.
+// Set world_to_camera_.
 void CameraExtrinsics::SetWorldToCamera(const Pose& world_to_camera) {
-  body_to_camera_ = CameraExtrinsics::DefaultBodyToCamera();
-  world_to_body_ = body_to_camera_.Inverse() * world_to_camera;
-}
-
-// Initialize world_to_body_.
-void CameraExtrinsics::SetWorldToBody(const Pose& world_to_body) {
-  world_to_body_ = world_to_body;
-}
-
-// Initialize body_to_camera
-void CameraExtrinsics::SetBodyToCamera(const Pose& body_to_camera) {
-  body_to_camera_ = body_to_camera;
+  world_to_camera_ = world_to_camera;
 }
 
 // Extract poses.
 Pose CameraExtrinsics::WorldToCamera() const {
-  return body_to_camera_ * world_to_body_;
-}
-
-Pose CameraExtrinsics::WorldToBody() const {
-  return world_to_body_;
-}
-
-Pose CameraExtrinsics::BodyToCamera() const {
-  return body_to_camera_;
+  return world_to_camera_;
 }
 
 Pose CameraExtrinsics::CameraToWorld() const {
   return CameraExtrinsics::WorldToCamera().Inverse();
 }
 
-Pose CameraExtrinsics::BodyToWorld() const {
-  return CameraExtrinsics::WorldToBody().Inverse();
-}
-
-Pose CameraExtrinsics::CameraToBody() const {
-  return CameraExtrinsics::BodyToCamera().Inverse();
-}
-
 void CameraExtrinsics::TranslateX(double dx) {
-  world_to_body_.TranslateX(dx);
+  world_to_camera_.TranslateX(dx);
 }
 
 void CameraExtrinsics::TranslateY(double dy) {
-  world_to_body_.TranslateY(dy);
+  world_to_camera_.TranslateY(dy);
 }
 
 void CameraExtrinsics::TranslateZ(double dz) {
-  world_to_body_.TranslateZ(dz);
+  world_to_camera_.TranslateZ(dz);
 }
 
 // The extrinsics matrix is 3x4 matrix: [R | t].

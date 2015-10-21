@@ -41,11 +41,11 @@
 // camera model:
 // http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
 //
-// The default camera frame is such that the camera is stares down its own +Z axis.
+// The default camera frame is such that the camera stares down its own +Z axis.
 // +X and +Y are the camera's right-facing and upward-facing vectors in this
 // coordinate frame. The camera's +Z axis is the world -Y axis (and therefore
 // world +X = camera +X). This convention can be seen in the static
-// DefaultBodyToCamera() member function.
+// DefaultWorldToCamera() member function.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -62,44 +62,30 @@ public:
   // Constructor. Initialize to identity.
   CameraExtrinsics();
 
-  // Constructor. Initialize only world_to_camera_.
+  // Constructor. Initialize world_to_camera_.
   CameraExtrinsics(const Pose& world_to_camera);
 
-  // Contructor. Initialize both world/body_to_camera_.
-  CameraExtrinsics(const Pose& world_to_body, const Pose& body_to_camera);
-
-  static Pose DefaultBodyToCamera() {
+  static Pose DefaultWorldToCamera() {
     // Conversion does the following:
     //   world +X --> camera +X
     //   world +Y --> camera +Z
     //   world +Z --> camera -Y
-    Eigen::Matrix4d b2c;
-    b2c << 1, 0, 0, 0,
+    Eigen::Matrix4d w2c;
+    w2c << 1, 0, 0, 0,
            0, 0, 1, 0,
            0,-1, 0, 0,
            0, 0, 0, 1;
-    return Pose(b2c);
+    return Pose(w2c);
   }
 
-  // Initialize world_to_body_ and make body_to_camera the identity.
+  // Set world_to_camera_.
   void SetWorldToCamera(const Pose& world_to_camera);
-
-  // Initialize world_to_body_.
-  void SetWorldToBody(const Pose& world_to_body);
-
-  // Initialize body_to_camera
-  void SetBodyToCamera(const Pose& body_to_camera);
 
   // Extract poses.
   Pose WorldToCamera() const;
-  Pose WorldToBody() const;
-  Pose BodyToCamera() const;
-
   Pose CameraToWorld() const;
-  Pose BodyToWorld() const;
-  Pose CameraToBody() const;
 
-  // Translate the world-to-body frame.
+  // Translate the world-to-camera frame.
   void TranslateX(double dx);
   void TranslateY(double dy);
   void TranslateZ(double dz);
@@ -116,8 +102,7 @@ public:
                      double* wx, double* wy, double* wz) const;
 
 private:
-  Pose world_to_body_;
-  Pose body_to_camera_;
+  Pose world_to_camera_;
 
 };  //\class CameraExtrinsics
 

@@ -106,9 +106,9 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
     // We have set the world to camera transform in camera 1 as the identity, so
     // just set the xy bounds to be approximately the image bounds and the
     // z bounds to be in front of camera 1.
-    const double x = rng.DoubleUniform(-2000.0, 2000.0);
-    const double y = rng.DoubleUniform(-2000.0, 2000.0);
-    const double z = rng.DoubleUniform(2000.0, 3000.0);
+    const double x = rng.DoubleUniform(-2.0, 2.2);
+    const double y = rng.DoubleUniform(-2.0, 2.0);
+    const double z = rng.DoubleUniform(2.0, 3.0);
 
     // Project the 3D point into each camera;
     double u1 = 0.0, v1 = 0.0;

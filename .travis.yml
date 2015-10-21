@@ -25,7 +25,7 @@ install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install --yes build-essential
-    doxygen libgflags-dev libgoogle-glog-dev libeigen3-dev; fi
+    doxygen libgflags-dev libgoogle-glog-dev mercurial; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install python-software-properties; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install gcc-4.8 g++-4.8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20; fi
@@ -34,31 +34,40 @@ install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++; fi
 
 before_script:
-  # Get Ceres-solver. It's not available yet as an apt package.
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://ceres-solver.googlesource.com/ceres-solver; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ceres-solver; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd build; fi
+  # Get Eigen. The apt-get version on 12.04 is too old; we need at least 3.1.0
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then hg clone https://bitbucket.org/eigen/eigen; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd eigen && hg update 3.2; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build && cd build; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ..; fi
 
-  # Get OpenCV. The apt-get version is too old; we need 2.4.
+  # Get Ceres-solver. It's not available yet as an apt package.
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://ceres-solver.googlesource.com/ceres-solver; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ceres-solver; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build && cd build; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ..; fi
+
+  # Get OpenCV. The apt-get version on 12.04 is too old; we need 2.4.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://github.com/Itseez/opencv.git; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd opencv; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git checkout 2.4; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd build; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build && cd build; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DBUILD_opencv_features2d=ON -DBUILD_opencv_highgui=ON
     -DBUILD_opencv_imgproc=ON -DBUILD_opencv_core=ON -DBUILD_opencv_nonfree=ON -DBUILD_opencv_calib3d=ON
     -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON
     -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF
     -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..; fi
-
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
+
+  # Configure and make Berkeley SfM.
   - mkdir build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=Release ..

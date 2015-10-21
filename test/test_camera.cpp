@@ -62,46 +62,40 @@ TEST(Camera, TestCameraExtrinsics) {
   EXPECT_EQ(cz, -wy);
 
   // Make sure points are translated correctly.
-  Eigen::Matrix4d w2b = Eigen::Matrix4d::Identity();
-  w2b(0, 3) = 5.0;
-  w2b(1, 3) = 8.0;
-  w2b(2, 3) = -10.0;
+  Eigen::Matrix4d w2c = Eigen::Matrix4d::Identity();
+  w2c(0, 3) = 5.0;
+  w2c(1, 3) = 8.0;
+  w2c(2, 3) = -10.0;
 
-  Eigen::Matrix4d b2c = Eigen::Matrix4d::Identity();
-  b2c(0, 3) = -3.0;
-  b2c(1, 3) = -10.0;
-  b2c(2, 3) = 4.0;
-
-  extrinsics.SetWorldToBody(w2b);
-  extrinsics.SetBodyToCamera(b2c);
+  extrinsics.SetWorldToCamera(w2c);
 
   cx = 0.0, cy = 0.0, cz = 0.0;
   extrinsics.WorldToCamera(wx, wy, wz, &cx, &cy, &cz);
-  EXPECT_EQ(wx + 2.0, cx);
-  EXPECT_EQ(wy - 2.0, cy);
-  EXPECT_EQ(wz - 6.0, cz);
+  EXPECT_EQ(wx + 5.0, cx);
+  EXPECT_EQ(wy + 8.0, cy);
+  EXPECT_EQ(wz - 10.0, cz);
 
   wx = 0.0, wy = 0.0, wz = 0.0;
   extrinsics.CameraToWorld(cx, cy, cz, &wx, &wy, &wz);
-  EXPECT_EQ(cx - 2.0, wx);
-  EXPECT_EQ(cy + 2.0, wy);
-  EXPECT_EQ(cz + 6.0, wz);
+  EXPECT_EQ(cx - 5.0, wx);
+  EXPECT_EQ(cy - 8.0, wy);
+  EXPECT_EQ(cz + 10.0, wz);
 
   Eigen::Matrix<double, 3, 4> expected_extrinsic_matrix;
   expected_extrinsic_matrix(0, 0) = 1.0;
   expected_extrinsic_matrix(0, 1) = 0.0;
   expected_extrinsic_matrix(0, 2) = 0.0;
-  expected_extrinsic_matrix(0, 3) = 2.0;
+  expected_extrinsic_matrix(0, 3) = w2c(0, 3);
 
   expected_extrinsic_matrix(1, 0) = 0.0;
   expected_extrinsic_matrix(1, 1) = 1.0;
   expected_extrinsic_matrix(1, 2) = 0.0;
-  expected_extrinsic_matrix(1, 3) = -2.0;
+  expected_extrinsic_matrix(1, 3) = w2c(1, 3);
 
   expected_extrinsic_matrix(2, 0) = 0.0;
   expected_extrinsic_matrix(2, 1) = 0.0;
   expected_extrinsic_matrix(2, 2) = 1.0;
-  expected_extrinsic_matrix(2, 3) = -6.0;
+  expected_extrinsic_matrix(2, 3) = w2c(2, 3);
 
   EXPECT_TRUE(expected_extrinsic_matrix.isApprox(extrinsics.Rt()));
 }

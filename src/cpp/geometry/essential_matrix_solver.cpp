@@ -46,16 +46,13 @@
 #include "essential_matrix_solver.h"
 
 #include <Eigen/Core>
+#include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <vector>
 
-#include <camera/camera.h>
-#include <camera/camera_intrinsics.h>
-#include <camera/camera_extrinsics.h>
-#include <pose/pose.h>
-#include <matching/feature_match.h>
-
-#include <gflags/gflags.h>
+#include "point_3d.h"
+#include "triangulation.h"
+#include "../camera/camera.h"
 
 DEFINE_double(min_points_visible_ratio, 0.5,
 	      "Fraction of keypoint matches whose triangulation must be visible from both cameras.");
@@ -136,11 +133,14 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
     for (int jj = 0; jj < matches.size(); jj++) {
       // Triangulate points and test if the 3D estimate is in front of both
       // cameras.
-      Eigen::Vector3d pt3d = camera1.Triangulate(matches[jj], camera2);
+      Point3D point;
+      if (!Triangulate(matches[jj], camera1, camera2, point)) {
+        printf("FAILED to triangulate...\n");
+        continue;
+      }
 
-      if (camera1.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v) &&
-          camera2.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v))
-        num_points++;
+      num_points++;
+      point.Print("Point triangulated to: ");
     }
 
     // Update best_cnt and best_pose.

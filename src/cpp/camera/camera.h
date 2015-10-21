@@ -77,6 +77,9 @@ class Camera {
   const CameraExtrinsics& Extrinsics() const;
   const CameraIntrinsics& Intrinsics() const;
 
+  // Get the projection matrix by multiplying intrinsics and extrinsics.
+  Eigen::Matrix<double, 3, 4> P() const;
+
   // Transform points from world to camera coordinates.
   void WorldToCamera(double wx, double wy, double wz, double* cx, double* cy,
                      double* cz) const;
@@ -112,9 +115,6 @@ class Camera {
   // Rectilinearize point.
   void Undistort(double u_distorted, double v_distorted,
                  double* u, double* v) const;
-
-  // Triangulate a feature match.
-  Eigen::Vector3d Triangulate(const FeatureMatch& match, const Camera& other);
 
 private:
   CameraExtrinsics extrinsics_;

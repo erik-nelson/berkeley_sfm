@@ -45,6 +45,8 @@
 
 #include "camera.h"
 
+#include <Eigen/Core>
+
 namespace bsfm {
 
 // Constructor given extrinsics and intrinsics.
@@ -66,6 +68,11 @@ CameraExtrinsics &Camera::MutableExtrinsics() { return extrinsics_; }
 CameraIntrinsics &Camera::MutableIntrinsics() { return intrinsics_; }
 const CameraExtrinsics &Camera::Extrinsics() const { return extrinsics_; }
 const CameraIntrinsics &Camera::Intrinsics() const { return intrinsics_; }
+
+// Get the projection matrix by multiplying intrinsics and extrinsics.
+Eigen::Matrix<double, 3, 4> Camera::P() const {
+  return intrinsics_.IntrinsicsMatrix() * extrinsics_.ExtrinsicsMatrix();
+}
 
 // Transform points from world to camera coordinates.
 void Camera::WorldToCamera(double wx, double wy, double wz, double *cx,
@@ -120,53 +127,6 @@ void Camera::Distort(double u, double v, double *u_distorted,
 void Camera::Undistort(double u_distorted, double v_distorted, double *u,
                        double *v) const {
   intrinsics_.Undistort(u_distorted, v_distorted, u, v);
-}
-
-// Triangulate a feature match.
-Eigen::Vector3d Camera::Triangulate(const FeatureMatch& match, const Camera& other) {
-
-  // Unpack the FeatureMatch.
-  double u1, v1, u2, v2;
-  u1 = match.feature1_.u_;
-  v1 = match.feature1_.v_;
-  u2 = match.feature2_.u_;
-  v2 = match.feature2_.v_;
-
-  // Set up cross product matrices.
-  Eigen::Matrix3d p1_cross, p2_cross;
-  p1_cross <<
-    0.0, -1.0, v1,
-    1.0, 0.0, -u1,
-    -v1, u1, 0.0;
-  p2_cross <<
-    0.0, -1.0, v2,
-    1.0, 0.0, -u2,
-    -v2, u2, 0.0;
-
-  // Unpack extrinscs and intrinsics.
-  CameraExtrinsics other_extrinsics = other.Extrinsics();
-  CameraIntrinsics other_intrinsics = other.Intrinsics();
-
-  typedef Eigen::Matrix<double, 3, 4> Matrix34d;
-  Matrix34d other_extrinsics_matrix = other_extrinsics.ExtrinsicsMatrix();
-  Matrix34d extrinsics_matrix = extrinsics_.ExtrinsicsMatrix();
-
-  Eigen::Matrix3d other_intrinsics_matrix = other_intrinsics.IntrinsicsMatrix();
-  Eigen::Matrix3d intrinsics_matrix = intrinsics_.IntrinsicsMatrix();
-
-  // Set up linear least squares.
-  Eigen::MatrixXd M(6, 4);
-  M.topRows(3) = p1_cross * intrinsics_matrix * extrinsics_matrix;
-  M.bottomRows(3) =
-      p2_cross * other_intrinsics_matrix * other_extrinsics_matrix;
-
-  Eigen::MatrixXd A = M.leftCols(7);
-  Eigen::VectorXd b = -M.rightCols(1);
-
-  // Solve using SVD.
-  Eigen::Vector3d pt3d =
-      A.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(b);
-  return pt3d;
 }
 
 }  // namespace bsfm

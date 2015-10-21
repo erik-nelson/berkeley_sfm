@@ -90,16 +90,16 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
 
   // Translate the second camera along its X axis. Camera 2 will be 200.0 pixels
   // to the right of camera 1.
-  camera2.MutableExtrinsics().TranslateX(200.0);
+  camera2.MutableExtrinsics().TranslateX(2.0);
 
   // Create a bunch of points in 3D, project, and match.
   FeatureMatchList feature_matches;
   while (feature_matches.size() < kFeatureMatches) {
     // Since the camera's +Z faces down the world's -Y direction, make the
-    // points back there somewhere. These will be in units of pixels.
-    const double x = rng.DoubleUniform(-2000.0, 2200.0);
-    const double y = rng.DoubleUniform(-3000.0, -2000.0);
-    const double z = rng.DoubleUniform(-2000.0, 2000.0);
+    // points back there somewhere.
+    const double x = rng.DoubleUniform(-2.0, 2.2);
+    const double y = rng.DoubleUniform(-3.0, -2.0);
+    const double z = rng.DoubleUniform(-2.0, 2.0);
 
     // Project the 3D point into each camera;
     double u1 = 0.0, v1 = 0.0;
@@ -143,6 +143,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
                                  camera2.Intrinsics(), computed_extrinsics));
 
   // The true and computed camera pose should be identical.
+  std::cout << "Expected: " << std::endl << camera2.Extrinsics().ExtrinsicsMatrix() << std::endl;
+  std::cout << "Actual: " << std::endl << computed_extrinsics.ExtrinsicsMatrix() << std::endl;
   EXPECT_TRUE(camera2.Extrinsics().ExtrinsicsMatrix().isApprox(
       computed_extrinsics.ExtrinsicsMatrix(), 1e-4));
 }

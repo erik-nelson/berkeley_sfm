@@ -31,60 +31,52 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * Please contact the author(s) of this library if you have any questions.
- * Authors: David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
- *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
+ * Authors: Erik Nelson            ( eanelson@eecs.berkeley.edu )
+ *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This header defines a set of functions for converting a fundamental matrix
-// and a pair of camera intrinsics into an essential matrix, and from an
-// essential matrix to and a set of camera extrinsics.
+// This file defines methods that can be used to triangulate a point in 3D from
+// multiple 2D observations.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_GEOMETRY_ESSENTIAL_MATRIX_SOLVER_H
-#define BSFM_GEOMETRY_ESSENTIAL_MATRIX_SOLVER_H
+#ifndef BSFM_GEOMETRY_TRIANGULATION_H
+#define BSFM_GEOMETRY_TRIANGULATION_H
 
-#include <Eigen/Core>
-
-#include "../camera/camera_intrinsics.h"
-#include "../camera/camera_extrinsics.h"
-#include "../pose/pose.h"
+#include "point_3d.h"
+#include "../camera/camera.h"
+#include "../matching/feature.h"
 #include "../matching/feature_match.h"
-#include "../util/disallow_copy_and_assign.h"
 
 namespace bsfm {
 
-using Eigen::Matrix3d;
-using Eigen::Vector3d;
+// Triangulates a single 3D point from > 2 views. The input assumes that
+// features correspond to the cameras they were taken from. e.g. features[i] was
+// taken from cameras[i]. Returns false if:
+// 1) The number of features and cameras are not equal.
+// 2) A point cannot be uniquely determined.
+// 3) The triangulated point does not reproject into all cameras.
+// This uses the inhomogeneous DLT method from H&Z: Multi-View Geometry, Ch 2.2.
+bool Triangulate(const FeatureList& features,
+                 const std::vector<Camera>& cameras, Point3D& point);
 
-class EssentialMatrixSolver {
+// Triangulate the 3D position of a point from a 2D correspondence and two
+// sets of camera extrinsics and intrinsics. Returns false if:
+// 1) A point cannot be uniquely determined.
+// 2) The triangulated point does not reproject into both cameras.
+// This uses the homogeneous DLT method from H&Z: Multi-View Geometry, Ch 2.2.
+bool Triangulate(const FeatureMatch& feature_match, const Camera& camera1,
+                 const Camera& camera2, Point3D& point);
 
-public:
-  // Empty constructor and destructor. No member variables.
-  EssentialMatrixSolver() {}
-  ~EssentialMatrixSolver() {}
+// Repeats the Triangulate() function on a list of feature matches, returning a
+// list of triangulated 3D points. Returns all triangulated points, even if one
+// point fails. If triangulating a point fails, that point will be stored as (0,
+// 0, 0) in 'points'.
+bool Triangulate(const FeatureMatchList& feature_matches, const Camera& camera1,
+                 const Camera& camera2, Point3DList& points);
 
-  // Compute the essential matrix from a fundamental matrix and camera intrinsics.
-  Matrix3d ComputeEssentialMatrix(const Matrix3d& F,
-                                  const CameraIntrinsics& intrinsics1,
-                                  const CameraIntrinsics& intrinsics2);
-
-  // Compute camera extrinsics from an essential matrix and a list of keypoint matches.
-  // The extrinsics will be those of camera 2, assuming that camera 1 is located
-  // on (0, 0, 0) with identity rotation.
-  bool ComputeExtrinsics(const Matrix3d& E,
-                         const FeatureMatchList& matches,
-                         const CameraIntrinsics& intrinsics1,
-                         const CameraIntrinsics& intrinsics2,
-                         CameraExtrinsics& extrinsics);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(EssentialMatrixSolver)
-
-};  //\class EssentialMatrixSolver
-
-} //\namespace bsfm
+}  //\namespace bsfm
 
 #endif

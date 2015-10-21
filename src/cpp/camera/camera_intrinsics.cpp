@@ -296,9 +296,6 @@ bool CameraIntrinsics::DirectionToImage(double u_normalized,
   double u = 0.0, v = 0.0;
   Distort(u_normalized, v_normalized, &u, &v);
 
-  // Flip v - image space coordinates begin at the top.
-  v = -v;
-
   // Make a homogeneous vector from the output.
   Eigen::Vector3d p = Eigen::Vector3d();
   p << u, v, 1.0;

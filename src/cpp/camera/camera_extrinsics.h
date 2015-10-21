@@ -105,7 +105,7 @@ public:
   void TranslateZ(double dz);
 
   // The extrinsics matrix is 3x4 matrix: [R | t].
-  Eigen::Matrix<double, 3, 4> ExtrinsicsMatrix() const;
+  Eigen::Matrix<double, 3, 4> Rt() const;
 
   // Convert a world frame point into the camera frame.
   void WorldToCamera(double wx, double wy, double wz,

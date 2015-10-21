@@ -95,7 +95,7 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   extrinsics2.SetWorldToCamera(Pose());
   camera1.SetExtrinsics(extrinsics1);
   camera2.SetExtrinsics(extrinsics2);
-    
+
   // Translate the second camera along its X axis. Camera 2 will be 200.0 pixels
   // to the right of camera 1.
   camera2.MutableExtrinsics().TranslateX(1.0);
@@ -152,10 +152,12 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
                                  camera2.Intrinsics(), computed_extrinsics));
 
   // The true and computed camera pose should be identical.
-  std::cout << "Expected: " << std::endl << camera2.Extrinsics().ExtrinsicsMatrix() << std::endl;
-  std::cout << "Actual: " << std::endl << computed_extrinsics.ExtrinsicsMatrix() << std::endl;
-  EXPECT_TRUE(camera2.Extrinsics().ExtrinsicsMatrix().isApprox(
-      computed_extrinsics.ExtrinsicsMatrix(), 1e-4));
+  std::cout << "Expected: " << std::endl
+            << camera2.Extrinsics().Rt() << std::endl;
+  std::cout << "Actual: " << std::endl << computed_extrinsics.Rt() << std::endl;
+
+  EXPECT_TRUE(
+      camera2.Extrinsics().Rt().isApprox(computed_extrinsics.Rt(), 1e-4));
 }
 
 #if 0
@@ -243,8 +245,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
       F, cam.Intrinsics(), cam.Intrinsics());
 
   EXPECT_TRUE(
-      F.isApprox(cam.Intrinsics().IntrinsicsMatrix().transpose().inverse() * E *
-                 cam.Intrinsics().IntrinsicsMatrix().inverse()));
+      F.isApprox(cam.Intrinsics().K().transpose().inverse() * E *
+                 cam.Intrinsics().K().inverse()));
 
   // Check that we can calculate extrinsics from the essential matrix.
   CameraExtrinsics estimated_extrinsics;

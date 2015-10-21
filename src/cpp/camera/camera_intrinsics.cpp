@@ -250,7 +250,7 @@ double CameraIntrinsics::VerticalFOV() const {
 }
 
 // Get intrinsics matrix.
-Eigen::Matrix3d CameraIntrinsics::IntrinsicsMatrix() const {
+Eigen::Matrix3d CameraIntrinsics::K() const {
   Eigen::Matrix3d K = Eigen::Matrix3d();
   K << f_u_, 0.0, c_u_, 0.0, f_v_, c_v_, 0.0, 0.0, 1.0;
 
@@ -258,8 +258,8 @@ Eigen::Matrix3d CameraIntrinsics::IntrinsicsMatrix() const {
 }
 
 // Get inverse of intrinsics matrix.
-Eigen::Matrix3d CameraIntrinsics::InverseIntrinsicsMatrix() const {
-  return CameraIntrinsics::IntrinsicsMatrix().inverse();
+Eigen::Matrix3d CameraIntrinsics::Kinv() const {
+  return CameraIntrinsics::K().inverse();
 }
 
 // Test if a point is in the image.
@@ -302,7 +302,7 @@ bool CameraIntrinsics::DirectionToImage(double u_normalized,
 
   // Multiply the distorted direction vector by camera intrinsic matrix to get
   // the image space point.
-  const Eigen::Vector3d p_out = CameraIntrinsics::IntrinsicsMatrix() * p;
+  const Eigen::Vector3d p_out = CameraIntrinsics::K() * p;
   *u_distorted = p_out(0);
   *v_distorted = p_out(1);
 
@@ -321,7 +321,7 @@ void CameraIntrinsics::ImageToDirection(double u_distorted, double v_distorted,
 
   // Multiply the distorted homogeneous image space point by the inverse
   // of the camera intrinsic matrix to get a distorted ray.
-  const Eigen::Vector3d p = CameraIntrinsics::InverseIntrinsicsMatrix() * p_distorted;
+  const Eigen::Vector3d p = CameraIntrinsics::Kinv() * p_distorted;
 
   // Undistort the ray to get the normalized direction vector.
   Undistort(p(0), p(1), u_normalized, v_normalized);

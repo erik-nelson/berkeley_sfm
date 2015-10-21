@@ -107,10 +107,10 @@ class CameraIntrinsics {
   double VerticalFOV() const;
 
   // Get intrinsics matrix.
-  Eigen::Matrix3d IntrinsicsMatrix() const;
+  Eigen::Matrix3d K() const;
 
   // Get inverse of intrinsics matrix.
-  Eigen::Matrix3d InverseIntrinsicsMatrix() const;
+  Eigen::Matrix3d Kinv() const;
 
   // Test if a point is in the image.
   bool PointInImage(double u, double v) const;

@@ -64,8 +64,8 @@ Eigen::Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(
     const Matrix3d& F, const CameraIntrinsics& intrinsics1,
     const CameraIntrinsics& intrinsics2) {
   // Extract intrinsics matrices.
-  Eigen::Matrix3d K1(intrinsics1.IntrinsicsMatrix());
-  Eigen::Matrix3d K2(intrinsics2.IntrinsicsMatrix());
+  Eigen::Matrix3d K1(intrinsics1.K());
+  Eigen::Matrix3d K2(intrinsics2.K());
 
   // Calculate the essential matrix.
   return K2.transpose() * F * K1;

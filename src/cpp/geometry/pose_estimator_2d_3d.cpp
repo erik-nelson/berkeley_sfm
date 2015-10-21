@@ -232,7 +232,7 @@ void PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
   Matrix34d P_unnormalized = T_.inverse() * P * U_;
 
   // Extract camera extrinsics matrix.
-  Matrix34d Rt = intrinsics_.InverseIntrinsicsMatrix() * P;
+  Matrix34d Rt = intrinsics_.Kinv() * P;
 
   // Initialize the output pose from the rotation and translation blocks.
   pose = Pose(Rt.block(0, 0, 3, 3), Rt.block(0, 3, 3, 1));

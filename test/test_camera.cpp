@@ -103,7 +103,7 @@ TEST(Camera, TestCameraExtrinsics) {
   expected_extrinsic_matrix(2, 2) = 1.0;
   expected_extrinsic_matrix(2, 3) = -6.0;
 
-  EXPECT_TRUE(expected_extrinsic_matrix.isApprox(extrinsics.ExtrinsicsMatrix()));
+  EXPECT_TRUE(expected_extrinsic_matrix.isApprox(extrinsics.Rt()));
 }
 
 TEST(Camera, TestCameraIntrinsics) {
@@ -132,7 +132,7 @@ TEST(Camera, TestCameraIntrinsics) {
   expected_intrinsic_matrix(0, 2) = intrinsics.c_u();
   expected_intrinsic_matrix(1, 2) = intrinsics.c_v();
 
-  EXPECT_TRUE(expected_intrinsic_matrix.isApprox(intrinsics.IntrinsicsMatrix()));
+  EXPECT_TRUE(expected_intrinsic_matrix.isApprox(intrinsics.K()));
 
   // Camera to image on point behind the camera.
   double cx = 0.0, cy = 1.5, cz = -1.0;

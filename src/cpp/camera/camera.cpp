@@ -71,7 +71,17 @@ const CameraIntrinsics &Camera::Intrinsics() const { return intrinsics_; }
 
 // Get the projection matrix by multiplying intrinsics and extrinsics.
 Eigen::Matrix<double, 3, 4> Camera::P() const {
-  return intrinsics_.IntrinsicsMatrix() * extrinsics_.ExtrinsicsMatrix();
+  return intrinsics_.K() * extrinsics_.Rt();
+}
+
+// Get the camera intrinsics matrix, K.
+Eigen::Matrix3d Camera::K() const {
+  return intrinsics_.K();
+}
+
+// Get the camera extrinsics matrix, [R | t].
+Eigen::Matrix<double, 3, 4> Camera::Rt() const {
+  return extrinsics_.Rt();
 }
 
 // Transform points from world to camera coordinates.

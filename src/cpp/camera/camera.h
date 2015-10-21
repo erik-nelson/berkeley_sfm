@@ -80,6 +80,12 @@ class Camera {
   // Get the projection matrix by multiplying intrinsics and extrinsics.
   Eigen::Matrix<double, 3, 4> P() const;
 
+  // Get the camera intrinsics matrix, K.
+  Eigen::Matrix3d K() const;
+
+  // Get the camera extrinsics matrix, [R | t].
+  Eigen::Matrix<double, 3, 4> Rt() const;
+
   // Transform points from world to camera coordinates.
   void WorldToCamera(double wx, double wy, double wz, double* cx, double* cy,
                      double* cz) const;

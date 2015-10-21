@@ -81,25 +81,34 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   intrinsics.SetImageWidth(kImageWidth);
   intrinsics.SetImageHeight(kImageHeight);
   intrinsics.SetVerticalFOV(kVerticalFov);
-  intrinsics.SetFU(intrinsics.f_v());
+  intrinsics.SetFU(1.0);
+  intrinsics.SetFV(1.0);
   intrinsics.SetCU(0.5 * kImageWidth);
   intrinsics.SetCV(0.5 * kImageHeight);
 
   camera1.SetIntrinsics(intrinsics);
   camera2.SetIntrinsics(intrinsics);
 
+  // Set extrinsics for both cameras to identity pose.
+  CameraExtrinsics extrinsics1, extrinsics2;
+  extrinsics1.SetWorldToCamera(Pose());
+  extrinsics2.SetWorldToCamera(Pose());
+  camera1.SetExtrinsics(extrinsics1);
+  camera2.SetExtrinsics(extrinsics2);
+    
   // Translate the second camera along its X axis. Camera 2 will be 200.0 pixels
   // to the right of camera 1.
-  camera2.MutableExtrinsics().TranslateX(2.0);
+  camera2.MutableExtrinsics().TranslateX(1.0);
 
   // Create a bunch of points in 3D, project, and match.
   FeatureMatchList feature_matches;
   while (feature_matches.size() < kFeatureMatches) {
-    // Since the camera's +Z faces down the world's -Y direction, make the
-    // points back there somewhere.
-    const double x = rng.DoubleUniform(-2.0, 2.2);
-    const double y = rng.DoubleUniform(-3.0, -2.0);
-    const double z = rng.DoubleUniform(-2.0, 2.0);
+    // We have set the world to camera transform in camera 1 as the identity, so
+    // just set the xy bounds to be approximately the image bounds and the
+    // z bounds to be in front of camera 1.
+    const double x = rng.DoubleUniform(-2000.0, 2000.0);
+    const double y = rng.DoubleUniform(-2000.0, 2000.0);
+    const double z = rng.DoubleUniform(2000.0, 3000.0);
 
     // Project the 3D point into each camera;
     double u1 = 0.0, v1 = 0.0;

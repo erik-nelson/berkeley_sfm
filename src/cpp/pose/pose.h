@@ -54,6 +54,9 @@ class Pose {
   // Construct a new Pose from a rotation matrix and translation vector.
   Pose(const Eigen::Matrix3d& R, const Eigen::Vector3d& t);
 
+  // Construct a new Pose from a de-homogenized 3x4 [R | t] matrix.
+  Pose(const Eigen::Matrix<double, 3, 4>& Rt);
+
   // Deep copy constructor.
   Pose(const Pose& other);
 

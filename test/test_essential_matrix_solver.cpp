@@ -91,8 +91,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
 
   // Set extrinsics for both cameras to identity pose.
   CameraExtrinsics extrinsics1, extrinsics2;
-  extrinsics1.SetWorldToCamera(Pose());
-  extrinsics2.SetWorldToCamera(Pose());
+  extrinsics1.SetWorldToCamera(CameraExtrinsics::DefaultWorldToCamera());
+  extrinsics2.SetWorldToCamera(CameraExtrinsics::DefaultWorldToCamera());
   camera1.SetExtrinsics(extrinsics1);
   camera2.SetExtrinsics(extrinsics2);
 
@@ -145,19 +145,21 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   Eigen::Matrix3d E = e_solver.ComputeEssentialMatrix(F, camera1.Intrinsics(),
                                                       camera2.Intrinsics());
 
-  // Extract the pose of camera 2 from E.
+  // Extract the pose of camera 2 from E. This pose will be relative to the pose
+  // of camera 1, so to test we will need the delta between cameras 1 and 2.
   CameraExtrinsics computed_extrinsics;
   ASSERT_TRUE(
       e_solver.ComputeExtrinsics(E, feature_matches, camera1.Intrinsics(),
                                  camera2.Intrinsics(), computed_extrinsics));
 
-  // The true and computed camera pose should be identical.
-  std::cout << "Expected: " << std::endl
-            << camera2.Extrinsics().Rt() << std::endl;
+  Pose c1(camera1.Rt());
+  Pose c2(camera2.Rt());
+  Pose delta = c1.Inverse() * c2;
+
+  std::cout << "Expected: " << std::endl << delta.Dehomogenize() << std::endl;
   std::cout << "Actual: " << std::endl << computed_extrinsics.Rt() << std::endl;
 
-  EXPECT_TRUE(
-      camera2.Extrinsics().Rt().isApprox(computed_extrinsics.Rt(), 1e-4));
+  EXPECT_TRUE(delta.Dehomogenize().isApprox(computed_extrinsics.Rt(), 1e-4));
 }
 
 #if 0

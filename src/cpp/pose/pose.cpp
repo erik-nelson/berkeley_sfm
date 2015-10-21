@@ -53,6 +53,12 @@ Pose::Pose(const Eigen::Matrix3d& R, const Eigen::Vector3d& t) {
   Rt_.col(3).head(3) = t;
 }
 
+// Construct a new Pose from a de-homogenized 3x4 [R | t] matrix.
+Pose::Pose(const Eigen::Matrix<double, 3, 4>& Rt) {
+  Rt_ = Eigen::Matrix4d::Identity();
+  Rt_.block(0, 0, 3, 4) = Rt;
+}
+
 // Construct a new Pose from a 4x4 Rt matrix.
 Pose::Pose(const Eigen::Matrix4d& Rt) {
   Rt_ << Rt;
@@ -74,7 +80,8 @@ const double& Pose::operator()(int i, int j) const {
 
 // Overloaded multiplication operator for composing two poses.
 Pose Pose::operator*(const Pose& other) const {
-  return Pose(Rt_ * other.Rt_);
+  Eigen::Matrix4d Rt_out = Rt_ * other.Rt_;
+  return Pose(Rt_out);
 }
 
 // Multiply a homgenized point into a Pose.
@@ -108,8 +115,9 @@ void Pose::Compose(const Pose& other) {
 
 // Invert this Pose.
 Pose Pose::Inverse() {
-  Pose inv = Pose(Rt_.inverse());
-  return inv;
+  Eigen::Matrix4d Rt_inverse = Rt_.inverse();
+  Pose out(Rt_inverse);
+  return out;
 }
 
 // Extract just the extrinsics matrix as a 3x4 matrix.

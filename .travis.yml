@@ -32,16 +32,18 @@ install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then TOP_DIR=${pwd}; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ..; fi
 
 before_script:
-  # Get Eigen. The apt-get version on 12.04 is too old; we need at least 3.1.0
+  # Get Eigen. The apt-get version on 12.04 is too old; we need at least 3.1.0.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then hg clone https://bitbucket.org/eigen/eigen; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd eigen && hg update 3.2; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build && cd build; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ..; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR} && cd ..; fi
 
   # Get Ceres-solver. It's not available yet as an apt package.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://ceres-solver.googlesource.com/ceres-solver; fi
@@ -50,7 +52,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ..; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR} && cd ..; fi
 
   # Get OpenCV. The apt-get version on 12.04 is too old; we need 2.4.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"; fi
@@ -65,7 +67,7 @@ before_script:
     -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR}; fi
 
   # Configure and make Berkeley SfM.
   - mkdir build
@@ -77,8 +79,9 @@ script:
   - ./run_tests --gtest_filter=-EssentialMatrixSolver.TestEssentialMatrixNoiseless
 
 after_success:
+  # Make and publish documentation.
   - git config credential.helper "store --file=.git/credentials"
   - echo "https://${PA_TOKEN}:@github.com" > .git/credentials
   - make documentation
-  - cd ..
-  - if [ "$CXX" == "g++-4.8" ]; then ./documentation/publish_documentation.sh; fi
+  - cd ${TOP_DIR}
+  - ./documentation/publish_documentation.sh

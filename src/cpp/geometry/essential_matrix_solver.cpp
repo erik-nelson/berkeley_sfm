@@ -60,12 +60,12 @@ DEFINE_double(min_points_visible_ratio, 0.5,
 namespace bsfm {
 
 // Compute the essential matrix from a fundamental matrix and camera intrinsics.
-Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(
+Eigen::Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(
     const Matrix3d& F, const CameraIntrinsics& intrinsics1,
     const CameraIntrinsics& intrinsics2) {
   // Extract intrinsics matrices.
-  Matrix3d K1(intrinsics1.IntrinsicsMatrix());
-  Matrix3d K2(intrinsics2.IntrinsicsMatrix());
+  Eigen::Matrix3d K1(intrinsics1.IntrinsicsMatrix());
+  Eigen::Matrix3d K2(intrinsics2.IntrinsicsMatrix());
 
   // Calculate the essential matrix.
   return K2.transpose() * F * K1;
@@ -79,10 +79,13 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
     const CameraIntrinsics& intrinsics1, const CameraIntrinsics& intrinsics2,
     CameraExtrinsics& extrinsics) {
   // Initialize the W matrix.
-  Eigen::Matrix3d W;
+  Eigen::Matrix3d W, Z;
   W << 0.0, -1.0, 0.0,
        1.0, 0.0, 0.0,
        0.0, 0.0, 1.0;
+  Z << 0.0, 1.0, 0.0,
+      -1.0, 0.0, 0.0,
+       0.0, 0.0, 0.0;
 
   // Perform an SVD on the essential matrix.
   Eigen::JacobiSVD<Matrix3d> svd;
@@ -93,12 +96,20 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
     return false;
   }
 
-  // Compute two possibilities for rotation and translation.
-  Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();
-  Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();
+  // Compute translation vector cross product matrix.
+  // From: https://en.wikipedia.org/wiki/Essential_matrix
+  Eigen::Matrix3d t_cross = svd.matrixU() * Z * svd.matrixU().transpose();
 
-  Vector3d t1 = svd.matrixU().rightCols(1);
-  Vector3d t2 = -svd.matrixU().rightCols(1);
+  // Compute two possibilities for rotation and translation.
+  Eigen::Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();
+  Eigen::Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();
+
+  Eigen::Vector3d t1, t2;
+  t1 << -t_cross(0, 1), t_cross(0, 2), -t_cross(1, 2);
+  t2 << t_cross(0, 1), -t_cross(0, 2), t_cross(1, 2); 
+  
+  //  Vector3d t1 = svd.matrixU().rightCols(1);
+  //  Vector3d t2 = -svd.matrixU().rightCols(1);
 
   // Ensure positive determinants.
   if (R1.determinant() < 0)

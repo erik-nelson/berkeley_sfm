@@ -32,7 +32,6 @@ install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then TOP_DIR=${pwd}; fi
   - pwd
   - ls
 
@@ -45,7 +44,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR}; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../../..; fi
   - pwd
   - ls
 
@@ -56,7 +55,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR}; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
   - pwd
   - ls
 
@@ -73,7 +72,7 @@ before_script:
     -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR}; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
   - pwd
   - ls
 

@@ -154,7 +154,7 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
 
   Pose c1(camera1.Rt());
   Pose c2(camera2.Rt());
-  Pose delta = c1.Inverse() * c2;
+  Pose delta = c1.Delta(c2);
 
   std::cout << "Expected: " << std::endl << delta.Dehomogenize() << std::endl;
   std::cout << "Actual: " << std::endl << computed_extrinsics.Rt() << std::endl;

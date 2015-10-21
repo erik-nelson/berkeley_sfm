@@ -70,6 +70,9 @@ class Pose {
   double& operator()(int i, int j);
   const double& operator()(int i, int j) const;
 
+  // Access a const version of the homogeneous transformation matrix.
+  const Eigen::Matrix4d& Get() const;
+
   // Multiply two Poses.
   Pose operator*(const Pose& other) const;
 
@@ -87,13 +90,10 @@ class Pose {
   void Compose(const Pose& other);
 
   // Invert this pose.
-  Pose Inverse();
+  Pose Inverse() const;
 
   // Extract just the extrinsics matrix as a 3x4 matrix.
   Eigen::Matrix<double, 3, 4> Dehomogenize();
-
-  // Print to StdOut.
-  void Print() const;
 
   // Output axis-angle representation.
   Eigen::VectorXd ToAxisAngle();
@@ -118,6 +118,12 @@ class Pose {
   void TranslateX(double dx);
   void TranslateY(double dy);
   void TranslateZ(double dz);
+
+  // Get the relative transformation from this Pose to another one.
+  Pose Delta(const Pose& other) const;
+
+  // Print to StdOut.
+  void Print() const;
 
  private:
   Eigen::Matrix4d Rt_;  // 4x4 homogeneous Pose matrix

@@ -78,6 +78,11 @@ const double& Pose::operator()(int i, int j) const {
   return Rt_(i, j);
 }
 
+// Access a const version of the homogeneous transformation matrix.
+const Eigen::Matrix4d& Pose::Get() const {
+  return Rt_;
+}
+
 // Overloaded multiplication operator for composing two poses.
 Pose Pose::operator*(const Pose& other) const {
   Eigen::Matrix4d Rt_out = Rt_ * other.Rt_;
@@ -114,7 +119,7 @@ void Pose::Compose(const Pose& other) {
 }
 
 // Invert this Pose.
-Pose Pose::Inverse() {
+Pose Pose::Inverse() const {
   Eigen::Matrix4d Rt_inverse = Rt_.inverse();
   Pose out(Rt_inverse);
   return out;
@@ -216,6 +221,11 @@ void Pose::TranslateZ(double dz) {
 // Print to StdOut.
 void Pose::Print() const {
   std::cout << "Pose matrix:\n" << Rt_ << std::endl;
+}
+
+// Get the relative transformation from this Pose to another one.
+Pose Pose::Delta(const Pose& other) const {
+  return this->Inverse() * other;
 }
 
 } // namespace bsfm

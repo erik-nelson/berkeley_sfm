@@ -36,29 +36,105 @@
  */
 
 #include <Eigen/Dense>
+#include <gflags/gflags.h>
 #include <iostream>
+
+#include <math/random_generator.h>
 #include <pose/pose.h>
 
-#include <gflags/gflags.h>
 #include <gtest/gtest.h>
 
 namespace bsfm {
 
 TEST(Pose, TestPoseAxisAngle) {
   // Create a simple rotation matrix and random translation vector.
-  Eigen::Matrix3d R1;
-  R1 <<
-    cos(0.5), -sin(0.5), 0,
-    sin(0.5), cos(0.5), 0,
-    0, 0, 1;
-  const Eigen::Vector3d t1 = Eigen::Vector3d::Random();
-  const Pose p1 = Pose(R1, t1);
+  Eigen::Matrix3d R;
+  R << cos(0.5), -sin(0.5), 0,
+       sin(0.5),  cos(0.5), 0,
+       0,         0,        1;
+
+  const Eigen::Vector3d t = Eigen::Vector3d::Random();
+  const Pose p1 = Pose(R, t);
   Pose p2 = p1;
 
   // Convert to/from axis angle representation and check nothing has changed.
   Eigen::Vector3d aa = p2.ToAxisAngle();
   p2.FromAxisAngle(aa);
   EXPECT_TRUE(p1.IsApprox(p2));
+}
+
+TEST(Pose, TestPoseDelta) {
+
+  math::RandomGenerator rng(0);
+
+  for (int ii = 0; ii < 100; ++ii) {
+    // Repeatedly make two poses, compose them, and compute the relative
+    // transformation between them. Check that this value is correct.
+    const double phi1 = rng.DoubleUniform(-M_PI, M_PI);
+    const double phi2 = rng.DoubleUniform(-M_PI, M_PI);
+    const double theta1 = rng.DoubleUniform(-M_PI, M_PI);
+    const double theta2 = rng.DoubleUniform(-M_PI, M_PI);
+    const double psi1 = rng.DoubleUniform(-M_PI, M_PI);
+    const double psi2 = rng.DoubleUniform(-M_PI, M_PI);
+
+    // Make 2 rotation matrices.
+    Eigen::Matrix3d Rx1, Ry1, Rz1, Rx2, Ry2, Rz2;
+    Rx1 <<  1,           0        ,  0          ,
+            0,           cos(phi1), -sin(phi1)  ,
+            0,           sin(phi1),  cos(phi1)  ;
+
+    Ry1 <<  cos(theta1), 0,          sin(theta1),
+            0,           1,          0          ,
+           -sin(theta1), 0,          cos(theta1);
+
+    Rz1 <<  cos(psi1),  -sin(psi1),  0          ,
+            sin(psi1),   cos(psi1),  0          ,
+            0        ,   0        ,  1          ;
+
+    Rx2 <<  1,           0        ,  0          ,
+            0,           cos(phi2), -sin(phi2)  ,
+            0,           sin(phi2),  cos(phi2)  ;
+
+    Ry2 <<  cos(theta2), 0,          sin(theta2),
+            0,           1,          0          ,
+           -sin(theta2), 0,          cos(theta2);
+
+    Rz2 <<  cos(psi2),  -sin(psi2),  0          ,
+            sin(psi2),   cos(psi2),  0          ,
+            0        ,   0        ,  1          ;
+
+
+    const Eigen::Matrix3d R1(Rz1*Ry1*Rx1);
+    const Eigen::Matrix3d R2(Rz2*Ry2*Rx2);
+    const Eigen::Vector3d t1(Eigen::Vector3d::Random());
+    const Eigen::Vector3d t2(Eigen::Vector3d::Random());
+
+    // Compose the two poses.
+    Pose p1(R1, t1);
+    Pose p2(R2, t2);
+    Pose composed = p1 * p2;
+
+    // Get the deltas between p1 and p2, and between p2 and p1. These should be
+    // inverses of one another.
+    Pose p12 = p1.Delta(p2);
+    Pose p21 = p2.Delta(p1);
+    EXPECT_TRUE(p12.IsApprox(p21.Inverse()));
+
+    // Make sure the deltas are what we would expect.
+    Eigen::Matrix4d Rt1(Eigen::Matrix4d::Identity());
+    Rt1.block(0, 0, 3, 3) = R1;
+    Rt1.block(0, 3, 3, 1) = t1;
+
+    Eigen::Matrix4d Rt2(Eigen::Matrix4d::Identity());
+    Rt2.block(0, 0, 3, 3) = R2;
+    Rt2.block(0, 3, 3, 1) = t2;
+
+    Eigen::Matrix4d expected_delta12 = Rt1.inverse() * Rt2;
+    Eigen::Matrix4d expected_delta21 = Rt2.inverse() * Rt1;
+    EXPECT_TRUE(expected_delta12.isApprox(p12.Get()));
+    EXPECT_TRUE(expected_delta21.isApprox(p21.Get()));
+  }
+
 }
 
 } // namespace bsfm

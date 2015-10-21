@@ -33,6 +33,8 @@ install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then TOP_DIR=${pwd}; fi
+  - pwd
+  - ls
 
 before_script:
   # Get Eigen. The apt-get version on 12.04 is too old; we need at least 3.1.0.
@@ -43,6 +45,8 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR}; fi
+  - pwd
+  - ls
 
   # Get Ceres-solver. It's not available yet as an apt package.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://ceres-solver.googlesource.com/ceres-solver; fi
@@ -52,6 +56,8 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR}; fi
+  - pwd
+  - ls
 
   # Get OpenCV. The apt-get version on 12.04 is too old; we need 2.4.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"; fi
@@ -67,6 +73,8 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ${TOP_DIR}; fi
+  - pwd
+  - ls
 
   # Configure and make Berkeley SfM.
   - mkdir build

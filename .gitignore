@@ -1,5 +1,10 @@
+# Directories transferred from master branch.
 bin
 build
 test
-opencv
 exec
+src
+
+# Packages that travis downloads into the top directory.
+ceres-solver
+opencv

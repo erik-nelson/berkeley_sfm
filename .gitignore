@@ -8,3 +8,4 @@ src
 # Packages that travis downloads into the top directory.
 ceres-solver
 opencv
+eigen

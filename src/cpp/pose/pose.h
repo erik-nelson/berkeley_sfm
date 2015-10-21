@@ -61,7 +61,7 @@ class Pose {
   Pose(const Pose& other);
 
   // Construct a new Pose from a 4x4 Rt matrix.
-  Pose(const Eigen::Matrix4d&);
+  Pose(const Eigen::Matrix4d& other);
 
   // Destroy this Pose.
   ~Pose() { };
@@ -72,6 +72,19 @@ class Pose {
 
   // Access a const version of the homogeneous transformation matrix.
   const Eigen::Matrix4d& Get() const;
+
+  // Get the transformation's rotation components.
+  Eigen::Matrix3d Rotation() const;
+
+  // Get the transformation's rotation components.
+  Eigen::Vector3d Translation() const;
+
+  // Set the homogeneous transformation matrix.
+  void Set(const Eigen::Matrix4d& transformation);
+
+  // Set rotation and translation directly.
+  void SetRotation(const Eigen::Matrix3d& rotation);
+  void SetTranslation(const Eigen::Vector3d& translation);
 
   // Multiply two Poses.
   Pose operator*(const Pose& other) const;
@@ -120,7 +133,7 @@ class Pose {
   void TranslateZ(double dz);
 
   // Get the relative transformation from this Pose to another one.
-  Pose Delta(const Pose& other) const;
+  Pose Delta(const Pose& rhs) const;
 
   // Print to StdOut.
   void Print() const;

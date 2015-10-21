@@ -51,7 +51,7 @@ namespace {
   const int kNumPoints = 20;
   const int kImageWidth = 1920;
   const int kImageHeight = 1080;
-  const double kVerticalFov = 90.0 * M_PI / 180.0;
+  const double kVerticalFov = 0.5 * M_PI;
 
   CameraIntrinsics DefaultIntrinsics() {
     CameraIntrinsics intrinsics;
@@ -78,7 +78,7 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
   // Create a camera and shift it from the origin.
   Camera camera;
   CameraExtrinsics extrinsics;
-  extrinsics.TranslateX(200.0);
+  extrinsics.TranslateX(2.0);
   camera.SetIntrinsics(DefaultIntrinsics());
   camera.SetExtrinsics(extrinsics);
 
@@ -88,9 +88,9 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
   Point3DList points_3d;
   FeatureList points_2d;
   while (points_3d.size() < kNumPoints) {
-    double x = rng.DoubleUniform(-2000.0, 2200.0);
-    double y = rng.DoubleUniform(-3000.0, -2000.0);
-    double z = rng.DoubleUniform(-2000.0, 2000.0);
+    double x = rng.DoubleUniform(-2.0, 4.0);
+    double y = rng.DoubleUniform(3.0, 10.0);
+    double z = rng.DoubleUniform(-3.0, 3.0);
 
 
     // Project the point into the camera. No noise.

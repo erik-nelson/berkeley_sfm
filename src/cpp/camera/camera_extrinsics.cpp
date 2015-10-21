@@ -71,15 +71,21 @@ Pose CameraExtrinsics::CameraToWorld() const {
 }
 
 void CameraExtrinsics::TranslateX(double dx) {
-  world_to_camera_.TranslateX(dx);
+  Eigen::Matrix4d t_x(Eigen::Matrix4d::Identity());
+  t_x(0, 3) = -dx;
+  world_to_camera_.Set(world_to_camera_.Get() * t_x);
 }
 
 void CameraExtrinsics::TranslateY(double dy) {
-  world_to_camera_.TranslateY(dy);
+  Eigen::Matrix4d t_y(Eigen::Matrix4d::Identity());
+  t_y(1, 3) = -dy;
+  world_to_camera_.Set(world_to_camera_.Get() * t_y);
 }
 
 void CameraExtrinsics::TranslateZ(double dz) {
-  world_to_camera_.TranslateZ(dz);
+  Eigen::Matrix4d t_z(Eigen::Matrix4d::Identity());
+  t_z(2, 3) = -dz;
+  world_to_camera_.Set(world_to_camera_.Get() * t_z);
 }
 
 // The extrinsics matrix is 3x4 matrix: [R | t].
@@ -92,9 +98,7 @@ void CameraExtrinsics::WorldToCamera(double wx, double wy, double wz,
                                      double* cx, double* cy, double* cz) const {
   if (cx == nullptr || cy == nullptr || cz == nullptr) return;
 
-  Eigen::Vector4d w_h = Eigen::Vector4d();
-  w_h << wx, wy, wz, 1.0;
-
+  const Eigen::Vector4d w_h(wx, wy, wz, 1.0);
   const Eigen::Vector4d c_h = CameraExtrinsics::WorldToCamera().Project(w_h);
 
   *cx = c_h(0);
@@ -107,9 +111,7 @@ void CameraExtrinsics::CameraToWorld(double cx, double cy, double cz,
                                      double* wx, double* wy, double* wz) const {
   if (wx == nullptr || wy == nullptr || wz == nullptr) return;
 
-  Eigen::Vector4d c_h = Eigen::Vector4d();
-  c_h << cx, cy, cz, 1.0;
-
+  const Eigen::Vector4d c_h(cx, cy, cz, 1.0);
   const Eigen::Vector4d w_h = CameraExtrinsics::CameraToWorld().Project(c_h);
 
   *wx = w_h(0);

@@ -54,38 +54,38 @@
 #include "triangulation.h"
 #include "../camera/camera.h"
 
-DEFINE_double(min_points_visible_ratio, 0.5,
-	      "Fraction of keypoint matches whose triangulation must be visible from both cameras.");
+DEFINE_double(min_points_visible_ratio, 0.8,
+              "Fraction of keypoint matches whose triangulation must be "
+              "visible from both cameras. This value should be lowered if you "
+              "expect lots of noisy matches.");
 
 namespace bsfm {
 
 // Compute the essential matrix from a fundamental matrix and camera intrinsics.
-Eigen::Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(
+Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(
     const Matrix3d& F, const CameraIntrinsics& intrinsics1,
     const CameraIntrinsics& intrinsics2) {
   // Extract intrinsics matrices.
-  Eigen::Matrix3d K1(intrinsics1.K());
-  Eigen::Matrix3d K2(intrinsics2.K());
+  Matrix3d K1(intrinsics1.K());
+  Matrix3d K2(intrinsics2.K());
 
   // Calculate the essential matrix.
   return K2.transpose() * F * K1;
 }
 
-// Compute camera extrinsics from an essential matrix and a list of keypoint matches.
-// The computed extrinsics are with respect to (0, 0, 0).
+// Compute the relative transformation between two cameras from an essential
+// matrix and a list of keypoint matches. Note that translation can only be
+// computed up to a scale factor.
 // NOTE: this implementation is based on Hartley & Zisserman's MVG, pg. 258.
 bool EssentialMatrixSolver::ComputeExtrinsics(
     const Matrix3d& E, const FeatureMatchList& matches,
     const CameraIntrinsics& intrinsics1, const CameraIntrinsics& intrinsics2,
-    CameraExtrinsics& extrinsics) {
+    Pose& relative_pose) {
   // Initialize the W matrix.
-  Eigen::Matrix3d W, Z;
+  Matrix3d W;
   W << 0.0, -1.0, 0.0,
-       1.0, 0.0, 0.0,
-       0.0, 0.0, 1.0;
-  Z << 0.0, 1.0, 0.0,
-      -1.0, 0.0, 0.0,
-       0.0, 0.0, 0.0;
+       1.0,  0.0, 0.0,
+       0.0,  0.0, 1.0;
 
   // Perform an SVD on the essential matrix.
   Eigen::JacobiSVD<Matrix3d> svd;
@@ -96,26 +96,33 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
     return false;
   }
 
-  // Compute translation vector cross product matrix.
-  // From: https://en.wikipedia.org/wiki/Essential_matrix
-  Eigen::Matrix3d t_cross = svd.matrixU() * Z * svd.matrixU().transpose();
+  // The essential matrix must satisfy E = U * diag(1, 1, 0) * V^T. Use U and V
+  // to get a new E, run another SVD, and get the normalized U and V.
+  Matrix3d sigma(Matrix3d::Identity());
+  sigma(2, 2) = 0;
+  Matrix3d E_augmented = svd.matrixU() * sigma * svd.matrixV().transpose();
 
-  // Compute two possibilities for rotation and translation.
-  Eigen::Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();
-  Eigen::Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();
+  svd.compute(E_augmented, Eigen::ComputeFullU | Eigen::ComputeFullV);
+  if (!svd.computeU() || !svd.computeV()) {
+    VLOG(1) << "Failed to compute a singular value decomposition of "
+            << "the essential matrix.";
+    return false;
+  }
 
-  Eigen::Vector3d t1, t2;
-  t1 << -t_cross(0, 1), t_cross(0, 2), -t_cross(1, 2);
-  t2 << t_cross(0, 1), -t_cross(0, 2), t_cross(1, 2); 
-  
-  //  Vector3d t1 = svd.matrixU().rightCols(1);
-  //  Vector3d t2 = -svd.matrixU().rightCols(1);
+  // Compute two possibilities for rotation.
+  Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();
+  Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();
 
   // Ensure positive determinants.
   if (R1.determinant() < 0)
     R1 = -R1;
   if (R2.determinant() < 0)
     R2 = -R2;
+
+  // Compute two possibilities for translation
+  Vector3d t1, t2;
+  t1 = svd.matrixU().col(2);
+  t2 = -t1;
 
   // Build four possible Poses.
   std::vector<Pose> poses;
@@ -166,7 +173,7 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
   }
 
   // Copy best pose to the camera extrinsics and return.
-  extrinsics.SetWorldToCamera(best_pose);
+  relative_pose = best_pose;
 
   return true;
 }

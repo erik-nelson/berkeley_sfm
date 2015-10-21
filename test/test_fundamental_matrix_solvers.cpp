@@ -79,7 +79,7 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
 
   // Translate the 2nd camera along its X axis (give it some known base-line).
   // Camera 2 will be 200.0 pixels to the right of camera 1.
-  camera2.MutableExtrinsics().TranslateX(200.0);
+  camera2.MutableExtrinsics().TranslateX(2.0);
 
   // Create a bunch of points in 3D.
   PairwiseImageMatch image_match;
@@ -87,9 +87,9 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
     // Since the camera's +Z faces down the world's -Y
     // direction, make the points back there somewhere.
 
-    const double x_world = rng.DoubleUniform(-2000.0, 2200.0);
-    const double y_world = rng.DoubleUniform(-3000.0, -2000.0);
-    const double z_world = rng.DoubleUniform(-2000.0, 2000.0);
+    const double x_world = rng.DoubleUniform(-2.0, 4.0);
+    const double y_world = rng.DoubleUniform(3.0, 10.0);
+    const double z_world = rng.DoubleUniform(-3.0, 3.0);
 
     // Project each of the 3D points into the two cameras.
     double u1 = 0.0, v1 = 0.0;

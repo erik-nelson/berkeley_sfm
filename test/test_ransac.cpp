@@ -95,16 +95,16 @@ class TestRansac : public ::testing::Test {
 
     // Translate the 2nd camera along its X-axis to give it a known baseline.
     // Camera 2 will now be 200.0 pixels to the right of camera 1.
-    camera2.MutableExtrinsics().TranslateX(200.0);
+    camera2.MutableExtrinsics().TranslateX(2.0);
 
     // Create a bunch of good matches between points in 3D.
     PairwiseImageMatch matched_images_out;
     while(matched_images_out.feature_matches_.size() < num_good_matches) {
       // Since the camera's +Z faces down the world's -Y direction, make random
       // points back there somewhere.
-      const double x_world = rng.DoubleUniform(-2000.0, 2200.0);
-      const double y_world = rng.DoubleUniform(-3000.0, -2000.0);
-      const double z_world = rng.DoubleUniform(-2000.0, 2000.0);
+      const double x_world = rng.DoubleUniform(-2.0, 4.0);
+      const double y_world = rng.DoubleUniform(3.0, 10.0);
+      const double z_world = rng.DoubleUniform(-3.0, 3.0);
 
       // Project each of the 3D points into the two cameras.
       double u1 = 0.0, v1 = 0.0;
@@ -137,15 +137,15 @@ class TestRansac : public ::testing::Test {
            num_good_matches + num_bad_matches) {
       // We can generate points in a larger box now.
       Eigen::Vector3d x_w1, x_w2;
-      x_w1.x() = rng.DoubleUniform(-2000.0, 2200.0);
-      x_w1.y() = rng.DoubleUniform(-4000.0, -1000.0);
-      x_w1.z() = rng.DoubleUniform(-2000.0, 2000.0);
-      x_w2.x() = rng.DoubleUniform(-2000.0, 2200.0);
-      x_w2.y() = rng.DoubleUniform(-4000.0, -1000.0);
-      x_w2.z() = rng.DoubleUniform(-2000.0, 2000.0);
+      x_w1.x() = rng.DoubleUniform(-2.0, 4.0);
+      x_w1.y() = rng.DoubleUniform(3.0, 10.0);
+      x_w1.z() = rng.DoubleUniform(-3.0, 3.0);
+      x_w2.x() = rng.DoubleUniform(-2.0, 4.0);
+      x_w2.y() = rng.DoubleUniform(3.0, 10.0);
+      x_w2.z() = rng.DoubleUniform(-3.0, 3.0);
 
       // Make sure the points are different enough in 3D.
-      if ((x_w1 - x_w2).squaredNorm() < 500.0) {
+      if ((x_w1 - x_w2).squaredNorm() < 5.0) {
         continue;
       }
 

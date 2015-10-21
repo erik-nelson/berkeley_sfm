@@ -83,6 +83,30 @@ const Eigen::Matrix4d& Pose::Get() const {
   return Rt_;
 }
 
+// Get the transformation's rotation components.
+Eigen::Matrix3d Pose::Rotation() const {
+  return Rt_.block(0, 0, 3, 3);
+}
+
+// Get the transformation's translation components.
+Eigen::Vector3d Pose::Translation() const {
+  return Rt_.block(0, 3, 3, 1);
+}
+
+// Set the homogeneous transformation matrix.
+void Pose::Set(const Eigen::Matrix4d& transformation) {
+  Rt_ = transformation;
+}
+
+// Set rotation and translation directly.
+void Pose::SetRotation(const Eigen::Matrix3d& rotation) {
+  Rt_.block(0, 0, 3, 3) = rotation;
+}
+
+void Pose::SetTranslation(const Eigen::Vector3d& translation) {
+  Rt_.block(0, 3, 3, 1) = translation;
+}
+
 // Overloaded multiplication operator for composing two poses.
 Pose Pose::operator*(const Pose& other) const {
   Eigen::Matrix4d Rt_out = Rt_ * other.Rt_;
@@ -224,8 +248,8 @@ void Pose::Print() const {
 }
 
 // Get the relative transformation from this Pose to another one.
-Pose Pose::Delta(const Pose& other) const {
-  return this->Inverse() * other;
+Pose Pose::Delta(const Pose& rhs) const {
+  return this->Inverse() * rhs;
 }
 
 } // namespace bsfm

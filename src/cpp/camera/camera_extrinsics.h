@@ -42,10 +42,32 @@
 // http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
 //
 // The default camera frame is such that the camera stares down its own +Z axis.
-// +X and +Y are the camera's right-facing and upward-facing vectors in this
-// coordinate frame. The camera's +Z axis is the world -Y axis (and therefore
+// +X and +Y are the camera's right-facing and downward-facing vectors in this
+// coordinate frame. The camera's +Z axis is the world +Y axis (and therefore
 // world +X = camera +X). This convention can be seen in the static
 // DefaultWorldToCamera() member function.
+//
+//         Camera ---------> +Z  (camera facing this direction)
+//        /  |
+//       /   |
+//      /    |
+//     /     |
+//    v      v
+//   +X      +Y
+//
+//        +Z
+//         ^
+//         |
+//         |
+//         |
+//         |
+//       World -------->+Y
+//       /
+//      /
+//     /
+//    /
+//   v
+//   +X
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -71,10 +93,10 @@ public:
     //   world +Y --> camera +Z
     //   world +Z --> camera -Y
     Eigen::Matrix4d w2c;
-    w2c << 1, 0, 0, 0,
-           0, 0, 1, 0,
-           0,-1, 0, 0,
-           0, 0, 0, 1;
+    w2c << 1, 0,  0, 0,
+           0, 0, -1, 0,
+           0, 1,  0, 0,
+           0, 0,  0, 1;
     return Pose(w2c);
   }
 

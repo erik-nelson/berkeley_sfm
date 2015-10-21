@@ -48,7 +48,6 @@
 #define BSFM_GEOMETRY_FUNDAMENTAL_MATRIX_SOLVER_H
 
 #include <Eigen/Core>
-#include <glog/logging.h>
 #include <vector>
 
 #include "fundamental_matrix_solver_options.h"
@@ -60,21 +59,21 @@ namespace bsfm {
 class FundamentalMatrixSolver {
  public:
   FundamentalMatrixSolver() {}
-  virtual inline ~FundamentalMatrixSolver() {}
+  virtual ~FundamentalMatrixSolver() {}
 
   // Add data from one matched image pair.
-  virtual inline void AddMatchedImagePair(
+  virtual void AddMatchedImagePair(
       const PairwiseImageMatch& matched_image_data);
 
   // Add data from a set of matched image pairs.
-  virtual inline void AddMatchedImagePairs(
+  virtual void AddMatchedImagePairs(
       const PairwiseImageMatchList& matched_image_data);
 
   // Set options.
-  virtual inline void SetOptions(const FundamentalMatrixSolverOptions& options);
+  virtual void SetOptions(const FundamentalMatrixSolverOptions& options);
 
   // Compute the fundamental matrix for each image pair.
-  virtual inline bool ComputeFundamentalMatrices(
+  virtual bool ComputeFundamentalMatrices(
       std::vector<Eigen::Matrix3d>& fundamental_matrices);
 
   // Abstract method to compute the fundamental matrix for a single image pair.
@@ -97,56 +96,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(FundamentalMatrixSolver)
 
 };  //\class FundamentalMatrixSolver
-
-
-// ------------------- Implementation ------------------- //
-
-// Append two-view image match data to the list of image matches.
-void FundamentalMatrixSolver::AddMatchedImagePair(
-    const PairwiseImageMatch& matched_image_data) {
-  matched_image_data_.push_back(matched_image_data);
-}
-
-// Append a set of data from two-view image matchesto the list of image matches.
-void FundamentalMatrixSolver::AddMatchedImagePairs(
-    const PairwiseImageMatchList& matched_image_data) {
-  matched_image_data_.insert(matched_image_data_.end(),
-                             matched_image_data.begin(),
-                             matched_image_data.end());
-}
-
-void FundamentalMatrixSolver::SetOptions(
-    const FundamentalMatrixSolverOptions& options) {
-  options_ = options;
-}
-
-bool FundamentalMatrixSolver::ComputeFundamentalMatrices(
-    std::vector<Eigen::Matrix3d>& fundamental_matrices) {
-  // Clear the output.
-  fundamental_matrices.clear();
-
-  // Determine a fundamental matrix for each pair of images.
-  for (const auto& pair_data : matched_image_data_) {
-    Eigen::Matrix3d fundamental_matrix;
-    if (ComputeFundamentalMatrix(pair_data.feature_matches_,
-                                 fundamental_matrix)) {
-      fundamental_matrices.push_back(fundamental_matrix);
-    } else {
-      VLOG(1) << "Failed to compute funamental matrix between images "
-              << pair_data.image1_index_ << " and " << pair_data.image2_index_
-              << ".";
-    }
-  }
-
-  // Return whether or not we computed any fundamental matrices.
-  if (fundamental_matrices.empty()) {
-    VLOG(1) << "Unable to compute a fundamental matrix for any of the input "
-               "image pairs.";
-    return false;
-  }
-
-  return true;
-}
 
 }  //\namespace bsfm
 

@@ -89,9 +89,9 @@ TEST(Triangulation, TestTriangulateNoiseless) {
     Point3D point;
     while (!successfully_projected) {
       features.clear();
-      const double x = rng.DoubleUniform(-2.0, 2.2);
-      const double y = rng.DoubleUniform(-3.0, -2.0);
-      const double z = rng.DoubleUniform(-2.0, 2.0);
+      const double x = rng.DoubleUniform(-2.0, 4.0);
+      const double y = rng.DoubleUniform(3.0, 10.0);
+      const double z = rng.DoubleUniform(-3.0, 3.0);
 
       // Project the point into every camera.
       for (int ii = 0; ii < num_cameras; ++ii) {

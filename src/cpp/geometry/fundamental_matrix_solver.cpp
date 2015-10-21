@@ -35,46 +35,57 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// This class implements the eight-point algorithm, which determines the
-// fundamental matrix for a pair of cameras from a set of matched features in a
-// two-view image pair. The implementation follows slide 2 here:
-//
-// https://www8.cs.umu.se/kurser/TDBD19/VT05/reconstruct-4.pdf
-//
-// Or alternatively, pages 281-282 of Hartley and Zisserman, Multi-View Geometry
-// in Computer Vision.
-//
-///////////////////////////////////////////////////////////////////////////////
-
-#ifndef BSFM_GEOMETRY_EIGHT_POINT_ALGORITHM_SOLVER_H
-#define BSFM_GEOMETRY_EIGHT_POINT_ALGORITHM_SOLVER_H
-
-#include <Eigen/Core>
-
 #include "fundamental_matrix_solver.h"
-#include "../matching/feature_match.h"
-#include "../util/disallow_copy_and_assign.h"
+
+#include <glog/logging.h>
 
 namespace bsfm {
 
-class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
- public:
-  EightPointAlgorithmSolver() { }
-  virtual ~EightPointAlgorithmSolver() { }
+// Append two-view image match data to the list of image matches.
+void FundamentalMatrixSolver::AddMatchedImagePair(
+    const PairwiseImageMatch& matched_image_data) {
+  matched_image_data_.push_back(matched_image_data);
+}
 
-  // Use the eight point algorithm to compute the fundamental matrix for a set
-  // of features matched between two images.
-  virtual bool ComputeFundamentalMatrix(
-      const FeatureMatchList& matched_features,
-      Eigen::Matrix3d& fundamental_matrix) const;
+// Append a set of data from two-view image matchesto the list of image matches.
+void FundamentalMatrixSolver::AddMatchedImagePairs(
+    const PairwiseImageMatchList& matched_image_data) {
+  matched_image_data_.insert(matched_image_data_.end(),
+                             matched_image_data.begin(),
+                             matched_image_data.end());
+}
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(EightPointAlgorithmSolver)
+void FundamentalMatrixSolver::SetOptions(
+    const FundamentalMatrixSolverOptions& options) {
+  options_ = options;
+}
 
-};  //\class EightPointAlgorithmSolver
+bool FundamentalMatrixSolver::ComputeFundamentalMatrices(
+    std::vector<Eigen::Matrix3d>& fundamental_matrices) {
+  // Clear the output.
+  fundamental_matrices.clear();
+
+  // Determine a fundamental matrix for each pair of images.
+  for (const auto& pair_data : matched_image_data_) {
+    Eigen::Matrix3d fundamental_matrix;
+    if (ComputeFundamentalMatrix(pair_data.feature_matches_,
+                                 fundamental_matrix)) {
+      fundamental_matrices.push_back(fundamental_matrix);
+    } else {
+      VLOG(1) << "Failed to compute funamental matrix between images "
+              << pair_data.image1_index_ << " and " << pair_data.image2_index_
+              << ".";
+    }
+  }
+
+  // Return whether or not we computed any fundamental matrices.
+  if (fundamental_matrices.empty()) {
+    VLOG(1) << "Unable to compute a fundamental matrix for any of the input "
+               "image pairs.";
+    return false;
+  }
+
+  return true;
+}
 
 }  //\namespace bsfm
-
-#endif

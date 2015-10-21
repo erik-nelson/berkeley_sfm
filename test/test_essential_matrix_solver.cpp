@@ -81,8 +81,7 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   intrinsics.SetImageWidth(kImageWidth);
   intrinsics.SetImageHeight(kImageHeight);
   intrinsics.SetVerticalFOV(kVerticalFov);
-  intrinsics.SetFU(1.0);
-  intrinsics.SetFV(1.0);
+  intrinsics.SetFU(intrinsics.f_v());
   intrinsics.SetCU(0.5 * kImageWidth);
   intrinsics.SetCV(0.5 * kImageHeight);
 
@@ -96,9 +95,10 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   camera1.SetExtrinsics(extrinsics1);
   camera2.SetExtrinsics(extrinsics2);
 
-  // Translate the second camera along its X axis. Camera 2 will be 200.0 pixels
-  // to the right of camera 1.
-  camera2.MutableExtrinsics().TranslateX(1.0);
+  // Translate the second camera along its X, Y, and Z axes.
+  camera2.MutableExtrinsics().TranslateX(-2.0);
+  camera2.MutableExtrinsics().TranslateY(1.0);
+  camera2.MutableExtrinsics().TranslateZ(-1.0);
 
   // Create a bunch of points in 3D, project, and match.
   FeatureMatchList feature_matches;
@@ -106,9 +106,9 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
     // We have set the world to camera transform in camera 1 as the identity, so
     // just set the xy bounds to be approximately the image bounds and the
     // z bounds to be in front of camera 1.
-    const double x = rng.DoubleUniform(-2.0, 2.2);
-    const double y = rng.DoubleUniform(-2.0, 2.0);
-    const double z = rng.DoubleUniform(2.0, 3.0);
+    const double x = rng.DoubleUniform(-5.0, 3.0);
+    const double y = rng.DoubleUniform(3.0, 10.0);
+    const double z = rng.DoubleUniform(-4.0, 3.0);
 
     // Project the 3D point into each camera;
     double u1 = 0.0, v1 = 0.0;
@@ -125,8 +125,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
     FeatureMatch match;
     match.feature1_.u_ = u1;
     match.feature1_.v_ = v1;
-    match.feature2_.u_ = u1;
-    match.feature2_.v_ = v1;
+    match.feature2_.u_ = u2;
+    match.feature2_.v_ = v2;
     feature_matches.push_back(match);
   }
 
@@ -139,6 +139,17 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   Eigen::Matrix3d F;
   ASSERT_TRUE(ep_solver.ComputeFundamentalMatrix(feature_matches, F));
 
+  // Make sure the computed fundamental matrix is valid.
+  for (size_t ii = 0; ii < feature_matches.size(); ++ii) {
+    const double u1 = feature_matches[ii].feature1_.u_;
+    const double v1 = feature_matches[ii].feature1_.v_;
+    const double u2 = feature_matches[ii].feature2_.u_;
+    const double v2 = feature_matches[ii].feature2_.v_;
+    Eigen::Vector3d x1(u1, v1, 1);
+    Eigen::Vector3d x2(u2, v2, 1);
+    EXPECT_NEAR(0.0, x2.transpose() * F * x1, 1e-8);
+  }
+
   // Matches are noiseless so we shouldn't need RANSAC.
   // Try to get the essential matrix from the fundamental matrix.
   EssentialMatrixSolver e_solver;
@@ -147,114 +158,28 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
 
   // Extract the pose of camera 2 from E. This pose will be relative to the pose
   // of camera 1, so to test we will need the delta between cameras 1 and 2.
-  CameraExtrinsics computed_extrinsics;
+  Pose relative_pose;
   ASSERT_TRUE(
       e_solver.ComputeExtrinsics(E, feature_matches, camera1.Intrinsics(),
-                                 camera2.Intrinsics(), computed_extrinsics));
+                                 camera2.Intrinsics(), relative_pose));
 
   Pose c1(camera1.Rt());
   Pose c2(camera2.Rt());
   Pose delta = c1.Delta(c2);
 
-  std::cout << "Expected: " << std::endl << delta.Dehomogenize() << std::endl;
-  std::cout << "Actual: " << std::endl << computed_extrinsics.Rt() << std::endl;
+  // The translation for the delta we just computed is in world frame. Convert
+  // this delta translation to camera frame (change-of-basis). Note that the
+  // rotation is also in camera frame, but identity rotation is the same in any
+  // basis, so we don't need to convert the rotation to world coordinates.
+  Eigen::Matrix3d Rc = CameraExtrinsics::DefaultWorldToCamera().Rotation();
+  Eigen::Vector3d tc = CameraExtrinsics::DefaultWorldToCamera().Translation();
+  delta.SetTranslation(Rc * delta.Translation() + tc);
 
-  EXPECT_TRUE(delta.Dehomogenize().isApprox(computed_extrinsics.Rt(), 1e-4));
+  // E can only compute translation up to scale (this is why monocular has scale
+  // ambiguity).
+  delta.SetTranslation(delta.Translation().normalized());
+
+  EXPECT_TRUE(delta.IsApprox(relative_pose));
 }
-
-#if 0
-TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
-
-  // Start out by running ransac to get the fundamental matrix.
-
-  // Get some noisy feature matches.
-  math::RandomGenerator rng(0);
-
-  Image image1(test_image1.c_str());
-  Image image2(test_image2.c_str());
-
-  image1.Resize(0.25);
-  image2.Resize(0.25);
-
-  KeypointDetector detector;
-  detector.SetDetector("SIFT");
-
-  KeypointList keypoints1;
-  KeypointList keypoints2;
-  detector.DetectKeypoints(image1, keypoints1);
-  detector.DetectKeypoints(image2, keypoints2);
-
-  typedef typename ScaledL2Distance::Descriptor Descriptor;
-  DescriptorExtractor<float> extractor;
-  extractor.SetDescriptor("SIFT");
-
-  std::vector<Feature> features1;
-  std::vector<Feature> features2;
-  std::vector<Descriptor> descriptors1;
-  std::vector<Descriptor> descriptors2;
-  extractor.DescribeFeatures(image1, keypoints1, features1, descriptors1);
-  extractor.DescribeFeatures(image2, keypoints2, features2, descriptors2);
-
-  FeatureMatcherOptions matcher_options;
-  NaiveFeatureMatcher<ScaledL2Distance> feature_matcher;
-  feature_matcher.AddImageFeatures(features1, descriptors1);
-  feature_matcher.AddImageFeatures(features2, descriptors2);
-  PairwiseImageMatchList image_matches;
-  feature_matcher.MatchImages(matcher_options, image_matches);
-
-  ASSERT_TRUE(image_matches.size() == 1);
-
-  // RANSAC the feature matches to get inliers.
-  FundamentalMatrixRansacProblem problem;
-  problem.SetData(image_matches[0].feature_matches_);
-
-  // Create the ransac solver, set options, and run RANSAC on the problem.
-  Ransac<FeatureMatch, FundamentalMatrixRansacModel> solver;
-  RansacOptions ransac_options;
-
-  ransac_options.iterations = 50;
-  ransac_options.acceptable_error = 1e-2;
-  ransac_options.minimum_num_inliers = 20;
-  ransac_options.num_samples = 8;
-
-  solver.SetOptions(ransac_options);
-  solver.Run(problem);
-
-  ASSERT_TRUE(problem.SolutionFound());
-  const FeatureMatchList& inliers = problem.Inliers();
-  const Eigen::Matrix3d F = problem.Model().F_;
-
-  // Now, create camera intrinsics and calculate the essential matrix.
-  Camera cam;
-  CameraIntrinsics intrinsics;
-  intrinsics.SetImageLeft(0);
-  intrinsics.SetImageTop(0);
-  intrinsics.SetImageWidth(0.25 * kImageWidth);
-  intrinsics.SetImageHeight(0.25 * kImageHeight);
-  intrinsics.SetVerticalFOV(0.5 * kVerticalFov);
-
-  // Set f_u, f_v with iPhone 5 specs.
-  intrinsics.SetFU(0.25 * 4100.0 / 1.4);
-  intrinsics.SetFV(0.25 * 4100.0 / 1.4);
-  intrinsics.SetCU(0.25 * 0.5 * kImageWidth);
-  intrinsics.SetCV(0.25 * 0.5 * kImageHeight);
-
-  cam.SetIntrinsics(intrinsics);
-
-  // Now, given the fundamental matrix, calculate the essential matrix.
-  EssentialMatrixSolver essential_solver;
-  const Eigen::Matrix3d E = essential_solver.ComputeEssentialMatrix(
-      F, cam.Intrinsics(), cam.Intrinsics());
-
-  EXPECT_TRUE(
-      F.isApprox(cam.Intrinsics().K().transpose().inverse() * E *
-                 cam.Intrinsics().K().inverse()));
-
-  // Check that we can calculate extrinsics from the essential matrix.
-  CameraExtrinsics estimated_extrinsics;
-  EXPECT_TRUE(essential_solver.ComputeExtrinsics(
-      E, inliers, cam.Intrinsics(), cam.Intrinsics(), estimated_extrinsics));
-}
-#endif
 
 }  //\namespace bsfm

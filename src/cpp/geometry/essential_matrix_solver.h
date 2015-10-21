@@ -71,14 +71,14 @@ public:
                                   const CameraIntrinsics& intrinsics1,
                                   const CameraIntrinsics& intrinsics2);
 
-  // Compute camera extrinsics from an essential matrix and a list of keypoint matches.
-  // The extrinsics will be those of camera 2, assuming that camera 1 is located
-  // on (0, 0, 0) with identity rotation.
+  // Compute relative transformation between two cameras from an essential
+  // matrix and a list of keypoint matches. Note that the translation of the
+  // output relative transformation can only be computed up to a scale factor.
   bool ComputeExtrinsics(const Matrix3d& E,
                          const FeatureMatchList& matches,
                          const CameraIntrinsics& intrinsics1,
                          const CameraIntrinsics& intrinsics2,
-                         CameraExtrinsics& extrinsics);
+                         Pose& relative_pose);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(EssentialMatrixSolver)

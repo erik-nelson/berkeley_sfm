@@ -63,47 +63,45 @@ DEFINE_double(min_points_visible_ratio, 0.5,
 namespace bsfm {
 
 // Compute the essential matrix from a fundamental matrix and camera intrinsics.
-Eigen::Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(
-    const Eigen::Matrix3d& F, const CameraIntrinsics& intrinsics1,
+Matrix3d EssentialMatrixSolver::ComputeEssentialMatrix(
+    const Matrix3d& F, const CameraIntrinsics& intrinsics1,
     const CameraIntrinsics& intrinsics2) {
   // Extract intrinsics matrices.
-  Eigen::Matrix3d K1(intrinsics1.IntrinsicsMatrix());
-  Eigen::Matrix3d K2(intrinsics2.IntrinsicsMatrix());
+  Matrix3d K1(intrinsics1.IntrinsicsMatrix());
+  Matrix3d K2(intrinsics2.IntrinsicsMatrix());
 
   // Calculate the essential matrix.
   return K2.transpose() * F * K1;
 }
 
 // Compute camera extrinsics from an essential matrix and a list of keypoint matches.
+// The computed extrinsics are with respect to (0, 0, 0).
 // NOTE: this implementation is based on Hartley & Zisserman's MVG, pg. 258.
 bool EssentialMatrixSolver::ComputeExtrinsics(
-    const Eigen::Matrix3d& E, const FeatureMatchList& matches,
-    const CameraIntrinsics& this_camera_intrinsics,
-    const CameraIntrinsics& other_camera_intrinsics,
+    const Matrix3d& E, const FeatureMatchList& matches,
+    const CameraIntrinsics& intrinsics1, const CameraIntrinsics& intrinsics2,
     CameraExtrinsics& extrinsics) {
   // Initialize the W matrix.
   Eigen::Matrix3d W;
-  W <<
-    0.0, -1.0, 0.0,
-    1.0, 0.0, 0.0,
-    0.0, 0.0, 1.0;
+  W << 0.0, -1.0, 0.0,
+       1.0, 0.0, 0.0,
+       0.0, 0.0, 1.0;
 
   // Perform an SVD on the essential matrix.
-  Eigen::JacobiSVD<Eigen::Matrix3d> svd;
+  Eigen::JacobiSVD<Matrix3d> svd;
   svd.compute(E, Eigen::ComputeFullU | Eigen::ComputeFullV);
   if (!svd.computeU() || !svd.computeV()) {
     VLOG(1) << "Failed to compute a singular value decomposition of "
-	    << "the essential matrix.";
-    //    std::cout << "Failted to compute SVD for the essential matrix." << std::endl;
+            << "the essential matrix.";
     return false;
   }
 
   // Compute two possibilities for rotation and translation.
-  Eigen::Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();
-  Eigen::Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();
+  Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();
+  Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();
 
-  Eigen::Vector3d t1 = svd.matrixU().rightCols(1);
-  Eigen::Vector3d t2 = -svd.matrixU().rightCols(1);
+  Vector3d t1 = svd.matrixU().rightCols(1);
+  Vector3d t2 = -svd.matrixU().rightCols(1);
 
   // Ensure positive determinants.
   if (R1.determinant() < 0)
@@ -118,60 +116,49 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
   poses.push_back(Pose(R2, t1));
   poses.push_back(Pose(R2, t2));
 
-  Pose identity_pose;
-  CameraExtrinsics identity_extrinsics;
-  identity_extrinsics.SetWorldToCamera(identity_pose);
-  Camera other_camera(identity_extrinsics, other_camera_intrinsics);
+  // Set the other camera's position to identity in rotation and translation.
+  CameraExtrinsics extrinsics1;
+  extrinsics1.SetWorldToCamera(Pose());
+  Camera camera1(extrinsics1, intrinsics1);
 
   // Test how many points are in front of each pose and the identity pose.
-  int best_cnt = -1;
-  Pose best_pose, current_pose;
+  Pose best_pose;
+  int best_num_points = -1;
+
   double u = 0.0, v = 0.0;
+  for (int ii = 0; ii < poses.size(); ii++) {
+    int num_points = 0;
 
-  for (int i = 0; i < poses.size(); i++) {
-    int cnt = 0;
+    CameraExtrinsics extrinsics2;
+    extrinsics2.SetWorldToCamera(poses[ii]);
+    Camera camera2(extrinsics2, intrinsics2);
 
-    current_pose = poses[i];
-    CameraExtrinsics current_extrinsics;
-    current_extrinsics.SetWorldToCamera(current_pose);
-    Camera current_camera(current_extrinsics, this_camera_intrinsics);
-
-    for (int j = 0; j < matches.size(); j++) {
+    for (int jj = 0; jj < matches.size(); jj++) {
       // Triangulate points and test if the 3D estimate is in front of both
       // cameras.
-      Eigen::Vector3d pt3d =
-          current_camera.Triangulate(matches[j], other_camera);
+      Eigen::Vector3d pt3d = camera1.Triangulate(matches[jj], camera2);
 
-      if (current_camera.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v) &&
-          other_camera.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v))
-        cnt++;
+      if (camera1.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v) &&
+          camera2.WorldToImage(pt3d(0), pt3d(1), pt3d(2), &u, &v))
+        num_points++;
     }
 
-    std::cout << cnt << std::endl;
-
     // Update best_cnt and best_pose.
-    if (cnt > best_cnt) {
-      best_cnt = cnt;
-      best_pose = current_pose;
+    if (num_points > best_num_points) {
+      best_num_points = num_points;
+      best_pose = poses[ii];
     }
   }
 
   // Return with false if not enough points found in front of the cameras.
-  if (static_cast<double>(best_cnt) <
-      FLAGS_min_points_visible_ratio * static_cast<double>(matches.size())) {
+  if (best_num_points < FLAGS_min_points_visible_ratio * matches.size()) {
     VLOG(1) << "Did not find enough points in front of both cameras.";
-    std::printf("Did not find enough points in front of both cameras: %d / %d\n", best_cnt,
-		static_cast<int>(FLAGS_min_points_visible_ratio * static_cast<double>(matches.size())));
     return false;
   }
 
-  std::printf("Found %d / %d points in front of both cameras.\n", best_cnt,
-	      static_cast<int>(FLAGS_min_points_visible_ratio * static_cast<double>(matches.size())));
+  // Copy best pose to the camera extrinsics and return.
+  extrinsics.SetWorldToCamera(best_pose);
 
-  // Create camera extrinsics from the best pose and return.
-  CameraExtrinsics estimated_extrinsics;
-  estimated_extrinsics.SetWorldToCamera(best_pose);
-  extrinsics = estimated_extrinsics;
   return true;
 }
 

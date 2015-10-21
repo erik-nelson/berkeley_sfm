@@ -35,12 +35,12 @@
  *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
  */
 
+#include <geometry/essential_matrix_solver.h>
+
 #include <camera/camera.h>
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
 #include <geometry/eight_point_algorithm_solver.h>
-#include <image/drawing_utils.h>
-#include <image/image.h>
 #include <matching/feature_match.h>
 #include <matching/distance_metric.h>
 #include <matching/naive_feature_matcher.h>
@@ -49,39 +49,112 @@
 #include <ransac/fundamental_matrix_ransac_problem.h>
 #include <ransac/ransac.h>
 #include <ransac/ransac_options.h>
-#include <strings/join_filepath.h>
-
-#include <geometry/essential_matrix_solver.h>
 
 #include <Eigen/Core>
 #include <gtest/gtest.h>
 #include <gflags/gflags.h>
 
-DEFINE_string(essential_matrix_image1, "campanile_view1.jpg",
-              "Name of the first image used to test RANSAC feature matching.");
-DEFINE_string(essential_matrix_image2, "campanile_view2.jpg",
-              "Name of the second image used to test RANSAC feature matching.");
-
 namespace bsfm {
 
 namespace {
-const int kImageWidth = 3264.0;
-const int kImageHeight = 2448.0;
+const int kImageWidth = 1920;
+const int kImageHeight = 1080;
 const double kVerticalFov = 90.0 * M_PI / 180.0;
-const int kFeatureMatches = 500;
-const std::string test_image1 = strings::JoinFilepath(
-      BSFM_TEST_DATA_DIR, FLAGS_essential_matrix_image1.c_str());
-const std::string test_image2 = strings::JoinFilepath(
-      BSFM_TEST_DATA_DIR, FLAGS_essential_matrix_image2.c_str());
+const int kFeatureMatches = 20;
 } //\namespace
 
+
+TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
+
+  // Create a random number generator.
+  math::RandomGenerator rng(0);
+
+  // Create some noiseless feature matches by generating 3D points and
+  // projecting them into two cameras.
+  Camera camera1;
+  Camera camera2;
+
+  // Give the two cameras the same intrinsics.
+  CameraIntrinsics intrinsics;
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(kImageWidth);
+  intrinsics.SetImageHeight(kImageHeight);
+  intrinsics.SetVerticalFOV(kVerticalFov);
+  intrinsics.SetFU(intrinsics.f_v());
+  intrinsics.SetCU(0.5 * kImageWidth);
+  intrinsics.SetCV(0.5 * kImageHeight);
+
+  camera1.SetIntrinsics(intrinsics);
+  camera2.SetIntrinsics(intrinsics);
+
+  // Translate the second camera along its X axis. Camera 2 will be 200.0 pixels
+  // to the right of camera 1.
+  camera2.MutableExtrinsics().TranslateX(200.0);
+
+  // Create a bunch of points in 3D, project, and match.
+  FeatureMatchList feature_matches;
+  while (feature_matches.size() < kFeatureMatches) {
+    // Since the camera's +Z faces down the world's -Y direction, make the
+    // points back there somewhere. These will be in units of pixels.
+    const double x = rng.DoubleUniform(-2000.0, 2200.0);
+    const double y = rng.DoubleUniform(-3000.0, -2000.0);
+    const double z = rng.DoubleUniform(-2000.0, 2000.0);
+
+    // Project the 3D point into each camera;
+    double u1 = 0.0, v1 = 0.0;
+    double u2 = 0.0, v2 = 0.0;
+    const bool in_camera1 = camera1.WorldToImage(x, y, z, &u1, &v1);
+    const bool in_camera2 = camera2.WorldToImage(x, y, z, &u2, &v2);
+
+    // Make sure the point is visible to both cameras.
+    if (!(in_camera1 && in_camera2)) {
+      continue;
+    }
+
+    // Store this as a feature match.
+    FeatureMatch match;
+    match.feature1_.u_ = u1;
+    match.feature1_.v_ = v1;
+    match.feature2_.u_ = u1;
+    match.feature2_.v_ = v1;
+    feature_matches.push_back(match);
+  }
+
+  // Use the eight point algorithm to find the fundamental matrix for the set of
+  // points.
+  EightPointAlgorithmSolver ep_solver;
+  FundamentalMatrixSolverOptions options;
+  ep_solver.SetOptions(options);
+
+  Eigen::Matrix3d F;
+  ASSERT_TRUE(ep_solver.ComputeFundamentalMatrix(feature_matches, F));
+
+  // Matches are noiseless so we shouldn't need RANSAC.
+  // Try to get the essential matrix from the fundamental matrix.
+  EssentialMatrixSolver e_solver;
+  Eigen::Matrix3d E = e_solver.ComputeEssentialMatrix(F, camera1.Intrinsics(),
+                                                      camera2.Intrinsics());
+
+  // Extract the pose of camera 2 from E.
+  CameraExtrinsics computed_extrinsics;
+  ASSERT_TRUE(
+      e_solver.ComputeExtrinsics(E, feature_matches, camera1.Intrinsics(),
+                                 camera2.Intrinsics(), computed_extrinsics));
+
+  // The true and computed camera pose should be identical.
+  EXPECT_TRUE(camera2.Extrinsics().ExtrinsicsMatrix().isApprox(
+      computed_extrinsics.ExtrinsicsMatrix(), 1e-4));
+}
+
+#if 0
 TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
 
   // Start out by running ransac to get the fundamental matrix.
 
   // Get some noisy feature matches.
   math::RandomGenerator rng(0);
-  
+
   Image image1(test_image1.c_str());
   Image image2(test_image2.c_str());
 
@@ -167,5 +240,6 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixSolver) {
   EXPECT_TRUE(essential_solver.ComputeExtrinsics(
       E, inliers, cam.Intrinsics(), cam.Intrinsics(), estimated_extrinsics));
 }
+#endif
 
 }  //\namespace bsfm

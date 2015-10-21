@@ -56,6 +56,9 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Vector3d;
+
 class EssentialMatrixSolver {
 
 public:
@@ -64,15 +67,17 @@ public:
   ~EssentialMatrixSolver() {}
 
   // Compute the essential matrix from a fundamental matrix and camera intrinsics.
-  Eigen::Matrix3d ComputeEssentialMatrix(const Eigen::Matrix3d& F,
-                                         const CameraIntrinsics& intrinsics1,
-                                         const CameraIntrinsics& intrinsics2);
+  Matrix3d ComputeEssentialMatrix(const Matrix3d& F,
+                                  const CameraIntrinsics& intrinsics1,
+                                  const CameraIntrinsics& intrinsics2);
 
   // Compute camera extrinsics from an essential matrix and a list of keypoint matches.
-  bool ComputeExtrinsics(const Eigen::Matrix3d& E,
+  // The extrinsics will be those of camera 2, assuming that camera 1 is located
+  // on (0, 0, 0) with identity rotation.
+  bool ComputeExtrinsics(const Matrix3d& E,
                          const FeatureMatchList& matches,
-                         const CameraIntrinsics& this_camera_intrinsics,
-                         const CameraIntrinsics& other_camera_intrinsics,
+                         const CameraIntrinsics& intrinsics1,
+                         const CameraIntrinsics& intrinsics2,
                          CameraExtrinsics& extrinsics);
 
 private:

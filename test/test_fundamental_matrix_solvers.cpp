@@ -82,8 +82,8 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
   camera2.MutableExtrinsics().TranslateX(200.0);
 
   // Create a bunch of points in 3D.
-  PairwiseImageMatch match_data;
-  while (match_data.feature_matches_.size() < kFeatureMatches) {
+  PairwiseImageMatch image_match;
+  while (image_match.feature_matches_.size() < kFeatureMatches) {
     // Since the camera's +Z faces down the world's -Y
     // direction, make the points back there somewhere.
 
@@ -111,12 +111,12 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
     match.feature1_.v_ = v1;
     match.feature2_.u_ = u2;
     match.feature2_.v_ = v2;
-    match_data.feature_matches_.push_back(match);
+    image_match.feature_matches_.push_back(match);
   }
 
   // Use the solver to find the fundamental matrix for the two sets of points.
   EightPointAlgorithmSolver solver;
-  solver.AddMatchedImagePair(match_data);
+  solver.AddMatchedImagePair(image_match);
 
   // Test both with and without normalization.
   FundamentalMatrixSolverOptions options;
@@ -136,7 +136,7 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
     Eigen::Matrix3d F_unnormalized = fundamental_matrices2[0];
 
     // For every feature pair, we should have x1^{T}*F*x2 = 0.
-    for (const auto& match : match_data.feature_matches_) {
+    for (const auto& match : image_match.feature_matches_) {
       Eigen::Vector3d x1, x2;
       x1 << match.feature1_.u_, match.feature1_.v_, 1;
       x2 << match.feature2_.u_, match.feature2_.v_, 1;

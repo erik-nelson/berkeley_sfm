@@ -42,7 +42,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd eigen && hg update 3.2; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build && cd build; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../../..; fi
   - pwd
@@ -70,7 +70,7 @@ before_script:
     -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON
     -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF
     -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j8; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
   - pwd

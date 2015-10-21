@@ -135,12 +135,10 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
       // cameras.
       Point3D point;
       if (!Triangulate(matches[jj], camera1, camera2, point)) {
-        printf("FAILED to triangulate...\n");
         continue;
       }
 
       num_points++;
-      point.Print("Point triangulated to: ");
     }
 
     // Update best_cnt and best_pose.

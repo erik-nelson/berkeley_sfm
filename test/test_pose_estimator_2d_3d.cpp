@@ -109,7 +109,6 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
   estimator.Solve(calculated_pose);
 
   // TODO
-  calculated_pose.Print();
   EXPECT_EQ(0, 0);
 }
 

@@ -143,13 +143,13 @@ TEST(Camera, TestCameraIntrinsics) {
   // Camera to image on point in front of camera.
   cz = 3.0;
   EXPECT_TRUE(intrinsics.CameraToImage(cx, cy, cz, &u, &v));
-  EXPECT_FLOAT_EQ(0.25 * kImageHeight, v);
+  EXPECT_FLOAT_EQ(0.75 * kImageHeight, v);
   EXPECT_FLOAT_EQ(0.5 * kImageWidth, u);
 
   cx = -3.0;
   double expected_u = kImageWidth / 2.0 - intrinsics.f_u();
   EXPECT_TRUE(intrinsics.CameraToImage(cx, cy, cz, &u, &v));
-  EXPECT_FLOAT_EQ(0.25 * kImageHeight, v);
+  EXPECT_FLOAT_EQ(0.75 * kImageHeight, v);
   EXPECT_FLOAT_EQ(expected_u, u);
 }
 

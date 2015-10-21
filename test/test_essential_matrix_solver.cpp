@@ -59,7 +59,7 @@ namespace bsfm {
 namespace {
 const int kImageWidth = 1920;
 const int kImageHeight = 1080;
-const double kVerticalFov = 90.0 * M_PI / 180.0;
+const double kVerticalFov = 0.5 * M_PI;
 const int kFeatureMatches = 20;
 } //\namespace
 

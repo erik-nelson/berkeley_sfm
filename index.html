@@ -28,9 +28,14 @@
 <p>Berkeley SfM is a structure from motion library created to explore new solutions to challenging 3D reconstruction problems (large scale, indoors, incremental, homogeneously textured, etc.). It is developed by <strong>Erik Nelson</strong> and <strong>David Fridovich-Keil</strong>, members of the Berkeley Vision and Learning Center (<a href="http://bvlc.eecs.berkeley.edu">BVLC</a>).</p>
 
 <h2>
+<a id="status" class="anchor" href="#status" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status</h2>
+
+<p>This library is currently in development, and lacks most of the core components of a good SfM library. In other words, it doesn't do anything yet - Hang tight! We're both first-year PhD students developing this as a tool for our research, and are just getting started.</p>
+
+<h2>
 <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h2>
 
-<p>This repository is entirely written in C++, and is structured around the CMAKE cross-compilation paradigm. All source code is in the <code>berkeley_sfm/src/cpp/</code> directory. We have also written extensive unit tests, which are automatically compiled and tested in continuous integration. The source code for these tests is stored in the <code>berkeley_sfm/test/</code> directory, and the test executable will be compiled into <code>berkeley_sfm/bin/run_tests</code>.</p>
+<p>This repository is entirely written in C++, and is structured around the CMAKE cross-compilation paradigm. All source code is in the <code>berkeley_sfm/src/cpp/</code> directory. We have also written extensive unit tests, which are automatically compiled and tested in continuous integration. The source code for these tests is stored in the <code>berkeley_sfm/test/</code> directory, and the test executable will be compiled into <code>berkeley_sfm/build/run_tests</code>. Tests can be run using <code>make check</code>.</p>
 
 <h2>
 <a id="build-instructions" class="anchor" href="#build-instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build Instructions</h2>
@@ -38,6 +43,10 @@
 <p>We follow the standard CMAKE build scheme. Just download the repository and from the top directory type:</p>
 
 <div class="highlight highlight-source-shell"><pre>mkdir build <span class="pl-k">&amp;&amp;</span> <span class="pl-c1">cd</span> build <span class="pl-k">&amp;&amp;</span> cmake .. <span class="pl-k">&amp;&amp;</span> make</pre></div>
+
+<p>Optionally, to run tests:</p>
+
+<div class="highlight highlight-source-shell"><pre>make check</pre></div>
 
 <p>We have tested the build process on Mac OSX Yosemite and El Capitan, and on Ubuntu 14.04 Trusty. One difficulty we did encounter is the potential conflict between multiple copies of OpenCV on a system. For example, if you run Anaconda's (and/or Homebrew's) version of OpenCV it may not be compiled properly such that it will link to our repository. If you run into this problem, we suggest uninstalling all versions of OpenCV and rebuilding it from source with the default compiler on your system (not Homebrew's version of gcc/g++).</p>
 

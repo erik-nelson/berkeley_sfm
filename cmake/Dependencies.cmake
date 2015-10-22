@@ -25,11 +25,3 @@ list(APPEND berkeley_sfm_LIBRARIES ${GFLAGS_LIBRARIES})
 include("cmake/External/glog.cmake")
 include_directories(SYSTEM ${GLOG_INCLUDE_DIRS})
 list(APPEND berkeley_sfm_LIBRARIES ${GLOG_LIBRARIES})
-
-# Find OpenMP.
-find_package( OpenMP REQUIRED )
-if (OpenMP_FOUND)
-  list(APPEND CMAKE_C_FLAGS ${OpenMP_C_FLAGS})
-  list(APPEND CMAKE_CXX_FLAGS ${OpenMP_CXX_FLAGS})
-  list(APPEND CMAKE_EXE_LINKER_FLAGS ${OpenMP_EXE_LINKER_FLAGS})
-endif()

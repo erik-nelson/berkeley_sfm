@@ -32,8 +32,6 @@ install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config gcc; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --config g++; fi
-  - pwd
-  - ls
 
 before_script:
   # Get Eigen. The apt-get version on 12.04 is too old; we need at least 3.1.0.
@@ -42,22 +40,18 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd eigen && hg update 3.2; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build && cd build; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j4; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../../..; fi
-  - pwd
-  - ls
 
   # Get Ceres-solver. It's not available yet as an apt package.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then git clone https://ceres-solver.googlesource.com/ceres-solver; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ceres-solver; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then mkdir build && cd build; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release ..; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cmake -DCMAKE_BUILD_TYPE=Release -DOPENMP=OFF ..; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j4; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
-  - pwd
-  - ls
 
   # Get OpenCV. The apt-get version on 12.04 is too old; we need 2.4.
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX="g++-4.8"; fi
@@ -70,11 +64,9 @@ before_script:
     -DBUILD_opencv_video=OFF -DBUILD_opencv_objdetect=OFF -DBUILD_opencv_ml=OFF -DBUILD_opencv_flann=ON
     -DBUILD_opencv_gpu=OFF -DBUILD_opencv_photo=OFF -DBUILD_opencv_stitching=OFF -DBUILD_opencv_contrib=OFF
     -DBUILD_opencv_legacy=ON -DBUILD_opencv_ocl=OFF -DBUILD_opencv_superres=OFF -DBUILD_opencv_viz=OFF ..; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then make -j4; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo make install; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cd ../..; fi
-  - pwd
-  - ls
 
   # Configure and make Berkeley SfM.
   - mkdir build
@@ -82,8 +74,8 @@ before_script:
   - cmake -DCMAKE_BUILD_TYPE=Release ..
 
 script:
-  - make
-  - ./run_tests --gtest_filter=-EssentialMatrixSolver.TestEssentialMatrixNoiseless
+  - make -j8
+  - ./run_tests
 
 after_success:
   # Make and publish documentation.

@@ -127,13 +127,13 @@ bool PoseEstimator2D3D::ComputeInitialSolution(Matrix34d& initial_solution) {
   A.resize(points_2d_.size() * 2, 12);
   for (size_t ii = 0; ii < points_2d_.size(); ii++) {
     // Get (u, v) image-space point.
-    double u = points_2d_[ii].u_;
-    double v = points_2d_[ii].v_;
+    const double u = points_2d_[ii].u_;
+    const double v = points_2d_[ii].v_;
 
     // Get (x, y, z) world-space point.
-    double x = points_3d_[ii].X();
-    double y = points_3d_[ii].Y();
-    double z = points_3d_[ii].Z();
+    const double x = points_3d_[ii].X();
+    const double y = points_3d_[ii].Y();
+    const double z = points_3d_[ii].Z();
 
     // First 4 columns, top row of block.
     A(2*ii+0, 0) = 0;

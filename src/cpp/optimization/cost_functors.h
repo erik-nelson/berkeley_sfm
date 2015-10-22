@@ -45,7 +45,7 @@
 //
 // One can define more specific cost functions by adding other structure to the
 // functor, e.g. by passing in other parameters of the cost function to the
-// functor's  constructor.
+// functor's constructor.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +61,7 @@
 namespace bsfm {
 
 // Geometric projection error is the distance in image space between a point x,
-// and a projected point PX, where X is a 3D homogeneous (4x1) point, P is a
+// and a projected point PX, where X is a 3D homogeneous point (4x1), P is a
 // camera projection matrix (3x4), and x is the corresponding image-space point
 // expressed in homogeneous coordinates (3x1). The geometric error can be
 // expressed as sum_i d(x_i, PX_i)^2, where d( , ) is the Euclidean distance

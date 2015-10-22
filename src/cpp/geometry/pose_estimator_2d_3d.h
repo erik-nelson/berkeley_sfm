@@ -100,7 +100,9 @@ class PoseEstimator2D3D {
 
   // Uses the camera intrinsics (stored locally) to extract the camera pose from
   // the projection matrix P. This amounts to solving [R|t] = K^{-1} * P.
-  void ExtractPose(const Matrix34d& P, Pose& pose);
+  // Returns false if for some reason the computed pose has a rotation matrix
+  // with a determinant of 0, which is not a valid rotation matrix.
+  bool ExtractPose(const Matrix34d& P, Pose& pose);
 
   // Normalized versions of the inputs to the algorithm.
   FeatureList points_2d_;

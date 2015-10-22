@@ -43,7 +43,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <camera/camera_extrinsics.h>
+#include "camera/camera_extrinsics.h"
+
+#include "../geometry/rotation.h"
 
 namespace bsfm {
 
@@ -70,22 +72,65 @@ Pose CameraExtrinsics::CameraToWorld() const {
   return CameraExtrinsics::WorldToCamera().Inverse();
 }
 
+// For use in the following methods: From H&Z page 156, the extrinsics matrix
+// can be represented as
+//   [R -Rc]
+//   [0  1 ]
+// where c is the camera centroid. From this we get t = -Rc and c = -R't
+void CameraExtrinsics::SetRotation(const Eigen::Matrix3d& rotation) {
+  const Eigen::Vector3d t = world_to_camera_.Translation();
+  const Eigen::Matrix3d R = world_to_camera_.Rotation();
+  const Eigen::Vector3d c = -R.transpose() * t;
+
+  world_to_camera_.SetRotation(rotation);
+  world_to_camera_.SetTranslation(-rotation * c);
+}
+
+void CameraExtrinsics::SetRotation(double phi, double theta, double psi) {
+  SetRotation(EulerAnglesToMatrix(phi, theta, psi));
+}
+
+void CameraExtrinsics::Rotate(const Eigen::Matrix3d& delta) {
+  const Eigen::Matrix3d R = world_to_camera_.Rotation();
+  SetRotation(delta * R);
+}
+
+void CameraExtrinsics::Rotate(double dphi, double dtheta, double dpsi) {
+  Rotate(EulerAnglesToMatrix(dphi, dtheta, dpsi));
+}
+
+void CameraExtrinsics::SetTranslation(const Eigen::Vector3d& translation) {
+  const Eigen::Matrix3d R = world_to_camera_.Rotation();
+  world_to_camera_.SetTranslation(-R * translation);
+}
+
+void CameraExtrinsics::SetTranslation(double x, double y, double z) {
+  SetTranslation(Eigen::Vector3d(x, y, z));
+}
+
+void CameraExtrinsics::Translate(const Eigen::Vector3d& delta) {
+  const Eigen::Vector3d t = world_to_camera_.Translation();
+  const Eigen::Matrix3d R = world_to_camera_.Rotation();
+  Eigen::Vector3d c = -R.transpose() * t;
+
+  c += delta;
+  world_to_camera_.SetTranslation(-R*c);
+}
+
+void CameraExtrinsics::Translate(double dx, double dy, double dz) {
+  Translate(Eigen::Vector3d(dx, dy, dz));
+}
+
 void CameraExtrinsics::TranslateX(double dx) {
-  Eigen::Matrix4d t_x(Eigen::Matrix4d::Identity());
-  t_x(0, 3) = -dx;
-  world_to_camera_.Set(world_to_camera_.Get() * t_x);
+  Translate(Eigen::Vector3d(dx, 0, 0));
 }
 
 void CameraExtrinsics::TranslateY(double dy) {
-  Eigen::Matrix4d t_y(Eigen::Matrix4d::Identity());
-  t_y(1, 3) = -dy;
-  world_to_camera_.Set(world_to_camera_.Get() * t_y);
+  Translate(Eigen::Vector3d(0, dy, 0));
 }
 
 void CameraExtrinsics::TranslateZ(double dz) {
-  Eigen::Matrix4d t_z(Eigen::Matrix4d::Identity());
-  t_z(2, 3) = -dz;
-  world_to_camera_.Set(world_to_camera_.Get() * t_z);
+  Translate(Eigen::Vector3d(0, 0, dz));
 }
 
 // The extrinsics matrix is 3x4 matrix: [R | t].

@@ -46,6 +46,7 @@
 #include "essential_matrix_solver.h"
 
 #include <Eigen/Core>
+#include <Eigen/LU>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <vector>

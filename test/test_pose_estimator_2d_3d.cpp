@@ -40,6 +40,7 @@
 #include <camera/camera_intrinsics.h>
 #include <geometry/point_3d.h>
 #include <geometry/pose_estimator_2d_3d.h>
+#include <geometry/rotation.h>
 #include <matching/feature.h>
 #include <math/random_generator.h>
 
@@ -75,41 +76,65 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
   // Create a random number generator.
   math::RandomGenerator rng(0);
 
-  // Create a camera and shift it from the origin.
-  Camera camera;
-  CameraExtrinsics extrinsics;
-  extrinsics.TranslateX(2.0);
-  camera.SetIntrinsics(DefaultIntrinsics());
-  camera.SetExtrinsics(extrinsics);
+  for (int iter = 0; iter < 100; ++iter) {
+    // Create a camera and shift it from the origin.
+    double cx = rng.DoubleUniform(-2.0, 2.0);
+    double cy = rng.DoubleUniform(-2.0, 2.0);
+    double cz = rng.DoubleUniform(-2.0, 2.0);
 
-  // Randomly create a bunch of 3D points. The camera will be looking down the
-  // world's -Y direction, so make the points somewhere out there. Then project
-  // all the points into the camera
-  Point3DList points_3d;
-  FeatureList points_2d;
-  while (points_3d.size() < kNumPoints) {
-    double x = rng.DoubleUniform(-2.0, 4.0);
-    double y = rng.DoubleUniform(3.0, 10.0);
-    double z = rng.DoubleUniform(-3.0, 3.0);
+    // Wobble it around a little.
+    const double twenty_degrees = 0.11 * M_PI;
+    Eigen::Vector3d e_in;
+    e_in.setRandom();
+    e_in *= twenty_degrees;
+    const Eigen::Matrix3d R_in = EulerAnglesToMatrix(e_in);
 
+    Camera camera;
+    CameraExtrinsics extrinsics;
+    extrinsics.Rotate(R_in);
+    extrinsics.Translate(cx, cy, cz);
+    camera.SetExtrinsics(extrinsics);
+    camera.SetIntrinsics(DefaultIntrinsics());
 
-    // Project the point into the camera. No noise.
-    Feature point_2d;
-    double u = 0.0, v = 0.0;
-    if (camera.WorldToImage(x, y, z, &u, &v)) {
-      points_2d.emplace_back(u, v);
-      points_3d.emplace_back(x, y, z);
+    // Randomly create a bunch of 3D points. The camera will be looking down the
+    // world's -Y direction, so make the points somewhere out there. Then
+    // project
+    // all the points into the camera
+    Point3DList points_3d;
+    FeatureList points_2d;
+    while (points_3d.size() < kNumPoints) {
+      // Make some points out in front of the camea
+      double x = rng.DoubleUniform(-10.0, 10.0);
+      double y = rng.DoubleUniform(5.0, 20.0);
+      double z = rng.DoubleUniform(-10.0, 10.0);
+
+      // Project the point into the camera. No noise.
+      Feature point_2d;
+      double u = 0.0, v = 0.0;
+      if (camera.WorldToImage(x, y, z, &u, &v)) {
+        points_2d.emplace_back(u, v);
+        points_3d.emplace_back(x, y, z);
+      }
     }
+
+    // Now use the pose estimator to predict the camera pose.
+    PoseEstimator2D3D estimator;
+    estimator.Initialize(points_2d, points_3d, camera.Intrinsics());
+
+    Pose calculated_pose;
+    estimator.Solve(calculated_pose);
+
+    // Make sure we got the right rotation and translation. Extract camera
+    // center with c = -R' * t, and extract euler angles from R for comparison.
+    const Eigen::Matrix3d R_out = calculated_pose.Rotation();
+    const Eigen::Vector3d c =
+        -R_out.transpose() * calculated_pose.Translation();
+
+    EXPECT_NEAR(cx, c(0), 1e-4);
+    EXPECT_NEAR(cy, c(1), 1e-4);
+    EXPECT_NEAR(cz, c(2), 1e-4);
+    EXPECT_TRUE(extrinsics.Rt().block(0, 0, 3, 3).isApprox(R_out, 1e-4));
   }
-
-  // Now use the pose estimator to predict the camera pose.
-  PoseEstimator2D3D estimator;
-  estimator.Initialize(points_2d, points_3d, camera.Intrinsics());
-  Pose calculated_pose;
-  estimator.Solve(calculated_pose);
-
-  // TODO
-  EXPECT_EQ(0, 0);
 }
 
 }  //\namespace bsfm

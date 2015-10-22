@@ -52,8 +52,8 @@ PoseEstimator2D3D::PoseEstimator2D3D()
 PoseEstimator2D3D::~PoseEstimator2D3D() {}
 
 bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
-                                    const Point3DList& points_3d,
-                                    const CameraIntrinsics& intrinsics) {
+                                   const Point3DList& points_3d,
+                                   const CameraIntrinsics& intrinsics) {
   if (points_2d.size() != points_3d.size()) {
     VLOG(1) << "Inputs 'points_2d' and 'points_3d' do not contain the "
                "same number of elements.";
@@ -75,10 +75,7 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
     u = T_(0, 0) * u + T_(0, 2);
     v = T_(1, 1) * v + T_(1, 2);
 
-    Feature normalized;
-    normalized.u_ = u;
-    normalized.v_ = v;
-    points_2d_.push_back(normalized);
+    points_2d_.push_back(Feature(u, v));
   }
 
   points_3d_.clear();
@@ -91,11 +88,7 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
     y = U_(1, 1) * y + U_(1, 3);
     z = U_(2, 2) * z + U_(2, 3);
 
-    Point3D normalized;
-    normalized.SetX(x);
-    normalized.SetY(y);
-    normalized.SetZ(z);
-    points_3d_.push_back(normalized);
+    points_3d_.push_back(Point3D(x, y, z));
   }
 
   return true;
@@ -117,7 +110,10 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
   }
 
   // Get the camera pose from the computed projection matrix.
-  ExtractPose(P, camera_pose);
+  if (!ExtractPose(P_opt, camera_pose)) {
+    VLOG(1) << "Computed rotation is non-invertible.";
+    return false;
+  }
 
   return true;
 }
@@ -130,17 +126,14 @@ bool PoseEstimator2D3D::ComputeInitialSolution(Matrix34d& initial_solution) {
   MatrixXd A;
   A.resize(points_2d_.size() * 2, 12);
   for (size_t ii = 0; ii < points_2d_.size(); ii++) {
-    // Get (u, v) image-space point and normalize.
+    // Get (u, v) image-space point.
     double u = points_2d_[ii].u_;
     double v = points_2d_[ii].v_;
 
-    // Get (x, y, z) world-space point and normalize.
+    // Get (x, y, z) world-space point.
     double x = points_3d_[ii].X();
     double y = points_3d_[ii].Y();
     double z = points_3d_[ii].Z();
-    x = U_(0, 0) * x + U_(0, 3);
-    y = U_(1, 1) * y + U_(1, 3);
-    z = U_(2, 2) * z + U_(2, 3);
 
     // First 4 columns, top row of block.
     A(2*ii+0, 0) = 0;
@@ -188,7 +181,7 @@ bool PoseEstimator2D3D::ComputeInitialSolution(Matrix34d& initial_solution) {
   }
 
   // Get the projection matrix elements from the SVD decomposition.
-  const VectorXd P_vec = svd.matrixV().col(11);
+  const VectorXd P_vec = svd.matrixV().col(11).normalized();
 
   // Reshape the vector into the initial solution.
   initial_solution.row(0) = P_vec.topRows(4).transpose();
@@ -202,13 +195,14 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) {
   // Create the cost function.
   ceres::Problem problem;
 
-  // Create the output container;
-  double P[12];
-  memset(P, 0, sizeof(P));
+  // Create the output container and initialize with the least-squares solution.
+  double P[12] = {solution(0,0), solution(0,1), solution(0,2), solution(0,3),
+                  solution(1,0), solution(1,1), solution(1,2), solution(1,3),
+                  solution(2,0), solution(2,1), solution(2,2), solution(2,3)};
 
   // Set up the problem and solve it.
   const int kNumResiduals = 1;  // each correspondence generates 1 residual.
-  const int kNumVariables = 12;  // P has 12 elements.
+  const int kNumVariables = 1;  // only optimizing P.
 
   // Make a cost function for each correspondence using the
   // GeometricProjectionError cost functor.
@@ -223,19 +217,44 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) {
   options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
   ceres::Solve(options, &problem, &summary);
 
-  // std::cout << summary.FullReport() << std::endl;
+  // Store the solved variable back in 'solution'.
+  if (summary.IsSolutionUsable()) {
+    for (int row = 0; row < 3; ++row)
+      for (int col = 0; col < 4; ++col)
+        solution(row, col) = P[row * 4 + col];
+  }
+
   return summary.IsSolutionUsable();
 }
 
-void PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
+bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
   // Un-normalize the projection matrix.
-  Matrix34d P_unnormalized = T_.inverse() * P * U_;
+  const  Matrix34d P_unnormalized = T_.inverse() * P * U_;
 
   // Extract camera extrinsics matrix.
-  Matrix34d Rt = intrinsics_.Kinv() * P;
+  Matrix34d Rt = intrinsics_.Kinv() * P_unnormalized;
+
+  // [R|t] is only determined up to scale. To get this scale, note that det(R)
+  // must equal 1. Also note that for an nxn matrix, c^n*det(R) = det(cR).
+  // Use this property to scale our matrix.
+  double alpha = Rt.block(0, 0, 3, 3).determinant();
+  if (std::fabs(alpha) < 1e-8) {
+    LOG(WARNING) << "Computed rotation has a determinant of 0.";
+    return false;
+  }
+
+  // Make sure the determinant is positive.
+  if (alpha < 0.0) {
+    alpha *= -1.0;
+    Rt *= -1.0;
+  }
+
+  // Normalize the rotation and translation.
+  Rt *= std::powf(1.0 / alpha, 1.0 / 3.0);
 
   // Initialize the output pose from the rotation and translation blocks.
-  pose = Pose(Rt.block(0, 0, 3, 3), Rt.block(0, 3, 3, 1));
+  pose = Pose(Rt);
+  return true;
 }
 
 }  //\namespace bsfm

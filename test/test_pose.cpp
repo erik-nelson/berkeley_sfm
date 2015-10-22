@@ -39,6 +39,7 @@
 #include <gflags/gflags.h>
 #include <iostream>
 
+#include <geometry/rotation.h>
 #include <math/random_generator.h>
 #include <pose/pose.h>
 
@@ -78,34 +79,8 @@ TEST(Pose, TestPoseDelta) {
     const double psi2 = rng.DoubleUniform(-M_PI, M_PI);
 
     // Make 2 rotation matrices.
-    Eigen::Matrix3d Rx1, Ry1, Rz1, Rx2, Ry2, Rz2;
-    Rx1 <<  1,           0        ,  0          ,
-            0,           cos(phi1), -sin(phi1)  ,
-            0,           sin(phi1),  cos(phi1)  ;
-
-    Ry1 <<  cos(theta1), 0,          sin(theta1),
-            0,           1,          0          ,
-           -sin(theta1), 0,          cos(theta1);
-
-    Rz1 <<  cos(psi1),  -sin(psi1),  0          ,
-            sin(psi1),   cos(psi1),  0          ,
-            0        ,   0        ,  1          ;
-
-    Rx2 <<  1,           0        ,  0          ,
-            0,           cos(phi2), -sin(phi2)  ,
-            0,           sin(phi2),  cos(phi2)  ;
-
-    Ry2 <<  cos(theta2), 0,          sin(theta2),
-            0,           1,          0          ,
-           -sin(theta2), 0,          cos(theta2);
-
-    Rz2 <<  cos(psi2),  -sin(psi2),  0          ,
-            sin(psi2),   cos(psi2),  0          ,
-            0        ,   0        ,  1          ;
-
-
-    const Eigen::Matrix3d R1(Rz1*Ry1*Rx1);
-    const Eigen::Matrix3d R2(Rz2*Ry2*Rx2);
+    const Eigen::Matrix3d R1(EulerAnglesToMatrix(phi1, theta1, psi1));
+    const Eigen::Matrix3d R2(EulerAnglesToMatrix(phi2, theta2, psi2));
     const Eigen::Vector3d t1(Eigen::Vector3d::Random());
     const Eigen::Vector3d t2(Eigen::Vector3d::Random());
 

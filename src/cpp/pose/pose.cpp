@@ -36,8 +36,8 @@
  */
 
 #include <pose/pose.h>
-#include <camera/camera.h>
-#include <camera/camera_extrinsics.h>
+
+#include <iostream>
 
 namespace bsfm {
 
@@ -242,9 +242,12 @@ void Pose::TranslateZ(double dz) {
   Rt_(2, 3) += dz;
 }
 
-// Print to StdOut.
-void Pose::Print() const {
-  std::cout << "Pose matrix:\n" << Rt_ << std::endl;
+// Print matrix entries.
+void Pose::Print(const std::string& prefix) const {
+  if (!prefix.empty()) {
+    std::cout << prefix << std::endl;
+  }
+  std::cout << Rt_ << std::endl;
 }
 
 // Get the relative transformation from this Pose to another one.

@@ -40,7 +40,7 @@
 
 #include <Eigen/Dense>
 #include <glog/logging.h>
-#include <iostream>
+#include <string>
 
 namespace bsfm {
 
@@ -135,8 +135,8 @@ class Pose {
   // Get the relative transformation from this Pose to another one.
   Pose Delta(const Pose& rhs) const;
 
-  // Print to StdOut.
-  void Print() const;
+  // Print matrix entries.
+  void Print(const std::string& prefix = std::string()) const;
 
  private:
   Eigen::Matrix4d Rt_;  // 4x4 homogeneous Pose matrix

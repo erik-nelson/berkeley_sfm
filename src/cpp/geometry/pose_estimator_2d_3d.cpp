@@ -238,7 +238,7 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
   // must equal 1. Also note that for an nxn matrix, c^n*det(R) = det(cR).
   // Use this property to scale our matrix.
   double alpha = Rt.block(0, 0, 3, 3).determinant();
-  if (std::fabs(alpha) < 1e-8) {
+  if (std::abs(alpha) < 1e-8) {
     LOG(WARNING) << "Computed rotation has a determinant of 0.";
     return false;
   }
@@ -250,7 +250,7 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
   }
 
   // Normalize the rotation and translation.
-  Rt *= std::powf(1.0 / alpha, 1.0 / 3.0);
+  Rt *= std::pow(1.0 / alpha, 1.0 / 3.0);
 
   // Initialize the output pose from the rotation and translation blocks.
   pose = Pose(Rt);

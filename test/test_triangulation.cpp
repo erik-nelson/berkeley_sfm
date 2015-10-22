@@ -39,6 +39,7 @@
 #include <camera/camera_intrinsics.h>
 #include <camera/camera_extrinsics.h>
 #include <geometry/point_3d.h>
+#include <geometry/rotation.h>
 #include <geometry/triangulation.h>
 #include <matching/feature.h>
 #include <matching/feature_match.h>
@@ -70,14 +71,24 @@ TEST(Triangulation, TestTriangulateNoiseless) {
   intrinsics.SetCU(0.5 * kImageWidth);
   intrinsics.SetCV(0.5 * kImageHeight);
 
-  for (int num_cameras = 2; num_cameras < 20; ++num_cameras) {
+  for (int num_cameras = 2; num_cameras < 100; ++num_cameras) {
     // Create 'num_cameras' cameras.
     std::vector<Camera> cameras;
     for (int ii = 0; ii < num_cameras; ++ii) {
       Camera camera;
       CameraExtrinsics extrinsics;
-      extrinsics.TranslateX(2.0 - ii / 10.0);
 
+      // Shift the camera from the origin.
+      const double cx = rng.DoubleUniform(-2.0, 2.0);
+      const double cy = rng.DoubleUniform(-2.0, 2.0);
+      const double cz = rng.DoubleUniform(-2.0, 2.0);
+      extrinsics.SetTranslation(cx, cy, cz);
+
+      // Add some rotation (up to 20 degrees in roll, pitch, and yaw).
+      Eigen::Vector3d euler_angles;
+      euler_angles.setRandom();
+      euler_angles *= D2R(20.0);
+      extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));
       camera.SetExtrinsics(extrinsics);
       camera.SetIntrinsics(intrinsics);
       cameras.push_back(camera);
@@ -89,20 +100,23 @@ TEST(Triangulation, TestTriangulateNoiseless) {
     Point3D point;
     while (!successfully_projected) {
       features.clear();
-      const double x = rng.DoubleUniform(-2.0, 4.0);
-      const double y = rng.DoubleUniform(3.0, 10.0);
-      const double z = rng.DoubleUniform(-3.0, 3.0);
+      const double x = rng.DoubleUniform(-10.0, 10.0);
+      const double y = rng.DoubleUniform(5.0, 20.0);
+      const double z = rng.DoubleUniform(-10.0, 10.0);
 
       // Project the point into every camera.
+      bool in_all_cameras = true;
       for (int ii = 0; ii < num_cameras; ++ii) {
         double u = 0.0, v = 0.0;
         if (!cameras[ii].WorldToImage(x, y, z, &u, &v)) {
-          successfully_projected = false;
+          in_all_cameras = false;
           break;
         }
 
         features.push_back(Feature(u, v));
       }
+      if (!in_all_cameras)
+        continue;
 
       point = Point3D(x, y, z);
       successfully_projected = true;

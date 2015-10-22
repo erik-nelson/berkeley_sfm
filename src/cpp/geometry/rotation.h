@@ -79,13 +79,13 @@ double Yaw(const Eigen::Matrix3d& R);
 // Unroll an angle to be \in [0, 2*PI)
 double Unroll(double angle);
 
+// Normalize an angle to be \in [-PI, PI)
+double Normalize(double angle);
+
 // Computes the shortest distance between two angles on S^1.
 // Found by manipulating the first answer on:
 // stackoverflow.com/questions/1878907/the-smallest-difference-between-2-angles
 double S1Distance(double from, double to);
-
-// Normalize an angle to be \in [-PI, PI)
-double Normalize(double angle);
 
 // Convert from degrees to radians.
 double D2R(double angle);

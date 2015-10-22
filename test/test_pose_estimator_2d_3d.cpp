@@ -78,15 +78,14 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
 
   for (int iter = 0; iter < 100; ++iter) {
     // Create a camera and shift it from the origin.
-    double cx = rng.DoubleUniform(-2.0, 2.0);
-    double cy = rng.DoubleUniform(-2.0, 2.0);
-    double cz = rng.DoubleUniform(-2.0, 2.0);
+    const double cx = rng.DoubleUniform(-2.0, 2.0);
+    const double cy = rng.DoubleUniform(-2.0, 2.0);
+    const double cz = rng.DoubleUniform(-2.0, 2.0);
 
     // Wobble it around a little.
-    const double twenty_degrees = 0.11 * M_PI;
     Eigen::Vector3d e_in;
     e_in.setRandom();  // sets all elements to be \in (-1, 1).
-    e_in *= twenty_degrees;  // all angles are \in (-20, 20) degrees.
+    e_in *= D2R(20.0);  // all angles are \in (-20, 20) degrees.
     const Eigen::Matrix3d R_in = EulerAnglesToMatrix(e_in);
 
     Camera camera;
@@ -98,8 +97,7 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
 
     // Randomly create a bunch of 3D points. The camera will be looking down the
     // world's -Y direction, so make the points somewhere out there. Then
-    // project
-    // all the points into the camera
+    // project all the points into the camera
     Point3DList points_3d;
     FeatureList points_2d;
     while (points_3d.size() < kNumPoints) {

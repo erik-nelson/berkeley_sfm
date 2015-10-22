@@ -74,7 +74,7 @@ before_script:
   - cmake -DCMAKE_BUILD_TYPE=Release ..
 
 script:
-  - make -j8
+  - make -j4
   - ./run_tests
 
 after_success:

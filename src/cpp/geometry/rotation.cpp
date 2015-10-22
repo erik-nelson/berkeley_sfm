@@ -109,6 +109,7 @@ double Roll(const Eigen::Matrix3d& R) {
 }
 
 // Get pitch angle from a rotation matrix.
+// This solution is unique.
 double Pitch(const Eigen::Matrix3d& R) {
   return -std::asin(R(2, 0));
 }
@@ -161,8 +162,11 @@ double R2D(double angle) {
 // An error metric between two rotation matrices on SO3.
 double SO3Error(const Eigen::Matrix3d& R1, const Eigen::Matrix3d& R2) {
   const Eigen::Matrix3d R_error = R1.transpose()*R2 - R2.transpose()*R1;
-  const Eigen::Vector3d vee(R_error(2,1), R_error(0,2), R_error(1,0));
-  return (0.5 * vee).norm();
+
+  // 'vee' is the inverse of the hat operator, and extracts a vector from a
+  // cross-product matrix.
+  const Eigen::Vector3d R_vee(R_error(2,1), R_error(0,2), R_error(1,0));
+  return (0.5 * R_vee).norm();
 }
 
 }  //\namespace bsfm

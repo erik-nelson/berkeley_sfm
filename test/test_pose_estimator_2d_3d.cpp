@@ -85,8 +85,8 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
     // Wobble it around a little.
     const double twenty_degrees = 0.11 * M_PI;
     Eigen::Vector3d e_in;
-    e_in.setRandom();
-    e_in *= twenty_degrees;
+    e_in.setRandom();  // sets all elements to be \in (-1, 1).
+    e_in *= twenty_degrees;  // all angles are \in (-20, 20) degrees.
     const Eigen::Matrix3d R_in = EulerAnglesToMatrix(e_in);
 
     Camera camera;

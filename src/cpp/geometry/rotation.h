@@ -69,7 +69,7 @@ Eigen::Vector3d MatrixToEulerAngles(const Eigen::Matrix3d& R);
 double Roll(const Eigen::Matrix3d& R);
 
 // Get pitch angle from a rotation matrix.
-// Just like above, the solution is only unique if pitch < 0.5 * PI.
+// This solution is unique.
 double Pitch(const Eigen::Matrix3d& R);
 
 // Get yaw angle from a rotation matrix.

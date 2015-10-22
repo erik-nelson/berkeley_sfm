@@ -237,20 +237,20 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
   // [R|t] is only determined up to scale. To get this scale, note that det(R)
   // must equal 1. Also note that for an nxn matrix, c^n*det(R) = det(cR).
   // Use this property to scale our matrix.
-  double alpha = Rt.block(0, 0, 3, 3).determinant();
-  if (std::abs(alpha) < 1e-8) {
+  double det = Rt.block(0, 0, 3, 3).determinant();
+  if (std::abs(det) < 1e-8) {
     LOG(WARNING) << "Computed rotation has a determinant of 0.";
     return false;
   }
 
   // Make sure the determinant is positive.
-  if (alpha < 0.0) {
-    alpha *= -1.0;
+  if (det < 0.0) {
+    det *= -1.0;
     Rt *= -1.0;
   }
 
   // Normalize the rotation and translation.
-  Rt *= std::pow(1.0 / alpha, 1.0 / 3.0);
+  Rt *= std::pow(1.0 / det, 1.0 / 3.0);
 
   // Initialize the output pose from the rotation and translation blocks.
   pose = Pose(Rt);

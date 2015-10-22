@@ -109,7 +109,6 @@ double Roll(const Eigen::Matrix3d& R) {
 }
 
 // Get pitch angle from a rotation matrix.
-// Just like above, the solution will only be unique if pitch < 0.5 * PI.
 double Pitch(const Eigen::Matrix3d& R) {
   return -std::asin(R(2, 0));
 }

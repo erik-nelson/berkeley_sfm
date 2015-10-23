@@ -41,6 +41,8 @@
 int main(int argc, char** argv) {
   std::string log_file = BSFM_TEST_DATA_DIR + std::string("/out.log");
   google::SetLogDestination(0, log_file.c_str());
+  FLAGS_logtostderr = true;
+  FLAGS_minloglevel = 1;
   google::InitGoogleLogging(argv[0]);
   ::testing::InitGoogleTest(&argc, argv);
   LOG(INFO) << "Running all tests.";

@@ -57,18 +57,21 @@ struct Observation {
   typedef std::shared_ptr<Observation> Ptr;
   typedef std::shared_ptr<const Observation> ConstPtr;
 
-  Observation(const Camera& camera, const Feature& feature,
-              const Descriptor& descriptor)
-      : camera_(camera), feature_(feature), descriptor_(descriptor) {}
+  Observation(const Camera::ConstPtr& camera_ptr,
+              const Feature::ConstPtr& feature_ptr,
+              const std::shared_ptr<const Descriptor>& descriptor_ptr)
+      : camera_ptr_(camera_ptr),
+        feature_ptr_(feature_ptr),
+        descriptor_ptr_(descriptor_ptr) {}
 
   // The camera that saw this feature.
-  Camera camera_;
+  Camera::ConstPtr camera_ptr_;
 
   // A feature containing the (u, v) image space coordinates of the observation.
-  Feature feature_;
+  Feature::ConstPtr feature_ptr_;
 
   // A descriptor associated with the feature.
-  Descriptor descriptor_;
+  std::shared_ptr<const Descriptor> descriptor_ptr_;
 };  //\struct Observation
 
 }  //\namespace bsfm

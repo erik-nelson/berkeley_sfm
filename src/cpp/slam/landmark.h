@@ -77,7 +77,7 @@ class Landmark {
 
  private:
   Point3D position_;
-  std::vector<Observation::Ptr> observations_;
+  std::vector<Observation::ConstPtr> observations_;
   std::shared_ptr<Descriptor> descriptor_ptr_;
 
 };  //\class Landmark
@@ -85,11 +85,10 @@ class Landmark {
 
 // -------------------- Implementation -------------------- //
 
-// Constructore initializes position and covariance to zero and identity.
+// Constructore initializes position to zero.
 template <typename Descriptor>
 Landmark<Descriptor>::Landmark()
-    : position_(Point3D(0.0, 0.0, 0.0)),
-      covariance_(Covariance3D::Identity()) {}
+    : position_(Point3D(0.0, 0.0, 0.0)) {}
 
 // Create a new descriptor pointer, assuming the templated type has a copy ctor.
 template <typename Descriptor>
@@ -116,12 +115,6 @@ const Landmark<Descriptor>::Point3D& Position() const {
   return position_;
 }
 
-// Get covariance.
-template <typename Descriptor>
-const Landmark<Descriptor>::Covariance3D& Covariance() const {
-  return covariance_;
-}
-
 // Get observations.
 template <typename Descriptor>
 const std::vector<Observation::Ptr>& Landmark<Descriptor>::Observations()
@@ -140,7 +133,13 @@ const std::shared_ptr<Descriptor>& Landmark<Descriptor>::Descriptor() const {
 template <typename Descriptor>
 bool Landmark<Descriptor>::IncorporateObservation(
     const Observation::Ptr& observation) {
-  CHECK(observation != nullptr);
+  CHECK_NOTNULL(observation);
+
+  // If this is our first observation, store it and return.
+  if (observations_.empty()) {
+    observations_.push_back(observation);
+    descriptor_ = observation->descriptor_ptr_;
+  }
 
   // Triangulate the landmark's position after incorporating the new observation.
   std::vector<Camera> cameras;
@@ -162,6 +161,7 @@ bool Landmark<Descriptor>::IncorporateObservation(
   // observation.
   position_ = new_position;
   observations_.push_back(observation);
+
   return true;
 }
 

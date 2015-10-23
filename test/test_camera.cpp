@@ -130,7 +130,6 @@ TEST(Camera, TestCameraIntrinsics) {
 
   // Camera to image on point behind the camera.
   double cx = 0.0, cy = 1.5, cz = -1.0;
-  EXPECT_TRUE(!intrinsics.CameraToImage(cx, cy, cz, nullptr, nullptr));
   double u = 0.0, v = 0.0;
   EXPECT_TRUE(!intrinsics.CameraToImage(cx, cy, cz, &u, &v));
 

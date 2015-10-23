@@ -49,6 +49,8 @@
 
 #include "camera_intrinsics.h"
 
+#include <glog/logging.h>
+
 namespace bsfm {
 
 // Initialize to zero.
@@ -273,7 +275,8 @@ bool CameraIntrinsics::PointInImage(double u, double v) const {
 bool CameraIntrinsics::CameraToImage(double cx, double cy, double cz,
                                      double *u_distorted,
                                      double *v_distorted) const {
-  if (u_distorted == nullptr || v_distorted == nullptr) return false;
+  CHECK_NOTNULL(u_distorted);
+  CHECK_NOTNULL(v_distorted);
 
   // We can't project points that lie behind the camera.
   if (cz < 0.0) return false;
@@ -290,7 +293,8 @@ bool CameraIntrinsics::DirectionToImage(double u_normalized,
                                         double v_normalized,
                                         double *u_distorted,
                                         double *v_distorted) const {
-  if (u_distorted == nullptr || v_distorted == nullptr) return false;
+  CHECK_NOTNULL(u_distorted);
+  CHECK_NOTNULL(v_distorted);
 
   // Distort the normalized direction vector;
   double u = 0.0, v = 0.0;
@@ -313,7 +317,8 @@ bool CameraIntrinsics::DirectionToImage(double u_normalized,
 void CameraIntrinsics::ImageToDirection(double u_distorted, double v_distorted,
                                         double *u_normalized,
                                         double *v_normalized) const {
-  if (u_normalized == nullptr | v_normalized == nullptr) return;
+  CHECK_NOTNULL(u_normalized);
+  CHECK_NOTNULL(v_normalized);
 
   // Make a homogeneous image space point.
   Eigen::Vector3d p_distorted = Eigen::Vector3d();
@@ -330,7 +335,8 @@ void CameraIntrinsics::ImageToDirection(double u_distorted, double v_distorted,
 // Warp a point into the image.
 void CameraIntrinsics::Distort(double u, double v, double *u_distorted,
                                double *v_distorted) const {
-  if (u_distorted == nullptr | v_distorted == nullptr) return;
+  CHECK_NOTNULL(u_distorted);
+  CHECK_NOTNULL(v_distorted);
 
   // Get the camera's radial distortion (see OpenCV help page at the top of
   // this file).
@@ -361,7 +367,8 @@ void CameraIntrinsics::Distort(double u, double v, double *u_distorted,
 // Rectilinearize point.
 void CameraIntrinsics::Undistort(double u_distorted, double v_distorted,
                                  double *u, double *v, int iterations) const {
-  if (u == nullptr || v == nullptr) return;
+  CHECK_NOTNULL(u);
+  CHECK_NOTNULL(v);
 
   // Iteratively attempt to undo the radial distortion (see OpenCV help page
   // at the top of this file).

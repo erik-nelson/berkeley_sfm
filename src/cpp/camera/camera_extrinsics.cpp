@@ -141,7 +141,9 @@ Eigen::Matrix<double, 3, 4> CameraExtrinsics::Rt() const {
 // Convert a world frame point into the camera frame.
 void CameraExtrinsics::WorldToCamera(double wx, double wy, double wz,
                                      double* cx, double* cy, double* cz) const {
-  if (cx == nullptr || cy == nullptr || cz == nullptr) return;
+  CHECK_NOTNULL(cx);
+  CHECK_NOTNULL(cy);
+  CHECK_NOTNULL(cz);
 
   const Eigen::Vector4d w_h(wx, wy, wz, 1.0);
   const Eigen::Vector4d c_h = CameraExtrinsics::WorldToCamera().Project(w_h);
@@ -154,7 +156,9 @@ void CameraExtrinsics::WorldToCamera(double wx, double wy, double wz,
 // Convert a camera frame point into the world frame.
 void CameraExtrinsics::CameraToWorld(double cx, double cy, double cz,
                                      double* wx, double* wy, double* wz) const {
-  if (wx == nullptr || wy == nullptr || wz == nullptr) return;
+  CHECK_NOTNULL(wx);
+  CHECK_NOTNULL(wy);
+  CHECK_NOTNULL(wz);
 
   const Eigen::Vector4d c_h(cx, cy, cz, 1.0);
   const Eigen::Vector4d w_h = CameraExtrinsics::CameraToWorld().Project(c_h);

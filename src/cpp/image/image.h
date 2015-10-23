@@ -150,13 +150,13 @@ inline void EigenVecToOpenCV(
 
 template <typename T>
 T& Image::at(size_t u, size_t v) {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK_NOTNULL(image_.get());
   return image_->template at<T>(u, v);
 }
 
 template <typename T>
 const T& Image::at(size_t u, size_t v) const {
-  CHECK(image_ != nullptr) << "Image data is not allocated.";
+  CHECK_NOTNULL(image_.get());
   return image_->template at<T>(u, v);
 }
 

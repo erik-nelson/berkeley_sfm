@@ -5,4 +5,8 @@ foreach(executable ${executables})
   file(GLOB_RECURSE local_src ${CMAKE_SOURCE_DIR}/exec/${executable}/*.cpp)
   add_executable(${executable} ${local_src})
   target_link_libraries(${executable} berkeley_sfm ${berkeley_sfm_LIBRARIES})
+  bsfm_set_runtime_directory(${executable} ${EXECUTABLE_OUTPUT_PATH})
 endforeach()
+
+# Define a variable storing the path to executable directory.
+add_definitions(-DBSFM_EXEC_DIR="${CMAKE_SOURCE_DIR}/exec")

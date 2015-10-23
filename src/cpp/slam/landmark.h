@@ -51,7 +51,6 @@
 #include <vector>
 
 #include "observation.h"
-#include "../geometry/covariance_3d.h"
 #include "../geometry/point_3d.h"
 
 namespace bsfm {
@@ -69,16 +68,15 @@ class Landmark {
 
   // Accessors.
   const Point3D& Position() const;
-  const Covariance3D& Covariance() const;
   const std::vector<Observation::Ptr>& Observations() const;
   const std::shared_ptr<Descriptor>& Descriptor() const;
 
-  // Adding a new observation will update the estimated position and covariance.
-  void IncorporateObservation(const Observation::Ptr& observation);
+  // Adding a new observation will update the estimated position by
+  // re-triangulating the feature.
+  bool IncorporateObservation(const Observation::Ptr& observation);
 
  private:
   Point3D position_;
-  Covariance3D covariance_;
   std::vector<Observation::Ptr> observations_;
   std::shared_ptr<Descriptor> descriptor_ptr_;
 
@@ -137,11 +135,35 @@ const std::shared_ptr<Descriptor>& Landmark<Descriptor>::Descriptor() const {
   return descriptor_;
 }
 
-// Add a new observation, which will update position and covariance.
+// Adding a new observation will update the estimated position by
+// re-triangulating the feature.
 template <typename Descriptor>
-void Landmark<Descriptor>::IncorporateObservation(
+bool Landmark<Descriptor>::IncorporateObservation(
     const Observation::Ptr& observation) {
-  // TODO
+  CHECK(observation != nullptr);
+
+  // Triangulate the landmark's position after incorporating the new observation.
+
+  std::vector<Camera> cameras;
+  std::vector<Feature> features;
+  for (const auto& observation : observations_) {
+    cameras.push_back(observation->camera_);
+    features.push_back(observation->feature_);
+  }
+  cameras.push_back(observation->camera_);
+  features.push_back(observation->feature_);
+
+  Point3D new_position;
+  if (!Triangulate(features, cameras, new_position)) {
+    // Don't update the landmark's position.
+    return false;
+  }
+
+  // Successfully triangulated the landmark. Update its position and store this
+  // observation.
+  position_ = new_position;
+  observations_.push_back(observation);
+  return true;
 }
 
 }  //\namespace bsfm

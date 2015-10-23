@@ -37,8 +37,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// The Observation struct defines an observation of a feature from a specific
-// camera pose.
+// The Observation struct defines an observation of a feature (with associated
+// descriptor) from a specific camera view.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -47,20 +47,28 @@
 
 #include <memory>
 
+#include "../camera/camera.h"
 #include "../matching/feature.h"
 
 namespace bsfm {
 
+template <typename Descriptor>
 struct Observation {
   typedef std::shared_ptr<Observation> Ptr;
   typedef std::shared_ptr<const Observation> ConstPtr;
 
+  Observation(const Camera& camera, const Feature& feature,
+              const Descriptor& descriptor)
+      : camera_(camera), feature_(feature), descriptor_(descriptor) {}
+
+  // The camera that saw this feature.
+  Camera camera_;
+
   // A feature containing the (u, v) image space coordinates of the observation.
   Feature feature_;
 
-  // The frame index that the observation was seen from. This lets us associate
-  // observations with camera extrinsics.
-  long frame_index_;
+  // A descriptor associated with the feature.
+  Descriptor descriptor_;
 };  //\struct Observation
 
 }  //\namespace bsfm

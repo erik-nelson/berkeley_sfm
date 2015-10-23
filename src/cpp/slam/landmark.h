@@ -143,12 +143,11 @@ bool Landmark<Descriptor>::IncorporateObservation(
   CHECK(observation != nullptr);
 
   // Triangulate the landmark's position after incorporating the new observation.
-
   std::vector<Camera> cameras;
   std::vector<Feature> features;
-  for (const auto& observation : observations_) {
-    cameras.push_back(observation->camera_);
-    features.push_back(observation->feature_);
+  for (const auto& old_observation : observations_) {
+    cameras.push_back(old_observation->camera_);
+    features.push_back(old_observation->feature_);
   }
   cameras.push_back(observation->camera_);
   features.push_back(observation->feature_);

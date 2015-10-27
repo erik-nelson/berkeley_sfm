@@ -186,7 +186,7 @@ TEST_F(TestFeatures, TestAdaptiveAdjustment) {
 
   int adaptive_iterations = 100;
   math::RandomGenerator rng(0);
-  for (int ii = 0; ii < 1000; ii += 100) {
+  for (int ii = 1; ii < 1000; ii += 100) {
     // Set a random minimum and maximum number of features.
     int min_features = rng.IntegerUniform(0, ii);
     int max_features = rng.IntegerUniform(min_features+1, ii*2);

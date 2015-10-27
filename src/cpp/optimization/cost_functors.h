@@ -40,8 +40,9 @@
 // This file defines cost functors that can be used in conjunction with Google
 // Ceres solver to solve non-linear least-squares problems. Each functor must
 // define a public templated operator() method that takes in arguments const T*
-// const x, and T* residual, and returns a bool. 'x' will be the optimization
-// variable, and 'residual' will be the output cost.
+// const INPUT_VARIABLE, and T* OUTPUT_RESIDUAL, and returns a bool.
+// 'INPUT_VARIABLE' will be the optimization variable, and 'OUTPUT_RESIDUAL'
+// will be the cost associated with the input.
 //
 // One can define more specific cost functions by adding other structure to the
 // functor, e.g. by passing in other parameters of the cost function to the
@@ -60,36 +61,46 @@
 
 namespace bsfm {
 
-// Geometric projection error is the distance in image space between a point x,
-// and a projected point PX, where X is a 3D homogeneous point (4x1), P is a
-// camera projection matrix (3x4), and x is the corresponding image-space point
+// Geometric error is the distance in image space between a point x, and a
+// projected point PX, where X is a 3D homogeneous point (4x1), P is a camera
+// projection matrix (3x4), and x is the corresponding image-space point
 // expressed in homogeneous coordinates (3x1). The geometric error can be
 // expressed as sum_i d(x_i, PX_i)^2, where d( , ) is the Euclidean distance
 // metric.
-struct GeometricProjectionError {
+struct GeometricError {
   // We are trying to adjust our camera projection matrix, P, to satisfy
   // x - PX = 0. Input is a 2D point in image space ('x'), and a 3D point in
   // world space ('X').
   Feature x_;
   Point3D X_;
-  GeometricProjectionError(const Feature& x, const Point3D& X)
+  GeometricError(const Feature& x, const Point3D& X)
       : x_(x), X_(X) {}
 
   // Residual is 1-dimensional, P is 12-dimensional (number of elements in a
   // camera projection matrix).
   template <typename T>
-  bool operator()(const T* const P, T* residual) const {
+  bool operator()(const T* const P, T* geometric_error) const {
 
     // Matrix multiplication: x - PX. Assume homogeneous coordinates are 1.0.
-    T dx = x_.u_ - (P[0] * X_.X() + P[1] * X_.Y() + P[2] * X_.Z() + P[3] * 1.0);
-    T dy = x_.v_ - (P[4] * X_.X() + P[5] * X_.Y() + P[6] * X_.Z() + P[7] * 1.0);
-    T dw = 1.0 - (P[8] * X_.X() + P[9] * X_.Y() + P[10] * X_.Z() + P[11] * 1.0);
-
-    residual[0] = sqrt(dx*dx + dy*dy + dw*dw);
+    // Matrix P is stored in column-major order.
+    T scale = P[2] * X_.X() + P[5] * X_.Y() + P[8] * X_.Z() + P[11];
+    geometric_error[0] =
+       x_.u_ - (P[0] * X_.X() + P[3] * X_.Y() + P[6] * X_.Z() + P[9]) / scale;
+    geometric_error[1] =
+       x_.v_ - (P[1] * X_.X() + P[4] * X_.Y() + P[7] * X_.Z() + P[10]) / scale;
 
     return true;
   }
-};  //\struct GeometricProjectionError
+
+  // Factory method.
+  static ceres::CostFunction* Create(const Feature& x, const Point3D& X) {
+    static const int kNumResiduals = 2;
+    static const int kNumCameraParameters = 12;
+    return new ceres::AutoDiffCostFunction<GeometricError,
+           kNumResiduals,
+           kNumCameraParameters>(new GeometricError(x, X));
+  }
+};  //\struct GeometricError
 
 }  //\namespace bsfm
 

@@ -192,26 +192,19 @@ bool PoseEstimator2D3D::ComputeInitialSolution(Matrix34d& initial_solution) {
 }
 
 bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) {
-  // Create the cost function.
+  // Create the non-linear least squares problem and cost function.
   ceres::Problem problem;
 
-  // Create the output container and initialize with the least-squares solution.
-  double P[12] = {solution(0,0), solution(0,1), solution(0,2), solution(0,3),
-                  solution(1,0), solution(1,1), solution(1,2), solution(1,3),
-                  solution(2,0), solution(2,1), solution(2,2), solution(2,3)};
-
-  // Set up the problem and solve it.
-  const int kNumResiduals = 1;  // each correspondence generates 1 residual.
-  const int kNumVariables = 1;  // only optimizing P.
-
-  // Make a cost function for each correspondence using the
-  // GeometricProjectionError cost functor.
+  // Add a term to the cost function for each 2D<-->3D correspondence.
+  Matrix34d optimized_solution = solution;
   for (size_t ii = 0; ii < points_2d_.size(); ++ii) {
-    problem.AddResidualBlock(new ceres::AutoDiffCostFunction<
-                             GeometricProjectionError, kNumResiduals, kNumVariables>(
-        new GeometricProjectionError(points_2d_[ii], points_3d_[ii])), NULL, P);
+    problem.AddResidualBlock(
+        GeometricError::Create(points_2d_[ii], points_3d_[ii]),
+        NULL, /* squared loss */
+        optimized_solution.data());
   }
 
+  // Solve the non-linear least squares problem to get the projection matrix.
   ceres::Solver::Summary summary;
   ceres::Solver::Options options;
   options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
@@ -219,9 +212,7 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) {
 
   // Store the solved variable back in 'solution'.
   if (summary.IsSolutionUsable()) {
-    for (int row = 0; row < 3; ++row)
-      for (int col = 0; col < 4; ++col)
-        solution(row, col) = P[row * 4 + col];
+    solution = optimized_solution.normalized();
   }
 
   return summary.IsSolutionUsable();
@@ -238,7 +229,7 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
   // must equal 1. Also note that for an nxn matrix, c^n*det(R) = det(cR).
   // Use this property to scale our matrix.
   double det = Rt.block(0, 0, 3, 3).determinant();
-  if (std::abs(det) < 1e-8) {
+  if (std::abs(det) < 1e-16) {
     LOG(WARNING) << "Computed rotation has a determinant of 0.";
     return false;
   }

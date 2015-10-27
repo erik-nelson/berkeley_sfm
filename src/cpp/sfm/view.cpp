@@ -35,45 +35,66 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// The Observation struct defines an observation of a feature (with associated
-// descriptor) from a specific camera view.
-//
-///////////////////////////////////////////////////////////////////////////////
-
-#ifndef BSFM_SLAM_OBSERVATION_H
-#define BSFM_SLAM_OBSERVATION_H
-
-#include <memory>
-
-#include "../sfm/view.h"
-#include "../matching/feature.h"
+#include "view.h"
 
 namespace bsfm {
 
-template <typename Descriptor>
-struct Observation {
-  typedef std::shared_ptr<Observation> Ptr;
-  typedef std::shared_ptr<const Observation> ConstPtr;
+// Automatically initialize the View's frame index.
+View::View() : frame_index_(NextFrameIndex()) {}
 
-  Observation(const View::ConstPtr& view_ptr,
-              const Feature::ConstPtr& feature_ptr,
-              const std::shared_ptr<const Descriptor>& descriptor_ptr)
-      : view_ptr_(view_ptr),
-        feature_ptr_(feature_ptr),
-        descriptor_ptr_(descriptor_ptr) {}
+View::View(const class Camera& camera)
+    : frame_index_(NextFrameIndex()), camera_(camera) {}
 
-  // The view that this feature was observed from.
-  View::ConstPtr view_ptr_;
+// Copy constructor and assignment operator should not increment the frame
+// index.
+View::View(const View& other)
+    : camera_(other.camera_), frame_index_(other.frame_index_) {}
 
-  // A feature containing the (u, v) image space coordinates of the observation.
-  Feature::ConstPtr feature_ptr_;
+View& View::operator=(const View& other) {
+  // Check for self-assignment.
+  if (this == &other)
+    return *this;
 
-  // A descriptor associated with the feature.
-  std::shared_ptr<const Descriptor> descriptor_ptr_;
-};  //\struct Observation
+  // Copy data without changing frame index.
+  this->camera_ = other.camera_;
+  this->frame_index_ = other.frame_index_;
+  return *this;
+}
+
+void View::SetCamera(const class Camera& camera) {
+  camera_ = camera;
+}
+
+class Camera& View::MutableCamera() {
+  return camera_;
+}
+
+const class Camera& View::Camera() const {
+  return camera_;
+}
+
+unsigned int View::FrameIndex() const {
+  return frame_index_;
+}
+
+bool View::SortByFrameIndex(const View& lhs, const View& rhs) {
+  return lhs.FrameIndex() < rhs.FrameIndex();
+}
+
+bool View::SortByFrameIndexPtr(const View::Ptr& lhs, const View::Ptr& rhs) {
+  return lhs->FrameIndex()< rhs->FrameIndex();
+}
+
+bool View::SortByFrameIndexConstPtr(const View::ConstPtr& lhs,
+                                    const View::ConstPtr& rhs) {
+  return lhs->FrameIndex() < rhs->FrameIndex();
+}
+
+// Static method for determining the next frame index across all Views
+// constructed so far. This is called in the View constructor.
+unsigned int View::NextFrameIndex() {
+  static unsigned int current_frame_index = 0;
+  return current_frame_index++;
+}
 
 }  //\namespace bsfm
-
-#endif

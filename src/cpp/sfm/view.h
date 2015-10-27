@@ -37,42 +37,61 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// The Observation struct defines an observation of a feature (with associated
-// descriptor) from a specific camera view.
+// This View class models a camera at a specific frame index. On construction, a
+// view is given a unique frame index which cannot be changed. Copy and
+// assignment will copy the frame index, and will not create a new one.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_SLAM_OBSERVATION_H
-#define BSFM_SLAM_OBSERVATION_H
+#ifndef BSFM_SFM_VIEW_H
+#define BSFM_SFM_VIEW_H
 
 #include <memory>
 
-#include "../sfm/view.h"
-#include "../matching/feature.h"
+#include "../camera/camera.h"
 
 namespace bsfm {
 
-template <typename Descriptor>
-struct Observation {
-  typedef std::shared_ptr<Observation> Ptr;
-  typedef std::shared_ptr<const Observation> ConstPtr;
+class View {
+ public:
+  typedef std::shared_ptr<View> Ptr;
+  typedef std::shared_ptr<const View> ConstPtr;
 
-  Observation(const View::ConstPtr& view_ptr,
-              const Feature::ConstPtr& feature_ptr,
-              const std::shared_ptr<const Descriptor>& descriptor_ptr)
-      : view_ptr_(view_ptr),
-        feature_ptr_(feature_ptr),
-        descriptor_ptr_(descriptor_ptr) {}
+  // Constructors will automatically initialize the View's frame number.
+  View();
+  View(const Camera& camera);
+  ~View() {}
 
-  // The view that this feature was observed from.
-  View::ConstPtr view_ptr_;
+  // Copy constructor and assignment operator should not increment the frame
+  // index.
+  View(const View& other);
+  View& operator=(const View& other);
 
-  // A feature containing the (u, v) image space coordinates of the observation.
-  Feature::ConstPtr feature_ptr_;
+  // Get and set the camera.
+  void SetCamera(const class Camera& camera);
+  Camera& MutableCamera();
+  const class Camera& Camera() const;
 
-  // A descriptor associated with the feature.
-  std::shared_ptr<const Descriptor> descriptor_ptr_;
-};  //\struct Observation
+  // Get this view's frame index.
+  unsigned int FrameIndex() const;
+
+  // For sorting a list of views by their frame indices.
+  static bool SortByFrameIndex(const View& lhs, const View& rhs);
+  static bool SortByFrameIndexPtr(const View::Ptr& lhs, const View::Ptr& rhs);
+  static bool SortByFrameIndexConstPtr(const View::ConstPtr& lhs,
+                                       const View::ConstPtr& rhs);
+
+ private:
+  // Static method for determining the next frame index across all Views
+  // constructed so far. This is called in the View constructor.
+  static unsigned int NextFrameIndex();
+
+  // Includes intrinsics and extrinsics.
+  class Camera camera_;
+
+  // Provides an ordering on views.
+  unsigned int frame_index_;
+};  //\class View
 
 }  //\namespace bsfm
 

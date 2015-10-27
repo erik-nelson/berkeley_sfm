@@ -75,6 +75,9 @@ class Landmark {
   // re-triangulating the feature.
   bool IncorporateObservation(const Observation::Ptr& observation);
 
+  // Get the view that first saw this landmark.
+  View::ConstPtr SourceView() const;
+
  private:
   Point3D position_;
   std::vector<Observation::ConstPtr> observations_;
@@ -163,6 +166,15 @@ bool Landmark<Descriptor>::IncorporateObservation(
   observations_.push_back(observation);
 
   return true;
+}
+
+// Return the first view to observe this landmark.
+View::ConstPtr Landmark::SourceView() const {
+  if (observations_.empty()) {
+    return View::ConstPtr();
+  }
+
+  return observations_[0].view_ptr_;
 }
 
 }  //\namespace bsfm

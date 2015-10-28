@@ -68,10 +68,10 @@ typedef ::cv::Mat DescriptorList;
 
 // Keypoints contain (u, v) image-space coordinates.
 typedef ::cv::KeyPoint Keypoint;
-typedef std::vector<Keypoint> KeypointList;
+typedef ::std::vector<Keypoint> KeypointList;
 
-// Used to represent [R | t] and P, two matrices commonly used to represent
-// camera extrinsics and projections.
+// Used to represent [R | t] and P, the camera extrinsics and projection
+// matrices.
 typedef ::Eigen::Matrix<double, 3, 4> Matrix34d;
 
 }  //\namespace bsfm

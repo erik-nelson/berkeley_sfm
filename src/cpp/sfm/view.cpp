@@ -50,9 +50,7 @@ View::Ptr View::Create(const class Camera& camera) {
   View::Ptr view(new View(camera));
 
   // Register the view.
-  std::pair<unsigned int, View::Ptr> registry_element;
-  registry_element = std::make_pair(view->Index(), view);
-  view_registry_.insert(registry_element);
+  view_registry_.insert(std::make_pair(view->Index(), view));
 
   // Return the created view.
   return view;

@@ -48,6 +48,14 @@ void DistanceMetric::SetMetric(const Metric& metric) {
   metric_ = metric;
 }
 
+void DistanceMetric::SetMaximumDistance(double maximum_distance) {
+  maximum_distance_ = maximum_distance;
+}
+
+double DistanceMetric::Max() const {
+  return maximum_distance_;
+}
+
 double DistanceMetric::operator()(const Descriptor& descriptor1,
                                   const Descriptor& descriptor2) {
   double distance = 0.0;
@@ -80,8 +88,10 @@ bool DistanceMetric::MaybeNormalizeDescriptors(
 }
 
 // Hidden constructor.
-DistanceMetric::DistanceMetric() {
-  SetMetric(Metric::SCALED_L2);
+DistanceMetric::DistanceMetric()
+    : maximum_distance_(std::numeric_limits<double>::max()) {
+  // Set metric to the default argument of SetMetric(), defined in the header.
+  SetMetric();
 }
 
 double DistanceMetric::GetScaledL2Distance(

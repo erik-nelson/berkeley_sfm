@@ -71,6 +71,16 @@ struct FeatureMatcherOptions {
   // keep. Otherwise this option will not do anything.
   unsigned int num_best_matches = 100;
 
+  // Decide whether or not to enforce a maximum distance between descriptors.
+  // This is not usually necessary, as the lowes ratio test is generally
+  // sufficient.
+  bool enforce_maximum_descriptor_distance = false;
+
+  // The maximum tolerable distance between two descriptors to classify them as
+  // a match. This value will only be used if
+  // 'enforce_maximum_descriptor_distance' is true.
+  double maximum_descriptor_distance = 1.0;
+
 };  //\struct FeatureMatcherOptions
 
 }  //\namespace bsfm

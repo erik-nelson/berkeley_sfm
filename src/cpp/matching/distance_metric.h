@@ -48,6 +48,7 @@
 
 #include <Eigen/Core>
 #include <glog/logging.h>
+#include <limits>
 
 #include "../util/disallow_copy_and_assign.h"
 #include "../util/types.h"
@@ -67,6 +68,23 @@ class DistanceMetric {
 
   // Set distance metric type.
   void SetMetric(const Metric& metric = Metric::SCALED_L2);
+
+  // Set a maximum tolerable distance between two descriptors. This is not
+  // required, but is useful for comparisons like:
+  //
+  // DistanceMetric& distance = DistanceMetric::Instance();
+  // if (distance(descriptor1, descriptor2) < DistanceMetric::Max()) {
+  //    // This is a good match.
+  //  }
+  //
+  //  By default, a maximum distance is set to infinity, so if this function is
+  //  not called, distance(descriptor1, descriptor2) < DistanceMetric::Max()
+  //  will always evaluate to true.
+  void SetMaximumDistance(double maximum_distance);
+
+  // Returns the maximum tolerable distance between two descriptors. If this
+  // value has not been set with 'SetMaximumDistance', returns 0.
+  double Max() const;
 
   // Functor method computes distance between two input descriptors.
   double operator()(const Descriptor& descriptor1,
@@ -97,6 +115,11 @@ class DistanceMetric {
 
   // The distance metric that will be used.
   Metric metric_;
+
+  // A maximum tolerable distance between two descriptors. Defaults to
+  // std::numeric_limits<double>::max(), which would imply that all descriptors
+  // match to one another.
+  double maximum_distance_;
 
 };  //\class DistanceMetric
 

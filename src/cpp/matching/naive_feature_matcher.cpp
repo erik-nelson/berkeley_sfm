@@ -113,12 +113,22 @@ void NaiveFeatureMatcher::ComputePutativeMatches(
   // Get the singletone distance metric for descriptor comparison.
   DistanceMetric& distance = DistanceMetric::Instance();
 
+  // Set the maximum tolerable distance between descriptors, if applicable.
+  if (options_.enforce_maximum_descriptor_distance) {
+    distance.SetMaximumDistance(options_.maximum_descriptor_distance);
+  }
+
   // Store all matches and their distances.
   for (size_t ii = 0; ii < descriptors1.size(); ++ii) {
     LightFeatureMatchList one_way_matches;
     for (size_t jj = 0; jj < descriptors2.size(); ++jj) {
       double dist = distance(descriptors1[ii], descriptors2[jj]);
-      one_way_matches.emplace_back(ii, jj, dist);
+
+      // If max distance was not set above, distance.Max() will be infinity and
+      // this will always be true.
+      if (dist < distance.Max()) {
+        one_way_matches.emplace_back(ii, jj, dist);
+      }
     }
 
     // Store the best match for this element of features2.

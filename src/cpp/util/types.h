@@ -46,6 +46,7 @@
 
 #include <Eigen/Core>
 #include <opencv2/features2d/features2d.hpp>
+#include <limits>
 #include <vector>
 
 namespace bsfm {
@@ -56,6 +57,14 @@ namespace bsfm {
 // and can be accessed with View::GetView(ViewIndex index).
 typedef unsigned int ViewIndex;
 
+// Each LandmarkIndex corresponds to a unique Landmark that is constructed at
+// runtime and can be accessed with Landmark::GetLandmark(LandmarkIndex index).
+typedef unsigned int LandmarkIndex;
+
+// Designate some invalid indices.
+static constexpr ViewIndex kInvalidView = std::numeric_limits<ViewIndex>::max();
+static constexpr LandmarkIndex kInvalidLandmark =
+    std::numeric_limits<LandmarkIndex>::max();
 
 
 // -------------------- Third-party typedefs -------------------- //
@@ -69,6 +78,9 @@ typedef ::cv::Mat DescriptorList;
 // Keypoints contain (u, v) image-space coordinates.
 typedef ::cv::KeyPoint Keypoint;
 typedef ::std::vector<Keypoint> KeypointList;
+
+// Descriptors are dynamically sized vectors of doubles.
+typedef ::Eigen::Matrix<double, Eigen::Dynamic, 1> Descriptor;
 
 // Used to represent [R | t] and P, the camera extrinsics and projection
 // matrices.

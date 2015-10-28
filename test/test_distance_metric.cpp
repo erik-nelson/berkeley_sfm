@@ -37,6 +37,7 @@
 
 #include <matching/distance_metric.h>
 #include <math/random_generator.h>
+#include <util/types.h>
 
 #include <Eigen/Core>
 #include <gtest/gtest.h>
@@ -52,10 +53,10 @@ namespace bsfm {
 //
 // Also test for the correct value.
 
-TEST(ScaledL2Distance, TestSymmetry) {
-  // Create a distance metric.
-  ScaledL2Distance distance;
-  typedef typename ScaledL2Distance::Descriptor Descriptor;
+TEST(DistanceMetric, TestSymmetryScaledL2) {
+  // Set the distance metric type.
+  DistanceMetric& distance = DistanceMetric::Instance();
+  distance.SetMetric(DistanceMetric::Metric::SCALED_L2);
 
   Descriptor descriptor1(64);
   Descriptor descriptor2(64);
@@ -69,10 +70,10 @@ TEST(ScaledL2Distance, TestSymmetry) {
   }
 }
 
-TEST(ScaledL2Distance, TestPositiveDefiniteness) {
-  // Create a distance metric.
-  ScaledL2Distance distance;
-  typedef typename ScaledL2Distance::Descriptor Descriptor;
+TEST(DistanceMetric, TestPositiveDefinitenessScaledL2) {
+  // Set the distance metric type.
+  DistanceMetric& distance = DistanceMetric::Instance();
+  distance.SetMetric(DistanceMetric::Metric::SCALED_L2);
 
   Descriptor descriptor1(64);
   for (int ii = 0; ii < 1000; ++ii) {
@@ -83,10 +84,10 @@ TEST(ScaledL2Distance, TestPositiveDefiniteness) {
   }
 }
 
-TEST(ScaledL2Distance, TestValue) {
-  // Create a distance metric.
-  ScaledL2Distance distance;
-  typedef typename ScaledL2Distance::Descriptor Descriptor;
+TEST(DistanceMetric, TestValueScaledL2) {
+  // Set the distance metric type.
+  DistanceMetric& distance = DistanceMetric::Instance();
+  distance.SetMetric(DistanceMetric::Metric::SCALED_L2);
 
   Descriptor descriptor1(64);
   Descriptor descriptor2(64);
@@ -102,10 +103,10 @@ TEST(ScaledL2Distance, TestValue) {
 // For Hamming distance, test for symmetry, and also check that two binary
 // descriptors have a large distance when they have 0 matches, and have a 0
 // distance when they match exactly.
-TEST(HammingDistance, TestSymmetry) {
-  // Create a distance metric.
-  HammingDistance distance;
-  typedef typename HammingDistance::Descriptor Descriptor;
+TEST(DistanceMetric, TestSymmetryHamming) {
+  // Set the distance metric type.
+  DistanceMetric& distance = DistanceMetric::Instance();
+  distance.SetMetric(DistanceMetric::Metric::HAMMING);
 
   Descriptor descriptor1(32);
   Descriptor descriptor2(32);
@@ -119,10 +120,10 @@ TEST(HammingDistance, TestSymmetry) {
   }
 }
 
-TEST(HammingDistance, TestValue) {
-  // Create a distance metric.
-  HammingDistance distance;
-  typedef typename HammingDistance::Descriptor Descriptor;
+TEST(DistanceMetric, TestValueHamming) {
+  // Set the distance metric type.
+  DistanceMetric& distance = DistanceMetric::Instance();
+  distance.SetMetric(DistanceMetric::Metric::HAMMING);
 
   Descriptor descriptor1(32);
   Descriptor descriptor2(32);
@@ -132,7 +133,9 @@ TEST(HammingDistance, TestValue) {
 
     int expected_dist = 0;
     for (int jj = 0; jj < 32; ++jj) {
-      expected_dist += descriptor1(jj) ^ descriptor2(jj);
+      unsigned char d1 = static_cast<unsigned char>(descriptor1(jj));
+      unsigned char d2 = static_cast<unsigned char>(descriptor2(jj));
+      expected_dist += d1 ^ d2;
     }
     EXPECT_EQ(expected_dist, distance(descriptor1, descriptor2));
   }

@@ -37,70 +37,68 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This file defines distance metrics that can be used to compare feature
-// descriptors to one another to e.g. find the closest match between images.
-// Each distance metric struct should be a functor, defining three members:
-//
-// 1) A typedef'd Descriptor type.
-// 2) operator(), which operates on two Descriptor types to compute a distance.
-// 3) A 'MaybeNormalizeDescriptors' static method.
+// The DistanceMetric class defines a singleton that computes distances between
+// two descriptors. The descriptor and distance metric have global access via
+// the DistanceMetric::Instance() method.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef BSFM_MATCHING_DISTANCE_METRIC_H
 #define BSFM_MATCHING_DISTANCE_METRIC_H
 
-#include "descriptor_extractor.h"
-
 #include <Eigen/Core>
 #include <glog/logging.h>
 
+#include "../util/disallow_copy_and_assign.h"
+#include "../util/types.h"
+
 namespace bsfm {
 
-// Compute the L2 norm of the difference between two descriptor vectors. If both
-// descriptors have unit length, the L2 norm is equal to 2*(1-x.y). Since all
-// distances are computed this way, we can drop the leading 2*. The L2 norm
-// induces an inner product space over R^{n}, and we can test as such.
-struct ScaledL2Distance {
-  // Descriptor type that the ScaledL2Distance functor operates on.
-  typedef Eigen::VectorXf Descriptor;
+class DistanceMetric {
+ public:
+  // Possible metrics.
+  enum Metric {
+    SCALED_L2,
+    HAMMING
+  };
 
-  // Functor method.
-  float operator()(const Descriptor& descriptor1,
-                   const Descriptor& descriptor2) {
-    CHECK_EQ(descriptor1.size(), descriptor2.size());
-    return 1.0f - descriptor1.dot(descriptor2);
-  }
+  // Get the singleton instance of the distance metric.
+  static DistanceMetric& Instance();
 
-  // Descriptors need normalization.
-  static bool MaybeNormalizeDescriptors(std::vector<Descriptor>& descriptors) {
-    for (auto& descriptor : descriptors) {
-      descriptor.normalize();
-    }
-    return true;
-  }
-};  //\struct ScaledL2Distance
+  // Set distance metric type.
+  void SetMetric(const Metric& metric = Metric::SCALED_L2);
 
-// Compute the Hamming distance between two binary descriptor vectors. This is
-// the number of bits that are in disagreement (i.e. bit1 ^ bit2 == 1).
-struct HammingDistance {
-  // Descriptor type that the HammingDistance functor operates on.
-  typedef Eigen::Matrix<unsigned char, Eigen::Dynamic, 1> Descriptor;
+  // Functor method computes distance between two input descriptors.
+  double operator()(const Descriptor& descriptor1,
+                    const Descriptor& descriptor2);
 
-  // Functor method.
-  int operator()(const Descriptor& descriptor1, const Descriptor& descriptor2) {
-    CHECK_EQ(descriptor1.size(), descriptor2.size());
-    int sum = 0;
-    for (size_t ii = 0; ii < descriptor1.size(); ++ii)
-      sum += descriptor1(ii) ^ descriptor2(ii);
-    return sum;
-  }
+  // Depending on the distance metric used, normalize descriptors.
+  bool MaybeNormalizeDescriptors(std::vector<Descriptor>& descriptors) const;
 
-  // Descriptors don't need normalization.
-  static bool MaybeNormalizeDescriptors(std::vector<Descriptor>& descriptors) {
-    return false;
-  }
-};  //\struct HammingDistance
+ private:
+  // Ensure that DistanceMetric is a singleton.
+  DISALLOW_COPY_AND_ASSIGN(DistanceMetric)
+  DistanceMetric();
+
+  // Compute the L2 norm of the difference between two descriptor vectors. If both
+  // descriptors have unit length, the L2 norm is equal to 2*(1-x.y). Since all
+  // distances are computed this way, we can drop the leading 2*. The L2 norm
+  // induces an inner product space over R^{n}, and we can test as such.
+  double GetScaledL2Distance(const Descriptor& descriptor1,
+                             const Descriptor& descriptor2) const;
+
+  // Compute the Hamming distance between two binary descriptor vectors. This is
+  // the number of bits that are in disagreement (i.e. bit1 ^ bit2 == 1).
+  double GetHammingDistance(const Descriptor& descriptor1,
+                            const Descriptor& descriptor2) const;
+
+  // Normalize all input descriptor vectors.
+  void NormalizeDescriptors(std::vector<Descriptor>& descriptors) const;
+
+  // The distance metric that will be used.
+  Metric metric_;
+
+};  //\class DistanceMetric
 
 }  //\namespace bsfm
 

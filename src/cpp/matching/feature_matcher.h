@@ -38,11 +38,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // This class defines a base class for feature matching. A derived class should
-// be used to implement the specific feature matching strategy. The feature
-// matcher is templated by a distance metric that will be used to compare
-// distances between descriptor vectors. All matching strategies will attempt to
-// do pairwise matches between all pairs of images. This is slow, with O(n^2) in
-// the number of images.
+// be used to implement the specific feature matching strategy.  All matching
+// strategies will attempt to do pairwise matches between all pairs of input
+// images. This is slow, with O(n^2) in the number of images.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -53,24 +51,19 @@
 
 #include <glog/logging.h>
 
-#include "../image/image.h"
-#include "../util/disallow_copy_and_assign.h"
-
 #include "distance_metric.h"
 #include "feature.h"
 #include "feature_matcher_options.h"
 #include "pairwise_image_match.h"
 
+#include "../image/image.h"
+#include "../util/disallow_copy_and_assign.h"
+#include "../util/types.h"
+
 namespace bsfm {
 
-// Template by the type of distance metric that will be used to compare
-// descriptors.
-template <typename DistanceMetric>
 class FeatureMatcher {
  public:
-  // Each DistanceMetric operates on a specific type of descriptor vector.
-  typedef typename DistanceMetric::Descriptor Descriptor;
-
   FeatureMatcher() { }
   virtual ~FeatureMatcher() { }
 
@@ -115,17 +108,15 @@ class FeatureMatcher {
 // ------------------- Implementation ------------------- //
 
 // Append features from a single image to the list of all image features.
-template <typename DistanceMetric>
-void FeatureMatcher<DistanceMetric>::
-AddImageFeatures(const std::vector<Feature>& image_features,
-                 const std::vector<Descriptor>& image_descriptors) {
+void FeatureMatcher::AddImageFeatures(
+    const std::vector<Feature>& image_features,
+    const std::vector<Descriptor>& image_descriptors) {
   image_features_.push_back(image_features);
   image_descriptors_.push_back(image_descriptors);
 }
 
 // Append features from a set of images to the list of all image features.
-template <typename DistanceMetric>
-void FeatureMatcher<DistanceMetric>::AddImageFeatures(
+void FeatureMatcher::AddImageFeatures(
     const std::vector<std::vector<Feature> >& image_features,
     const std::vector<std::vector<Descriptor> >& image_descriptors) {
   image_features_.insert(image_features_.end(),
@@ -136,8 +127,7 @@ void FeatureMatcher<DistanceMetric>::AddImageFeatures(
                             image_descriptors.end());
 }
 
-template <typename DistanceMetric>
-bool FeatureMatcher<DistanceMetric>::
+bool FeatureMatcher::
 MatchImages(const FeatureMatcherOptions& options,
             PairwiseImageMatchList& image_matches) {
   // Store the matching options locally.
@@ -174,8 +164,7 @@ MatchImages(const FeatureMatcherOptions& options,
   return image_matches.size() > 0;
 }
 
-template <typename DistanceMetric>
-void FeatureMatcher<DistanceMetric>::SymmetricMatches(
+void FeatureMatcher::SymmetricMatches(
     const std::vector<LightFeatureMatch>& feature_matches_lhs,
     std::vector<LightFeatureMatch>& feature_matches_rhs) {
 

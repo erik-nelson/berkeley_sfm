@@ -37,9 +37,12 @@
 
 #include <image/drawing_utils.h>
 #include <image/image.h>
+#include <matching/descriptor_extractor.h>
 #include <matching/distance_metric.h>
+#include <matching/keypoint_detector.h>
 #include <matching/naive_feature_matcher.h>
 #include <strings/join_filepath.h>
+#include <util/types.h>
 
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
@@ -80,8 +83,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherSiftSift) {
   image2.RotateClockwise();
 
   FeatureMatcherOptions options;
-  NaiveFeatureMatcher<ScaledL2Distance> feature_matcher;
-  typedef ScaledL2Distance::Descriptor Descriptor;
+  NaiveFeatureMatcher feature_matcher;
 
   KeypointDetector detector;
   detector.SetDetector("SIFT");
@@ -93,8 +95,8 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherSiftSift) {
   LOG(INFO) << "Detected " << keypoints1.size() << " keypoints from image 1.";
   LOG(INFO) << "Detected " << keypoints2.size() << " keypoints from image 2.";
 
-  // OpenCV extracts floating point descriptors as floats.
-  DescriptorExtractor<float> extractor;
+  DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
+  DescriptorExtractor extractor;
   extractor.SetDescriptor("SIFT");
 
   std::vector<Feature> features1;
@@ -154,8 +156,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherFastOrb) {
   image2.RotateClockwise();
 
   FeatureMatcherOptions options;
-  NaiveFeatureMatcher<HammingDistance> feature_matcher;
-  typedef HammingDistance::Descriptor Descriptor;
+  NaiveFeatureMatcher feature_matcher;
 
   KeypointDetector detector;
   detector.SetDetector("FAST");
@@ -167,8 +168,8 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherFastOrb) {
   LOG(INFO) << "Detected " << keypoints1.size() << " keypoints from image 1.";
   LOG(INFO) << "Detected " << keypoints2.size() << " keypoints from image 2.";
 
-  // OpenCV extracts binary descriptors as unsigned char.
-  DescriptorExtractor<unsigned char> extractor;
+  DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::HAMMING);
+  DescriptorExtractor extractor;
   extractor.SetDescriptor("ORB");
 
   std::vector<Feature> features1;

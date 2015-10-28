@@ -56,6 +56,7 @@
 
 namespace bsfm {
 
+using Eigen::MatrixXd;
 using Eigen::MatrixXf;
 
 class Image {
@@ -134,19 +135,11 @@ inline void OpenCVToEigenMat(
     const cv::Mat& cv_mat,
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& eigen_mat);
 
-template <typename T>
-inline void OpenCVToEigenVec(const cv::Mat& cv_vec,
-                             Eigen::Matrix<T, Eigen::Dynamic, 1>& eigen_vec);
-
 // Non-member conversions from Eigen to OpenCV matrices.
 template <typename T>
 inline void EigenMatToOpenCV(
     const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& eigen_mat,
     cv::Mat& cv_mat);
-
-template <typename T>
-inline void EigenVecToOpenCV(
-    const Eigen::Matrix<T, Eigen::Dynamic, 1>& eigen_vec, cv::Mat& cv_vec);
 
 // ------------------- Implementation ------------------- //
 
@@ -177,36 +170,12 @@ void OpenCVToEigenMat(
   }
 }
 
-// Non-member conversion from OpenCV to Eigen vectors.
-template <typename T>
-void OpenCVToEigenVec(const cv::Mat& cv_vec,
-                      Eigen::Matrix<T, Eigen::Dynamic, 1>& eigen_vec) {
-  // Make sure the data is grayscale before converting to an eigen matrix.
-  eigen_vec.resize(cv_vec.total());
-  if (cv_vec.channels() != 1) {
-    cv::Mat grayscale_vec;
-    cv::cvtColor(cv_vec, grayscale_vec, CV_RGB2GRAY);
-    for (size_t ii = 0; ii < grayscale_vec.total(); ++ii)
-      eigen_vec(ii) = grayscale_vec.at<T>(ii);
-  } else {
-    for (size_t ii = 0; ii < cv_vec.total(); ++ii)
-      eigen_vec(ii) = cv_vec.at<T>(ii);
-  }
-}
-
 // Non-member conversion from Eigen to OpenCV matrices.
 template <typename T>
 void EigenMatToOpenCV(
     const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& eigen_mat,
     cv::Mat& cv_mat) {
   cv::eigen2cv(eigen_mat, cv_mat);
-}
-
-// Non-member conversion from Eigen to OpenCV vectors.
-template <typename T>
-void EigenVecToOpenCV(const Eigen::Matrix<T, Eigen::Dynamic, 1>& eigen_vec,
-                      cv::Mat& cv_vec) {
-  cv::eigen2cv(eigen_vec, cv_vec);
 }
 
 } //\namespace bsfm

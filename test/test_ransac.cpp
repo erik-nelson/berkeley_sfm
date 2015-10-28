@@ -41,8 +41,10 @@
 #include <geometry/eight_point_algorithm_solver.h>
 #include <image/drawing_utils.h>
 #include <image/image.h>
-#include <matching/feature_match.h>
+#include <matching/descriptor_extractor.h>
 #include <matching/distance_metric.h>
+#include <matching/feature_match.h>
+#include <matching/keypoint_detector.h>
 #include <matching/naive_feature_matcher.h>
 #include <matching/pairwise_image_match.h>
 #include <math/random_generator.h>
@@ -370,8 +372,8 @@ TEST_F(TestRansac, TestDrawInliers) {
   detector.DetectKeypoints(image1, keypoints1);
   detector.DetectKeypoints(image2, keypoints2);
 
-  typedef typename ScaledL2Distance::Descriptor Descriptor;
-  DescriptorExtractor<float> extractor;
+  DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
+  DescriptorExtractor extractor;
   extractor.SetDescriptor("SIFT");
 
   std::vector<Feature> features1;
@@ -382,7 +384,7 @@ TEST_F(TestRansac, TestDrawInliers) {
   extractor.DescribeFeatures(image2, keypoints2, features2, descriptors2);
 
   FeatureMatcherOptions matcher_options;
-  NaiveFeatureMatcher<ScaledL2Distance> feature_matcher;
+  NaiveFeatureMatcher feature_matcher;
   feature_matcher.AddImageFeatures(features1, descriptors1);
   feature_matcher.AddImageFeatures(features2, descriptors2);
   PairwiseImageMatchList image_matches;

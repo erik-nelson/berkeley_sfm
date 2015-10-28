@@ -46,6 +46,8 @@ DEFINE_string(testing_image_file, "lenna.png",
 
 namespace bsfm {
 
+using Eigen::MatrixXf;
+
 const std::string test_image =
     strings::JoinFilepath(BSFM_TEST_DATA_DIR, FLAGS_testing_image_file.c_str());
 
@@ -136,7 +138,7 @@ TEST(Image, TestEigen) {
   Image image(test_image.c_str());
 
   // Create an Eigen matrix from the image.
-  Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> eigen_mat;
+  MatrixXf eigen_mat;
   image.ToEigen(eigen_mat);
 
   // Make sure that the two matrices are equivalent.
@@ -147,7 +149,7 @@ TEST(Image, TestEigen) {
 
   // Convert back from Eigen to OpenCV.
   cv::Mat cv_mat;
-  EigenMatToOpenCV(eigen_mat, cv_mat);
+  EigenMatToOpenCV<float>(eigen_mat, cv_mat);
 
   // Make sure that the two matrices are equivalent.
   for (size_t c = 0; c < image.Width(); ++c)

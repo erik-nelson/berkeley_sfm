@@ -50,22 +50,19 @@
 #include <memory>
 #include <vector>
 
-#include "../image/image.h"
-#include "../util/disallow_copy_and_assign.h"
-
 #include "distance_metric.h"
 #include "feature.h"
 #include "feature_match.h"
 #include "feature_matcher.h"
 
+#include "../image/image.h"
+#include "../util/disallow_copy_and_assign.h"
+#include "../util/types.h"
+
 namespace bsfm {
 
-template <typename DistanceMetric>
-class NaiveFeatureMatcher : public FeatureMatcher<DistanceMetric> {
+class NaiveFeatureMatcher : public FeatureMatcher {
  public:
-  // Each DistanceMetric operates on a specific type of descriptor vector.
-  typedef typename DistanceMetric::Descriptor Descriptor;
-
   NaiveFeatureMatcher() { }
   virtual ~NaiveFeatureMatcher() { }
 
@@ -87,8 +84,7 @@ class NaiveFeatureMatcher : public FeatureMatcher<DistanceMetric> {
 
 // ------------------- Implementation ------------------- //
 
-template <typename DistanceMetric>
-bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
+bool NaiveFeatureMatcher::MatchImagePair(
     int image_index1,
     int image_index2,
     std::vector<FeatureMatch>& feature_matches) {
@@ -99,8 +95,8 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
   std::vector<Descriptor>& descriptors2 = this->image_descriptors_[image_index2];
 
   // Normalize descriptors if required by the distance metric.
-  DistanceMetric::MaybeNormalizeDescriptors(descriptors1);
-  DistanceMetric::MaybeNormalizeDescriptors(descriptors2);
+  DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors1);
+  DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors2);
 
   // Compute forward (and reverse, if applicable) matches.
   LightFeatureMatchList light_feature_matches;
@@ -152,15 +148,14 @@ bool NaiveFeatureMatcher<DistanceMetric>::MatchImagePair(
   return true;
 }
 
-template <typename DistanceMetric>
-void NaiveFeatureMatcher<DistanceMetric>::ComputePutativeMatches(
+void NaiveFeatureMatcher::ComputePutativeMatches(
     const std::vector<Descriptor>& descriptors1,
     const std::vector<Descriptor>& descriptors2,
     std::vector<LightFeatureMatch>& putative_matches) {
   putative_matches.clear();
 
-  // Create a distance metric for descriptor comparison.
-  DistanceMetric distance;
+  // Get the singletone distance metric for descriptor comparison.
+  DistanceMetric& distance = DistanceMetric::Instance();
 
   // Store all matches and their distances.
   for (size_t ii = 0; ii < descriptors1.size(); ++ii) {

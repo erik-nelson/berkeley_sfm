@@ -51,22 +51,22 @@
 
 namespace bsfm {
 
-template <typename DescriptorType>
+using Eigen::MatrixXd;
+
 class DescriptorExtractor {
  public:
-  typedef Eigen::Matrix<DescriptorType, Eigen::Dynamic, 1> Descriptor;
 
   DescriptorExtractor() { }
   ~DescriptorExtractor() { }
 
   // The descriptor type must be set prior to calling ExtractDescriptors().
-  inline bool SetDescriptor(const std::string& descriptor_type);
+  bool SetDescriptor(const std::string& descriptor_type);
 
   // Creates a list of features by extracting descriptors for each keypoint and
   // associating the two together into an object.
-  inline bool DescribeFeatures(const Image& image, KeypointList& keypoints,
-                               std::vector<Feature>& features_out,
-                               std::vector<Descriptor>& descriptors_out);
+  bool DescribeFeatures(const Image& image, KeypointList& keypoints,
+                        std::vector<Feature>& features_out,
+                        std::vector<Descriptor>& descriptors_out);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DescriptorExtractor)
@@ -74,88 +74,6 @@ class DescriptorExtractor {
   std::string descriptor_type_;
   cv::Ptr<cv::DescriptorExtractor> extractor_;
 };  //\class DescriptorExtractor
-
-
-// -------------------- Implementation -------------------- //
-
-template <typename DescriptorType>
-bool DescriptorExtractor<DescriptorType>::SetDescriptor(
-    const std::string& descriptor_type) {
-  // Set the descriptor type.
-  descriptor_type_ = descriptor_type;
-  bool valid_descriptor_type = true;
-
-  // Create an OpenCV descriptor extractor.
-  if (descriptor_type.compare("SIFT") == 0) {
-    extractor_ = cv::DescriptorExtractor::create("SIFT");
-  } else if (descriptor_type_.compare("SURF") == 0) {
-    extractor_ = cv::DescriptorExtractor::create("SURF");
-  } else if (descriptor_type_.compare("BRIEF") == 0) {
-    extractor_ = cv::DescriptorExtractor::create("BRIEF");
-  } else if (descriptor_type_.compare("BRISK") == 0) {
-    extractor_ = cv::DescriptorExtractor::create("BRISK");
-  } else if (descriptor_type_.compare("FREAK") == 0) {
-    extractor_ = cv::DescriptorExtractor::create("FREAK");
-  } else if (descriptor_type_.compare("ORB") == 0) {
-    extractor_ = cv::DescriptorExtractor::create("ORB");
-  } else {
-    VLOG(1) << "Descriptor type \"" << descriptor_type
-            << "\"is not available. Defaulting to SIFT.";
-    extractor_ = cv::DescriptorExtractor::create("SIFT");
-    valid_descriptor_type = false;
-    descriptor_type_ = "SIFT";
-  }
-
-  return valid_descriptor_type;
-}
-
-template <typename DescriptorType>
-bool DescriptorExtractor<DescriptorType>::DescribeFeatures(
-    const Image& image, KeypointList& keypoints,
-    std::vector<Feature>& features_out,
-    std::vector<Descriptor>& descriptors_out) {
-
-  // Make the user has called SetDescriptor().
-  if (descriptor_type_.empty()) {
-    VLOG(1)
-        << "Descriptor has not been specified via SetDescriptor(). Failed to "
-           "extract descriptors.";
-    return false;
-  }
-
-  CHECK(extractor_) << "The descriptor extractor is null.";
-  features_out.clear();
-
-  // Convert the input image to OpenCV's format. Note that descriptors must be
-  // extracted on the grayscale image, and that the image format must be CV_8U.
-  cv::Mat cv_image;
-  image.ToCV(cv_image);
-  cv_image.convertTo(cv_image, CV_8U, 255);
-
-  // Extract descriptors from the provided keypoints in the image.
-  cv::Mat cv_descriptors;
-  try {
-    extractor_->compute(cv_image, keypoints, cv_descriptors);
-  } catch (const std::exception& e) {
-    VLOG(1) << "Failed to extract descriptors: " << e.what();
-    return false;
-  }
-
-  // Convert the computed OpenCV-type descriptors and keypoints into a list of
-  // features and descriptors.
-  for (size_t ii = 0; ii < keypoints.size(); ++ii) {
-    Feature feature;
-    feature.u_ = keypoints[ii].pt.x;
-    feature.v_ = keypoints[ii].pt.y;
-    features_out.push_back(feature);
-
-    Descriptor descriptor;
-    OpenCVToEigenVec<DescriptorType>(cv_descriptors.row(ii), descriptor);
-    descriptors_out.push_back(descriptor);
-  }
-
-  return true;
-}
 
 }  //\namespace bsfm
 #endif

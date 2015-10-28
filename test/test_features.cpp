@@ -41,6 +41,7 @@
 #include <matching/keypoint_detector.h>
 #include <math/random_generator.h>
 #include <strings/join_filepath.h>
+#include <util/types.h>
 
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
@@ -109,11 +110,7 @@ TEST_F(TestFeatures, TestDescribeFeatures) {
   KeypointList keypoints;
   detector.DetectKeypoints(image, keypoints);
 
-  // Run through the different descriptor types, extracting descriptors for each
-  // keypoint.
-  typedef Eigen::VectorXf Descriptor;
-
-  DescriptorExtractor<float> extractor;
+  DescriptorExtractor extractor;
   for (size_t ii = 0; ii < descriptor_types.size(); ++ii) {
     EXPECT_TRUE(extractor.SetDescriptor(descriptor_types[ii]));
 

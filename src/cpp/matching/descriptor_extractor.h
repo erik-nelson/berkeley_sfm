@@ -38,24 +38,18 @@
 #ifndef BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
 #define BSFM_IMAGE_DESCRIPTOR_EXTRACTOR_H
 
-#include <iostream>
-#include "../image/image.h"
-#include "../util/disallow_copy_and_assign.h"
-
-#include "feature.h"
-#include "keypoint_detector.h"
-
 #include <Eigen/Core>
 #include <glog/logging.h>
 #include <opencv2/features2d/features2d.hpp>
 
-namespace bsfm {
+#include "feature.h"
+#include "keypoint_detector.h"
 
-// When extracting N-dimensional descriptors from a set of M keypoints, OpenCV
-// will store the descriptors in a (M-K)xN matrix, where K is the number of
-// keypoints that OpenCV failed to compute a descriptor for. In other words,
-// rows correspond to keypoints, and columns to indices of the descriptor.
-typedef cv::Mat DescriptorList;
+#include "../image/image.h"
+#include "../util/disallow_copy_and_assign.h"
+#include "../util/types.h"
+
+namespace bsfm {
 
 template <typename DescriptorType>
 class DescriptorExtractor {

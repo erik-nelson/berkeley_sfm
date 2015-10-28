@@ -54,10 +54,9 @@
 
 #include "../camera/camera.h"
 #include "../util/disallow_copy_and_assign.h"
+#include "../util/types.h"
 
 namespace bsfm {
-
-typedef unsigned int ViewIndex;
 
 class View {
  public:

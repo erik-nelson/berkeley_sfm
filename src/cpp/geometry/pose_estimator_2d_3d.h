@@ -64,10 +64,10 @@
 #include "../matching/feature.h"
 #include "../pose/pose.h"
 #include "../util/disallow_copy_and_assign.h"
+#include "../util/types.h"
 
 namespace bsfm {
 
-typedef Eigen::Matrix<double, 3, 4> Matrix34d;
 using Eigen::Matrix3d;
 using Eigen::Matrix4d;
 using Eigen::MatrixXd;

@@ -35,57 +35,45 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#ifndef BSFM_IMAGE_KEYPOINT_DETECTOR_H
-#define BSFM_IMAGE_KEYPOINT_DETECTOR_H
+///////////////////////////////////////////////////////////////////////////////
+//
+// This file defines typedefs for generic types and primitives used for SfM.
+//
+// ////////////////////////////////////////////////////////////////////////////
 
+#ifndef BSFM_UTIL_TYPES_H
+#define BSFM_UTIL_TYPES_H
+
+#include <Eigen/Core>
 #include <opencv2/features2d/features2d.hpp>
-#include <opencv2/nonfree/nonfree.hpp>
-#include <string>
-
-#include "../image/image.h"
-#include "../util/disallow_copy_and_assign.h"
-#include "../util/types.h"
+#include <vector>
 
 namespace bsfm {
 
-class KeypointDetector {
- public:
-  KeypointDetector();
-  ~KeypointDetector() {}
+// -------------------- Custom types -------------------- //
 
-  // The detector must be set prior to calling DetectKeypoints().
-  bool SetDetector(const std::string& detector_type);
+// Each ViewIndex corresponds to a unique View that is constructed at runtime
+// and can be accessed with View::GetView(ViewIndex index).
+typedef unsigned int ViewIndex;
 
-  // Detects keypoints in the input image, returning them in the output list.
-  bool DetectKeypoints(const Image& image, KeypointList& keypoints_out);
 
-  // Turn on adaptive feature counts. Only works if the detector type is FAST,
-  // SURF, or STAR.
-  // - min:   minimum desired number of features.
-  // - max:   maximum desired number of features.
-  // - iters: number of iterations spend adjusting the feature detector
-  //          parameters. High numbers are fine for FAST, but time consuming
-  //          for SURF and STAR.
-  void SetAdaptiveOn(unsigned int min, unsigned int max, unsigned int iters);
-  void SetAdaptiveOff();
 
-  // Return whether or not the detector_type supports adaptive feature count
-  // adjustment.
-  bool SupportsAdaptiveAdjustment() const;
+// -------------------- Third-party typedefs -------------------- //
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(KeypointDetector)
+// When extracting N-dimensional descriptors from a set of M keypoints, OpenCV
+// will store the desriptors in a (M-K)xN matrix, where K is the number of
+// keypoints that OpenCV failed to compute a descriptor for. In other words,
+// rows correspond to keypoints, and columns to indices of the descriptor.
+typedef ::cv::Mat DescriptorList;
 
-  std::string detector_type_;
-  cv::Ptr<cv::FeatureDetector> detector_;
-  bool adaptive_;
+// Keypoints contain (u, v) image-space coordinates.
+typedef ::cv::KeyPoint Keypoint;
+typedef std::vector<Keypoint> KeypointList;
 
-  // Adaptive feature count parameters. See 'SetAdaptiveOn()' for descriptions.
-  unsigned int adaptive_min_;
-  unsigned int adaptive_max_;
-  unsigned int adaptive_iters_;
-
-};  //\class KeypointDetector
+// Used to represent [R | t] and P, two matrices commonly used to represent
+// camera extrinsics and projections.
+typedef ::Eigen::Matrix<double, 3, 4> Matrix34d;
 
 }  //\namespace bsfm
+
 #endif

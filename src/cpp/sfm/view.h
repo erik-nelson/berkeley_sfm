@@ -57,6 +57,8 @@
 
 namespace bsfm {
 
+typedef unsigned int ViewIndex;
+
 class View {
  public:
   typedef std::shared_ptr<View> Ptr;
@@ -70,7 +72,7 @@ class View {
 
   // Gets the view corresponding to the input index. If the view has not
   // been created yet, this method returns a null pointer.
-  static View::Ptr GetView(unsigned int view_index);
+  static View::Ptr GetView(ViewIndex view_index);
 
   // Get and set the camera.
   void SetCamera(const class Camera& camera);
@@ -78,7 +80,7 @@ class View {
   const class Camera& Camera() const;
 
   // Get this view's index.
-  unsigned int Index() const;
+  ViewIndex Index() const;
 
   // For sorting a list of views by their indices.
   static bool SortByIndex(const View::Ptr& lhs, const View::Ptr& rhs);
@@ -91,17 +93,17 @@ class View {
 
   // Static method for determining the next index across all Views
   // constructed so far. This is called in the View constructor.
-  static unsigned int NextViewIndex();
+  static ViewIndex NextViewIndex();
 
   // Includes intrinsics and extrinsics.
   class Camera camera_;
 
   // Provides an ordering on views.
-  unsigned int view_index_;
+  ViewIndex view_index_;
 
   // A registry of all views constructed so far. These can be queried with the
   // static method GetView().
-  static std::unordered_map<unsigned int, View::Ptr> view_registry_;
+  static std::unordered_map<ViewIndex, View::Ptr> view_registry_;
 };  //\class View
 
 }  //\namespace bsfm

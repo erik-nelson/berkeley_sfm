@@ -40,7 +40,7 @@
 namespace bsfm {
 
 // Declaration of static member variable.
-std::unordered_map<unsigned int, View::Ptr> View::view_registry_;
+std::unordered_map<ViewIndex, View::Ptr> View::view_registry_;
 
 // Factory method. Registers the view and index in the view registry so
 // that they can be accessed from the static GetView() method. This guarantees
@@ -58,7 +58,7 @@ View::Ptr View::Create(const class Camera& camera) {
 
 // Gets the view corresponding to the input view index. If the view has not been
 // created yet, this method returns a null pointer.
-View::Ptr View::GetView(unsigned int view_index) {
+View::Ptr View::GetView(ViewIndex view_index) {
   auto registry_element = view_registry_.find(view_index);
   if (registry_element == view_registry_.end())
     return View::Ptr();
@@ -78,7 +78,7 @@ const class Camera& View::Camera() const {
   return camera_;
 }
 
-unsigned int View::Index() const {
+ViewIndex View::Index() const {
   return view_index_;
 }
 
@@ -92,8 +92,8 @@ View::View(const class Camera& camera)
 
 // Static method for determining the next index across all Views
 // constructed so far. This is called in the View constructor.
-unsigned int View::NextViewIndex() {
-  static unsigned int current_view_index = 0;
+ViewIndex View::NextViewIndex() {
+  static ViewIndex current_view_index = 0;
   return current_view_index++;
 }
 

@@ -41,7 +41,11 @@
 #include <Eigen/SVD>
 #include <glog/logging.h>
 
+#include "../util/types.h"
+
 namespace bsfm {
+
+using Eigen::MatrixXd;
 
 // Triangulates a single 3D point from > 2 views using the inhomogeneous DLT
 // method from H&Z: Multi-View Geometry, Ch 2.2.
@@ -59,19 +63,19 @@ bool Triangulate(const FeatureList& features,
   }
 
   // Construct the A matrix on page 312.
-  Eigen::MatrixXd A;
+  MatrixXd A;
   A.resize(features.size() * 2, 4);
   for (size_t ii = 0; ii < features.size(); ++ii) {
     double u = features[ii].u_;
     double v = features[ii].v_;
 
-    const Eigen::Matrix<double, 3, 4> P = cameras[ii].P();
+    const Matrix34d P = cameras[ii].P();
     A.row(2*ii+0) = u * P.row(2) - P.row(0);
     A.row(2*ii+1) = v * P.row(2) - P.row(1);
   }
 
   // Get svd(A). Save some time and compute a thin U. We still need a full V.
-  Eigen::JacobiSVD<Eigen::MatrixXd> svd;
+  Eigen::JacobiSVD<MatrixXd> svd;
   svd.compute(A, Eigen::ComputeThinU | Eigen::ComputeFullV);
   if (!svd.computeV()) {
     VLOG(1) << "Failed to compute a singulare value decomposition of A matrix.";

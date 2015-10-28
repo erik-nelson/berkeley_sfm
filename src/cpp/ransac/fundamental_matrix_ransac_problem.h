@@ -54,6 +54,9 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Vector3d;
+
 // ------------ FundamentalMatrixRansacModel derived ------------ //
 
 struct FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
@@ -61,7 +64,7 @@ struct FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
   virtual ~FundamentalMatrixRansacModel();
 
   // Define an additional constructor specifically for this model.
-  FundamentalMatrixRansacModel(const Eigen::Matrix3d& F);
+  FundamentalMatrixRansacModel(const Matrix3d& F);
 
   // Return model error.
   virtual double Error() const;
@@ -74,7 +77,7 @@ struct FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
   double EvaluateEpipolarCondition(const FeatureMatch& match) const;
 
   // Model-specific member variables.
-  Eigen::Matrix3d F_;
+  Matrix3d F_;
   double error_;
 };  //\struct FundamentalMatrixRansacModel
 

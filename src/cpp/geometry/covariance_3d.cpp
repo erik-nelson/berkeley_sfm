@@ -42,7 +42,7 @@
 namespace bsfm {
 
 // Default constructor.
-Covariance3D::Covariance3D() : data_(Eigen::Matrix3d::Identity()) {}
+Covariance3D::Covariance3D() : data_(Matrix3d::Identity()) {}
 
 // Element-wise constructor.
 Covariance3D::Covariance3D(double x11, double x12, double x13,
@@ -63,16 +63,16 @@ Covariance3D::Covariance3D(double x11, double x12, double x13,
 Covariance3D::Covariance3D(const Covariance3D& in) : data_(in.Get()) {}
 
 // Eigen constructor.
-Covariance3D::Covariance3D(const Eigen::Matrix3d& in) : data_(in) {}
+Covariance3D::Covariance3D(const Matrix3d& in) : data_(in) {}
 
 // Static zero.
 Covariance3D Covariance3D::Zero() {
-  return Covariance3D(Eigen::Matrix3d::Zero());
+  return Covariance3D(Matrix3d::Zero());
 }
 
 // Static identity.
 Covariance3D Covariance3D::Identity() {
-  return Covariance3D(Eigen::Matrix3d::Identity());
+  return Covariance3D(Matrix3d::Identity());
 }
 
 // Default destructor.
@@ -83,7 +83,7 @@ void Covariance3D::Set(const Covariance3D& in) {
   data_ = in.Get();
 }
 
-void Covariance3D::Set(const Eigen::Matrix3d& in) {
+void Covariance3D::Set(const Matrix3d& in) {
   data_ = in;
 }
 
@@ -98,7 +98,7 @@ const double& Covariance3D::operator()(int row, int col) const {
   return data_(row, col);
 }
 
-const Eigen::Matrix3d& Covariance3D::Get() const {
+const Matrix3d& Covariance3D::Get() const {
   return data_;
 }
 

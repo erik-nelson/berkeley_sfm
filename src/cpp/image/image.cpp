@@ -83,7 +83,7 @@ void Image::FromCV(const cv::Mat& in) {
   cv::cvtColor(in, *image_, CV_BGR2RGB);
 }
 
-void Image::ToEigen(Eigen::MatrixXf& eigen_out) {
+void Image::ToEigen(MatrixXf& eigen_out) {
   CHECK(image_.get()) << "Image data is not allocated.";
   OpenCVToEigenMat(*image_, eigen_out);
 }

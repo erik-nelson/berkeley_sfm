@@ -42,17 +42,17 @@
 namespace bsfm {
 
 // Default constructor.
-Point3D::Point3D() : data_(Eigen::Vector3d::Zero()) {}
+Point3D::Point3D() : data_(Vector3d::Zero()) {}
 
 // (x, y, z) constructor.
 Point3D::Point3D(double x, double y, double z)
-    : data_(Eigen::Vector3d(x, y, z)) {}
+    : data_(Vector3d(x, y, z)) {}
 
 // Copy constructors.
 Point3D::Point3D(const Point3D& in) : data_(in.Get()) {}
 
 // Eigen constructor.
-Point3D::Point3D(const Eigen::Vector3d& in) : data_(in) {}
+Point3D::Point3D(const Vector3d& in) : data_(in) {}
 
 // Basic destructor.
 Point3D::~Point3D() {}
@@ -74,7 +74,7 @@ void Point3D::Set(const Point3D& in) {
   data_ = in.Get();
 }
 
-void Point3D::Set(const Eigen::Vector3d& in) {
+void Point3D::Set(const Vector3d& in) {
   data_ = in;
 }
 
@@ -96,7 +96,7 @@ double Point3D::Y() const { return data_(1); }
 double Point3D::Z() const { return data_(2); }
 
 // Const reference return.
-const Eigen::Vector3d& Point3D::Get() const {
+const Vector3d& Point3D::Get() const {
   return data_;
 }
 

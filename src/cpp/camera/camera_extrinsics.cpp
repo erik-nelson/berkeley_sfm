@@ -77,10 +77,10 @@ Pose CameraExtrinsics::CameraToWorld() const {
 //   [R -Rc]
 //   [0  1 ]
 // where c is the camera centroid. From this we get t = -Rc and c = -R't
-void CameraExtrinsics::SetRotation(const Eigen::Matrix3d& rotation) {
-  const Eigen::Vector3d t = world_to_camera_.Translation();
-  const Eigen::Matrix3d R = world_to_camera_.Rotation();
-  const Eigen::Vector3d c = -R.transpose() * t;
+void CameraExtrinsics::SetRotation(const Matrix3d& rotation) {
+  const Vector3d t = world_to_camera_.Translation();
+  const Matrix3d R = world_to_camera_.Rotation();
+  const Vector3d c = -R.transpose() * t;
 
   world_to_camera_.SetRotation(rotation);
   world_to_camera_.SetTranslation(-rotation * c);
@@ -90,8 +90,8 @@ void CameraExtrinsics::SetRotation(double phi, double theta, double psi) {
   SetRotation(EulerAnglesToMatrix(phi, theta, psi));
 }
 
-void CameraExtrinsics::Rotate(const Eigen::Matrix3d& delta) {
-  const Eigen::Matrix3d R = world_to_camera_.Rotation();
+void CameraExtrinsics::Rotate(const Matrix3d& delta) {
+  const Matrix3d R = world_to_camera_.Rotation();
   SetRotation(delta * R);
 }
 
@@ -99,42 +99,42 @@ void CameraExtrinsics::Rotate(double dphi, double dtheta, double dpsi) {
   Rotate(EulerAnglesToMatrix(dphi, dtheta, dpsi));
 }
 
-void CameraExtrinsics::SetTranslation(const Eigen::Vector3d& translation) {
-  const Eigen::Matrix3d R = world_to_camera_.Rotation();
+void CameraExtrinsics::SetTranslation(const Vector3d& translation) {
+  const Matrix3d R = world_to_camera_.Rotation();
   world_to_camera_.SetTranslation(-R * translation);
 }
 
 void CameraExtrinsics::SetTranslation(double x, double y, double z) {
-  SetTranslation(Eigen::Vector3d(x, y, z));
+  SetTranslation(Vector3d(x, y, z));
 }
 
-void CameraExtrinsics::Translate(const Eigen::Vector3d& delta) {
-  const Eigen::Vector3d t = world_to_camera_.Translation();
-  const Eigen::Matrix3d R = world_to_camera_.Rotation();
-  Eigen::Vector3d c = -R.transpose() * t;
+void CameraExtrinsics::Translate(const Vector3d& delta) {
+  const Vector3d t = world_to_camera_.Translation();
+  const Matrix3d R = world_to_camera_.Rotation();
+  Vector3d c = -R.transpose() * t;
 
   c += delta;
   world_to_camera_.SetTranslation(-R*c);
 }
 
 void CameraExtrinsics::Translate(double dx, double dy, double dz) {
-  Translate(Eigen::Vector3d(dx, dy, dz));
+  Translate(Vector3d(dx, dy, dz));
 }
 
 void CameraExtrinsics::TranslateX(double dx) {
-  Translate(Eigen::Vector3d(dx, 0, 0));
+  Translate(Vector3d(dx, 0, 0));
 }
 
 void CameraExtrinsics::TranslateY(double dy) {
-  Translate(Eigen::Vector3d(0, dy, 0));
+  Translate(Vector3d(0, dy, 0));
 }
 
 void CameraExtrinsics::TranslateZ(double dz) {
-  Translate(Eigen::Vector3d(0, 0, dz));
+  Translate(Vector3d(0, 0, dz));
 }
 
 // The extrinsics matrix is 3x4 matrix: [R | t].
-Eigen::Matrix<double, 3, 4> CameraExtrinsics::Rt() const {
+Matrix34d CameraExtrinsics::Rt() const {
   return WorldToCamera().Dehomogenize();
 }
 
@@ -145,8 +145,8 @@ void CameraExtrinsics::WorldToCamera(double wx, double wy, double wz,
   CHECK_NOTNULL(cy);
   CHECK_NOTNULL(cz);
 
-  const Eigen::Vector4d w_h(wx, wy, wz, 1.0);
-  const Eigen::Vector4d c_h = CameraExtrinsics::WorldToCamera().Project(w_h);
+  const Vector4d w_h(wx, wy, wz, 1.0);
+  const Vector4d c_h = CameraExtrinsics::WorldToCamera().Project(w_h);
 
   *cx = c_h(0);
   *cy = c_h(1);
@@ -160,8 +160,8 @@ void CameraExtrinsics::CameraToWorld(double cx, double cy, double cz,
   CHECK_NOTNULL(wy);
   CHECK_NOTNULL(wz);
 
-  const Eigen::Vector4d c_h(cx, cy, cz, 1.0);
-  const Eigen::Vector4d w_h = CameraExtrinsics::CameraToWorld().Project(c_h);
+  const Vector4d c_h(cx, cy, cz, 1.0);
+  const Vector4d w_h = CameraExtrinsics::CameraToWorld().Project(c_h);
 
   *wx = w_h(0);
   *wy = w_h(1);

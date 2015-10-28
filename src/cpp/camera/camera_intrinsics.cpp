@@ -72,7 +72,7 @@ CameraIntrinsics::CameraIntrinsics()
       vertical_fov_(0.0) {}
 
 // Assume no radial distortion, and image left and top are both zero.
-CameraIntrinsics::CameraIntrinsics(const Eigen::Matrix3d &K, int image_width,
+CameraIntrinsics::CameraIntrinsics(const Matrix3d &K, int image_width,
                                    int image_height)
     : image_left_(0),
       image_top_(0),
@@ -252,15 +252,15 @@ double CameraIntrinsics::VerticalFOV() const {
 }
 
 // Get intrinsics matrix.
-Eigen::Matrix3d CameraIntrinsics::K() const {
-  Eigen::Matrix3d K = Eigen::Matrix3d();
+Matrix3d CameraIntrinsics::K() const {
+  Matrix3d K;
   K << f_u_, 0.0, c_u_, 0.0, f_v_, c_v_, 0.0, 0.0, 1.0;
 
   return K;
 }
 
 // Get inverse of intrinsics matrix.
-Eigen::Matrix3d CameraIntrinsics::Kinv() const {
+Matrix3d CameraIntrinsics::Kinv() const {
   return CameraIntrinsics::K().inverse();
 }
 
@@ -301,12 +301,12 @@ bool CameraIntrinsics::DirectionToImage(double u_normalized,
   Distort(u_normalized, v_normalized, &u, &v);
 
   // Make a homogeneous vector from the output.
-  Eigen::Vector3d p = Eigen::Vector3d();
+  Vector3d p;
   p << u, v, 1.0;
 
   // Multiply the distorted direction vector by camera intrinsic matrix to get
   // the image space point.
-  const Eigen::Vector3d p_out = CameraIntrinsics::K() * p;
+  const Vector3d p_out = CameraIntrinsics::K() * p;
   *u_distorted = p_out(0);
   *v_distorted = p_out(1);
 
@@ -321,12 +321,12 @@ void CameraIntrinsics::ImageToDirection(double u_distorted, double v_distorted,
   CHECK_NOTNULL(v_normalized);
 
   // Make a homogeneous image space point.
-  Eigen::Vector3d p_distorted = Eigen::Vector3d();
+  Vector3d p_distorted;
   p_distorted << u_distorted, v_distorted, 1.0;
 
   // Multiply the distorted homogeneous image space point by the inverse
   // of the camera intrinsic matrix to get a distorted ray.
-  const Eigen::Vector3d p = CameraIntrinsics::Kinv() * p_distorted;
+  const Vector3d p = CameraIntrinsics::Kinv() * p_distorted;
 
   // Undistort the ray to get the normalized direction vector.
   Undistort(p(0), p(1), u_normalized, v_normalized);

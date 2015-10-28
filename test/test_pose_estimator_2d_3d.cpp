@@ -48,6 +48,9 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Vector3d;;
+
 namespace {
   const int kNumPoints = 20;
   const int kImageWidth = 1920;
@@ -83,10 +86,10 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
     const double cz = rng.DoubleUniform(-2.0, 2.0);
 
     // Wobble it around a little.
-    Eigen::Vector3d e_in;
+    Vector3d e_in;
     e_in.setRandom();  // sets all elements to be \in (-1, 1).
     e_in *= D2R(20.0);  // all angles are \in (-20, 20) degrees.
-    const Eigen::Matrix3d R_in = EulerAnglesToMatrix(e_in);
+    const Matrix3d R_in = EulerAnglesToMatrix(e_in);
 
     Camera camera;
     CameraExtrinsics extrinsics;
@@ -124,8 +127,8 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
 
     // Make sure we got the right rotation and translation. Extract camera
     // center with c = -R' * t, and extract euler angles from R for comparison.
-    const Eigen::Matrix3d R_out = calculated_pose.Rotation();
-    const Eigen::Vector3d c =
+    const Matrix3d R_out = calculated_pose.Rotation();
+    const Vector3d c =
         -R_out.transpose() * calculated_pose.Translation();
 
     EXPECT_NEAR(cx, c(0), 1e-4);

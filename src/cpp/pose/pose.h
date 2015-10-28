@@ -42,7 +42,16 @@
 #include <glog/logging.h>
 #include <string>
 
+#include "../util/types.h"
+
 namespace bsfm {
+
+using Eigen::Matrix3d;
+using Eigen::Matrix4d;
+using Eigen::Vector2d;
+using Eigen::Vector3d;
+using Eigen::Vector4d;
+using Eigen::VectorXd;
 
 class Pose {
  public:
@@ -52,16 +61,16 @@ class Pose {
   Pose();
 
   // Construct a new Pose from a rotation matrix and translation vector.
-  Pose(const Eigen::Matrix3d& R, const Eigen::Vector3d& t);
+  Pose(const Matrix3d& R, const Vector3d& t);
 
   // Construct a new Pose from a de-homogenized 3x4 [R | t] matrix.
-  Pose(const Eigen::Matrix<double, 3, 4>& Rt);
+  Pose(const Matrix34d& Rt);
 
   // Deep copy constructor.
   Pose(const Pose& other);
 
   // Construct a new Pose from a 4x4 Rt matrix.
-  Pose(const Eigen::Matrix4d& other);
+  Pose(const Matrix4d& other);
 
   // Destroy this Pose.
   ~Pose() { };
@@ -71,29 +80,29 @@ class Pose {
   const double& operator()(int i, int j) const;
 
   // Access a const version of the homogeneous transformation matrix.
-  const Eigen::Matrix4d& Get() const;
+  const Matrix4d& Get() const;
 
   // Get the transformation's rotation components.
-  Eigen::Matrix3d Rotation() const;
+  Matrix3d Rotation() const;
 
   // Get the transformation's rotation components.
-  Eigen::Vector3d Translation() const;
+  Vector3d Translation() const;
 
   // Set the homogeneous transformation matrix.
-  void Set(const Eigen::Matrix4d& transformation);
+  void Set(const Matrix4d& transformation);
 
   // Set rotation and translation directly.
-  void SetRotation(const Eigen::Matrix3d& rotation);
-  void SetTranslation(const Eigen::Vector3d& translation);
+  void SetRotation(const Matrix3d& rotation);
+  void SetTranslation(const Vector3d& translation);
 
   // Multiply two Poses.
   Pose operator*(const Pose& other) const;
 
   // Multiply a homgenized point into a Pose.
-  Eigen::Vector4d Project(const Eigen::Vector4d&);
+  Vector4d Project(const Vector4d&);
 
   // Project a 3D point into this Pose.
-  Eigen::Vector2d ProjectTo2D(const Eigen::Vector3d&);
+  Vector2d ProjectTo2D(const Vector3d&);
 
   // Test if this pose (Rt_ only) is approximately equal to another Pose.
   bool IsApprox(const Pose&) const;
@@ -106,13 +115,13 @@ class Pose {
   Pose Inverse() const;
 
   // Extract just the extrinsics matrix as a 3x4 matrix.
-  Eigen::Matrix<double, 3, 4> Dehomogenize();
+  Matrix34d Dehomogenize();
 
   // Output axis-angle representation.
-  Eigen::VectorXd ToAxisAngle();
+  VectorXd ToAxisAngle();
 
   // Set based on axis-angle input.
-  Eigen::Matrix4d FromAxisAngle(const Eigen::Vector3d& aa);
+  Matrix4d FromAxisAngle(const Vector3d& aa);
 
   // Set translation directly.
   void SetX(double x);
@@ -139,7 +148,7 @@ class Pose {
   void Print(const std::string& prefix = std::string()) const;
 
  private:
-  Eigen::Matrix4d Rt_;  // 4x4 homogeneous Pose matrix
+  Matrix4d Rt_;  // 4x4 homogeneous Pose matrix
 };  //\class Pose
 
 };  // namespace bsfm

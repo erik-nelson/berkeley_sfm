@@ -51,6 +51,8 @@
 
 namespace bsfm {
 
+using Eigen::Vector3d;
+
 class Point3D {
  public:
   typedef std::shared_ptr<Point3D> Ptr;
@@ -60,7 +62,7 @@ class Point3D {
   Point3D();
   Point3D(double x, double y, double z);
   Point3D(const Point3D& in);
-  Point3D(const Eigen::Vector3d& in);
+  Point3D(const Vector3d& in);
 
   // Destructor.
   ~Point3D();
@@ -71,7 +73,7 @@ class Point3D {
   void SetZ(double x);
   void Set(double x, double y, double z);
   void Set(const Point3D& in);
-  void Set(const Eigen::Vector3d& in);
+  void Set(const Vector3d& in);
 
   // Getters.
   double& operator()(int index);
@@ -79,7 +81,7 @@ class Point3D {
   double X() const;
   double Y() const;
   double Z() const;
-  const Eigen::Vector3d& Get() const;
+  const Vector3d& Get() const;
 
   // Utility.
   void Print(const std::string& prefix = std::string()) const;
@@ -90,7 +92,7 @@ class Point3D {
   double Dot(const Point3D& other) const;
 
  private:
-  Eigen::Vector3d data_;
+  Vector3d data_;
 };  //\class Point3D
 
 // Define a list of Point3D objects.

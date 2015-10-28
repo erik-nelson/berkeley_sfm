@@ -46,7 +46,7 @@ namespace bsfm {
 
 bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
     const FeatureMatchList& matched_features,
-    Eigen::Matrix3d& fundamental_matrix) const {
+    Matrix3d& fundamental_matrix) const {
   // Following: https://www8.cs.umu.se/kurser/TDBD19/VT05/reconstruct-4.pdf
 
   // First make sure we even have enough matches to run the eight-point
@@ -58,12 +58,12 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
   }
 
   // Build the A matrix from matched features.
-  Eigen::MatrixXd A;
+  MatrixXd A;
   A.resize(matched_features.size(), 9);
 
   // If requested, normalize feature positions prior to computing the A matrix.
-  Eigen::Matrix3d T1(Eigen::MatrixXd::Identity(3, 3));
-  Eigen::Matrix3d T2(Eigen::MatrixXd::Identity(3, 3));
+  Matrix3d T1(MatrixXd::Identity(3, 3));
+  Matrix3d T2(MatrixXd::Identity(3, 3));
   if (options_.normalize_features) {
     T1 = ComputeNormalization(matched_features, true /*feature set 1*/);
     T2 = ComputeNormalization(matched_features, false /*feature set 2*/);
@@ -103,7 +103,7 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
   }
 
   // Get the fundamental matrix elements from the SVD decomposition.
-  const Eigen::VectorXd f_vec = svd.matrixV().col(8);
+  const VectorXd f_vec = svd.matrixV().col(8);
 
   // Turn the elements of the fundamental matrix into an actual matrix.
   fundamental_matrix.row(0) = f_vec.topRows(3).transpose();
@@ -124,7 +124,7 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
 
     // Build a matrix of the first 8 singular values down the diagonal. Make the
     // last diagonal entry 0.
-    Eigen::MatrixXd S_deficient(Eigen::MatrixXd::Zero(3, 3));
+    MatrixXd S_deficient(MatrixXd::Zero(3, 3));
     S_deficient(0, 0) = svd.singularValues()(0);
     S_deficient(1, 1) = svd.singularValues()(1);
     fundamental_matrix = svd.matrixU() * S_deficient * svd.matrixV().transpose();

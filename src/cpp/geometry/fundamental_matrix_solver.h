@@ -56,6 +56,8 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+
 class FundamentalMatrixSolver {
  public:
   FundamentalMatrixSolver() {}
@@ -74,13 +76,13 @@ class FundamentalMatrixSolver {
 
   // Compute the fundamental matrix for each image pair.
   virtual bool ComputeFundamentalMatrices(
-      std::vector<Eigen::Matrix3d>& fundamental_matrices);
+      std::vector<Matrix3d>& fundamental_matrices);
 
   // Abstract method to compute the fundamental matrix for a single image pair.
   // Override this in the derived solver class to implement it.
   virtual bool ComputeFundamentalMatrix(
       const FeatureMatchList& matched_features,
-      Eigen::Matrix3d& fundamental_matrix) const = 0;
+      Matrix3d& fundamental_matrix) const = 0;
 
  protected:
   // The matched image data contains a list of matched features for a set of

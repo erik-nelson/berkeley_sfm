@@ -59,6 +59,10 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
+
 class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
  public:
   EightPointAlgorithmSolver() { }
@@ -68,7 +72,7 @@ class EightPointAlgorithmSolver : public FundamentalMatrixSolver {
   // of features matched between two images.
   virtual bool ComputeFundamentalMatrix(
       const FeatureMatchList& matched_features,
-      Eigen::Matrix3d& fundamental_matrix) const;
+      Matrix3d& fundamental_matrix) const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(EightPointAlgorithmSolver)

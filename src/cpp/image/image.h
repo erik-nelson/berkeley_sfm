@@ -56,6 +56,8 @@
 
 namespace bsfm {
 
+using Eigen::MatrixXf;
+
 class Image {
  public:
   typedef std::shared_ptr<Image> Ptr;
@@ -88,7 +90,7 @@ class Image {
   void FromCV(const cv::Mat& in);
 
   // Convert to Eigen matrix.
-  void ToEigen(Eigen::MatrixXf& eigen_out);
+  void ToEigen(MatrixXf& eigen_out);
 
   // Save and load.
   void Read(const std::string& filename, bool grayscale = false);

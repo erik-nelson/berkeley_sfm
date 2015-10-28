@@ -74,9 +74,16 @@
 #ifndef BSFM_CAMERA_CAMERA_EXTRINSICS_H
 #define BSFM_CAMERA_CAMERA_EXTRINSICS_H
 
-#include <pose/pose.h>
+#include <Eigen/Core>
+
+#include "../pose/pose.h"
+#include "../util/types.h"
 
 namespace bsfm {
+
+using Eigen::Matrix3d;
+using Eigen::Matrix4d;
+using Eigen::Vector3d;
 
 class CameraExtrinsics {
 
@@ -92,7 +99,7 @@ public:
     //   world +X --> camera +X
     //   world +Y --> camera +Z
     //   world +Z --> camera -Y
-    Eigen::Matrix4d w2c;
+    Matrix4d w2c;
     w2c << 1, 0,  0, 0,
            0, 0, -1, 0,
            0, 1,  0, 0,
@@ -108,23 +115,23 @@ public:
   Pose CameraToWorld() const;
 
   // Rotate the world-to-camera frame.
-  void SetRotation(const Eigen::Matrix3d& rotation);
+  void SetRotation(const Matrix3d& rotation);
   void SetRotation(double phi, double theta, double psi);
-  void Rotate(const Eigen::Matrix3d& delta);
+  void Rotate(const Matrix3d& delta);
   void Rotate(double dphi, double dtheta, double dpsi);
 
   // Translate the world-to-camera frame. All inputs correspond to the
   // coordinates of the camera in world-frame.
-  void SetTranslation(const Eigen::Vector3d& translation);
+  void SetTranslation(const Vector3d& translation);
   void SetTranslation(double wx, double wy, double wz);
-  void Translate(const Eigen::Vector3d& delta);
+  void Translate(const Vector3d& delta);
   void Translate(double dx, double dy, double dz);
   void TranslateX(double dx);
   void TranslateY(double dy);
   void TranslateZ(double dz);
 
   // The extrinsics matrix is 3x4 matrix: [R | t].
-  Eigen::Matrix<double, 3, 4> Rt() const;
+  Matrix34d Rt() const;
 
   // Convert a world frame point into the camera frame.
   void WorldToCamera(double wx, double wy, double wz,

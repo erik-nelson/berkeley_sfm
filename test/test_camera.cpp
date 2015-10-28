@@ -36,13 +36,18 @@
  */
 
 #include <Eigen/Dense>
-#include <camera/camera.h>
+#include <gflags/gflags.h>
 #include <math.h>
 
-#include <gflags/gflags.h>
+#include <camera/camera.h>
+#include <util/types.h>
+
 #include <gtest/gtest.h>
 
 namespace bsfm {
+
+using Eigen::Matrix3d;
+using Eigen::Matrix4d;
 
 TEST(Camera, TestCameraExtrinsics) {
   // Make sure that default constructor makes the extrinsics matrix identity.
@@ -62,7 +67,7 @@ TEST(Camera, TestCameraExtrinsics) {
   EXPECT_EQ(cz, wy);
 
   // Make sure points are translated correctly.
-  Eigen::Matrix4d w2c = Eigen::Matrix4d::Identity();
+  Matrix4d w2c = Matrix4d::Identity();
   w2c(0, 3) = 5.0;
   w2c(1, 3) = 8.0;
   w2c(2, 3) = -10.0;
@@ -81,7 +86,7 @@ TEST(Camera, TestCameraExtrinsics) {
   EXPECT_EQ(cy - 8.0, wy);
   EXPECT_EQ(cz + 10.0, wz);
 
-  Eigen::Matrix<double, 3, 4> expected_extrinsic_matrix;
+  Matrix34d expected_extrinsic_matrix;
   expected_extrinsic_matrix(0, 0) = 1.0;
   expected_extrinsic_matrix(0, 1) = 0.0;
   expected_extrinsic_matrix(0, 2) = 0.0;
@@ -120,7 +125,7 @@ TEST(Camera, TestCameraIntrinsics) {
   // No radial distortion.
   intrinsics.SetK(0.0, 0.0, 0.0, 0.0, 0.0);
 
-  Eigen::Matrix3d expected_intrinsic_matrix = Eigen::Matrix3d::Identity();
+  Matrix3d expected_intrinsic_matrix = Matrix3d::Identity();
   expected_intrinsic_matrix(0, 0) = intrinsics.f_u();
   expected_intrinsic_matrix(1, 1) = intrinsics.f_v();
   expected_intrinsic_matrix(0, 2) = intrinsics.c_u();
@@ -169,14 +174,14 @@ TEST(Camera, TestCamera) {
   CameraExtrinsics extrinsics;
 
   // Pure translation.
-  Eigen::Matrix4d w2c = Eigen::Matrix4d::Identity();
+  Matrix4d w2c = Matrix4d::Identity();
   w2c(0, 3) = 4.0;
   w2c(1, 3) = 2.0;
   w2c(2, 3) = -0.0;
 
   // Make some points and project them into a second camera.
   Camera camera1, camera2;
-  Eigen::Matrix4d eye = Eigen::Matrix4d::Identity();
+  Matrix4d eye = Matrix4d::Identity();
   camera1.SetIntrinsics(intrinsics);
   camera1.SetExtrinsics(Pose(eye));
   camera2.SetIntrinsics(intrinsics);

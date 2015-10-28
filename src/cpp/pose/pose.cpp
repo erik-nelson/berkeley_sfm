@@ -43,24 +43,24 @@ namespace bsfm {
 
 // Initialize to the identity.
 Pose::Pose() {
-  Rt_ = Eigen::Matrix4d::Identity();
+  Rt_ = Matrix4d::Identity();
 }
 
 // Construct a new Pose from a rotation matrix and translation vector.
-Pose::Pose(const Eigen::Matrix3d& R, const Eigen::Vector3d& t) {
-  Rt_ = Eigen::Matrix4d::Identity();
+Pose::Pose(const Matrix3d& R, const Vector3d& t) {
+  Rt_ = Matrix4d::Identity();
   Rt_.block(0, 0, 3, 3) = R;
   Rt_.col(3).head(3) = t;
 }
 
 // Construct a new Pose from a de-homogenized 3x4 [R | t] matrix.
-Pose::Pose(const Eigen::Matrix<double, 3, 4>& Rt) {
-  Rt_ = Eigen::Matrix4d::Identity();
+Pose::Pose(const Matrix34d& Rt) {
+  Rt_ = Matrix4d::Identity();
   Rt_.block(0, 0, 3, 4) = Rt;
 }
 
 // Construct a new Pose from a 4x4 Rt matrix.
-Pose::Pose(const Eigen::Matrix4d& Rt) {
+Pose::Pose(const Matrix4d& Rt) {
   Rt_ << Rt;
 }
 
@@ -79,53 +79,53 @@ const double& Pose::operator()(int i, int j) const {
 }
 
 // Access a const version of the homogeneous transformation matrix.
-const Eigen::Matrix4d& Pose::Get() const {
+const Matrix4d& Pose::Get() const {
   return Rt_;
 }
 
 // Get the transformation's rotation components.
-Eigen::Matrix3d Pose::Rotation() const {
+Matrix3d Pose::Rotation() const {
   return Rt_.block(0, 0, 3, 3);
 }
 
 // Get the transformation's translation components.
-Eigen::Vector3d Pose::Translation() const {
+Vector3d Pose::Translation() const {
   return Rt_.block(0, 3, 3, 1);
 }
 
 // Set the homogeneous transformation matrix.
-void Pose::Set(const Eigen::Matrix4d& transformation) {
+void Pose::Set(const Matrix4d& transformation) {
   Rt_ = transformation;
 }
 
 // Set rotation and translation directly.
-void Pose::SetRotation(const Eigen::Matrix3d& rotation) {
+void Pose::SetRotation(const Matrix3d& rotation) {
   Rt_.block(0, 0, 3, 3) = rotation;
 }
 
-void Pose::SetTranslation(const Eigen::Vector3d& translation) {
+void Pose::SetTranslation(const Vector3d& translation) {
   Rt_.block(0, 3, 3, 1) = translation;
 }
 
 // Overloaded multiplication operator for composing two poses.
 Pose Pose::operator*(const Pose& other) const {
-  Eigen::Matrix4d Rt_out = Rt_ * other.Rt_;
+  Matrix4d Rt_out = Rt_ * other.Rt_;
   return Pose(Rt_out);
 }
 
 // Multiply a homgenized point into a Pose.
-Eigen::Vector4d Pose::Project(const Eigen::Vector4d& pt3d) {
-  Eigen::Vector4d proj = Rt_ * pt3d;
+Vector4d Pose::Project(const Vector4d& pt3d) {
+  Vector4d proj = Rt_ * pt3d;
   return proj;
 }
 
 // Project a 3D point into this Pose.
-Eigen::Vector2d Pose::ProjectTo2D(const Eigen::Vector3d& pt3d) {
-  Eigen::Vector4d pt3d_h = Eigen::Vector4d::Constant(1.0);
+Vector2d Pose::ProjectTo2D(const Vector3d& pt3d) {
+  Vector4d pt3d_h = Vector4d::Constant(1.0);
   pt3d_h.head(3) = pt3d;
 
-  const Eigen::Vector4d proj_h = Rt_ * pt3d_h;
-  Eigen::Vector2d proj = proj_h.head(2);
+  const Vector4d proj_h = Rt_ * pt3d_h;
+  Vector2d proj = proj_h.head(2);
   proj /= proj_h(2);
 
   return proj;
@@ -144,50 +144,48 @@ void Pose::Compose(const Pose& other) {
 
 // Invert this Pose.
 Pose Pose::Inverse() const {
-  Eigen::Matrix4d Rt_inverse = Rt_.inverse();
+  Matrix4d Rt_inverse = Rt_.inverse();
   Pose out(Rt_inverse);
   return out;
 }
 
 // Extract just the extrinsics matrix as a 3x4 matrix.
-Eigen::Matrix<double, 3, 4> Pose::Dehomogenize() {
-  Eigen::Matrix<double, 3, 4> extrinsics = Eigen::Matrix<double, 3, 4>();
-  extrinsics = Rt_.block(0, 0, 3, 4);
-  return extrinsics;
+Matrix34d Pose::Dehomogenize() {
+  return Rt_.block(0, 0, 3, 4);
 }
 
 // Convert to axis-angle representation.
-Eigen::VectorXd Pose::ToAxisAngle() {
+VectorXd Pose::ToAxisAngle() {
   // From https://en.wikipedia.org/wiki/Axis-angle-representation.
   const double angle = acos(0.5 * (Rt_.trace() - 2.0));
-  Eigen::Vector3d axis = Eigen::Vector3d(Rt_(2, 1) - Rt_(1, 2),
-					 Rt_(0, 2) - Rt_(2, 0),
-					 Rt_(1, 0) - Rt_(0, 1)) * 0.5 / sin(angle);
+  Vector3d axis = Vector3d(Rt_(2, 1) - Rt_(1, 2),
+					                 Rt_(0, 2) - Rt_(2, 0),
+					                 Rt_(1, 0) - Rt_(0, 1)) * 0.5 / sin(angle);
 
   axis /= axis.norm();
   return axis * angle;
 }
 
 // Convert to matrix representation.
-Eigen::Matrix4d Pose::FromAxisAngle(const Eigen::Vector3d& aa) {
+Matrix4d Pose::FromAxisAngle(const Vector3d& aa) {
   // From https://en.wikipedia.org/wiki/Rotation_matrix.
   double angle = aa.norm();
-  Eigen::Vector3d axis = aa / angle;
+  Vector3d axis = aa / angle;
 
-  Eigen::Matrix3d cross;
+  Matrix3d cross;
   cross <<
     0.0, -axis(2), axis(1),
     axis(2), 0.0, -axis(0),
     -axis(1), axis(0), 0.0;
 
-  Eigen::Matrix3d tensor;
+  Matrix3d tensor;
   tensor <<
     axis(0)*axis(0), axis(0)*axis(1), axis(0)*axis(2),
     axis(0)*axis(1), axis(1)*axis(1), axis(1)*axis(2),
     axis(0)*axis(2), axis(1)*axis(2), axis(2)*axis(2);
 
-  Eigen::Matrix3d R =
-    cos(angle) * Eigen::Matrix3d::Identity() +
+  Matrix3d R =
+    cos(angle) * Matrix3d::Identity() +
     sin(angle) * cross + (1-cos(angle)) * tensor;
   Rt_.block(0, 0, 3, 3) = R;
 

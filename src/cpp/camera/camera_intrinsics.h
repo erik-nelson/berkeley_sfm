@@ -54,13 +54,16 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Vector3d;
+
 class CameraIntrinsics {
  public:
   // Initialize to zero.
   CameraIntrinsics();
 
   // Assume no radial distortion, and image left and top are both zero.
-  CameraIntrinsics(const Eigen::Matrix3d& K, int image_width, int image_height);
+  CameraIntrinsics(const Matrix3d& K, int image_width, int image_height);
 
   // Full initialization.
   CameraIntrinsics(int image_left, int image_top, int image_width,
@@ -107,10 +110,10 @@ class CameraIntrinsics {
   double VerticalFOV() const;
 
   // Get intrinsics matrix.
-  Eigen::Matrix3d K() const;
+  Matrix3d K() const;
 
   // Get inverse of intrinsics matrix.
-  Eigen::Matrix3d Kinv() const;
+  Matrix3d Kinv() const;
 
   // Test if a point is in the image.
   bool PointInImage(double u, double v) const;

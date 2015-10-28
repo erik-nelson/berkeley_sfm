@@ -61,10 +61,10 @@ namespace bsfm {
 
 // Default constructor.
 FundamentalMatrixRansacModel::FundamentalMatrixRansacModel()
-    : F_(Eigen::Matrix3d::Identity()), error_(0.0) {}
+    : F_(Matrix3d::Identity()), error_(0.0) {}
 
 FundamentalMatrixRansacModel::FundamentalMatrixRansacModel(
-    const Eigen::Matrix3d& F)
+    const Matrix3d& F)
     : F_(F), error_(0.0) {}
 
 // Destructor.
@@ -91,7 +91,7 @@ bool FundamentalMatrixRansacModel::IsGoodFit(
 double FundamentalMatrixRansacModel::EvaluateEpipolarCondition(
     const FeatureMatch& match) const {
   // Construct vectors for 2D keypoints in match.
-  Eigen::Vector3d kp1, kp2;
+  Vector3d kp1, kp2;
   kp1 << match.feature1_.u_, match.feature1_.v_, 1;
   kp2 << match.feature2_.u_, match.feature2_.v_, 1;
 
@@ -147,7 +147,7 @@ std::vector<FeatureMatch> FundamentalMatrixRansacProblem::RemainingData(
 FundamentalMatrixRansacModel FundamentalMatrixRansacProblem::FitModel(
     const std::vector<FeatureMatch>& input_data) const {
   // Create an empty fundamental matrix.
-  Eigen::Matrix3d F;
+  Matrix3d F;
 
   // Run the 8-point algorithm with default options.
   EightPointAlgorithmSolver solver;
@@ -168,7 +168,7 @@ FundamentalMatrixRansacModel FundamentalMatrixRansacProblem::FitModel(
     return model_out;
   }
   // Set a large error - we didn't find a model that fits the data.
-  FundamentalMatrixRansacModel model_out(Eigen::Matrix3d::Identity());
+  FundamentalMatrixRansacModel model_out(Matrix3d::Identity());
   model_out.error_ = std::numeric_limits<double>::infinity();
   return model_out;
 }

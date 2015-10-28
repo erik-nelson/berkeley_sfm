@@ -49,32 +49,35 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Vector3d;
+
 // Convert from Euler angles to a rotation matrix. Phi, theta, and psi define the
 // angles of the intermediate rotations about x (R_x), y (R_y), and z (R_z)
 // respectively. See https://en.wikipedia.org/wiki/Rotation_matrix.
-Eigen::Matrix3d EulerAnglesToMatrix(double phi, double theta, double psi);
+Matrix3d EulerAnglesToMatrix(double phi, double theta, double psi);
 
 // Same thing as above, but where phi, theta, and psi are specified as a vector.
-Eigen::Matrix3d EulerAnglesToMatrix(const Eigen::Vector3d& euler_angles);
+Matrix3d EulerAnglesToMatrix(const Vector3d& euler_angles);
 
 // Convert from a rotation matrix to Euler angles.
 // From: http://staff.city.ac.uk/~sbbh653/publications/euler.pdf
 // Note that the solution that is returned is only unique when phi, theta, and
 // psi are all < 0.5 * PI. If this is not the case, they will still be correct,
 // but may not be unique!
-Eigen::Vector3d MatrixToEulerAngles(const Eigen::Matrix3d& R);
+Vector3d MatrixToEulerAngles(const Matrix3d& R);
 
 // Get roll angle from a rotation matrix.
 // Just like above, the solution is only unique if roll < 0.5 * PI.
-double Roll(const Eigen::Matrix3d& R);
+double Roll(const Matrix3d& R);
 
 // Get pitch angle from a rotation matrix.
 // This solution is unique.
-double Pitch(const Eigen::Matrix3d& R);
+double Pitch(const Matrix3d& R);
 
 // Get yaw angle from a rotation matrix.
 // Just like above, the solution is only unique if yaw < 0.5 * PI.
-double Yaw(const Eigen::Matrix3d& R);
+double Yaw(const Matrix3d& R);
 
 // Unroll an angle to be \in [0, 2*PI)
 double Unroll(double angle);
@@ -94,7 +97,7 @@ double D2R(double angle);
 double R2D(double angle);
 
 // An error metric between two rotation matrices on SO3.
-double SO3Error(const Eigen::Matrix3d& R1, const Eigen::Matrix3d& R2);
+double SO3Error(const Matrix3d& R1, const Matrix3d& R2);
 
 }  //\namespace bsfm
 

@@ -41,11 +41,11 @@
 
 namespace bsfm {
 
-Eigen::Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
-                                     bool use_feature_set1) {
+Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
+                              bool use_feature_set1) {
   if (matched_features.empty()) {
     LOG(WARNING) << "Received no data to normalize. Returning identity.";
-    return Eigen::MatrixXd::Identity(3, 3);
+    return MatrixXd::Identity(3, 3);
   }
 
   // Compute a mean translation from the origin.
@@ -90,11 +90,11 @@ Eigen::Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
     LOG(WARNING)
         << "When normalizing feature coordinates scale factor was nearly zero. "
            "Proceeding without normalizing data.";
-    return Eigen::MatrixXd::Identity(3, 3);
+    return MatrixXd::Identity(3, 3);
   }
 
   // Populate the output matrix.
-  Eigen::Matrix3d T(Eigen::MatrixXd::Identity(3, 3));
+  Matrix3d T(MatrixXd::Identity(3, 3));
   T(0, 0) = 1.0 / scale;
   T(1, 1) = 1.0 / scale;
   T(0, 2) = -mean_u / scale;
@@ -103,10 +103,10 @@ Eigen::Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
   return T;
 }
 
-Eigen::Matrix3d ComputeNormalization(const FeatureList& features) {
+Matrix3d ComputeNormalization(const FeatureList& features) {
   if (features.empty()) {
     LOG(WARNING) << "Received no data to normalize. Returning identity.";
-    return Eigen::MatrixXd::Identity(3, 3);
+    return MatrixXd::Identity(3, 3);
   }
 
   // Compute a mean translation from the origin.
@@ -141,11 +141,11 @@ Eigen::Matrix3d ComputeNormalization(const FeatureList& features) {
     LOG(WARNING)
         << "When normalizing feature coordinates scale factor was nearly zero. "
            "Proceeding without normalizing data.";
-    return Eigen::MatrixXd::Identity(3, 3);
+    return MatrixXd::Identity(3, 3);
   }
 
   // Populate the output matrix.
-  Eigen::Matrix3d T(Eigen::MatrixXd::Identity(3, 3));
+  Matrix3d T(MatrixXd::Identity(3, 3));
   T(0, 0) = 1.0 / scale;
   T(1, 1) = 1.0 / scale;
   T(0, 2) = -mean_u / scale;
@@ -154,10 +154,10 @@ Eigen::Matrix3d ComputeNormalization(const FeatureList& features) {
   return T;
 }
 
-Eigen::Matrix4d ComputeNormalization(const Point3DList& points) {
+Matrix4d ComputeNormalization(const Point3DList& points) {
   if (points.empty()) {
     LOG(WARNING) << "Received no data to normalize. Returning identity.";
-    return Eigen::MatrixXd::Identity(4, 4);
+    return MatrixXd::Identity(4, 4);
   }
 
   // Compute a mean translation from the origin.
@@ -198,11 +198,11 @@ Eigen::Matrix4d ComputeNormalization(const Point3DList& points) {
     LOG(WARNING)
         << "When normalizing feature coordinates scale factor was nearly zero. "
            "Proceeding without normalizing data.";
-    return Eigen::MatrixXd::Identity(4, 4);
+    return MatrixXd::Identity(4, 4);
   }
 
   // Populate the output matrix.
-  Eigen::Matrix4d T(Eigen::MatrixXd::Identity(4, 4));
+  Matrix4d T(MatrixXd::Identity(4, 4));
   T(0, 0) = 1.0 / scale;
   T(1, 1) = 1.0 / scale;
   T(2, 2) = 1.0 / scale;

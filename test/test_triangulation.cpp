@@ -49,6 +49,8 @@
 
 namespace bsfm {
 
+using Eigen::Vector3d;
+
 namespace {
 const int kImageWidth = 1920;
 const int kImageHeight = 1080;
@@ -85,7 +87,7 @@ TEST(Triangulation, TestTriangulateNoiseless) {
       extrinsics.SetTranslation(cx, cy, cz);
 
       // Add some rotation (up to 20 degrees in roll, pitch, and yaw).
-      Eigen::Vector3d euler_angles;
+      Vector3d euler_angles;
       euler_angles.setRandom();
       euler_angles *= D2R(20.0);
       extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));

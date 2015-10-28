@@ -49,11 +49,15 @@
 #ifndef BSFM_CAMERA_CAMERA_H
 #define BSFM_CAMERA_CAMERA_H
 
-#include "camera_extrinsics.h"
-#include "camera_intrinsics.h"
 #include <matching/feature_match.h>
 
+#include "camera_extrinsics.h"
+#include "camera_intrinsics.h"
+#include "../util/types.h"
+
 namespace bsfm {
+
+using Eigen::Matrix3d;
 
 class Camera {
  public:
@@ -78,13 +82,13 @@ class Camera {
   const CameraIntrinsics& Intrinsics() const;
 
   // Get the projection matrix by multiplying intrinsics and extrinsics.
-  Eigen::Matrix<double, 3, 4> P() const;
+  Matrix34d P() const;
 
   // Get the camera intrinsics matrix, K.
-  Eigen::Matrix3d K() const;
+  Matrix3d K() const;
 
   // Get the camera extrinsics matrix, [R | t].
-  Eigen::Matrix<double, 3, 4> Rt() const;
+  Matrix34d Rt() const;
 
   // Transform points from world to camera coordinates.
   void WorldToCamera(double wx, double wy, double wz, double* cx, double* cy,

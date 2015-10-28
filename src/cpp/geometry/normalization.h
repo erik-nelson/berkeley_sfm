@@ -56,20 +56,24 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Matrix4d;
+using Eigen::MatrixXd;
+
 // Compute a matrix that when used to left-multiply the input features will
 // normalize them. Since both sets of features are stored in the
 // FeatureMatchList, the 'use_feature_set1' parameter must be specified to
 // pick out a normalization for either feature set 1 or feature set 2.
-Eigen::Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
-                                     bool use_feature_set1);
+Matrix3d ComputeNormalization(const FeatureMatchList& matched_features,
+                              bool use_feature_set1);
 
 // Compute a matrix that when used to left-multiply the input features will
 // normalize them.
-Eigen::Matrix3d ComputeNormalization(const FeatureList& features);
+Matrix3d ComputeNormalization(const FeatureList& features);
 
 // Compute a matrix that when used to left-multiply the input points will
 // normalize them.
-Eigen::Matrix4d ComputeNormalization(const Point3DList& points);
+Matrix4d ComputeNormalization(const Point3DList& points);
 
 }  //\namespace bsfm
 

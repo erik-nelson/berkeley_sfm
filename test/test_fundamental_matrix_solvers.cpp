@@ -48,6 +48,9 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Vector3d;
+
 namespace {
 const int kImageWidth = 1920;
 const int kImageHeight = 1080;
@@ -122,8 +125,8 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
   FundamentalMatrixSolverOptions options;
   solver.SetOptions(options);
 
-  std::vector<Eigen::Matrix3d> fundamental_matrices1;
-  std::vector<Eigen::Matrix3d> fundamental_matrices2;
+  std::vector<Matrix3d> fundamental_matrices1;
+  std::vector<Matrix3d> fundamental_matrices2;
   EXPECT_TRUE(solver.ComputeFundamentalMatrices(fundamental_matrices1));
 
   options.normalize_features = false;
@@ -132,12 +135,12 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
 
   // We should have 1 fundamental matrix (we only put in 1 image pair).
   if (fundamental_matrices1.size() > 0 && fundamental_matrices2.size() > 0) {
-    Eigen::Matrix3d F_normalized = fundamental_matrices1[0];
-    Eigen::Matrix3d F_unnormalized = fundamental_matrices2[0];
+    Matrix3d F_normalized = fundamental_matrices1[0];
+    Matrix3d F_unnormalized = fundamental_matrices2[0];
 
     // For every feature pair, we should have x1^{T}*F*x2 = 0.
     for (const auto& match : image_match.feature_matches_) {
-      Eigen::Vector3d x1, x2;
+      Vector3d x1, x2;
       x1 << match.feature1_.u_, match.feature1_.v_, 1;
       x2 << match.feature2_.u_, match.feature2_.v_, 1;
 

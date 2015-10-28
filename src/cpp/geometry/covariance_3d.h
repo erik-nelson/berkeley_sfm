@@ -50,6 +50,8 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+
 class Covariance3D {
  public:
   typedef std::shared_ptr<Covariance3D> Ptr;
@@ -61,7 +63,7 @@ class Covariance3D {
                double x21, double x22, double x23,
                double x31, double x32, double x33);
   Covariance3D(const Covariance3D& in);
-  Covariance3D(const Eigen::Matrix3d& in);
+  Covariance3D(const Matrix3d& in);
 
   // Static defaults.
   static Covariance3D Zero();
@@ -72,18 +74,18 @@ class Covariance3D {
 
   // Setters.
   void Set(const Covariance3D& in);
-  void Set(const Eigen::Matrix3d& in);
+  void Set(const Matrix3d& in);
 
   // Getters. Primary access is via the operator() method.
   double& operator()(int row, int col);
   const double& operator()(int row, int col) const;
-  const Eigen::Matrix3d& Get() const;
+  const Matrix3d& Get() const;
 
   // Utility.
   void Print(const std::string& prefix = std::string()) const;
 
  private:
-  Eigen::Matrix3d data_;
+  Matrix3d data_;
 };  //\class Covariance3D
 
 }  //\namespace bsfm

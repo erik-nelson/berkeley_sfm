@@ -61,13 +61,13 @@ void FundamentalMatrixSolver::SetOptions(
 }
 
 bool FundamentalMatrixSolver::ComputeFundamentalMatrices(
-    std::vector<Eigen::Matrix3d>& fundamental_matrices) {
+    std::vector<Matrix3d>& fundamental_matrices) {
   // Clear the output.
   fundamental_matrices.clear();
 
   // Determine a fundamental matrix for each pair of images.
   for (const auto& pair_data : matched_image_data_) {
-    Eigen::Matrix3d fundamental_matrix;
+    Matrix3d fundamental_matrix;
     if (ComputeFundamentalMatrix(pair_data.feature_matches_,
                                  fundamental_matrix)) {
       fundamental_matrices.push_back(fundamental_matrix);

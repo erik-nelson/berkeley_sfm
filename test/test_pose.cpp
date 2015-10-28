@@ -47,6 +47,10 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Matrix4d;
+using Eigen::Vector3d;
+
 TEST(Pose, TestPoseAxisAngle) {
   // Create a simple rotation matrix and random translation vector.
   Eigen::Matrix3d R;
@@ -54,12 +58,12 @@ TEST(Pose, TestPoseAxisAngle) {
        sin(0.5),  cos(0.5), 0,
        0,         0,        1;
 
-  const Eigen::Vector3d t = Eigen::Vector3d::Random();
+  const Vector3d t = Vector3d::Random();
   const Pose p1 = Pose(R, t);
   Pose p2 = p1;
 
   // Convert to/from axis angle representation and check nothing has changed.
-  Eigen::Vector3d aa = p2.ToAxisAngle();
+  Vector3d aa = p2.ToAxisAngle();
   p2.FromAxisAngle(aa);
   EXPECT_TRUE(p1.IsApprox(p2));
 }
@@ -79,10 +83,10 @@ TEST(Pose, TestPoseDelta) {
     const double psi2 = rng.DoubleUniform(-M_PI, M_PI);
 
     // Make 2 rotation matrices.
-    const Eigen::Matrix3d R1(EulerAnglesToMatrix(phi1, theta1, psi1));
-    const Eigen::Matrix3d R2(EulerAnglesToMatrix(phi2, theta2, psi2));
-    const Eigen::Vector3d t1(Eigen::Vector3d::Random());
-    const Eigen::Vector3d t2(Eigen::Vector3d::Random());
+    const Matrix3d R1(EulerAnglesToMatrix(phi1, theta1, psi1));
+    const Matrix3d R2(EulerAnglesToMatrix(phi2, theta2, psi2));
+    const Vector3d t1(Vector3d::Random());
+    const Vector3d t2(Vector3d::Random());
 
     // Compose the two poses.
     Pose p1(R1, t1);
@@ -96,16 +100,16 @@ TEST(Pose, TestPoseDelta) {
     EXPECT_TRUE(p12.IsApprox(p21.Inverse()));
 
     // Make sure the deltas are what we would expect.
-    Eigen::Matrix4d Rt1(Eigen::Matrix4d::Identity());
+    Matrix4d Rt1(Matrix4d::Identity());
     Rt1.block(0, 0, 3, 3) = R1;
     Rt1.block(0, 3, 3, 1) = t1;
 
-    Eigen::Matrix4d Rt2(Eigen::Matrix4d::Identity());
+    Matrix4d Rt2(Matrix4d::Identity());
     Rt2.block(0, 0, 3, 3) = R2;
     Rt2.block(0, 3, 3, 1) = t2;
 
-    Eigen::Matrix4d expected_delta12 = Rt1.inverse() * Rt2;
-    Eigen::Matrix4d expected_delta21 = Rt2.inverse() * Rt1;
+    Matrix4d expected_delta12 = Rt1.inverse() * Rt2;
+    Matrix4d expected_delta21 = Rt2.inverse() * Rt1;
     EXPECT_TRUE(expected_delta12.isApprox(p12.Get()));
     EXPECT_TRUE(expected_delta21.isApprox(p21.Get()));
   }

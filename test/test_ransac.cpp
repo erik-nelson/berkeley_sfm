@@ -63,6 +63,9 @@ DEFINE_bool(ransac_draw_feature_matches, false,
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Vector3d;
+
 class TestRansac : public ::testing::Test {
  protected:
 
@@ -136,7 +139,7 @@ class TestRansac : public ::testing::Test {
     while (matched_images_out.feature_matches_.size() <
            num_good_matches + num_bad_matches) {
       // We can generate points in a larger box now.
-      Eigen::Vector3d x_w1, x_w2;
+      Vector3d x_w1, x_w2;
       x_w1.x() = rng.DoubleUniform(-2.0, 4.0);
       x_w1.y() = rng.DoubleUniform(3.0, 10.0);
       x_w1.z() = rng.DoubleUniform(-3.0, 3.0);
@@ -224,7 +227,7 @@ TEST_F(TestRansac, TestNoiselessMatches) {
   ASSERT_TRUE(problem.SolutionFound());
 
   // If check not needed, but useful to show how to implement this.
-  Eigen::Matrix3d fundamental_matrix_ransac(Eigen::Matrix3d::Identity());
+  Matrix3d fundamental_matrix_ransac(Matrix3d::Identity());
   if (problem.SolutionFound()) {
     const FundamentalMatrixRansacModel& model = problem.Model();
     fundamental_matrix_ransac = model.F_;
@@ -243,7 +246,7 @@ TEST_F(TestRansac, TestNoiselessMatches) {
   FundamentalMatrixSolverOptions options2;
   solver2.SetOptions(options2);
 
-  Eigen::Matrix3d fundamental_matrix_ep(Eigen::Matrix3d::Identity());
+  Matrix3d fundamental_matrix_ep(Matrix3d::Identity());
   ASSERT_TRUE(solver2.ComputeFundamentalMatrix(data.feature_matches_,
                                                fundamental_matrix_ep));
 
@@ -253,7 +256,7 @@ TEST_F(TestRansac, TestNoiselessMatches) {
   // This is redundant, but just as a check - the fundamental matrix computed
   // with the eight-point algorithm should also have very low error.
   for (const auto& feature_match : data.feature_matches_) {
-    Eigen::Vector3d x1, x2;
+    Vector3d x1, x2;
     x1 << feature_match.feature1_.u_, feature_match.feature1_.v_, 1;
     x2 << feature_match.feature2_.u_, feature_match.feature2_.v_, 1;
     EXPECT_NEAR(0.0, x2.transpose() * fundamental_matrix_ep * x1, 1e-8);

@@ -56,13 +56,15 @@
 
 namespace bsfm {
 
+using Eigen::Matrix3d;
+using Eigen::Vector3d;
+
 namespace {
 const int kImageWidth = 1920;
 const int kImageHeight = 1080;
 const double kVerticalFov = 0.5 * M_PI;
 const int kFeatureMatches = 20;
 } //\namespace
-
 
 TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
 
@@ -136,7 +138,7 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   FundamentalMatrixSolverOptions options;
   ep_solver.SetOptions(options);
 
-  Eigen::Matrix3d F;
+  Matrix3d F;
   ASSERT_TRUE(ep_solver.ComputeFundamentalMatrix(feature_matches, F));
 
   // Make sure the computed fundamental matrix is valid.
@@ -145,15 +147,15 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
     const double v1 = feature_matches[ii].feature1_.v_;
     const double u2 = feature_matches[ii].feature2_.u_;
     const double v2 = feature_matches[ii].feature2_.v_;
-    Eigen::Vector3d x1(u1, v1, 1);
-    Eigen::Vector3d x2(u2, v2, 1);
+    Vector3d x1(u1, v1, 1);
+    Vector3d x2(u2, v2, 1);
     EXPECT_NEAR(0.0, x2.transpose() * F * x1, 1e-8);
   }
 
   // Matches are noiseless so we shouldn't need RANSAC.
   // Try to get the essential matrix from the fundamental matrix.
   EssentialMatrixSolver e_solver;
-  Eigen::Matrix3d E = e_solver.ComputeEssentialMatrix(F, camera1.Intrinsics(),
+  Matrix3d E = e_solver.ComputeEssentialMatrix(F, camera1.Intrinsics(),
                                                       camera2.Intrinsics());
 
   // Extract the pose of camera 2 from E. This pose will be relative to the pose
@@ -171,8 +173,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   // this delta translation to camera frame (change-of-basis). Note that the
   // rotation is also in camera frame, but identity rotation is the same in any
   // basis, so we don't need to convert the rotation to world coordinates.
-  Eigen::Matrix3d Rc = CameraExtrinsics::DefaultWorldToCamera().Rotation();
-  Eigen::Vector3d tc = CameraExtrinsics::DefaultWorldToCamera().Translation();
+  Matrix3d Rc = CameraExtrinsics::DefaultWorldToCamera().Rotation();
+  Vector3d tc = CameraExtrinsics::DefaultWorldToCamera().Translation();
   delta.SetTranslation(Rc * delta.Translation() + tc);
 
   // E can only compute translation up to scale (this is why monocular has scale

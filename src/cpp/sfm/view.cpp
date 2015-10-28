@@ -39,26 +39,33 @@
 
 namespace bsfm {
 
-// Automatically initialize the View's frame index.
-View::View() : frame_index_(NextFrameIndex()) {}
+// Declaration of static member variable.
+std::unordered_map<unsigned int, View::Ptr> View::view_registry_;
 
-View::View(const class Camera& camera)
-    : frame_index_(NextFrameIndex()), camera_(camera) {}
+// Factory method. Registers the view and index in the view registry so
+// that they can be accessed from the static GetView() method. This guarantees
+// that all views will have uniqueindices.
+View::Ptr View::Create(const class Camera& camera) {
+  // Create a new view, implicitly assigning a unique index.
+  View::Ptr view(new View(camera));
 
-// Copy constructor and assignment operator should not increment the frame
-// index.
-View::View(const View& other)
-    : camera_(other.camera_), frame_index_(other.frame_index_) {}
+  // Register the view.
+  std::pair<unsigned int, View::Ptr> registry_element;
+  registry_element = std::make_pair(view->Index(), view);
+  view_registry_.insert(registry_element);
 
-View& View::operator=(const View& other) {
-  // Check for self-assignment.
-  if (this == &other)
-    return *this;
+  // Return the created view.
+  return view;
+}
 
-  // Copy data without changing frame index.
-  this->camera_ = other.camera_;
-  this->frame_index_ = other.frame_index_;
-  return *this;
+// Gets the view corresponding to the input view index. If the view has not been
+// created yet, this method returns a null pointer.
+View::Ptr View::GetView(unsigned int view_index) {
+  auto view = view_registry_.find(view_index);
+  if (view == view_registry_.end())
+    return View::Ptr();
+
+  return view->second;
 }
 
 void View::SetCamera(const class Camera& camera) {
@@ -73,28 +80,23 @@ const class Camera& View::Camera() const {
   return camera_;
 }
 
-unsigned int View::FrameIndex() const {
-  return frame_index_;
+unsigned int View::Index() const {
+  return view_index_;
 }
 
-bool View::SortByFrameIndex(const View& lhs, const View& rhs) {
-  return lhs.FrameIndex() < rhs.FrameIndex();
+bool View::SortByIndex(const View::Ptr& lhs, const View::Ptr& rhs) {
+  return lhs->Index()< rhs->Index();
 }
 
-bool View::SortByFrameIndexPtr(const View::Ptr& lhs, const View::Ptr& rhs) {
-  return lhs->FrameIndex()< rhs->FrameIndex();
-}
+// Hidden constructor. This will be called from the factory method.
+View::View(const class Camera& camera)
+    : view_index_(NextViewIndex()), camera_(camera) {}
 
-bool View::SortByFrameIndexConstPtr(const View::ConstPtr& lhs,
-                                    const View::ConstPtr& rhs) {
-  return lhs->FrameIndex() < rhs->FrameIndex();
-}
-
-// Static method for determining the next frame index across all Views
+// Static method for determining the next index across all Views
 // constructed so far. This is called in the View constructor.
-unsigned int View::NextFrameIndex() {
-  static unsigned int current_frame_index = 0;
-  return current_frame_index++;
+unsigned int View::NextViewIndex() {
+  static unsigned int current_view_index = 0;
+  return current_view_index++;
 }
 
 }  //\namespace bsfm

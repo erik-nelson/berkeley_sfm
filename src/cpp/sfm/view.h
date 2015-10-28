@@ -37,9 +37,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This View class models a camera at a specific frame index. On construction, a
-// view is given a unique frame index which cannot be changed. Copy and
-// assignment will copy the frame index, and will not create a new one.
+// This View class models a camera at a specific frame index. Views must be
+// created with the Create() factory method (construction is disabled). On
+// creation, a view will be given a unique index which cannot be changed. The
+// view and index will be registered so that views can be accessed from the
+// static function GetView().
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -47,8 +49,11 @@
 #define BSFM_SFM_VIEW_H
 
 #include <memory>
+#include <unordered_map>
+#include <utility>
 
 #include "../camera/camera.h"
+#include "../util/disallow_copy_and_assign.h"
 
 namespace bsfm {
 
@@ -57,40 +62,46 @@ class View {
   typedef std::shared_ptr<View> Ptr;
   typedef std::shared_ptr<const View> ConstPtr;
 
-  // Constructors will automatically initialize the View's frame number.
-  View();
-  View(const Camera& camera);
+  // Factory method. Registers the view and newly created index in the view
+  // registry so that they can be accessed from the static GetView() method.
+  // This guarantees that all views will have unique indices.
+  static View::Ptr Create(const class Camera& camera);
   ~View() {}
 
-  // Copy constructor and assignment operator should not increment the frame
-  // index.
-  View(const View& other);
-  View& operator=(const View& other);
+  // Gets the view corresponding to the input index. If the view has not
+  // been created yet, this method returns a null pointer.
+  static View::Ptr GetView(unsigned int view_index);
 
   // Get and set the camera.
   void SetCamera(const class Camera& camera);
   Camera& MutableCamera();
   const class Camera& Camera() const;
 
-  // Get this view's frame index.
-  unsigned int FrameIndex() const;
+  // Get this view's index.
+  unsigned int Index() const;
 
-  // For sorting a list of views by their frame indices.
-  static bool SortByFrameIndex(const View& lhs, const View& rhs);
-  static bool SortByFrameIndexPtr(const View::Ptr& lhs, const View::Ptr& rhs);
-  static bool SortByFrameIndexConstPtr(const View::ConstPtr& lhs,
-                                       const View::ConstPtr& rhs);
+  // For sorting a list of views by their indices.
+  static bool SortByIndex(const View::Ptr& lhs, const View::Ptr& rhs);
 
  private:
-  // Static method for determining the next frame index across all Views
+  DISALLOW_COPY_AND_ASSIGN(View)
+
+  // Private constructor to enfore creation via factory method.
+  View(const class Camera& camera);
+
+  // Static method for determining the next index across all Views
   // constructed so far. This is called in the View constructor.
-  static unsigned int NextFrameIndex();
+  static unsigned int NextViewIndex();
 
   // Includes intrinsics and extrinsics.
   class Camera camera_;
 
   // Provides an ordering on views.
-  unsigned int frame_index_;
+  unsigned int view_index_;
+
+  // A registry of all views constructed so far. These can be queried with the
+  // static method GetView().
+  static std::unordered_map<unsigned int, View::Ptr> view_registry_;
 };  //\class View
 
 }  //\namespace bsfm

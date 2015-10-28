@@ -59,11 +59,11 @@ View::Ptr View::Create(const class Camera& camera) {
 // Gets the view corresponding to the input view index. If the view has not been
 // created yet, this method returns a null pointer.
 View::Ptr View::GetView(unsigned int view_index) {
-  auto view = view_registry_.find(view_index);
-  if (view == view_registry_.end())
+  auto registry_element = view_registry_.find(view_index);
+  if (registry_element == view_registry_.end())
     return View::Ptr();
 
-  return view->second;
+  return registry_element ->second;
 }
 
 void View::SetCamera(const class Camera& camera) {

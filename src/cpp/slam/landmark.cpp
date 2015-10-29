@@ -66,6 +66,12 @@ Landmark::Ptr Landmark::GetLandmark(LandmarkIndex landmark_index) {
   return registry_element->second;
 }
 
+// Returns the total number of existing landmarks.
+LandmarkIndex Landmark::NumExistingLandmarks() {
+  return landmark_registry_.size();
+}
+
+// Returns the unique index of this landmark.
 LandmarkIndex Landmark::Index() const {
   return landmark_index_;
 }
@@ -105,36 +111,53 @@ const std::shared_ptr<::bsfm::Descriptor>& Landmark::Descriptor() const {
 
 // Adding a new observation will update the estimated position by
 // re-triangulating the feature.
-bool Landmark::IncorporateObservation(
-    const Observation::Ptr& observation) {
+bool Landmark::IncorporateObservation(const Observation::Ptr& observation) {
   CHECK_NOTNULL(observation.get());
+  CHECK_NOTNULL(observation->Descriptor().get());
 
-  // If this is our first observation, store it and return.
+  // If this is our first observation, store it, tell the observation that it
+  // has been matched with us, and return.
   if (observations_.empty()) {
+    observation->SetLandmark(this->Index());
     observations_.push_back(observation);
     descriptor_ptr_ = observation->Descriptor();
+    return true;
   }
 
-  // Triangulate the landmark's position after incorporating the new observation.
+  // Does our own descriptor match with the observation's descriptor?
+  std::vector<::bsfm::Descriptor> descriptors;
+  descriptors.push_back(*descriptor_ptr_);
+  descriptors.push_back(*observation->Descriptor());
+  DistanceMetric& distance = DistanceMetric::Instance();
+  distance.MaybeNormalizeDescriptors(descriptors);
+
+  if (distance(descriptors[0], descriptors[1]) > distance.Max()) {
+    VLOG(1) << "Observation was not matched to landmark " << this->Index();
+    return false;
+  }
+
+  // Triangulate the landmark's putative position if we were to incorporate the
+  // new observation.
   std::vector<Camera> cameras;
   std::vector<Feature> features;
-  for (const auto& old_observation : observations_) {
-    cameras.push_back(old_observation->GetView()->Camera());
-    features.push_back(*(old_observation->Feature()));
+  for (const auto& obs : observations_) {
+    cameras.push_back(obs->GetView()->Camera());
+    features.push_back(*obs->Feature());
   }
   cameras.push_back(observation->GetView()->Camera());
-  features.push_back(*(observation->Feature()));
+  features.push_back(*observation->Feature());
 
+  // If triangulation fails, we don't have a match and won't update position.
   Point3D new_position;
   if (!Triangulate(features, cameras, new_position)) {
-    // Don't update the landmark's position if we failed to triangulate.
     return false;
   }
 
   // Successfully triangulated the landmark. Update its position and store this
-  // observation.
-  position_ = new_position;
+  // observation. Also tell the observation that it has been matched with us.
+  observation->SetLandmark(this->Index());
   observations_.push_back(observation);
+  position_ = new_position;
 
   return true;
 }

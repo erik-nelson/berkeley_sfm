@@ -80,6 +80,9 @@ class Landmark {
   // been created yet, this method returns a null pointer.
   static Landmark::Ptr GetLandmark(LandmarkIndex landmark_index);
 
+  // Returns the number of existing landmarks.
+  static LandmarkIndex NumExistingLandmarks();
+
   // Setters.
   void SetDescriptor(const ::bsfm::Descriptor& descriptor);
   void SetDescriptor(const std::shared_ptr<::bsfm::Descriptor>& descriptor_ptr);
@@ -91,7 +94,9 @@ class Landmark {
   const std::shared_ptr<::bsfm::Descriptor>& Descriptor() const;
 
   // Adding a new observation will update the estimated position by
-  // re-triangulating the feature.
+  // re-triangulating the feature. This will return false if the observation's
+  // descriptor does not match with our own descriptor, or if we fail to
+  // re-triangulate the landmark after incorporating the new observation.
   bool IncorporateObservation(const Observation::Ptr& observation);
 
   // Get the view that first saw this landmark.
@@ -121,6 +126,8 @@ class Landmark {
   // landmark.
   std::vector<Observation::Ptr> observations_;
 
+  // The descriptor associated with this 3D point. This is assigned based on the
+  // first observation added to the landmark.
   std::shared_ptr<::bsfm::Descriptor> descriptor_ptr_;
 
 };  //\class Landmark

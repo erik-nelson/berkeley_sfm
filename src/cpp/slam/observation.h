@@ -69,20 +69,21 @@ class Observation {
   // feature coordinate pair, and an associated descriptor. Implicitly
   // initializes the landmark to be invalid, since the observation has not been
   // matched with a 3D landmark yet.
-  Observation(ViewIndex view_index, const Feature::Ptr& feature_ptr,
+  Observation(const std::shared_ptr<View>& view_ptr,
+              const Feature::Ptr& feature_ptr,
               const std::shared_ptr<Descriptor>& descriptor_ptr);
   ~Observation();
 
-  // Attempts to match a landmark to this observation. Returns false if the
-  // landmark's descriptor does not match this observation.
-  bool Match(LandmarkIndex landmark_index);
-
-  // Get the view that this observation was seen from.
+    // Get the view that this observation was seen from.
   std::shared_ptr<View> GetView() const;
 
   // Get the landmark that this observation corresponds to. Returns a null
   // pointer if the observation has not been matched with a landmark.
   std::shared_ptr<Landmark> GetLandmark() const;
+
+  // Associates a landmark with this observation. This is called by
+  // Landmark::IncorporateObservation();
+  void SetLandmark(LandmarkIndex landmark_index);
 
   // Returns whether or not the observation has been matched with a landmark. If
   // this returns false, 'GetLandmark()' will return a null pointer.

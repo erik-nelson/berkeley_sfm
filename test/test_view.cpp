@@ -46,10 +46,15 @@
 namespace bsfm {
 
 TEST(View, TestUniqueViewIndices) {
+  // Since all tests are run in a single process, views may have been created
+  // prior to this in other tests (since they are statically stored in a
+  // registry until program termination). We need to begin with the maximum view
+  // number.
+  ViewIndex start_index = View::NumExistingViews();
 
   // Make sure frame indices are assigned on construction.
   Camera camera;
-  for (ViewIndex ii = 0; ii < 3; ++ii) {
+  for (ViewIndex ii = start_index; ii < start_index+3; ++ii) {
     View::Ptr view = View::Create(camera);
     CHECK_EQ(ii, view->Index());
 

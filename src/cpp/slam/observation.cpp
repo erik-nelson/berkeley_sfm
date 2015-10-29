@@ -47,45 +47,22 @@ namespace bsfm {
 // the landmark to be invalid, since the observation has not been matched with a
 // 3D landmark yet.
 Observation::Observation(
-    ViewIndex view_index, const Feature::Ptr& feature_ptr,
+    const View::Ptr& view_ptr, const Feature::Ptr& feature_ptr,
     const std::shared_ptr<::bsfm::Descriptor>& descriptor_ptr)
-    : view_index_(view_index),
-      landmark_index_(kInvalidLandmark),
+    : landmark_index_(kInvalidLandmark),
       is_matched_(false),
       feature_ptr_(feature_ptr),
-      descriptor_ptr_(descriptor_ptr) {}
+      descriptor_ptr_(descriptor_ptr) {
+  // Make sure we got valid inputs.
+  CHECK_NOTNULL(view_ptr.get());
+  CHECK_NOTNULL(feature_ptr.get());
+  CHECK_NOTNULL(descriptor_ptr.get());
+
+  // Store the view's index to access it later.
+  view_index_ = view_ptr->Index();
+}
 
 Observation::~Observation() {}
-
-// Attempts to match a landmark to this observation. Returns false if the
-// landmark's descriptor does not match this observation.
-bool Observation::Match(LandmarkIndex landmark_index) {
-
-  // Get the landmark's descriptor.
-  Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index);
-
-  // Also get this observation's descriptor. Make sure both are not null, then
-  // copy and normalize, if required by the distance metric.
-  std::vector<::bsfm::Descriptor> descriptors;
-  ::bsfm::Descriptor d1 = *(CHECK_NOTNULL(descriptor_ptr_.get()));
-  ::bsfm::Descriptor d2 = *(CHECK_NOTNULL(landmark->Descriptor().get()));
-  descriptors.push_back(d1);
-  descriptors.push_back(d2);
-  DistanceMetric& distance = DistanceMetric::Instance();
-  distance.MaybeNormalizeDescriptors(descriptors);
-
-  // Is this a good 2D<-->3D match?
-  if (distance(descriptors[0], descriptors[1]) > distance.Max()) {
-    VLOG(1) << "Observation was not matched to landmark " << landmark_index;
-    return false;
-  }
-
-  // If the observation and landmark match, store the landmark's index so that
-  // we can access it with Landmark::GetLandmark() later.
-  landmark_index_ = landmark_index;
-  is_matched_ = true;
-  return true;
-}
 
 // Get the view that this observation was seen from.
 std::shared_ptr<View> Observation::GetView() const {
@@ -110,6 +87,14 @@ Landmark::Ptr Observation::GetLandmark() const {
   Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index_);
   CHECK_NOTNULL(landmark.get());
   return landmark;
+}
+
+// Associates a landmark with this observation. This is called by
+// Landmark::IncorporateObservation().
+void Observation::SetLandmark(LandmarkIndex landmark_index) {
+  CHECK_NE(kInvalidLandmark, landmark_index);
+  landmark_index_ = landmark_index;
+  is_matched_ = true;
 }
 
 // Returns whether or not the observation has been matched with a landmark. If

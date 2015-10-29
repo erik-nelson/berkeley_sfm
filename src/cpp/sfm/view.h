@@ -76,6 +76,9 @@ class View {
   // been created yet, this method returns a null pointer.
   static View::Ptr GetView(ViewIndex view_index);
 
+  // Returns the total number of existing landmarks.
+  static ViewIndex NumExistingViews();
+
   // Get and set the camera.
   void SetCamera(const class Camera& camera);
   Camera& MutableCamera();

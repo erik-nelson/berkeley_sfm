@@ -67,6 +67,11 @@ View::Ptr View::GetView(ViewIndex view_index) {
   return registry_element->second;
 }
 
+// Returns the total number of existing views.
+ViewIndex View::NumExistingViews() {
+  return view_registry_.size();
+}
+
 void View::SetCamera(const class Camera& camera) {
   camera_ = camera;
 }

@@ -42,6 +42,7 @@ namespace bsfm {
 
 // Declaration of static member variable.
 std::unordered_map<LandmarkIndex, Landmark::Ptr> Landmark::landmark_registry_;
+LandmarkIndex Landmark::current_landmark_index_ = 0;
 
 // Factory method. Registers the landmark and newly created index in the
 // landmark registry so that they can be accessed from the static GetLandmark()
@@ -71,6 +72,13 @@ LandmarkIndex Landmark::NumExistingLandmarks() {
   return landmark_registry_.size();
 }
 
+// Resets all landmarks and clears the landmark registry. This should rarely be
+// called, except when completely resetting the program or reconstruction.
+void Landmark::ResetLandmarks() {
+  current_landmark_index_ = 0;
+  landmark_registry_.clear();
+}
+
 // Returns the unique index of this landmark.
 LandmarkIndex Landmark::Index() const {
   return landmark_index_;
@@ -78,14 +86,7 @@ LandmarkIndex Landmark::Index() const {
 
 // Create a new descriptor pointer, assuming the templated type has a copy ctor.
 void Landmark::SetDescriptor(const ::bsfm::Descriptor& descriptor) {
-  descriptor_ptr_.reset(new ::bsfm::Descriptor(descriptor));
-}
-
-// Copy an existing descriptor pointer.
-void Landmark::SetDescriptor(
-    const std::shared_ptr<::bsfm::Descriptor>& descriptor_ptr) {
-  CHECK_NOTNULL(descriptor_ptr.get());
-  descriptor_ptr_ = descriptor_ptr;
+  descriptor_ = descriptor;
 }
 
 // Remove all existing observations of the landmark.
@@ -98,36 +99,34 @@ const Point3D& Landmark::Position() const {
   return position_;
 }
 
-// Get observations.
-const std::vector<Observation::Ptr>& Landmark::Observations()
-    const {
-  return observations_;
+// Get descriptor.
+const ::bsfm::Descriptor& Landmark::Descriptor() const {
+  return descriptor_;
 }
 
-// Get descriptor.
-const std::shared_ptr<::bsfm::Descriptor>& Landmark::Descriptor() const {
-  return descriptor_ptr_;
+// Get observations.
+const std::vector<Observation::Ptr>& Landmark::Observations() const {
+  return observations_;
 }
 
 // Adding a new observation will update the estimated position by
 // re-triangulating the feature.
 bool Landmark::IncorporateObservation(const Observation::Ptr& observation) {
   CHECK_NOTNULL(observation.get());
-  CHECK_NOTNULL(observation->Descriptor().get());
 
   // If this is our first observation, store it, tell the observation that it
   // has been matched with us, and return.
   if (observations_.empty()) {
     observation->SetLandmark(this->Index());
     observations_.push_back(observation);
-    descriptor_ptr_ = observation->Descriptor();
+    descriptor_ = observation->Descriptor();
     return true;
   }
 
   // Does our own descriptor match with the observation's descriptor?
   std::vector<::bsfm::Descriptor> descriptors;
-  descriptors.push_back(*descriptor_ptr_);
-  descriptors.push_back(*observation->Descriptor());
+  descriptors.push_back(descriptor_);
+  descriptors.push_back(observation->Descriptor());
   DistanceMetric& distance = DistanceMetric::Instance();
   distance.MaybeNormalizeDescriptors(descriptors);
 
@@ -142,10 +141,10 @@ bool Landmark::IncorporateObservation(const Observation::Ptr& observation) {
   std::vector<Feature> features;
   for (const auto& obs : observations_) {
     cameras.push_back(obs->GetView()->Camera());
-    features.push_back(*obs->Feature());
+    features.push_back(obs->Feature());
   }
   cameras.push_back(observation->GetView()->Camera());
-  features.push_back(*observation->Feature());
+  features.push_back(observation->Feature());
 
   // If triangulation fails, we don't have a match and won't update position.
   Point3D new_position;
@@ -181,8 +180,7 @@ Landmark::Landmark()
 // Static method for determining the next index across all Landmarks constructed
 // so far. This is called in the Landmark constructor.
 LandmarkIndex Landmark::NextLandmarkIndex() {
-  static LandmarkIndex current_landmark_index = 0;
-  return current_landmark_index++;
+  return current_landmark_index_++;
 }
 
 }  //\namespace bsfm

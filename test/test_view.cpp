@@ -88,4 +88,31 @@ TEST(View, TestUniqueViewIndices) {
   }
 }
 
+TEST(View, TestPersistentViews) {
+  // We already created some views that should be stored in the static view
+  // registry in a previous test, even after leaving that test's scope. Check
+  // that views are persistent until program exit.
+  for (ViewIndex ii = 0; ii < 3; ++ii) {
+    CHECK_EQ(ii, View::GetView(ii)->Index());
+  }
+
+  ViewIndex start_index = View::NumExistingViews();
+  EXPECT_NE(0, start_index);
+  for (ViewIndex ii = start_index; ii < start_index + 3; ++ii) {
+    View::Ptr view = View::Create(Camera());
+    CHECK_EQ(ii, view->Index());
+  }
+
+  // Check if we can reset views.
+  View::ResetViews();
+  CHECK_EQ(0, View::NumExistingViews());
+  for (ViewIndex ii = 0; ii < 3; ++ii) {
+    View::Ptr view = View::Create(Camera());
+    CHECK_EQ(ii, view->Index());
+  }
+
+  // Reset so the next test doesn't have issues.
+  View::ResetViews();
+}
+
 }  //\namespace bsfm

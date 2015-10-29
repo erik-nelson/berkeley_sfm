@@ -83,15 +83,22 @@ class Landmark {
   // Returns the number of existing landmarks.
   static LandmarkIndex NumExistingLandmarks();
 
+  // Resets all landmarks and clears the landmark registry. If somebody else is
+  // holding onto a shared pointer to a landmark, that landmark will still be
+  // valid and may now have an index that conflicts with landmarks that are
+  // subsequently added to the landmark registry. Therefore this function can
+  // cause some chaos if not used properly. This should rarley need to be
+  // called, except when completely resetting the program or reconstruction.
+  static void ResetLandmarks();
+
   // Setters.
   void SetDescriptor(const ::bsfm::Descriptor& descriptor);
-  void SetDescriptor(const std::shared_ptr<::bsfm::Descriptor>& descriptor_ptr);
   void ClearObservations();
 
   // Accessors.
   const Point3D& Position() const;
+  const ::bsfm::Descriptor& Descriptor() const;
   const std::vector<Observation::Ptr>& Observations() const;
-  const std::shared_ptr<::bsfm::Descriptor>& Descriptor() const;
 
   // Adding a new observation will update the estimated position by
   // re-triangulating the feature. This will return false if the observation's
@@ -128,8 +135,10 @@ class Landmark {
 
   // The descriptor associated with this 3D point. This is assigned based on the
   // first observation added to the landmark.
-  std::shared_ptr<::bsfm::Descriptor> descriptor_ptr_;
+  ::bsfm::Descriptor descriptor_;
 
+  // The maximum index assigned to any landmark created so far.
+  static LandmarkIndex current_landmark_index_;
 };  //\class Landmark
 
 }  //\namespace bsfm

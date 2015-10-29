@@ -70,10 +70,21 @@ TEST(Landmark, TestPersistentLandmarks) {
 
   LandmarkIndex start_index = Landmark::NumExistingLandmarks();
   EXPECT_NE(0, start_index);
-  for (LandmarkIndex ii = start_index; ii < start_index+3; ++ii) {
+  for (LandmarkIndex ii = start_index; ii < start_index + 3; ++ii) {
     Landmark::Ptr landmark = Landmark::Create();
     CHECK_EQ(ii, landmark->Index());
   }
+
+  // Check if we can reset landmarks.
+  Landmark::ResetLandmarks();
+  CHECK_EQ(0, Landmark::NumExistingLandmarks());
+  for (LandmarkIndex ii = 0; ii < 3; ++ii) {
+    Landmark::Ptr landmark = Landmark::Create();
+    CHECK_EQ(ii, landmark->Index());
+  }
+
+  // Reset so the next test doesn't have issues.
+  Landmark::ResetLandmarks();
 }
 
 }  //\namespace bsfm

@@ -37,6 +37,7 @@
 
 #include <camera/camera.h>
 #include <geometry/point_3d.h>
+#include <geometry/rotation.h>
 #include <matching/feature.h>
 #include <math/random_generator.h>
 #include <sfm/view.h>
@@ -49,11 +50,25 @@
 
 namespace bsfm {
 
+using Eigen::Vector3d;
+
+namespace {
+const int kImageWidth = 1920;
+const int kImageHeight = 1080;
+const double kVerticalFov = D2R(90.0);
+}  //\namespace
+
 TEST(Observation, TestGetters) {
+  // Clear all possibly existing views and landmarks, since all tests are run in
+  // the same process.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+
+
   // Make sure that we get null pointers when asking for bad views or landmarks,
   // and get the correct view and landmark if they are initialized properly.
-  Feature::Ptr feature(new Feature(0.0, 0.0));
-  std::shared_ptr<Descriptor> descriptor(new Descriptor(Descriptor::Zero(64)));
+  Feature feature(0.0, 0.0);
+  Descriptor descriptor(Descriptor::Zero(64));
 
   // Disable console printouts since we expect to get null pointer warnings.
   // Also write a notification into the test log.
@@ -82,18 +97,115 @@ TEST(Observation, TestGetters) {
 
   // Turn back on print outs
   FLAGS_logtostderr = true;
+
+  // Clean up.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
 }
 
 TEST(Observation, TestTriangulateObservations) {
-  // Create a 3D point, and lots of observations of it from different cameras.
+  // Clear all possibly existing views and landmarks, since all tests are run in
+  // the same process.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+
+  // Create a 3D point and lots of observations of it from different cameras.
   // Incorporate all of the observations into a landmark to re-triangulate the
   // 3D point's position.
   math::RandomGenerator rng(0);
 
-  for (int ii = 0; ii < 100; ++ii) {
-    const double x = rng.DoubleUniform(-2.0, 2.0);
-    const double y = rng.DoubleUniform(-2.0, 2.0);
-    const double z = rng.DoubleUniform(-2.0, 2.0);
+  CameraIntrinsics intrinsics;
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(kImageWidth);
+  intrinsics.SetImageHeight(kImageHeight);
+  intrinsics.SetVerticalFOV(kVerticalFov);
+  intrinsics.SetFU(intrinsics.f_v());
+  intrinsics.SetCU(0.5 * kImageWidth);
+  intrinsics.SetCV(0.5 * kImageHeight);
+  intrinsics.SetK(0.0, 0.0, 0.0, 0.0, 0.0);
+
+  // Run a bunch of random tests.
+  for (int ii = 0; ii < 20; ++ii) {
+
+    // Make a bunch of cameras.
+    std::vector<Camera> cameras;
+    for (int jj = 0; jj < 50; ++jj) {
+      Camera camera;
+
+      // Random position and orientation.
+      CameraExtrinsics extrinsics;
+      const double cx = rng.DoubleUniform(-2.0, 2.0);
+      const double cy = rng.DoubleUniform(-2.0, 2.0);
+      const double cz = rng.DoubleUniform(-2.0, 2.0);
+      extrinsics.Translate(cx, cy, cz);
+
+      Vector3d euler_angles(Vector3d::Random()*D2R(20.0));
+      extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));
+      camera.SetExtrinsics(extrinsics);
+      camera.SetIntrinsics(intrinsics);
+      cameras.push_back(camera);
+    }
+
+    // Make a 3D point that can be seen by all cameras.
+    bool successfully_projected = false;
+    FeatureList features;
+    Point3D point;
+    while (!successfully_projected) {
+      features.clear();
+      const double x = rng.DoubleUniform(-10.0, 10.0);
+      const double y = rng.DoubleUniform(5.0, 20.0);
+      const double z = rng.DoubleUniform(-10.0, 10.0);
+
+      // Project the point into every camera.
+      bool in_all_cameras = true;
+      for (size_t ii = 0; ii < cameras.size(); ++ii) {
+        double u = 0.0, v = 0.0;
+        if (!cameras[ii].WorldToImage(x, y, z, &u, &v)) {
+          in_all_cameras = false;
+          break;
+        }
+
+        features.push_back(Feature(u, v));
+      }
+      if (!in_all_cameras)
+        continue;
+
+      point = Point3D(x, y, z);
+      successfully_projected = true;
+    }
+
+    // Create a view for each camera. For the feature seen in each view, create
+    // an observation.
+    Descriptor descriptor(Descriptor::Zero(64));
+    for (size_t ii = 0; ii < cameras.size(); ++ii) {
+      View::Ptr view = View::Create(cameras[ii]);
+      Observation::Ptr observation =
+          Observation::Create(view, features[ii], descriptor);
+      view->AddObservation(observation);
+    }
+
+    // Create a landmark whose position we don't know yet.
+    Landmark::Ptr landmark = Landmark::Create();
+
+    // Incorporate all observations from all views into the landmark.
+    for (unsigned int ii = 0; ii < View::NumExistingViews(); ++ii) {
+      std::vector<Observation::Ptr> observations =
+          View::GetView(ii)->Observations();
+
+      for (auto& observation : observations) {
+        EXPECT_TRUE(landmark->IncorporateObservation(observation));
+      }
+    }
+
+    // Check if our landmark is now positioned on the generated 3D point.
+    EXPECT_NEAR(point.X(), landmark->Position().X(), 1e-8);
+    EXPECT_NEAR(point.Y(), landmark->Position().Y(), 1e-8);
+    EXPECT_NEAR(point.Z(), landmark->Position().Z(), 1e-8);
+
+    // Clean up after each iteration.
+    Landmark::ResetLandmarks();
+    View::ResetViews();
   }
 }
 

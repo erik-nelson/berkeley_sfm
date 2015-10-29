@@ -46,23 +46,26 @@ namespace bsfm {
 // feature coordinate pair, and an associated descriptor. Implicitly initializes
 // the landmark to be invalid, since the observation has not been matched with a
 // 3D landmark yet.
-Observation::Observation(
-    const View::Ptr& view_ptr, const Feature::Ptr& feature_ptr,
-    const std::shared_ptr<::bsfm::Descriptor>& descriptor_ptr)
+Observation::Observation(const View::Ptr& view_ptr,
+                         const ::bsfm::Feature& feature,
+                         const ::bsfm::Descriptor& descriptor)
     : landmark_index_(kInvalidLandmark),
       is_matched_(false),
-      feature_ptr_(feature_ptr),
-      descriptor_ptr_(descriptor_ptr) {
-  // Make sure we got valid inputs.
-  CHECK_NOTNULL(view_ptr.get());
-  CHECK_NOTNULL(feature_ptr.get());
-  CHECK_NOTNULL(descriptor_ptr.get());
-
+      feature_(feature),
+      descriptor_(descriptor) {
   // Store the view's index to access it later.
+  CHECK_NOTNULL(view_ptr.get());
   view_index_ = view_ptr->Index();
 }
 
 Observation::~Observation() {}
+
+// Factory method.
+Observation::Ptr Observation::Create(const std::shared_ptr<View>& view_ptr,
+                                     const ::bsfm::Feature& feature,
+                                     const ::bsfm::Descriptor& descriptor) {
+  return Observation::Ptr(new Observation(view_ptr, feature, descriptor));
+}
 
 // Get the view that this observation was seen from.
 std::shared_ptr<View> Observation::GetView() const {
@@ -104,15 +107,13 @@ bool Observation::IsMatched() const {
 }
 
 // Get this observation's feature.
-Feature::Ptr Observation::Feature() {
-  CHECK_NOTNULL(feature_ptr_.get());
-  return feature_ptr_;
+const ::bsfm::Feature& Observation::Feature() const {
+  return feature_;
 }
 
 // Get the descriptor corresponding to this observation's feature.
-std::shared_ptr<::bsfm::Descriptor> Observation::Descriptor() {
-  CHECK_NOTNULL(descriptor_ptr_.get());
-  return descriptor_ptr_;
+const ::bsfm::Descriptor& Observation::Descriptor() const {
+  return descriptor_;
 }
 
 }  //\namespace bsfm

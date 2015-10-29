@@ -43,11 +43,12 @@ namespace bsfm {
 
 // Declaration of static member variable.
 std::unordered_map<ViewIndex, View::Ptr> View::view_registry_;
+ViewIndex View::current_view_index_ = 0;
 
 // Factory method. Registers the view and index in the view registry so
 // that they can be accessed from the static GetView() method. This guarantees
 // that all views will have uniqueindices.
-View::Ptr View::Create(const class Camera& camera) {
+View::Ptr View::Create(const ::bsfm::Camera& camera) {
   // Create a new View, implicitly assigning a unique index.
   View::Ptr view(new View(camera));
   view_registry_.insert(std::make_pair(view->Index(), view));
@@ -72,15 +73,22 @@ ViewIndex View::NumExistingViews() {
   return view_registry_.size();
 }
 
-void View::SetCamera(const class Camera& camera) {
+// Resets all views and clears the view registry. This should rarely be called,
+// except when completely resetting the program or reconstruction.
+void View::ResetViews() {
+  current_view_index_ = 0;
+  view_registry_.clear();
+}
+
+void View::SetCamera(const ::bsfm::Camera& camera) {
   camera_ = camera;
 }
 
-class Camera& View::MutableCamera() {
+::bsfm::Camera& View::MutableCamera() {
   return camera_;
 }
 
-const class Camera& View::Camera() const {
+const ::bsfm::Camera& View::Camera() const {
   return camera_;
 }
 
@@ -105,6 +113,10 @@ void View::AddObservations(const std::vector<Observation::Ptr>& observations) {
   }
 }
 
+const std::vector<Observation::Ptr>& View::Observations() const {
+  return observations_;
+}
+
 void View::UpdateObservedLandmarks() {
   for (const auto& observation : observations_) {
     CHECK_NOTNULL(observation.get());
@@ -120,14 +132,13 @@ bool View::SortByIndex(const View::Ptr& lhs, const View::Ptr& rhs) {
 }
 
 // Hidden constructor. This will be called from the factory method.
-View::View(const class Camera& camera)
+View::View(const ::bsfm::Camera& camera)
     : view_index_(NextViewIndex()), camera_(camera) {}
 
 // Static method for determining the next index across all Views
 // constructed so far. This is called in the View constructor.
 ViewIndex View::NextViewIndex() {
-  static ViewIndex current_view_index = 0;
-  return current_view_index++;
+  return current_view_index_++;
 }
 
 }  //\namespace bsfm

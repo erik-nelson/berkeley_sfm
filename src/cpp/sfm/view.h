@@ -69,7 +69,7 @@ class View {
   // Factory method. Registers the view and newly created index in the view
   // registry so that they can be accessed from the static GetView() method.
   // This guarantees that all views will have unique indices.
-  static View::Ptr Create(const class Camera& camera);
+  static View::Ptr Create(const ::bsfm::Camera& camera);
   ~View() {}
 
   // Gets the view corresponding to the input index. If the view has not
@@ -79,10 +79,18 @@ class View {
   // Returns the total number of existing landmarks.
   static ViewIndex NumExistingViews();
 
+  // Resets all views and clears the view registry. If somebody else is holding
+  // onto a shared pointer to a view, that view will still be valid and may now
+  // have an index that conflicts with views that are subsequently added to the
+  // view registry. Therefore this function can cause some chaos if not used
+  // properly. This should rarely need to be called, except when completely
+  // resetting the program or reconstruction.
+  static void ResetViews();
+
   // Get and set the camera.
-  void SetCamera(const class Camera& camera);
-  Camera& MutableCamera();
-  const class Camera& Camera() const;
+  void SetCamera(const ::bsfm::Camera& camera);
+  ::bsfm::Camera& MutableCamera();
+  const ::bsfm::Camera& Camera() const;
 
   // Get this view's index.
   ViewIndex Index() const;
@@ -90,6 +98,9 @@ class View {
   // Add observations to this view.
   void AddObservation(const Observation::Ptr& observation);
   void AddObservations(const std::vector<Observation::Ptr>& observations);
+
+  // Get observations.
+  const std::vector<Observation::Ptr>& Observations() const;
 
   // Update the landmark registry by looping over all observations and seeing
   // which landmarks they have observed.
@@ -102,14 +113,14 @@ class View {
   DISALLOW_COPY_AND_ASSIGN(View)
 
   // Private constructor to enfore creation via factory method.
-  View(const class Camera& camera);
+  View(const ::bsfm::Camera& camera);
 
   // Static method for determining the next index across all Views
   // constructed so far. This is called in the View constructor.
   static ViewIndex NextViewIndex();
 
   // Includes intrinsics and extrinsics.
-  class Camera camera_;
+  ::bsfm::Camera camera_;
 
   // An index which uniquely defines this view.
   ViewIndex view_index_;
@@ -126,6 +137,9 @@ class View {
   // by iterating over observations and getting each observations' corresponding
   // landmark, if it has been matched.
   std::unordered_set<LandmarkIndex> landmarks_;
+
+  // The maximum index assigned to any view created so far.
+  static ViewIndex current_view_index_;
 };  //\class View
 
 }  //\namespace bsfm

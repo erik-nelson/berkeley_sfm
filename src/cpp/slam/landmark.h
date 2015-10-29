@@ -83,6 +83,10 @@ class Landmark {
   // Returns the number of existing landmarks.
   static LandmarkIndex NumExistingLandmarks();
 
+  // Returns whether the landmark index corresponds to a landmark that has been
+  // created.
+  static bool IsValidLandmark(LandmarkIndex landmark_index);
+
   // Resets all landmarks and clears the landmark registry. If somebody else is
   // holding onto a shared pointer to a landmark, that landmark will still be
   // valid and may now have an index that conflicts with landmarks that are
@@ -100,14 +104,20 @@ class Landmark {
   const ::bsfm::Descriptor& Descriptor() const;
   const std::vector<Observation::Ptr>& Observations() const;
 
-  // Adding a new observation will update the estimated position by
-  // re-triangulating the feature. This will return false if the observation's
-  // descriptor does not match with our own descriptor, or if we fail to
-  // re-triangulate the landmark after incorporating the new observation.
-  bool IncorporateObservation(const Observation::Ptr& observation);
+  // Add a new observation of the landmark. If 'retriangulate' is true, the
+  // landmark's position will be retriangulated from all observations of it.
+  // This will return false if the observation's descriptor does not match with
+  // our own descriptor, or if we fail to retriangulate the landmark after
+  // incorporating the new observation.
+  bool IncorporateObservation(const Observation::Ptr& observation,
+                              bool retriangulate = true);
 
   // Get the view that first saw this landmark.
   std::shared_ptr<View> SourceView() const;
+
+  // Given a set of views, return whether or not this landmark has been seen by
+  // at least 2 of them.
+  bool SeenByAtLeastTwoViews(const std::vector<ViewIndex>& view_indices);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Landmark)

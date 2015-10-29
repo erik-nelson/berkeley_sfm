@@ -36,7 +36,10 @@
  */
 
 #include <gflags/gflags.h>
+#include <matching/feature.h>
+#include <sfm/view.h>
 #include <slam/landmark.h>
+#include <util/types.h>
 
 #include <gtest/gtest.h>
 
@@ -85,6 +88,70 @@ TEST(Landmark, TestPersistentLandmarks) {
 
   // Reset so the next test doesn't have issues.
   Landmark::ResetLandmarks();
+}
+
+TEST(Landmark, TestSeenByAtLeastTwoViews) {
+  // Clean up from any other tests that may have initialized landmarks or views.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+
+  // The landmark should not have been seen by at least 2 views when there are
+  // no views.
+  Landmark::Ptr landmark = Landmark::Create();
+  std::vector<ViewIndex> view_indices;
+  EXPECT_FALSE(landmark->SeenByAtLeastTwoViews(view_indices));
+
+  // Create two views with no observations.
+  View::Ptr view1 = View::Create(Camera());
+  View::Ptr view2 = View::Create(Camera());
+  view_indices.push_back(view1->Index());
+  view_indices.push_back(view2->Index());
+
+  // The landmark still should not have been observed, since neither view
+  // contains observations.
+  EXPECT_FALSE(landmark->SeenByAtLeastTwoViews(view_indices));
+
+  // Add some observations to the views.
+  Feature feature(0.0, 0.0);
+  Descriptor descriptor(Descriptor::Zero(64));
+  Observation::Ptr observation1 =
+      Observation::Create(view1, feature, descriptor);
+  Observation::Ptr observation2 =
+      Observation::Create(view2, feature, descriptor);
+  view1->AddObservation(observation1);
+  view2->AddObservation(observation2);
+
+  // The landmark still should not have been observed, since neither view
+  // contains observations that have specifically been matched with this
+  // landmark.
+  EXPECT_FALSE(landmark->SeenByAtLeastTwoViews(view_indices));
+
+  // Match the observations in the views with the landmark. After adding both,
+  // the landmark should report that it has been seen by both views. Since
+  // observations don't have valid positions, we won't be able to triangulate,
+  // so just ask the landmark not to retriangulate its 3D position.
+  const bool kRetriangulate = false;
+  EXPECT_TRUE(landmark->IncorporateObservation(observation1, kRetriangulate));
+  EXPECT_FALSE(landmark->SeenByAtLeastTwoViews(view_indices));
+  EXPECT_TRUE(landmark->IncorporateObservation(observation2, kRetriangulate));
+  EXPECT_TRUE(landmark->SeenByAtLeastTwoViews(view_indices));
+
+  // Finally, make sure that incorporating additional views that observe the
+  // landmark doesn't alter behavior.
+  for (int ii = 0; ii < 20; ++ii) {
+    View::Ptr view = View::Create(Camera());
+    Observation::Ptr observation =
+        Observation::Create(view, feature, descriptor);
+    view->AddObservation(observation);
+
+    view_indices.push_back(view->Index());
+    EXPECT_TRUE(landmark->IncorporateObservation(observation, kRetriangulate));
+    EXPECT_TRUE(landmark->SeenByAtLeastTwoViews(view_indices));
+  }
+
+  // Clean up.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
 }
 
 }  //\namespace bsfm

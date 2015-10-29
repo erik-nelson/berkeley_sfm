@@ -190,10 +190,7 @@ TEST(Observation, TestTriangulateObservations) {
 
     // Incorporate all observations from all views into the landmark.
     for (unsigned int ii = 0; ii < View::NumExistingViews(); ++ii) {
-      std::vector<Observation::Ptr> observations =
-          View::GetView(ii)->Observations();
-
-      for (auto& observation : observations) {
+      for (const auto& observation : View::GetView(ii)->Observations()) {
         EXPECT_TRUE(landmark->IncorporateObservation(observation));
       }
     }

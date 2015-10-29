@@ -72,6 +72,12 @@ LandmarkIndex Landmark::NumExistingLandmarks() {
   return landmark_registry_.size();
 }
 
+// Returns whether the landmark index corresponds to a landmark that has been
+// created.
+bool Landmark::IsValidLandmark(LandmarkIndex landmark_index) {
+  return landmark_index <= current_landmark_index_;
+}
+
 // Resets all landmarks and clears the landmark registry. This should rarely be
 // called, except when completely resetting the program or reconstruction.
 void Landmark::ResetLandmarks() {
@@ -109,9 +115,10 @@ const std::vector<Observation::Ptr>& Landmark::Observations() const {
   return observations_;
 }
 
-// Adding a new observation will update the estimated position by
-// re-triangulating the feature.
-bool Landmark::IncorporateObservation(const Observation::Ptr& observation) {
+// Add a new observation of the landmark. If 'retriangulate' is true, the
+// landmark's position will be retriangulated from all observations of it.
+bool Landmark::IncorporateObservation(const Observation::Ptr& observation,
+                                      bool retriangulate) {
   CHECK_NOTNULL(observation.get());
 
   // If this is our first observation, store it, tell the observation that it
@@ -137,26 +144,28 @@ bool Landmark::IncorporateObservation(const Observation::Ptr& observation) {
 
   // Triangulate the landmark's putative position if we were to incorporate the
   // new observation.
-  std::vector<Camera> cameras;
-  std::vector<Feature> features;
-  for (const auto& obs : observations_) {
-    cameras.push_back(obs->GetView()->Camera());
-    features.push_back(obs->Feature());
-  }
-  cameras.push_back(observation->GetView()->Camera());
-  features.push_back(observation->Feature());
+  if (retriangulate) {
+    std::vector<Camera> cameras;
+    std::vector<Feature> features;
+    for (const auto& obs : observations_) {
+      cameras.push_back(obs->GetView()->Camera());
+      features.push_back(obs->Feature());
+    }
+    cameras.push_back(observation->GetView()->Camera());
+    features.push_back(observation->Feature());
 
-  // If triangulation fails, we don't have a match and won't update position.
-  Point3D new_position;
-  if (!Triangulate(features, cameras, new_position)) {
-    return false;
+    // If triangulation fails, we don't have a match and won't update position.
+    Point3D new_position;
+    if (!Triangulate(features, cameras, new_position)) {
+      return false;
+    }
+    position_ = new_position;
   }
 
   // Successfully triangulated the landmark. Update its position and store this
   // observation. Also tell the observation that it has been matched with us.
   observation->SetLandmark(this->Index());
   observations_.push_back(observation);
-  position_ = new_position;
 
   return true;
 }
@@ -170,6 +179,30 @@ View::Ptr Landmark::SourceView() const {
   }
 
   return observations_.front()->GetView();
+}
+
+// Given a set of views, return whether or not this landmark has been seen by at
+// least 2 of them.
+bool Landmark::SeenByAtLeastTwoViews(const std::vector<ViewIndex>& view_indices) {
+  unsigned int count = 0;
+  for (const auto& view_index : view_indices) {
+    // If they gave us a bad input, ignore it and continue.
+    if (!View::IsValidView(view_index))
+      continue;
+
+    // Make sure this view knows all landmarks its observations have seen.
+    View::Ptr view = View::GetView(view_index);
+    view->UpdateObservedLandmarks();
+    if (view->HasObservedLandmark(this->Index())) {
+      count++;
+    }
+
+    if (count == 2) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // Private constructor enforces creation via factory method. This will be called

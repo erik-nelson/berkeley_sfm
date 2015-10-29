@@ -73,6 +73,11 @@ ViewIndex View::NumExistingViews() {
   return view_registry_.size();
 }
 
+// Returns whether the view index corresponds to a view that has been created.
+bool View::IsValidView(ViewIndex view_index) {
+  return view_index <= current_view_index_;
+}
+
 // Resets all views and clears the view registry. This should rarely be called,
 // except when completely resetting the program or reconstruction.
 void View::ResetViews() {
@@ -115,6 +120,10 @@ void View::AddObservations(const std::vector<Observation::Ptr>& observations) {
 
 const std::vector<Observation::Ptr>& View::Observations() const {
   return observations_;
+}
+
+bool View::HasObservedLandmark(LandmarkIndex landmark_index) const {
+  return landmarks_.count(landmark_index);
 }
 
 void View::UpdateObservedLandmarks() {

@@ -78,7 +78,7 @@ bool Triangulate(const FeatureList& features,
   Eigen::JacobiSVD<MatrixXd> svd;
   svd.compute(A, Eigen::ComputeThinU | Eigen::ComputeFullV);
   if (!svd.computeV()) {
-    VLOG(1) << "Failed to compute a singulare value decomposition of A matrix.";
+    VLOG(1) << "Failed to compute a singular value decomposition of A matrix.";
     return false;
   }
 

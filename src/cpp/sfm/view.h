@@ -79,6 +79,9 @@ class View {
   // Returns the total number of existing landmarks.
   static ViewIndex NumExistingViews();
 
+  // Returns whether the view index corresponds to a view that has been created.
+  static bool IsValidView(ViewIndex view_index);
+
   // Resets all views and clears the view registry. If somebody else is holding
   // onto a shared pointer to a view, that view will still be valid and may now
   // have an index that conflicts with views that are subsequently added to the
@@ -101,6 +104,10 @@ class View {
 
   // Get observations.
   const std::vector<Observation::Ptr>& Observations() const;
+
+  // Report whether one of the observations in this view has been matched with a
+  // specific landmark.
+  bool HasObservedLandmark(LandmarkIndex landmark_index) const;
 
   // Update the landmark registry by looping over all observations and seeing
   // which landmarks they have observed.

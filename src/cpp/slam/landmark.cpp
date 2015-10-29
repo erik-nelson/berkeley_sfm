@@ -142,10 +142,12 @@ bool Landmark::IncorporateObservation(
 // Return the first view to observe this landmark.
 View::Ptr Landmark::SourceView() const {
   if (observations_.empty()) {
+    LOG(WARNING) << "Landmark has not been associated with any observations, "
+                    "so source view is undefined. Returning null pointer.";
     return View::Ptr();
   }
 
-  return observations_[0]->GetView();
+  return observations_.front()->GetView();
 }
 
 // Private constructor enforces creation via factory method. This will be called

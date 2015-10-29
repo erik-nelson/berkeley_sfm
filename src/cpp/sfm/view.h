@@ -50,9 +50,12 @@
 
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 #include "../camera/camera.h"
+#include "../slam/landmark.h"
+#include "../slam/observation.h"
 #include "../util/disallow_copy_and_assign.h"
 #include "../util/types.h"
 
@@ -81,6 +84,14 @@ class View {
   // Get this view's index.
   ViewIndex Index() const;
 
+  // Add observations to this view.
+  void AddObservation(const Observation::Ptr& observation);
+  void AddObservations(const std::vector<Observation::Ptr>& observations);
+
+  // Update the landmark registry by looping over all observations and seeing
+  // which landmarks they have observed.
+  void UpdateObservedLandmarks();
+
   // For sorting a list of views by their indices.
   static bool SortByIndex(const View::Ptr& lhs, const View::Ptr& rhs);
 
@@ -97,12 +108,21 @@ class View {
   // Includes intrinsics and extrinsics.
   class Camera camera_;
 
-  // Provides an ordering on views.
+  // An index which uniquely defines this view.
   ViewIndex view_index_;
 
   // A registry of all views constructed so far. These can be queried with the
   // static method GetView().
   static std::unordered_map<ViewIndex, View::Ptr> view_registry_;
+
+  // A list of all 2D features and landmarks that they correspond to, as seen by
+  // this view.
+  std::vector<Observation::Ptr> observations_;
+
+  // A registry of all landmarks associated with this view. These are determined
+  // by iterating over observations and getting each observations' corresponding
+  // landmark, if it has been matched.
+  std::unordered_set<LandmarkIndex> landmarks_;
 };  //\class View
 
 }  //\namespace bsfm

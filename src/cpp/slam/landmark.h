@@ -48,134 +48,82 @@
 
 #include <Eigen/Core>
 #include <memory>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "observation.h"
 #include "../geometry/point_3d.h"
+#include "../geometry/triangulation.h"
+#include "../util/types.h"
 
 namespace bsfm {
 
-template <typename Descriptor>
+class View;
+
 class Landmark {
  public:
-  Landmark();
-  ~Landmark() { }
+  typedef std::shared_ptr<Landmark> Ptr;
+  typedef std::shared_ptr<const Landmark> ConstPtr;
+
+  // Factory method. Registers the landmark and newly created index in the
+  // landmark registry so that they can be accessed from the static
+  // GetLandmark() method. This guarantees that all landmarks will have unique
+  // indices.
+  static Landmark::Ptr Create();
+  ~Landmark() {}
+
+  // Gets this landmark's index.
+  LandmarkIndex Index() const;
+
+  // Gets the landmark corresponding to the input index. If the landmark has not
+  // been created yet, this method returns a null pointer.
+  static Landmark::Ptr GetLandmark(LandmarkIndex landmark_index);
 
   // Setters.
-  void SetDescriptor(const Descriptor& descriptor);
-  void SetDescriptor(const std::shared_ptr<Descriptor>& descriptor_ptr);
+  void SetDescriptor(const ::bsfm::Descriptor& descriptor);
+  void SetDescriptor(const std::shared_ptr<::bsfm::Descriptor>& descriptor_ptr);
   void ClearObservations();
 
   // Accessors.
   const Point3D& Position() const;
   const std::vector<Observation::Ptr>& Observations() const;
-  const std::shared_ptr<Descriptor>& Descriptor() const;
+  const std::shared_ptr<::bsfm::Descriptor>& Descriptor() const;
 
   // Adding a new observation will update the estimated position by
   // re-triangulating the feature.
   bool IncorporateObservation(const Observation::Ptr& observation);
 
   // Get the view that first saw this landmark.
-  View::ConstPtr SourceView() const;
+  std::shared_ptr<View> SourceView() const;
 
  private:
+  DISALLOW_COPY_AND_ASSIGN(Landmark)
+
+  // Private constructor to enforce creation via factory method.
+  Landmark();
+
+  // Static method for determining the next index across all Landmarks
+  // constructed so far. This is called in the Landmark constructor.
+  static LandmarkIndex NextLandmarkIndex();
+
+  // The landmark's 3D position.
   Point3D position_;
-  std::vector<Observation::ConstPtr> observations_;
-  std::shared_ptr<Descriptor> descriptor_ptr_;
+
+  // An index which uniquely defines this landmark.
+  LandmarkIndex landmark_index_;
+
+  // A registry of all landmarks constructed so far. These can be queried with
+  // the static method GetLandmark();
+  static std::unordered_map<LandmarkIndex, Landmark::Ptr> landmark_registry_;
+
+  // Observations that were triangulated to find the 3D position of this
+  // landmark.
+  std::vector<Observation::Ptr> observations_;
+
+  std::shared_ptr<::bsfm::Descriptor> descriptor_ptr_;
 
 };  //\class Landmark
-
-
-// -------------------- Implementation -------------------- //
-
-// Constructore initializes position to zero.
-template <typename Descriptor>
-Landmark<Descriptor>::Landmark()
-    : position_(Point3D(0.0, 0.0, 0.0)) {}
-
-// Create a new descriptor pointer, assuming the templated type has a copy ctor.
-template <typename Descriptor>
-void Landmark<Descriptor>::SetDescriptor(const Descriptor& descriptor) {
-  descriptor_ptr_.reset(new Descriptor(descriptor));
-}
-
-// Copy an existing descriptor pointer.
-template <typename Descriptor>
-void Landmark<Descriptor>::SetDescriptor(
-    const std::shared_ptr<Descriptor>& descriptor_ptr) {
-  descriptor_ptr_ = descriptor_ptr;
-}
-
-// Remove all existing observations of the landmark.
-template <typename Descriptor>
-void Landmark<Descriptor>::ClearObservations() {
-  observations_.clear();
-}
-
-// Get position.
-template <typename Descriptor>
-const Landmark<Descriptor>::Point3D& Position() const {
-  return position_;
-}
-
-// Get observations.
-template <typename Descriptor>
-const std::vector<Observation::Ptr>& Landmark<Descriptor>::Observations()
-    const {
-  return observations_;
-}
-
-// Get descriptor.
-template <typename Descriptor>
-const std::shared_ptr<Descriptor>& Landmark<Descriptor>::Descriptor() const {
-  return descriptor_;
-}
-
-// Adding a new observation will update the estimated position by
-// re-triangulating the feature.
-template <typename Descriptor>
-bool Landmark<Descriptor>::IncorporateObservation(
-    const Observation::Ptr& observation) {
-  CHECK_NOTNULL(observation);
-
-  // If this is our first observation, store it and return.
-  if (observations_.empty()) {
-    observations_.push_back(observation);
-    descriptor_ = observation->descriptor_ptr_;
-  }
-
-  // Triangulate the landmark's position after incorporating the new observation.
-  std::vector<Camera> cameras;
-  std::vector<Feature> features;
-  for (const auto& old_observation : observations_) {
-    cameras.push_back(old_observation->camera_);
-    features.push_back(old_observation->feature_);
-  }
-  cameras.push_back(observation->camera_);
-  features.push_back(observation->feature_);
-
-  Point3D new_position;
-  if (!Triangulate(features, cameras, new_position)) {
-    // Don't update the landmark's position.
-    return false;
-  }
-
-  // Successfully triangulated the landmark. Update its position and store this
-  // observation.
-  position_ = new_position;
-  observations_.push_back(observation);
-
-  return true;
-}
-
-// Return the first view to observe this landmark.
-View::ConstPtr Landmark::SourceView() const {
-  if (observations_.empty()) {
-    return View::ConstPtr();
-  }
-
-  return observations_[0].view_ptr_;
-}
 
 }  //\namespace bsfm
 

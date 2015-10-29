@@ -36,6 +36,8 @@
  */
 
 #include "view.h"
+#include "../slam/landmark.h"
+#include "../slam/observation.h"
 
 namespace bsfm {
 
@@ -46,13 +48,9 @@ std::unordered_map<ViewIndex, View::Ptr> View::view_registry_;
 // that they can be accessed from the static GetView() method. This guarantees
 // that all views will have uniqueindices.
 View::Ptr View::Create(const class Camera& camera) {
-  // Create a new view, implicitly assigning a unique index.
+  // Create a new View, implicitly assigning a unique index.
   View::Ptr view(new View(camera));
-
-  // Register the view.
   view_registry_.insert(std::make_pair(view->Index(), view));
-
-  // Return the created view.
   return view;
 }
 
@@ -60,10 +58,13 @@ View::Ptr View::Create(const class Camera& camera) {
 // created yet, this method returns a null pointer.
 View::Ptr View::GetView(ViewIndex view_index) {
   auto registry_element = view_registry_.find(view_index);
-  if (registry_element == view_registry_.end())
+  if (registry_element == view_registry_.end()) {
+    LOG(WARNING)
+        << "View does not exist in registry. Returning a null pointer.";
     return View::Ptr();
+  }
 
-  return registry_element ->second;
+  return registry_element->second;
 }
 
 void View::SetCamera(const class Camera& camera) {
@@ -80,6 +81,33 @@ const class Camera& View::Camera() const {
 
 ViewIndex View::Index() const {
   return view_index_;
+}
+
+void View::AddObservation(const Observation::Ptr& observation) {
+  CHECK_NOTNULL(observation.get());
+  observations_.push_back(observation);
+
+  // If the observation is matched to a landmark, add that landmark to our
+  // registry.
+  if (observation->IsMatched()) {
+    landmarks_.insert(observation->GetLandmark()->Index());
+  }
+}
+
+void View::AddObservations(const std::vector<Observation::Ptr>& observations) {
+  for (const auto& observation : observations) {
+    AddObservation(observation);
+  }
+}
+
+void View::UpdateObservedLandmarks() {
+  for (const auto& observation : observations_) {
+    CHECK_NOTNULL(observation.get());
+    if (!observation->IsMatched()) continue;
+
+    // Calls to std::set::insert() will overwrite old key value pairs.
+    landmarks_.insert(observation->GetLandmark()->Index());
+  }
 }
 
 bool View::SortByIndex(const View::Ptr& lhs, const View::Ptr& rhs) {

@@ -38,41 +38,80 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // The Observation struct defines an observation of a feature (with associated
-// descriptor) from a specific camera view.
+// descriptor) from a specific camera view. This also includes the 3D point
+// landmark that the feature corresponds to, if the observation has been
+// matched.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef BSFM_SLAM_OBSERVATION_H
 #define BSFM_SLAM_OBSERVATION_H
 
+#include <gflags/gflags.h>
+#include <glog/logging.h>
 #include <memory>
 
-#include "../sfm/view.h"
+#include "../matching/distance_metric.h"
 #include "../matching/feature.h"
+#include "../util/types.h"
 
 namespace bsfm {
 
-template <typename Descriptor>
-struct Observation {
+class Landmark;
+class View;
+
+class Observation {
+ public:
   typedef std::shared_ptr<Observation> Ptr;
   typedef std::shared_ptr<const Observation> ConstPtr;
 
-  Observation(const View::ConstPtr& view_ptr,
-              const Feature::ConstPtr& feature_ptr,
-              const std::shared_ptr<const Descriptor>& descriptor_ptr)
-      : view_ptr_(view_ptr),
-        feature_ptr_(feature_ptr),
-        descriptor_ptr_(descriptor_ptr) {}
+  // Initialize an observation with the view that it came from, an image-space
+  // feature coordinate pair, and an associated descriptor. Implicitly
+  // initializes the landmark to be invalid, since the observation has not been
+  // matched with a 3D landmark yet.
+  Observation(ViewIndex view_index, const Feature::Ptr& feature_ptr,
+              const std::shared_ptr<Descriptor>& descriptor_ptr);
+  ~Observation();
 
-  // The view that this feature was observed from.
-  View::ConstPtr view_ptr_;
+  // Attempts to match a landmark to this observation. Returns false if the
+  // landmark's descriptor does not match this observation.
+  bool Match(LandmarkIndex landmark_index);
+
+  // Get the view that this observation was seen from.
+  std::shared_ptr<View> GetView() const;
+
+  // Get the landmark that this observation corresponds to. Returns a null
+  // pointer if the observation has not been matched with a landmark.
+  std::shared_ptr<Landmark> GetLandmark() const;
+
+  // Returns whether or not the observation has been matched with a landmark. If
+  // this returns false, 'GetLandmark()' will return a null pointer.
+  bool IsMatched() const;
+
+  // Get this observation's feature.
+  Feature::Ptr Feature();
+
+  // Get the descriptor corresponding to this observation's feature.
+  std::shared_ptr<Descriptor> Descriptor();
+
+ private:
+  // The index corresponding to the view that this feature was observed from.
+  ViewIndex view_index_;
+
+  // The 3D point landmark that this observation is made from. This index is
+  // undefined until the observation and a landmark have been matched.
+  LandmarkIndex landmark_index_;
+
+  // A boolean flag describing whether or not this observation of a feature has
+  // been matched with a 3D point landmark.
+  bool is_matched_;
 
   // A feature containing the (u, v) image space coordinates of the observation.
-  Feature::ConstPtr feature_ptr_;
+  Feature::Ptr feature_ptr_;
 
   // A descriptor associated with the feature.
-  std::shared_ptr<const Descriptor> descriptor_ptr_;
-};  //\struct Observation
+  std::shared_ptr<::bsfm::Descriptor> descriptor_ptr_;
+};  //\class Observation
 
 }  //\namespace bsfm
 

@@ -91,12 +91,9 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
   // Create a bunch of points in 3D.
   PairwiseImageMatch image_match;
   while (image_match.feature_matches_.size() < kFeatureMatches) {
-    // Since the camera's +Z faces down the world's -Y
-    // direction, make the points back there somewhere.
-
-    const double x_world = rng.DoubleUniform(-2.0, 4.0);
-    const double y_world = rng.DoubleUniform(3.0, 10.0);
-    const double z_world = rng.DoubleUniform(-3.0, 3.0);
+    const double x_world = rng.DoubleUniform(-4.0, 4.0);
+    const double y_world = rng.DoubleUniform(-4.0, 4.0);
+    const double z_world = rng.DoubleUniform(3.0, 10.0);
 
     // Project each of the 3D points into the two cameras.
     double u1 = 0.0, v1 = 0.0;

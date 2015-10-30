@@ -77,14 +77,12 @@ bool FeatureMatcher::MatchImages(const FeatureMatcherOptions& options,
 
       // Create an image match object and attempt to match image ii to image jj.
       PairwiseImageMatch image_match;
-      if (!MatchImagePair(ii, jj, image_match.feature_matches_)) {
+      if (!MatchImagePair(ii, jj, image_match)) {
         VLOG(1) << "Could not match image " << ii << " to image " << jj << ".";
         continue;
       }
 
       // If the image match was successful, store it.
-      image_match.image1_index_ = ii;
-      image_match.image2_index_ = jj;
       image_matches.push_back(image_match);
     }
   }

@@ -90,7 +90,12 @@ LandmarkIndex Landmark::Index() const {
   return landmark_index_;
 }
 
-// Create a new descriptor pointer, assuming the templated type has a copy ctor.
+// Set the landmark's position.
+void Landmark::SetPosition(const Point3D& position) {
+  position_ = position;
+}
+
+// Set the landmark's descriptor.
 void Landmark::SetDescriptor(const ::bsfm::Descriptor& descriptor) {
   descriptor_ = descriptor;
 }

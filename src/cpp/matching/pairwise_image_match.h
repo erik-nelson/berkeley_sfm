@@ -59,10 +59,11 @@ struct PairwiseImageMatch {
   // The image-space locations of the matched features in each image.
   FeatureMatchList feature_matches_;
 
-  // The indices of the two images in the image list owned by whichever feature
-  // matcher that found this match.
-  int image1_index_;
-  int image2_index_;
+  // Store indices into the descriptor vectors corresponding to the matched
+  // features.
+  std::vector<int> descriptor_indices1_;
+  std::vector<int> descriptor_indices2_;
+
 };  //\class PairwiseImageMatch
 
 typedef std::vector<PairwiseImageMatch> PairwiseImageMatchList;

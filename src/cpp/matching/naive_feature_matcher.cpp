@@ -41,8 +41,10 @@ namespace bsfm {
 
 bool NaiveFeatureMatcher::MatchImagePair(
     int image_index1, int image_index2,
-    std::vector<FeatureMatch>& feature_matches) {
-  feature_matches.clear();
+    PairwiseImageMatch& image_match) {
+  image_match.feature_matches_.clear();
+  image_match.descriptor_indices1_.clear();
+  image_match.descriptor_indices2_.clear();
 
   // Get the descriptors corresponding to these two images.
   std::vector<Descriptor>& descriptors1 =
@@ -98,7 +100,12 @@ bool NaiveFeatureMatcher::MatchImagePair(
     const Feature& matched_feature2 =
         this->image_features_[image_index2][match.feature_index2_];
 
-    feature_matches.emplace_back(matched_feature1, matched_feature2);
+    image_match.feature_matches_.emplace_back(matched_feature1,
+                                              matched_feature2);
+
+    // Also store the index of each descriptor used for this match.
+    image_match.descriptor_indices1_.push_back(match.feature_index1_);
+    image_match.descriptor_indices2_.push_back(match.feature_index2_);
   }
 
   return true;
@@ -135,7 +142,8 @@ void NaiveFeatureMatcher::ComputePutativeMatches(
     if (this->options_.use_lowes_ratio) {
       // Sort by distance. We only care about the distances between the best 2
       // matches for the Lowes ratio test.
-      std::partial_sort(one_way_matches.begin(), one_way_matches.begin() + 1,
+      std::partial_sort(one_way_matches.begin(),
+                        one_way_matches.begin() + 1,
                         one_way_matches.end(),
                         LightFeatureMatch::SortByDistance);
 

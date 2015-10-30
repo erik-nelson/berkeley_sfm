@@ -51,7 +51,7 @@ namespace bsfm {
 
 // Constructor. Initialize to identity.
 CameraExtrinsics::CameraExtrinsics() {
-  world_to_camera_ = CameraExtrinsics::DefaultWorldToCamera();
+  world_to_camera_ = Pose();
 }
 
 // Constructor. Initialize world_to_camera_ .
@@ -99,6 +99,10 @@ void CameraExtrinsics::Rotate(double dphi, double dtheta, double dpsi) {
   Rotate(EulerAnglesToMatrix(dphi, dtheta, dpsi));
 }
 
+Matrix3d CameraExtrinsics::WorldToCameraRotation() const {
+  return world_to_camera_.Rotation();
+}
+
 void CameraExtrinsics::SetTranslation(const Vector3d& translation) {
   const Matrix3d R = world_to_camera_.Rotation();
   world_to_camera_.SetTranslation(-R * translation);
@@ -131,6 +135,12 @@ void CameraExtrinsics::TranslateY(double dy) {
 
 void CameraExtrinsics::TranslateZ(double dz) {
   Translate(Vector3d(0, 0, dz));
+}
+
+Vector3d CameraExtrinsics::WorldToCameraTranslation() const {
+  const Vector3d t = world_to_camera_.Translation();
+  const Matrix3d R = world_to_camera_.Rotation();
+  return -R.transpose() * t;
 }
 
 // The extrinsics matrix is 3x4 matrix: [R | t].

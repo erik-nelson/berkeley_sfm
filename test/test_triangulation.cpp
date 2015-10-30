@@ -54,7 +54,7 @@ using Eigen::Vector3d;
 namespace {
 const int kImageWidth = 1920;
 const int kImageHeight = 1080;
-const double kVerticalFov = 0.5 * M_PI;
+const double kVerticalFov = D2R(90.0);
 }  //\namespace
 
 TEST(Triangulation, TestTriangulateNoiseless) {
@@ -103,8 +103,8 @@ TEST(Triangulation, TestTriangulateNoiseless) {
     while (!successfully_projected) {
       features.clear();
       const double x = rng.DoubleUniform(-10.0, 10.0);
-      const double y = rng.DoubleUniform(5.0, 20.0);
-      const double z = rng.DoubleUniform(-10.0, 10.0);
+      const double y = rng.DoubleUniform(-10.0, 10.0);
+      const double z = rng.DoubleUniform(10.0, 20.0);
 
       // Project the point into every camera.
       bool in_all_cameras = true;

@@ -54,6 +54,7 @@
 #include "feature.h"
 #include "feature_match.h"
 #include "feature_matcher.h"
+#include "pairwise_image_match.h"
 
 #include "../image/image.h"
 #include "../util/disallow_copy_and_assign.h"
@@ -72,7 +73,7 @@ class NaiveFeatureMatcher : public FeatureMatcher {
   // Match two images together by doing a pairwise comparison of all of their
   // individual feature descriptors.
   virtual bool MatchImagePair(int image_index1, int image_index2,
-                              std::vector<FeatureMatch>& feature_matches);
+                              PairwiseImageMatch& feature_matches);
 
   // Compute putative matches between feature descriptors for an image pair.
   // These might be removed later on due to e.g. not being symmetric, etc.

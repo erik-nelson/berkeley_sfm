@@ -72,9 +72,7 @@ bool FundamentalMatrixSolver::ComputeFundamentalMatrices(
                                  fundamental_matrix)) {
       fundamental_matrices.push_back(fundamental_matrix);
     } else {
-      VLOG(1) << "Failed to compute funamental matrix between images "
-              << pair_data.image1_index_ << " and " << pair_data.image2_index_
-              << ".";
+      VLOG(1) << "Failed to compute funamental matrix.";
     }
   }
 

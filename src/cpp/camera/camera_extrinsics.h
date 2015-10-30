@@ -41,19 +41,7 @@
 // camera model:
 // http://docs.opencv.org/modules/calib3d/doc/camera_calibration_and_3d_reconstruction.html
 //
-// The default camera frame is such that the camera stares down its own +Z axis.
-// +X and +Y are the camera's right-facing and downward-facing vectors in this
-// coordinate frame. The camera's +Z axis is the world +Y axis (and therefore
-// world +X = camera +X). This convention can be seen in the static
-// DefaultWorldToCamera() member function.
-//
-//         Camera ---------> +Z  (camera facing this direction)
-//        /  |
-//       /   |
-//      /    |
-//     /     |
-//    v      v
-//   +X      +Y
+// The default camera frame is the same as the default world frame.
 //
 //        +Z
 //         ^
@@ -94,19 +82,6 @@ public:
   // Constructor. Initialize world_to_camera_.
   CameraExtrinsics(const Pose& world_to_camera);
 
-  static Pose DefaultWorldToCamera() {
-    // Conversion does the following:
-    //   world +X --> camera +X
-    //   world +Y --> camera +Z
-    //   world +Z --> camera -Y
-    Matrix4d w2c;
-    w2c << 1, 0,  0, 0,
-           0, 0, -1, 0,
-           0, 1,  0, 0,
-           0, 0,  0, 1;
-    return Pose(w2c);
-  }
-
   // Set world_to_camera_.
   void SetWorldToCamera(const Pose& world_to_camera);
 
@@ -119,6 +94,7 @@ public:
   void SetRotation(double phi, double theta, double psi);
   void Rotate(const Matrix3d& delta);
   void Rotate(double dphi, double dtheta, double dpsi);
+  Matrix3d WorldToCameraRotation() const;
 
   // Translate the world-to-camera frame. All inputs correspond to the
   // coordinates of the camera in world-frame.
@@ -129,6 +105,7 @@ public:
   void TranslateX(double dx);
   void TranslateY(double dy);
   void TranslateZ(double dz);
+  Vector3d WorldToCameraTranslation() const;
 
   // The extrinsics matrix is 3x4 matrix: [R | t].
   Matrix34d Rt() const;

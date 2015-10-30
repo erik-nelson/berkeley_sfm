@@ -39,6 +39,7 @@
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
 #include <geometry/eight_point_algorithm_solver.h>
+#include <geometry/rotation.h>
 #include <image/drawing_utils.h>
 #include <image/image.h>
 #include <matching/descriptor_extractor.h>
@@ -98,18 +99,21 @@ class TestRansac : public ::testing::Test {
     camera1.SetIntrinsics(intrinsics);
     camera2.SetIntrinsics(intrinsics);
 
-    // Translate the 2nd camera along its X-axis to give it a known baseline.
-    // Camera 2 will now be 200.0 pixels to the right of camera 1.
-    camera2.MutableExtrinsics().TranslateX(2.0);
+    // Translate and rotate the second camera.
+    CameraExtrinsics extrinsics2;
+    extrinsics2.Translate(1.0, -2.0, 0.5);
+    Vector3d euler_angles(Vector3d::Random()*D2R(20.0));
+    extrinsics2.Rotate(EulerAnglesToMatrix(euler_angles));
+    camera2.SetExtrinsics(extrinsics2);
 
     // Create a bunch of good matches between points in 3D.
     PairwiseImageMatch matched_images_out;
     while(matched_images_out.feature_matches_.size() < num_good_matches) {
       // Since the camera's +Z faces down the world's -Y direction, make random
       // points back there somewhere.
-      const double x_world = rng.DoubleUniform(-2.0, 4.0);
-      const double y_world = rng.DoubleUniform(3.0, 10.0);
-      const double z_world = rng.DoubleUniform(-3.0, 3.0);
+      const double x_world = rng.DoubleUniform(-4.0, 4.0);
+      const double y_world = rng.DoubleUniform(-4.0, 4.0);
+      const double z_world = rng.DoubleUniform(5.0, 10.0);
 
       // Project each of the 3D points into the two cameras.
       double u1 = 0.0, v1 = 0.0;
@@ -142,15 +146,15 @@ class TestRansac : public ::testing::Test {
            num_good_matches + num_bad_matches) {
       // We can generate points in a larger box now.
       Vector3d x_w1, x_w2;
-      x_w1.x() = rng.DoubleUniform(-2.0, 4.0);
-      x_w1.y() = rng.DoubleUniform(3.0, 10.0);
-      x_w1.z() = rng.DoubleUniform(-3.0, 3.0);
-      x_w2.x() = rng.DoubleUniform(-2.0, 4.0);
-      x_w2.y() = rng.DoubleUniform(3.0, 10.0);
-      x_w2.z() = rng.DoubleUniform(-3.0, 3.0);
+      x_w1.x() = rng.DoubleUniform(-4.0, 4.0);
+      x_w1.y() = rng.DoubleUniform(-4.0, 4.0);
+      x_w1.z() = rng.DoubleUniform(5.0, 10.0);
+      x_w2.x() = rng.DoubleUniform(-4.0, 4.0);
+      x_w2.y() = rng.DoubleUniform(-4.0, 4.0);
+      x_w2.z() = rng.DoubleUniform(5.0, 10.0);
 
       // Make sure the points are different enough in 3D.
-      if ((x_w1 - x_w2).squaredNorm() < 5.0) {
+      if ((x_w1 - x_w2).squaredNorm() < 2.0) {
         continue;
       }
 

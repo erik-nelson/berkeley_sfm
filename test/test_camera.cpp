@@ -57,14 +57,14 @@ TEST(Camera, TestCameraExtrinsics) {
   double cx = 0.0, cy = 0.0, cz = 0.0;
   extrinsics.WorldToCamera(wx, wy, wz, &cx, &cy, &cz);
   EXPECT_EQ(cx, wx);
-  EXPECT_EQ(cy, -wz);
-  EXPECT_EQ(cz, wy);
+  EXPECT_EQ(cy, wy);
+  EXPECT_EQ(cz, wz);
 
   cx = 2397.123897, cy = -1283.127836, cz = -8129.12387;
   extrinsics.CameraToWorld(cx, cy, cz, &wx, &wy, &wz);
   EXPECT_EQ(cx, wx);
-  EXPECT_EQ(cy, -wz);
-  EXPECT_EQ(cz, wy);
+  EXPECT_EQ(cy, wy);
+  EXPECT_EQ(cz, wz);
 
   // Make sure points are translated correctly.
   Matrix4d w2c = Matrix4d::Identity();

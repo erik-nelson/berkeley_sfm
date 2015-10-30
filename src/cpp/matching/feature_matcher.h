@@ -85,7 +85,7 @@ class FeatureMatcher {
   // Abstract method to match a pair of images using the input options. Override
   // this in the derived feature matching strategy class to implement it.
   virtual bool MatchImagePair(int image_index1, int image_index2,
-                              std::vector<FeatureMatch>& feature_matches) = 0;
+                              PairwiseImageMatch& image_match) = 0;
 
   // Find the set intersection of the two sets of input feature matches, and
   // store that set in the second argument.

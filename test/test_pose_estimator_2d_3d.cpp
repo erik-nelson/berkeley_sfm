@@ -106,8 +106,8 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
     while (points_3d.size() < kNumPoints) {
       // Make some points out in front of the camea
       double x = rng.DoubleUniform(-10.0, 10.0);
-      double y = rng.DoubleUniform(5.0, 20.0);
-      double z = rng.DoubleUniform(-10.0, 10.0);
+      double y = rng.DoubleUniform(-1.0, 10.0);
+      double z = rng.DoubleUniform(10.0, 20.0);
 
       // Project the point into the camera. No noise.
       Feature point_2d;

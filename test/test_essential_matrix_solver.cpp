@@ -91,11 +91,11 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   camera1.SetIntrinsics(intrinsics);
   camera2.SetIntrinsics(intrinsics);
 
-  // Set extrinsics for both cameras to identity pose.
+  // Rotate and translate the second camera w.r.t. the first.
   CameraExtrinsics extrinsics1, extrinsics2;
   camera1.SetExtrinsics(extrinsics1);
 
-  extrinsics2.Translate(-2.0, 1.0, -1.0);
+  extrinsics2.Translate(-2.0, 1.0, 1.0);
   Vector3d euler_angles(Vector3d::Random()*D2R(20.0));
   extrinsics2.Rotate(EulerAnglesToMatrix(euler_angles));
   camera2.SetExtrinsics(extrinsics2);
@@ -104,9 +104,9 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   FeatureMatchList feature_matches;
   while (feature_matches.size() < kFeatureMatches) {
     // Make some 3D points in front of both cameras.
-    const double x = rng.DoubleUniform(-5.0, 3.0);
-    const double y = rng.DoubleUniform(3.0, 10.0);
-    const double z = rng.DoubleUniform(-4.0, 3.0);
+    const double x = rng.DoubleUniform(-5.0, 5.0);
+    const double y = rng.DoubleUniform(-5.0, 5.0);
+    const double z = rng.DoubleUniform(4.0, 10.0);
 
     // Project the 3D point into each camera;
     double u1 = 0.0, v1 = 0.0;
@@ -161,18 +161,14 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
                                          camera1.Intrinsics(),
                                          camera2.Intrinsics(), relative_pose));
 
+  // Both 'delta' and 'relative_pose' are in world frame.
   Pose c1(camera1.Rt());
   Pose c2(camera2.Rt());
   Pose delta = c1.Delta(c2);
 
-  // The translation for the delta we just computed is in world frame. Convert
-  // this delta translation to camera frame (change-of-basis). Note that the
-  // rotation is also in camera frame, but identity rotation is the same in any
-  // basis, so we don't need to convert the rotation to world coordinates.
-  Matrix3d Rc = CameraExtrinsics::DefaultWorldToCamera().Rotation();
-  Vector3d tc = CameraExtrinsics::DefaultWorldToCamera().Translation();
-  delta.SetRotation(Rc * delta.Rotation() * Rc.transpose());
-  delta.SetTranslation((Rc * delta.Translation() + tc).normalized());
+  // Delta's translation is not normalized, but the essential matrix can only
+  // give us normalized translations. Normalize for comparison.
+  delta.SetTranslation(delta.Translation().normalized());
 
   EXPECT_TRUE(delta.IsApprox(relative_pose));
 }

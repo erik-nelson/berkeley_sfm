@@ -132,10 +132,13 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
   poses.push_back(Pose(R2, t1));
   poses.push_back(Pose(R2, t2));
 
-  // Set the other camera's position to identity in rotation and translation.
+  // Set the first camera's position to identity in rotation and translation.
   CameraExtrinsics extrinsics1;
   extrinsics1.SetWorldToCamera(Pose());
-  Camera camera1(extrinsics1, intrinsics1);
+
+  Camera camera1;
+  camera1.SetExtrinsics(extrinsics1);
+  camera1.SetIntrinsics(intrinsics1);
 
   // Test how many points are in front of each pose and the identity pose.
   Pose best_pose;
@@ -147,7 +150,10 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
 
     CameraExtrinsics extrinsics2;
     extrinsics2.SetWorldToCamera(poses[ii]);
-    Camera camera2(extrinsics2, intrinsics2);
+
+    Camera camera2;
+    camera2.SetExtrinsics(extrinsics2);
+    camera2.SetIntrinsics(intrinsics2);
 
     for (int jj = 0; jj < matches.size(); jj++) {
       // Triangulate points and test if the 3D estimate is in front of both
@@ -170,11 +176,9 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
   // Return with false if not enough points found in front of the cameras.
   if (best_num_points < FLAGS_min_points_visible_ratio * matches.size()) {
     VLOG(1) << "Did not find enough points in front of both cameras.";
-    printf("best num: %d, matches: %lu, threshold: %lf\n", best_num_points, matches.size(), FLAGS_min_points_visible_ratio*matches.size());
     return false;
   }
 
-  // Copy best pose to the camera extrinsics and return.
   relative_pose = best_pose;
 
   return true;

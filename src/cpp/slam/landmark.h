@@ -96,6 +96,7 @@ class Landmark {
   static void ResetLandmarks();
 
   // Setters.
+  void SetPosition(const Point3D& position);
   void SetDescriptor(const ::bsfm::Descriptor& descriptor);
   void ClearObservations();
 

@@ -273,6 +273,7 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
     view2->AddObservation(observation2);
   }
 
+#if 0
   // Loop over remaining cameras as if we are receiving their images
   // incrementally.
   for (int ii = 2; ii < kNumCameras_; ++ii) {
@@ -318,6 +319,7 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
 
 
   }
+#endif
 }
 
 }  //\namespace bsfm

@@ -38,8 +38,9 @@
 #include <camera/camera.h>
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
-#include <geometry/fundamental_matrix_solver.h>
 #include <geometry/eight_point_algorithm_solver.h>
+#include <geometry/fundamental_matrix_solver.h>
+#include <geometry/rotation.h>
 #include <math/random_generator.h>
 #include <matching/pairwise_image_match.h>
 
@@ -54,7 +55,7 @@ using Eigen::Vector3d;
 namespace {
 const int kImageWidth = 1920;
 const int kImageHeight = 1080;
-const double kVerticalFov = 90.0 * M_PI / 180.0;
+const double kVerticalFov = D2R(90.0);
 const int kFeatureMatches = 200;
 } //\namespace
 
@@ -80,9 +81,12 @@ TEST(EightPointAlgorithmSolver, TestEightPointAlgorithmSolver) {
   camera1.SetIntrinsics(intrinsics);
   camera2.SetIntrinsics(intrinsics);
 
-  // Translate the 2nd camera along its X axis (give it some known base-line).
-  // Camera 2 will be 200.0 pixels to the right of camera 1.
-  camera2.MutableExtrinsics().TranslateX(2.0);
+  // Translate and rotate the second camera.
+  CameraExtrinsics extrinsics;
+  extrinsics.Translate(2.0, 0.0, 0.0);
+  Vector3d euler_angles(Vector3d::Random()*D2R(20.0));
+  extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));
+  camera2.SetExtrinsics(extrinsics);
 
   // Create a bunch of points in 3D.
   PairwiseImageMatch image_match;

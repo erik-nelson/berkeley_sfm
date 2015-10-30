@@ -84,14 +84,14 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
     }
 
     A(ii, 0) = u1*u2;
-    A(ii, 1) = u1*v2;
-    A(ii, 2) = u1   ;
-    A(ii, 3) = v1*u2;
+    A(ii, 1) = v1*u2;
+    A(ii, 2) =    u2;
+    A(ii, 3) = u1*v2;
     A(ii, 4) = v1*v2;
-    A(ii, 5) = v1   ;
-    A(ii, 6) = u2   ;
-    A(ii, 7) = v2   ;
-    A(ii, 8) = 1    ;
+    A(ii, 5) =    v2;
+    A(ii, 6) =    u1;
+    A(ii, 7) =    v1;
+    A(ii, 8) =     1;
   }
 
   // Get svd(A). Save some time and compute a thin U. We still need a full V.
@@ -133,7 +133,7 @@ bool EightPointAlgorithmSolver::ComputeFundamentalMatrix(
   // If normalization was requested, we need to 'un-normalize' the fundamental
   // matrix.
   if (options_.normalize_features) {
-    fundamental_matrix = T1.transpose() * fundamental_matrix * T2;
+    fundamental_matrix = T2.transpose() * fundamental_matrix * T1;
   }
 
   return true;

@@ -36,6 +36,8 @@
  */
 
 #include <camera/camera.h>
+#include <camera/camera_extrinsics.h>
+#include <camera/camera_intrinsics.h>
 #include <geometry/point_3d.h>
 #include <geometry/rotation.h>
 #include <matching/feature.h>

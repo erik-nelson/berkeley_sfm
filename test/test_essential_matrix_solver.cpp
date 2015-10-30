@@ -41,6 +41,7 @@
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
 #include <geometry/eight_point_algorithm_solver.h>
+#include <geometry/rotation.h>
 #include <matching/feature_match.h>
 #include <matching/distance_metric.h>
 #include <matching/naive_feature_matcher.h>
@@ -92,22 +93,17 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
 
   // Set extrinsics for both cameras to identity pose.
   CameraExtrinsics extrinsics1, extrinsics2;
-  extrinsics1.SetWorldToCamera(CameraExtrinsics::DefaultWorldToCamera());
-  extrinsics2.SetWorldToCamera(CameraExtrinsics::DefaultWorldToCamera());
   camera1.SetExtrinsics(extrinsics1);
-  camera2.SetExtrinsics(extrinsics2);
 
-  // Translate the second camera along its X, Y, and Z axes.
-  camera2.MutableExtrinsics().TranslateX(-2.0);
-  camera2.MutableExtrinsics().TranslateY(1.0);
-  camera2.MutableExtrinsics().TranslateZ(-1.0);
+  extrinsics2.Translate(-2.0, 1.0, -1.0);
+  Vector3d euler_angles(Vector3d::Random()*D2R(20.0));
+  extrinsics2.Rotate(EulerAnglesToMatrix(euler_angles));
+  camera2.SetExtrinsics(extrinsics2);
 
   // Create a bunch of points in 3D, project, and match.
   FeatureMatchList feature_matches;
   while (feature_matches.size() < kFeatureMatches) {
-    // We have set the world to camera transform in camera 1 as the identity, so
-    // just set the xy bounds to be approximately the image bounds and the
-    // z bounds to be in front of camera 1.
+    // Make some 3D points in front of both cameras.
     const double x = rng.DoubleUniform(-5.0, 3.0);
     const double y = rng.DoubleUniform(3.0, 10.0);
     const double z = rng.DoubleUniform(-4.0, 3.0);
@@ -156,14 +152,14 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   // Try to get the essential matrix from the fundamental matrix.
   EssentialMatrixSolver e_solver;
   Matrix3d E = e_solver.ComputeEssentialMatrix(F, camera1.Intrinsics(),
-                                                      camera2.Intrinsics());
+                                               camera2.Intrinsics());
 
   // Extract the pose of camera 2 from E. This pose will be relative to the pose
   // of camera 1, so to test we will need the delta between cameras 1 and 2.
   Pose relative_pose;
-  ASSERT_TRUE(
-      e_solver.ComputeExtrinsics(E, feature_matches, camera1.Intrinsics(),
-                                 camera2.Intrinsics(), relative_pose));
+  ASSERT_TRUE(e_solver.ComputeExtrinsics(E, feature_matches,
+                                         camera1.Intrinsics(),
+                                         camera2.Intrinsics(), relative_pose));
 
   Pose c1(camera1.Rt());
   Pose c2(camera2.Rt());
@@ -175,11 +171,8 @@ TEST(EssentialMatrixSolver, TestEssentialMatrixNoiseless) {
   // basis, so we don't need to convert the rotation to world coordinates.
   Matrix3d Rc = CameraExtrinsics::DefaultWorldToCamera().Rotation();
   Vector3d tc = CameraExtrinsics::DefaultWorldToCamera().Translation();
-  delta.SetTranslation(Rc * delta.Translation() + tc);
-
-  // E can only compute translation up to scale (this is why monocular has scale
-  // ambiguity).
-  delta.SetTranslation(delta.Translation().normalized());
+  delta.SetRotation(Rc * delta.Rotation() * Rc.transpose());
+  delta.SetTranslation((Rc * delta.Translation() + tc).normalized());
 
   EXPECT_TRUE(delta.IsApprox(relative_pose));
 }

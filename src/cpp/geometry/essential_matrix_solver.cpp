@@ -170,6 +170,7 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
   // Return with false if not enough points found in front of the cameras.
   if (best_num_points < FLAGS_min_points_visible_ratio * matches.size()) {
     VLOG(1) << "Did not find enough points in front of both cameras.";
+    printf("best num: %d, matches: %lu, threshold: %lf\n", best_num_points, matches.size(), FLAGS_min_points_visible_ratio*matches.size());
     return false;
   }
 

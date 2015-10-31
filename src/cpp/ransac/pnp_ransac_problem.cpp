@@ -199,5 +199,3 @@ PnPRansacModel PnPRansacProblem::FitModel(
 }
 
 } //\namespace bsfm
-
-#endif

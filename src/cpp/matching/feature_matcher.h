@@ -46,7 +46,6 @@
 
 #ifndef BSFM_MATCHING_FEATURE_MATCHER_H
 #define BSFM_MATCHING_FEATURE_MATCHER_H
-
 #include <unordered_map>
 
 #include <glog/logging.h>

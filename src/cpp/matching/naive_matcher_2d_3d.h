@@ -56,42 +56,45 @@
 #include "feature_match.h"
 #include "feature_matcher_options.h"
 
-#include <slam/observation.h>
-#include <slam/landmark.h>
-#include <sfm/view.h>
-
+#include "../sfm/view.h"
+#include "../slam/landmark.h"
+#include "../slam/observation.h"
 #include "../util/disallow_copy_and_assign.h"
 
 namespace bsfm {
 
 class NaiveMatcher2D3D {
  public:
-  NaiveMatcher2D3D(FeatureMatcherOptions& options, View::ConstPtr view) {}
+  NaiveMatcher2D3D(const FeatureMatcherOptions& options,
+                   const View::Ptr& view) {}
   ~NaiveMatcher2D3D() {}
 
-  // Match a FeatureList to a set of Landmarks by doing a pairwise
-  // comparison of all of individual descriptor vectors.
-  bool Match(FeatureList& points_2d,
-	     std::vector<Descriptor>& descriptors_2d,
-	     std::vector<LandmarkIndex>& landmark_indices,
-	     std::vector<Observation::Ptr>& matches);
+  // Match a FeatureList to a set of Landmarks by doing a pairwise comparison of
+  // all of individual descriptor vectors. To match we may need to normalize
+  // descriptors, so they are passed as non-const reference.
+  bool Match(const std::vector<LandmarkIndex>& landmark_indices,
+             const FeatureList& points_2d,
+             std::vector<Descriptor>& descriptors_2d,
+             std::vector<Observation::Ptr>& matches);
 
  private:
   // Compute one-way matches.
-  // Note: this is essentially the function NaiveFeatureMatcher::ComputePutativeMatches
-  // but it has been adjusted slightly for this 2d-3d matcher.
+  // Note: this is essentially the function
+  // NaiveFeatureMatcher::ComputePutativeMatches but it has been adjusted
+  // slightly for this 2d-3d matcher.
   void ComputeOneWayMatches(const std::vector<Descriptor>& descriptors1,
-			    const std::vector<Descriptor>& descriptors2,
-			    std::vector<LightFeatureMatch>& matches);
+                            const std::vector<Descriptor>& descriptors2,
+                            std::vector<LightFeatureMatch>& matches);
 
   // Compute symmetric matches.
   // Note: this is essentially the function FeatureMatcher::SymmetricMatches
   // but it has been adjusted slightly for this 2d-3d matcher.
-  void ComputeSymmetricMatches(const std::vector<LightFeatureMatch>& feature_matches_lhs,
-			       std::vector<LightFeatureMatch>& feature_matches_rhs);
+  void ComputeSymmetricMatches(
+      const std::vector<LightFeatureMatch>& feature_matches_lhs,
+      std::vector<LightFeatureMatch>& feature_matches_rhs);
 
   FeatureMatcherOptions options_;
-  View::ConstPtr view_;
+  View::Ptr view_;
 
   DISALLOW_COPY_AND_ASSIGN(NaiveMatcher2D3D)
 };  //\class NaiveMatcher2D3D

@@ -66,7 +66,7 @@ double DistanceMetric::operator()(const Descriptor& descriptor1,
     case HAMMING:
       distance = GetHammingDistance(descriptor1, descriptor2);
       break;
-      // No default to catch incompatible types at compile time.
+    // No default to catch incompatible types at compile time.
   }
   return distance;
 }
@@ -81,7 +81,7 @@ bool DistanceMetric::MaybeNormalizeDescriptors(
       break;
     case HAMMING:
       break;
-      // No default to catch incompatible types at compile time.
+    // No default to catch incompatible types at compile time.
   }
 
   return normalized;

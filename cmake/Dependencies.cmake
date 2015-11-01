@@ -16,6 +16,11 @@ find_package( Ceres REQUIRED )
 include_directories(SYSTEM ${CERES_INCLUDE_DIRS})
 list(APPEND berkeley_sfm_LIBRARIES ${CERES_LIBRARIES})
 
+# Find Flann.
+find_package( Flann REQUIRED )
+include_directories(SYSTEM ${FLANN_INCLUDE_DIRS})
+list(APPEND berkeley_sfm_LIBRARIES ${FLANN_LIBRARIES})
+
 # Find Google-gflags.
 include("cmake/External/gflags.cmake")
 include_directories(SYSTEM ${GFLAGS_INCLUDE_DIRS})

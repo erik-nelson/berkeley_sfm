@@ -35,18 +35,11 @@
  *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// These classes define the 2D3DRansacProblem API, and derive from
-// the base RansacProblem and RansacModel class/struct.
-//
-///////////////////////////////////////////////////////////////////////////////
-
-#include "2d_3d_ransac_problem.h"
+#include "pnp_ransac_problem.h"
 
 namespace bsfm {
 
-// ------------ 2D3DRansacModel methods ------------ //
+// ------------ PnPRansacModel methods ------------ //
 
 // Default constructor. Initialize to empty camera.
 PnPRansacModel::PnPRansacModel() {
@@ -89,17 +82,16 @@ bool PnPRansacModel::IsGoodFit(const Observation::Ptr observation,
 // does not project into the image.
 double PnPRansacModel::EvaluateReprojectionError(
    const Observation::Ptr observation) const {
-
   CHECK_NOTNULL(observation.get());
-  
+
   // Unpack this observation (extract Feature and Landmark).
   Feature feature = observation->Feature();
   Landmark::Ptr landmark = observation->GetLandmark();
   CHECK_NOTNULL(landmark.get());
-  
+
   // Extract position of this landmark.
   Point3D point = landmark->Position();
-  
+
   // Project into this camera.
   double u = 0.0, v = 0.0;
   const bool in_camera =
@@ -113,10 +105,10 @@ double PnPRansacModel::EvaluateReprojectionError(
   double delta_u = u - feature.u_;
   double delta_v = v - feature.v_;
   double error = delta_u*delta_u + delta_v*delta_v;
-  
+
   return error;
 }
-    
+
 // ------------ PnPRansacProblem methods ------------ //
 
 // Default constructor/destructor.
@@ -125,8 +117,8 @@ PnPRansacProblem::~PnPRansacProblem() {}
 
 // Set camera intrinsics.
 PnPRansacProblem::SetIntrinsics(CameraIntrinsics& intrinsics)
-  : intrinsics_(intrinsics) {} 
-  
+  : intrinsics_(intrinsics) {}
+
 // Subsample the data.
 std::vector<Observation::Ptr> PnPRansacProblem::SampleData(
    unsigned int num_samples) {
@@ -161,7 +153,7 @@ std::vector<Observation::Ptr> RemainingData(
   return std::vector<Observation::Ptr>(
     data_.begin() + num_sampled_previously, data_.end());
 }
-  
+
 // Fit a model to the provided data using PoseEstimatorPnP.
 PnPRansacModel PnPRansacProblem::FitModel(
     const std::vector<Observation::Ptr>& input_data) const {

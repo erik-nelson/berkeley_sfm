@@ -35,46 +35,36 @@
  *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// This class provides a naive O(n^2) descriptor matcher for matching 2d
-// Features to 3D Landmarks. Right now, this class does not inherit from
-// FeatureMatcher because that class assumes we are matching Features between
-// two or more images, and here we are not doing that precisely.
-//
-///////////////////////////////////////////////////////////////////////////////
-
 #include "naive_matcher_2d_3d.h"
 
 namespace bsfm {
 
-NaiveMatcher2D3D::NaiveMatcher2D3D(FeatureMatcherOptions& options)
-  : options_(options),
-    view_(view) {}
-  
+NaiveMatcher2D3D::NaiveMatcher2D3D(const FeatureMatcherOptions& options,
+                                   const View::Ptr& view)
+    : options_(options), view_(view) {}
+
 NaiveMatcher2D3D::~NaiveMatcher2D3D() {}
 
 // Match a FeatureList to a set of Landmarks by doing a pairwise
 // comparison of all of individual descriptor vectors.
-bool NaiveMatcher2D3D::Match(FeatureList& points_2d,
-			     std::vector<Descriptor>& descriptors_2d,
-			     std::vector<LandmarkIndex>& landmark_indices,
-			     std::vector<Observation::Ptr>& matches) {
+bool NaiveMatcher2D3D::Match(const std::vector<LandmarkIndex>& landmark_indices,
+                             const FeatureList& points_2d,
+                             std::vector<Descriptor>& descriptors_2d,
+                             std::vector<Observation::Ptr>& matches) {
   matches.clear();
 
   // Extract descriptors from landmarks.
   std::vector<Descriptor> descriptors_3d(landmark_indices.size());
   for (size_t ii = 0; ii < landmark_indices.size(); ii++) {
-    LandmarkIndex kLandmarkIndex = landmark_indices[ii];
-    Landmark::Ptr landmark = Landmark::GetLandmark(kLandmarkIndex);
+    Landmark::Ptr landmark = Landmark::GetLandmark(landmark_indices[ii]);
     CHECK_NOTNULL(landmark.get());
 
     descriptors_3d[ii] = landmark->Descriptor();
   }
 
   // Normalize descriptors if required by the distance metric.
-  DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors1);
-  DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors2);
+  DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors_2d);
+  DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors_3d);
 
   // Compute forward matches.
   std::vector<LightFeatureMatch> forward_matches;
@@ -82,7 +72,7 @@ bool NaiveMatcher2D3D::Match(FeatureList& points_2d,
 
   if (forward_matches.size() < options_.min_num_feature_matches)
     return false;
- 
+
   // Compute reverse matches if needed.
   if (options_.require_symmetric_matches) {
     std::vector<LightFeatureMatch> reverse_matches;
@@ -90,6 +80,7 @@ bool NaiveMatcher2D3D::Match(FeatureList& points_2d,
     ComputeSymmetricMatches(reverse_matches, forward_matches);
   }
 
+  // Symmetric matches are now stored in 'forward_matches'.
   if (forward_matches.size() < options_.min_num_feature_matches)
     return false;
 
@@ -108,11 +99,15 @@ bool NaiveMatcher2D3D::Match(FeatureList& points_2d,
 
   // Generate an Observation for each match.
   for (size_t ii = 0; ii < forward_matches.size(); ii++) {
-    Feature feature = points_2d[forward_matches.feature_index1_];
-    Descriptor descriptor = descriptors_2d[forward_matches.feature_index1_];
-    LandmarkIndex kLandmarkIndex = landmark_indices[forward_matches.feature_index2_];
+    const Feature feature =
+        points_2d[forward_matches.feature_index1_];
+    const Descriptor descriptor =
+        descriptors_2d[forward_matches.feature_index1_];
+    const LandmarkIndex kLandmarkIndex =
+        landmark_indices[forward_matches.feature_index2_];
 
-    Observation::Ptr observation = Observation::Create(view_, feature, descriptor);
+    Observation::Ptr observation =
+        Observation::Create(view_, feature, descriptor);
     CHECK_NOTNULL(observation.get());
 
     observation->SetLandmark(kLandmarkIndex);
@@ -123,8 +118,9 @@ bool NaiveMatcher2D3D::Match(FeatureList& points_2d,
 }
 
 // Compute one-way matches.
-// Note: this is essentially the function NaiveFeatureMatcher::ComputePutativeMatches
-// but it has been adjusted slightly for this 2d-3d matcher.
+// Note: this is essentially the function
+// NaiveFeatureMatcher::ComputePutativeMatches but it has been adjusted slightly
+// for this 2d-3d matcher.
 void NaiveMatcher2D3D::ComputeOneWayMatches(
      const std::vector<Descriptor>& descriptors1,
      const std::vector<Descriptor>& descriptors2,
@@ -210,6 +206,5 @@ void NaiveMatcher2D3D::ComputeSymmetricMatches(
   }
 }
 
-  
-}  //\namespace bsfm
 
+}  //\namespace bsfm

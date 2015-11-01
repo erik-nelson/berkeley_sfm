@@ -37,8 +37,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// These classes define the 2D3DRansacProblem API, and derive from
-// the base RansacProblem and RansacModel class/struct.
+// These classes define the PnPRansacProblem API, and derive from the base
+// RansacProblem and RansacModel class/struct.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -46,18 +46,17 @@
 #define BSFM_RANSAC_2D_3D_RANSAC_PROBLEM_H
 
 #include <Eigen/Dense>
-#include <vector>
 #include <glog/glog.h>
+#include <vector>
 
 #include "ransac_problem.h"
+#include "../camera/camera.h"
+#include "../camera/camera_intrinsics.h"
+#include "../geometry/point_3d.h"
+#include "../slam/landmark.h"
+#include "../slam/observation.h"
+#include "../matching/feature.h"
 #include "../util/disallow_copy_and_assign.h"
-#include <slam/landmark.h>
-#include <slam/observation.h>
-#include <matching/feature.h>
-#include <camera/camera_intrinsics.h>
-#include <camera/camera.h>
-#include <geometry/point_3d.h>
-
 
 namespace bsfm {
 
@@ -92,7 +91,8 @@ struct PnPRansacModel : public RansacModel<Observation::Ptr> {
 
 // ------------ PnPRansacProblem derived ------------ //
 
-class PnPRansacProblem: public RansacProblem<Observation::Ptr, PnPRansacModel> {
+class PnPRansacProblem
+    : public RansacProblem<Observation::Ptr, PnPRansacModel> {
  public:
   PnPRansacProblem();
   virtual ~PnPRansacProblem();

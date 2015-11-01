@@ -110,7 +110,7 @@ bool DescriptorExtractor::DescribeFeatures(
     OpenCVToEigenMat<double>(cv_descriptors.row(ii), descriptor_mat);
 
     // Need to explicitly convert from matrix to vector.
-    Descriptor descriptor = descriptor_mat.row(0);
+    Descriptor descriptor = descriptor_mat.row(0).transpose();
     descriptors_out.push_back(descriptor);
   }
 

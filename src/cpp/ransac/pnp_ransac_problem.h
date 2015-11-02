@@ -69,21 +69,22 @@ struct PnPRansacModel : public RansacModel<Observation::Ptr> {
   virtual ~PnPRansacModel();
 
   // Define an additional constructor specifically for this model.
-  PnPRansacModel(const Camera& camera, std::vector<Observation::Ptr>& matches);
+  PnPRansacModel(const Camera& camera,
+		 const std::vector<Observation::Ptr>& matches);
 
   // Return model error.
   virtual double Error() const;
 
   // Evaluate model on a single data element and update error.
-  virtual bool IsGoodFit(const Observation::Ptr observation,
+  virtual bool IsGoodFit(const Observation::Ptr& observation,
 			 double error_tolerance);
 
   // Compute reprojection error of this landmark.
-  double EvaluateReprojectionError(const Observation::Ptr observation) const;
+  double EvaluateReprojectionError(const Observation::Ptr& observation) const;
 
   // Model-specific member variables.
-  Camera camera_;
-  std::vector<Observation::Ptr> matches_;
+  const Camera camera_;
+  const std::vector<Observation::Ptr> matches_;
   double error_;
 };  //\struct PnPRansacModel
 

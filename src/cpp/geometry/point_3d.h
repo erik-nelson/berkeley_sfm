@@ -81,6 +81,7 @@ class Point3D {
   double X() const;
   double Y() const;
   double Z() const;
+  Vector3d& Get();
   const Vector3d& Get() const;
 
   // Utility.

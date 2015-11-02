@@ -79,7 +79,8 @@ class Pose {
   double& operator()(int i, int j);
   const double& operator()(int i, int j) const;
 
-  // Access a const version of the homogeneous transformation matrix.
+  // Access the homogeneous transformation matrix.
+  Matrix4d& Get();
   const Matrix4d& Get() const;
 
   // Get the transformation's rotation components.

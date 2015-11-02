@@ -35,96 +35,56 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#include <iostream>
+///////////////////////////////////////////////////////////////////////////////
+//
+// This class defines a bundle adjustment problem solver. Bundle adjustment is
+// the problem of determining the 3D positions of n points and the 3D positions
+// of m cameras simultaneously using features that are matched between the m
+// views. Bundle adjustment is a non-linear least squares optimization that
+// attempts to minimize the reprojection error of the 3D points in the views of
+// each camera.
+//
+// With a large number of points and cameras, this quickly gets to be a tough
+// optimization problem. In many cases, bundle adjustment requires a long time
+// to solve, and is also dependent on a good initialization (i.e. a prior on the
+// 3D positions of all cameras and points).
+//
+///////////////////////////////////////////////////////////////////////////////
 
-#include "point_3d.h"
+#ifndef BSFM_SFM_BUNDLE_ADJUSTER_H
+#define BSFM_SFM_BUNDLE_ADJUSTER_H
+
+#include <Eigen/Core>
+#include <vector>
+
+#include "bundle_adjustment_options.h"
+#include "view.h"
+#include "../slam/landmark.h"
+#include "../util/disallow_copy_and_assign.h"
+#include "../util/types.h"
 
 namespace bsfm {
 
-// Default constructor.
-Point3D::Point3D() : data_(Vector3d::Zero()) {}
+using Eigen::Map;
+using Eigen::Matrix3d;
+using Eigen::Vector3d;
 
-// (x, y, z) constructor.
-Point3D::Point3D(double x, double y, double z)
-    : data_(Vector3d(x, y, z)) {}
+class BundleAdjuster {
+ public:
+  BundleAdjuster() { }
+  ~BundleAdjuster() { }
 
-// Copy constructors.
-Point3D::Point3D(const Point3D& in) : data_(in.Get()) {}
+  // Solve the bundle adjustment problem, internally updating the positions of
+  // all views in 'view_indices', as well as all landmarks that they jointly
+  // observe (any landmark seen by at least 2 views).
+  bool Solve(const BundleAdjustmentOptions& options,
+             const std::vector<ViewIndex>& view_indices) const;
 
-// Eigen constructor.
-Point3D::Point3D(const Vector3d& in) : data_(in) {}
+ private:
+  DISALLOW_COPY_AND_ASSIGN(BundleAdjuster)
 
-// Basic destructor.
-Point3D::~Point3D() {}
-
-// Setters.
-void Point3D::SetX(double x) { data_(0) = x; }
-
-void Point3D::SetY(double y) { data_(1) = y; }
-
-void Point3D::SetZ(double z) { data_(2) = z; }
-
-void Point3D::Set(double x, double y, double z) {
-  data_(0) = x;
-  data_(1) = y;
-  data_(2) = z;
-}
-
-void Point3D::Set(const Point3D& in) {
-  data_ = in.Get();
-}
-
-void Point3D::Set(const Vector3d& in) {
-  data_ = in;
-}
-
-// Getters.
-double& Point3D::operator()(int index) {
-  // No bound-checking. Be careful!
-  return data_(index);
-}
-
-const double& Point3D::operator()(int index) const {
-  // No bound-checking. Be careful!
-  return data_(index);
-}
-
-double Point3D::X() const { return data_(0); }
-
-double Point3D::Y() const { return data_(1); }
-
-double Point3D::Z() const { return data_(2); }
-
-Vector3d& Point3D::Get() {
-  return data_;
-}
-
-const Vector3d& Point3D::Get() const {
-  return data_;
-}
-
-// Utility.
-void Point3D::Print(const std::string& prefix) const {
-  if (!prefix.empty()) {
-    std::cout << prefix << std::endl;
-  }
-
-  std::cout << data_ << std::endl;
-}
-
-// Math operations.
-void Point3D::Normalize() {
-  data_.normalize();
-}
-
-Point3D Point3D::Normalized() const {
-  Point3D out(data_);
-  out.Normalize();
-  return out;
-}
-
-double Point3D::Dot(const Point3D& other) const {
-  return data_.dot(other.Get());
-}
+};  //\class BundleAdjuster
 
 }  //\namespace bsfm
+
+#endif

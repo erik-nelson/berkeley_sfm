@@ -120,6 +120,13 @@ const std::vector<Observation::Ptr>& Landmark::Observations() const {
   return observations_;
 }
 
+// Returns a raw pointer to the data elements of the position of the landamark.
+// This is useful for optimization on landmark positions (e.g. during bundle
+// adjustment).
+double* Landmark::PositionData() {
+  return position_.Get().data();
+}
+
 // Add a new observation of the landmark. If 'retriangulate' is true, the
 // landmark's position will be retriangulated from all observations of it.
 bool Landmark::IncorporateObservation(const Observation::Ptr& observation,

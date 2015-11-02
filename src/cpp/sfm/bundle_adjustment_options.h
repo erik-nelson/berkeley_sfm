@@ -35,96 +35,22 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#include <iostream>
+///////////////////////////////////////////////////////////////////////////////
+//
+// This struct defines a set of options that are used during bundle adjustment.
+//
+///////////////////////////////////////////////////////////////////////////////
 
-#include "point_3d.h"
+#ifndef BSFM_SFM_BUNDLE_ADJUSTMENT_OPTIONS_H
+#define BSFM_SFM_BUNDLE_ADJUSTMENT_OPTIONS_H
 
 namespace bsfm {
 
-// Default constructor.
-Point3D::Point3D() : data_(Vector3d::Zero()) {}
+struct BundleAdjustmentOptions {
 
-// (x, y, z) constructor.
-Point3D::Point3D(double x, double y, double z)
-    : data_(Vector3d(x, y, z)) {}
 
-// Copy constructors.
-Point3D::Point3D(const Point3D& in) : data_(in.Get()) {}
-
-// Eigen constructor.
-Point3D::Point3D(const Vector3d& in) : data_(in) {}
-
-// Basic destructor.
-Point3D::~Point3D() {}
-
-// Setters.
-void Point3D::SetX(double x) { data_(0) = x; }
-
-void Point3D::SetY(double y) { data_(1) = y; }
-
-void Point3D::SetZ(double z) { data_(2) = z; }
-
-void Point3D::Set(double x, double y, double z) {
-  data_(0) = x;
-  data_(1) = y;
-  data_(2) = z;
-}
-
-void Point3D::Set(const Point3D& in) {
-  data_ = in.Get();
-}
-
-void Point3D::Set(const Vector3d& in) {
-  data_ = in;
-}
-
-// Getters.
-double& Point3D::operator()(int index) {
-  // No bound-checking. Be careful!
-  return data_(index);
-}
-
-const double& Point3D::operator()(int index) const {
-  // No bound-checking. Be careful!
-  return data_(index);
-}
-
-double Point3D::X() const { return data_(0); }
-
-double Point3D::Y() const { return data_(1); }
-
-double Point3D::Z() const { return data_(2); }
-
-Vector3d& Point3D::Get() {
-  return data_;
-}
-
-const Vector3d& Point3D::Get() const {
-  return data_;
-}
-
-// Utility.
-void Point3D::Print(const std::string& prefix) const {
-  if (!prefix.empty()) {
-    std::cout << prefix << std::endl;
-  }
-
-  std::cout << data_ << std::endl;
-}
-
-// Math operations.
-void Point3D::Normalize() {
-  data_.normalize();
-}
-
-Point3D Point3D::Normalized() const {
-  Point3D out(data_);
-  out.Normalize();
-  return out;
-}
-
-double Point3D::Dot(const Point3D& other) const {
-  return data_.dot(other.Get());
-}
+};  //\struct BundleAdjustmentOptions
 
 }  //\namespace bsfm
+
+#endif

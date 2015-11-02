@@ -113,6 +113,10 @@ class View {
   // which landmarks they have observed.
   void UpdateObservedLandmarks();
 
+  // Return the set of all landmarks that this view can see. The returned set
+  // may not be accurate if UpdateObservedLandmarks() was not called recently.
+  const std::unordered_set<LandmarkIndex>& ObservedLandmarks() const;
+
   // For sorting a list of views by their indices.
   static bool SortByIndex(const View::Ptr& lhs, const View::Ptr& rhs);
 

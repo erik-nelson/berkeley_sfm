@@ -78,7 +78,11 @@ const double& Pose::operator()(int i, int j) const {
   return Rt_(i, j);
 }
 
-// Access a const version of the homogeneous transformation matrix.
+// Access the homogeneous transformation matrix.
+Matrix4d& Pose::Get() {
+  return Rt_;
+}
+
 const Matrix4d& Pose::Get() const {
   return Rt_;
 }

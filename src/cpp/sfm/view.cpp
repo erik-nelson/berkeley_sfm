@@ -136,6 +136,10 @@ void View::UpdateObservedLandmarks() {
   }
 }
 
+const std::unordered_set<LandmarkIndex>& View::ObservedLandmarks() const {
+  return landmarks_;
+}
+
 bool View::SortByIndex(const View::Ptr& lhs, const View::Ptr& rhs) {
   return lhs->Index()< rhs->Index();
 }

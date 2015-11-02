@@ -73,10 +73,9 @@ struct GeometricError {
   // world space ('X').
   Feature x_;
   Point3D X_;
-  GeometricError(const Feature& x, const Point3D& X)
-      : x_(x), X_(X) {}
+  GeometricError(const Feature& x, const Point3D& X) : x_(x), X_(X) {}
 
-  // Residual is 1-dimensional, P is 12-dimensional (number of elements in a
+  // Residual is 2-dimensional, P is 12-dimensional (number of elements in a
   // camera projection matrix).
   template <typename T>
   bool operator()(const T* const P, T* geometric_error) const {
@@ -101,6 +100,67 @@ struct GeometricError {
            kNumCameraParameters>(new GeometricError(x, X));
   }
 };  //\struct GeometricError
+
+
+// Bundle adjustment error is similar to geometric error, but the position of
+// the 3D point is also optimized. The error is defined as the image-space
+// geometric distance between an image point x, and a projected 3D landmark X
+// projected according to x = K [R | t] X, where K and [R | t] are camera
+// intrinsic and extrinsic parameter matrices, respectively. K is held constant
+// during the optimization, and only the camera pose matrix [R | t] is optimized
+// over.
+struct BundleAdjustmentError {
+  // Inputs are the image space point x and the intrinsics matrix K.
+  // Optimization variables are the 3D landmark position X, and the camera
+  // extrinsics matrix [R | t].
+  Feature x_;
+  Matrix3d K_;
+  BundleAdjustmentError(const Feature& x, const Matrix3d& K) : x_(x), K_(K) {}
+
+  template <typename T>
+  bool operator()(const T* const Rt, const T* const X,
+                  T* bundle_adjustment_error) const {
+
+    // Matrix multiplication: P = K * [R | t]. Note that [R | t] is provided in
+    // column-major order.
+    T P11 = K_(0, 0)*Rt[0] + K_(0, 1)*Rt[1] + K_(0, 2)*Rt[2];
+    T P12 = K_(0, 0)*Rt[3] + K_(0, 1)*Rt[4] + K_(0, 2)*Rt[5];
+    T P13 = K_(0, 0)*Rt[6] + K_(0, 1)*Rt[7] + K_(0, 2)*Rt[8];
+    T P14 = K_(0, 0)*Rt[9] + K_(0, 1)*Rt[10] + K_(0, 2)*Rt[11];
+
+    T P21 = K_(1, 0)*Rt[0] + K_(1, 1)*Rt[1] + K_(1, 2)*Rt[2];
+    T P22 = K_(1, 0)*Rt[3] + K_(1, 1)*Rt[4] + K_(1, 2)*Rt[5];
+    T P23 = K_(1, 0)*Rt[6] + K_(1, 1)*Rt[7] + K_(1, 2)*Rt[8];
+    T P24 = K_(1, 0)*Rt[9] + K_(1, 1)*Rt[10] + K_(1, 2)*Rt[11];
+
+    T P31 = K_(2, 0)*Rt[0] + K_(2, 1)*Rt[1] + K_(2, 2)*Rt[2];
+    T P32 = K_(2, 0)*Rt[3] + K_(2, 1)*Rt[4] + K_(2, 2)*Rt[5];
+    T P33 = K_(2, 0)*Rt[6] + K_(2, 1)*Rt[7] + K_(2, 2)*Rt[8];
+    T P34 = K_(2, 0)*Rt[9] + K_(2, 1)*Rt[10] + K_(2, 2)*Rt[11];
+
+    // Compute image space scale, assuming homogeneous coordinate is 1.0.
+    T scale = P31 * X[0] + P32 * X[1] + P33 * X[2] + P34;
+
+    // Compute geometric error in image-space.
+    bundle_adjustment_error[0] =
+        x_.u_ - (P11 * X[0] + P12 * X[1] + P13 * X[2] + P14) / scale;
+    bundle_adjustment_error[1] =
+        x_.v_ - (P21 * X[0] + P22 * X[1] + P23 * X[2] + P24) / scale;
+
+    return true;
+  }
+
+  // Factory method.
+  static ceres::CostFunction* Create(const Feature& x, const Matrix3d& K) {
+    static const int kNumResiduals = 2;
+    static const int kNumExtrinsicParameters = 12;
+    static const int kNumLandmarkParameters = 3;
+    return new ceres::AutoDiffCostFunction<BundleAdjustmentError,
+           kNumResiduals,
+           kNumExtrinsicParameters,
+           kNumLandmarkParameters>(new BundleAdjustmentError(x, K));
+  }
+};  //\BundleAdjustmentError
 
 }  //\namespace bsfm
 

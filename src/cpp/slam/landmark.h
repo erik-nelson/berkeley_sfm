@@ -105,6 +105,11 @@ class Landmark {
   const ::bsfm::Descriptor& Descriptor() const;
   const std::vector<Observation::Ptr>& Observations() const;
 
+  // Returns a raw pointer to the data elements of the position of the landmark.
+  // This is useful for optimization on landmark positions (e.g. during bundle
+  // adjustment.)
+  double* PositionData();
+
   // Add a new observation of the landmark. If 'retriangulate' is true, the
   // landmark's position will be retriangulated from all observations of it.
   // This will return false if the observation's descriptor does not match with

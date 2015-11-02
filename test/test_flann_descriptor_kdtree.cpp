@@ -47,26 +47,26 @@
 namespace bsfm {
 
 TEST(FlannDescriptorKDTree, TestFlannDescriptorKDTree) {
-  // Make a FLANN kd tree.
+  // Make a FLANN kd-tree.
   FlannDescriptorKDTree descriptor_kdtree;
 
   // Make a bunch of descriptors and incrementally insert them into the kd tree.
   std::vector<Descriptor> descriptors;
-  for (int ii = 0; ii < 10; ++ii) {
+  for (int ii = 0; ii < 100; ++ii) {
     descriptors.push_back(Descriptor::Random(64));
     descriptor_kdtree.AddDescriptor(descriptors.back());
   }
 
   // Add a batch of descriptors at once.
   std::vector<Descriptor> descriptors2;
-  for (int ii = 0; ii < 0; ++ii)
-    descriptors.push_back(Descriptor::Random(64));
+  for (int ii = 0; ii < 100; ++ii)
+    descriptors2.push_back(Descriptor::Random(64));
   descriptor_kdtree.AddDescriptors(descriptors2);
 
   // Query the kd tree for nearest neighbor.
   Descriptor query(Descriptor::Random(64));
   int nn_index = -1;
-  double nn_distance = 0.0;
+  double nn_distance = -1.0;
   EXPECT_TRUE(descriptor_kdtree.NearestNeighbor(query, nn_index, nn_distance));
   EXPECT_NE(-1, nn_index);
 
@@ -83,42 +83,10 @@ TEST(FlannDescriptorKDTree, TestFlannDescriptorKDTree) {
       min_distance = distance;
       min_distance_index = ii;
     }
-    printf("desc %lu, distance: %lf\n", ii, distance);
   }
-  printf("nn distance: %lf\n", nn_distance);
 
   EXPECT_EQ(min_distance_index, nn_index);
-
-}
-
-TEST(FlannDescriptorKDTree, TestReleasePointers) {
-  // See if FLANN is performing a copy of our descriptors under the hood by
-  // creating pointers to data, inserting the data into the FLANN kd tree,
-  // releasing the data, and then querying the kd tree.
-  FlannDescriptorKDTree descriptor_kdtree;
-
-  // Make some descriptors and insert them into the kd tree.
-  std::vector<Descriptor> descriptors;
-  for (int ii = 0; ii < 100; ++ii) {
-    std::shared_ptr<Descriptor> descriptor_ptr(
-        new Descriptor(Descriptor::Random(32)));
-
-    descriptor_kdtree.AddDescriptor(*descriptor_ptr);
-
-    // Copy the data for test comparison and then let the memory free.
-    descriptors.push_back(*descriptor_ptr);
-  }
-  // Descriptors should have deallocated upon leaving for loop scope.
-
-  // Now query for nearest neighbor.
-  Descriptor query(Descriptor::Random(32));
-  int nn_index = -1;
-  double nn_distance = 0.0;
-  EXPECT_TRUE(descriptor_kdtree.NearestNeighbor(query, nn_index, nn_distance));
-  EXPECT_NE(-1, nn_index);
-
-
-  // Did it give us the right descriptor?
+  EXPECT_NEAR(min_distance, nn_distance, 1e-8);
 }
 
 }  //\namespace bsfm

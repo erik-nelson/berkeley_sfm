@@ -41,17 +41,30 @@ namespace bsfm {
 
 FlannDescriptorKDTree::FlannDescriptorKDTree() {}
 
-FlannDescriptorKDTree::~FlannDescriptorKDTree() {}
+FlannDescriptorKDTree::~FlannDescriptorKDTree() {
+  // Free memory from descriptors in the kd tree.
+  if (index_ != nullptr) {
+    for (size_t ii = 0; ii < index_->size(); ++ii) {
+      double* descriptor = index_->getPoint(ii);
+      delete[] descriptor;
+    }
+  }
+}
 
 // Add descriptors to the index.
 void FlannDescriptorKDTree::AddDescriptor(Descriptor& descriptor) {
 
   // Copy the input descriptor into FLANN's Matrix type.
-  flann::Matrix<double> flann_descriptor(descriptor.data(), 1, descriptor.size());
+  const size_t cols = descriptor.size();
+  flann::Matrix<double> flann_descriptor(new double[cols], 1, cols);
+  for (size_t ii = 0; ii < cols; ++ii) {
+    flann_descriptor[0][ii] = descriptor(ii);
+  }
 
   // If this is the first point in the index, create the index and exit.
   if (index_ == nullptr) {
-    const int kNumRandomizedKDTrees = 1;  // recommended by FLANN authors.
+    // Single kd-tree. No approximation.
+    const int kNumRandomizedKDTrees = 1;
     index_.reset(new flann::Index<flann::L2<double> >(
         flann_descriptor, flann::KDTreeIndexParams(kNumRandomizedKDTrees)));
     index_->buildIndex();
@@ -81,17 +94,18 @@ bool FlannDescriptorKDTree::NearestNeighbor(Descriptor& query, int& nn_index,
     return false;
   }
 
-  // Convert the input descriptor to the FLANN format.
-  flann::Matrix<double> flann_query(query.data(), 1, query.size());
+  // Convert the input descriptor to the FLANN format. We can use Eigen's memory
+  // here, since we will have our answer before leaving function scope.
+  flann::Matrix<double> flann_query(query.data(), 1, index_->veclen());
 
   // Search the kd tree for the nearest neighbor to the query.
   std::vector< std::vector<int> > query_match_indices;
   std::vector< std::vector<double> > query_distances;
 
-  const size_t kOneNearestNeighbor = 1;
+  const int kOneNearestNeighbor = 1;
   int num_neighbors_found = index_->knnSearch(
       flann_query, query_match_indices, query_distances, kOneNearestNeighbor,
-      flann::SearchParams(flann::FLANN_CHECKS_UNLIMITED));
+      flann::SearchParams(flann::FLANN_CHECKS_UNLIMITED) /* no approx */);
 
   // If we found a nearest neighbor, assign output.
   if (num_neighbors_found > 0) {

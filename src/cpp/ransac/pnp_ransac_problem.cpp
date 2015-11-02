@@ -37,17 +37,24 @@
 
 #include "pnp_ransac_problem.h"
 #include <geometry/pose_estimator_2d_3d.h>
+#include <camera/camera_extrinsics.h>
+#include <camera/camera_intrinsics.h>
+#include <camera/camera.h>
+
 
 namespace bsfm {
 
 // ------------ PnPRansacModel methods ------------ //
 
-// Default constructor. Initialize to empty camera.
-PnPRansacModel::PnPRansacModel() {
-  error_ = 0.0;
-}
+// Default constructor. Initialize to empty matches and default camera.
+// Note: this should really never be used -- instead use the constructor below.
+PnPRansacModel::PnPRansacModel() 
+  : camera_(Camera()),
+    matches_(std::vector<Observation::Ptr>()),
+    error_(0.0) {}
 
 // Constructor. Set parameters as given.
+// Use this constructor instead of the default.
 PnPRansacModel::PnPRansacModel(const Camera& camera,
 			       const std::vector<Observation::Ptr>& matches)
   : camera_(camera),

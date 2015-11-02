@@ -83,8 +83,8 @@ struct PnPRansacModel : public RansacModel<Observation::Ptr> {
   double EvaluateReprojectionError(const Observation::Ptr& observation) const;
 
   // Model-specific member variables.
-  const Camera camera_;
-  const std::vector<Observation::Ptr> matches_;
+  Camera camera_;
+  std::vector<Observation::Ptr> matches_;
   double error_;
 };  //\struct PnPRansacModel
 

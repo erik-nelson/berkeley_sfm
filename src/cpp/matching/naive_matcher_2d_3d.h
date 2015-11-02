@@ -66,8 +66,8 @@ namespace bsfm {
 class NaiveMatcher2D3D {
  public:
   NaiveMatcher2D3D(const FeatureMatcherOptions& options,
-                   const View::Ptr& view) {}
-  ~NaiveMatcher2D3D() {}
+                   const View::Ptr& view);
+  ~NaiveMatcher2D3D();
 
   // Match a FeatureList to a set of Landmarks by doing a pairwise comparison of
   // all of individual descriptor vectors. To match we may need to normalize

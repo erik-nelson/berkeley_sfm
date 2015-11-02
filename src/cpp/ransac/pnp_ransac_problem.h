@@ -46,7 +46,6 @@
 #define BSFM_RANSAC_2D_3D_RANSAC_PROBLEM_H
 
 #include <Eigen/Dense>
-#include <glog/glog.h>
 #include <vector>
 
 #include "ransac_problem.h"

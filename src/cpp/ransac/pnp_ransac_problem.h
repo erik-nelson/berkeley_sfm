@@ -46,7 +46,6 @@
 #define BSFM_RANSAC_2D_3D_RANSAC_PROBLEM_H
 
 #include <Eigen/Dense>
-#include <glog/glog.h>
 #include <vector>
 
 #include "ransac_problem.h"
@@ -70,17 +69,18 @@ struct PnPRansacModel : public RansacModel<Observation::Ptr> {
   virtual ~PnPRansacModel();
 
   // Define an additional constructor specifically for this model.
-  PnPRansacModel(const Camera& camera, std::vector<Observation::Ptr>& matches);
+  PnPRansacModel(const Camera& camera,
+		 const std::vector<Observation::Ptr>& matches);
 
   // Return model error.
   virtual double Error() const;
 
   // Evaluate model on a single data element and update error.
-  virtual bool IsGoodFit(const Observation::Ptr observation,
+  virtual bool IsGoodFit(const Observation::Ptr& observation,
 			 double error_tolerance);
 
   // Compute reprojection error of this landmark.
-  double EvaluateReprojectionError(const Observation::Ptr observation) const;
+  double EvaluateReprojectionError(const Observation::Ptr& observation) const;
 
   // Model-specific member variables.
   Camera camera_;

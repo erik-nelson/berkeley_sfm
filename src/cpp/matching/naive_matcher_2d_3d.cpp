@@ -88,7 +88,7 @@ bool NaiveMatcher2D3D::Match(const std::vector<LandmarkIndex>& landmark_indices,
   size_t num_features_out = forward_matches.size();
   if (options_.only_keep_best_matches) {
     num_features_out =
-        std::min(num_features_out, options_.num_best_matches);
+      std::min(num_features_out, static_cast<size_t>(options_.num_best_matches));
 
     // Return relevant matches in sorted order.
     std::partial_sort(forward_matches.begin(),
@@ -100,11 +100,11 @@ bool NaiveMatcher2D3D::Match(const std::vector<LandmarkIndex>& landmark_indices,
   // Generate an Observation for each match.
   for (size_t ii = 0; ii < forward_matches.size(); ii++) {
     const Feature feature =
-        points_2d[forward_matches.feature_index1_];
+        points_2d[forward_matches[ii].feature_index1_];
     const Descriptor descriptor =
-        descriptors_2d[forward_matches.feature_index1_];
+        descriptors_2d[forward_matches[ii].feature_index1_];
     const LandmarkIndex kLandmarkIndex =
-        landmark_indices[forward_matches.feature_index2_];
+        landmark_indices[forward_matches[ii].feature_index2_];
 
     Observation::Ptr observation =
         Observation::Create(view_, feature, descriptor);

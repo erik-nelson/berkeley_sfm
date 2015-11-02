@@ -36,23 +36,30 @@
  */
 
 #include "pnp_ransac_problem.h"
+#include <geometry/pose_estimator_2d_3d.h>
+#include <camera/camera_extrinsics.h>
+#include <camera/camera_intrinsics.h>
+#include <camera/camera.h>
+
 
 namespace bsfm {
 
 // ------------ PnPRansacModel methods ------------ //
 
-// Default constructor. Initialize to empty camera.
-PnPRansacModel::PnPRansacModel() {
-  camera_ = Camera();
-  error_ = 0.0;
-}
+// Default constructor. Initialize to empty matches and default camera.
+// Note: this should really never be used -- instead use the constructor below.
+PnPRansacModel::PnPRansacModel() 
+  : camera_(Camera()),
+    matches_(std::vector<Observation::Ptr>()),
+    error_(0.0) {}
 
 // Constructor. Set parameters as given.
+// Use this constructor instead of the default.
 PnPRansacModel::PnPRansacModel(const Camera& camera,
-			       std::vector<Observation::Ptr>& matches)
+			       const std::vector<Observation::Ptr>& matches)
   : camera_(camera),
     matches_(matches),
-    error_ = 0.0 {}
+    error_(0.0) {}
 
 // Destructor.
 PnPRansacModel::~PnPRansacModel() {}
@@ -63,7 +70,7 @@ double PnPRansacModel::Error() const {
 }
 
 // Evaluate model on a single data element and update error.
-bool PnPRansacModel::IsGoodFit(const Observation::Ptr observation,
+bool PnPRansacModel::IsGoodFit(const Observation::Ptr& observation,
 			       double error_tolerance) {
   // Get error.
   double error = PnPRansacModel::EvaluateReprojectionError(observation);
@@ -81,7 +88,7 @@ bool PnPRansacModel::IsGoodFit(const Observation::Ptr observation,
 // Compute reprojection error of this landmark. Return -1.0 if point
 // does not project into the image.
 double PnPRansacModel::EvaluateReprojectionError(
-   const Observation::Ptr observation) const {
+   const Observation::Ptr& observation) const {
   CHECK_NOTNULL(observation.get());
 
   // Unpack this observation (extract Feature and Landmark).
@@ -116,9 +123,10 @@ PnPRansacProblem::PnPRansacProblem() {}
 PnPRansacProblem::~PnPRansacProblem() {}
 
 // Set camera intrinsics.
-PnPRansacProblem::SetIntrinsics(CameraIntrinsics& intrinsics)
-  : intrinsics_(intrinsics) {}
-
+void PnPRansacProblem::SetIntrinsics(CameraIntrinsics& intrinsics) {
+  intrinsics_ = intrinsics;
+}
+  
 // Subsample the data.
 std::vector<Observation::Ptr> PnPRansacProblem::SampleData(
    unsigned int num_samples) {
@@ -141,7 +149,7 @@ std::vector<Observation::Ptr> PnPRansacProblem::SampleData(
 }
 
 // Return the data that was not sampled.
-std::vector<Observation::Ptr> RemainingData(
+std::vector<Observation::Ptr> PnPRansacProblem::RemainingData(
     unsigned int num_sampled_previously) const {
   // In Sample(), the data was shuffled and we took the first
   // 'num_sampled_previously' elements. Here, take the remaining elements.
@@ -169,7 +177,7 @@ PnPRansacModel PnPRansacProblem::FitModel(
     points_2d.push_back(observation->Feature());
 
     // Estract landmark position and append.
-    Landmark::Ptr landmark = observation->Landmark();
+    Landmark::Ptr landmark = observation->GetLandmark();
     CHECK_NOTNULL(landmark.get());
     points_3d.push_back(landmark->Position());
   }

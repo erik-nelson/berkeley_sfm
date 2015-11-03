@@ -59,6 +59,12 @@
 #include <ransac/pnp_ransac_problem.h>
 #include <ransac/ransac.h>
 
+#include <gflags/gflags.h>
+#include <glog/logging.h>
+
+DEFINE_int32(min_features_in_camera, 6,
+	     "Minimum number of landmarks that project into any given camera.");
+
 namespace bsfm {
 
 using Eigen::Matrix3d;
@@ -285,6 +291,14 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     std::vector<Descriptor> descriptors;
     SimulateFeatureExtraction(ii, features, descriptors);
 
+    std::cout << "Number of features in this frame: " << descriptors.size() << std::endl;
+    
+    // Skip if not enough points project into this camera.
+    if (descriptors.size() < FLAGS_min_features_in_camera) {
+      std::cout << "Insufficient features project into this camera. Skipping." << std::endl;
+      continue;
+    }
+    
     // Create a camera and view.
     Camera new_camera;
     new_camera.SetIntrinsics(intrinsics);
@@ -296,12 +310,16 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     for (size_t jj = 0; jj < max_landmark_index; jj++)
       landmark_indices[jj] = static_cast<LandmarkIndex>(jj);
 
+    std::cout << "Number of keypoints: " << max_landmark_index << std::endl;
+    
     // Match with existing landmarks.
     FeatureMatcherOptions options;
     std::vector<Observation::Ptr> matches_2d_3d;
     NaiveMatcher2D3D matcher_2d_3d(options, new_view);
     matcher_2d_3d.Match(landmark_indices, features, descriptors, matches_2d_3d);
-      
+
+    std::cout << "I got here." << std::endl;
+    
     // 2D<-->3D pose estimation.
     // Initialize the PnP ransac problem.
     PnPRansacProblem pnp_ransac_problem;
@@ -323,6 +341,8 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     // Get the solution from the problem object.
     ASSERT_TRUE(pnp_ransac_problem.SolutionFound());
 
+    std::cout << "I got here." << std::endl;
+    
     // Add all inlier landmarks to the view as observations.
     for (const auto& observation : pnp_ransac_problem.Inliers()) {
        CHECK_NOTNULL(observation.get());

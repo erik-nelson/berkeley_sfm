@@ -59,7 +59,6 @@ void MakePoints(int num_points, math::RandomGenerator& rng, Point3DList& points)
     const double z = rng.DoubleUniform(20.0, 30.0);
 
     points.emplace_back(x, y, z);
-    printf("point: %lf, %lf, %lf\n", x, y, z);
   }
 }
 
@@ -116,12 +115,10 @@ TEST(BundleAdjuster, TestTwoViewsNoNoise) {
   // Make 3D points.
   math::RandomGenerator rng(0);
   Point3DList points;
-  MakePoints(1, rng, points);
+  MakePoints(100, rng, points);
 
   Camera camera1 = RandomCamera(rng, points);
   Camera camera2 = RandomCamera(rng, points);
-  camera1.Extrinsics().WorldToCamera().Print("cam 1 true pose: ");
-  camera2.Extrinsics().WorldToCamera().Print("cam 2 true pose: ");
 
   // Initialize a view for each camera, a landmark for each point, and an
   // observation for each sighting of each landmark in each camera.

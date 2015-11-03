@@ -110,9 +110,10 @@ public:
   // The extrinsics matrix is 3x4 matrix: [R | t].
   Matrix34d Rt() const;
 
-  // Returns a raw pointer to the data elements of the [R | t] matrix. This is
-  // useful for optimization on the camera pose (e.g. in bundle adjustment).
-  double* RtData();
+  // Returns a raw pointer to the data elements of the homogeneous [R | t]
+  // matrix. This is useful for optimization on the camera pose (e.g. in bundle
+  // adjustment).
+  double* PoseData();
 
   // Convert a world frame point into the camera frame.
   void WorldToCamera(double wx, double wy, double wz,

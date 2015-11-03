@@ -60,7 +60,7 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
     }
 
     // Get mutable camera extrinsics matrix for optimization.
-    double* camera_pose = view->MutableCamera().MutableExtrinsics().RtData();
+    double* camera_pose = view->MutableCamera().MutableExtrinsics().PoseData();
 
     // Get static camera intrinsics for evaluating cost function.
     Matrix3d K = view->Camera().K();

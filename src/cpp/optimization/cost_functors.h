@@ -124,19 +124,19 @@ struct BundleAdjustmentError {
     // Matrix multiplication: P = K * [R | t]. Note that [R | t] is provided in
     // column-major order.
     T P11 = K_(0, 0)*Rt[0] + K_(0, 1)*Rt[1] + K_(0, 2)*Rt[2];
-    T P12 = K_(0, 0)*Rt[3] + K_(0, 1)*Rt[4] + K_(0, 2)*Rt[5];
-    T P13 = K_(0, 0)*Rt[6] + K_(0, 1)*Rt[7] + K_(0, 2)*Rt[8];
-    T P14 = K_(0, 0)*Rt[9] + K_(0, 1)*Rt[10] + K_(0, 2)*Rt[11];
+    T P12 = K_(0, 0)*Rt[4] + K_(0, 1)*Rt[5] + K_(0, 2)*Rt[6];
+    T P13 = K_(0, 0)*Rt[8] + K_(0, 1)*Rt[9] + K_(0, 2)*Rt[10];
+    T P14 = K_(0, 0)*Rt[12] + K_(0, 1)*Rt[13] + K_(0, 2)*Rt[14];
 
     T P21 = K_(1, 0)*Rt[0] + K_(1, 1)*Rt[1] + K_(1, 2)*Rt[2];
-    T P22 = K_(1, 0)*Rt[3] + K_(1, 1)*Rt[4] + K_(1, 2)*Rt[5];
-    T P23 = K_(1, 0)*Rt[6] + K_(1, 1)*Rt[7] + K_(1, 2)*Rt[8];
-    T P24 = K_(1, 0)*Rt[9] + K_(1, 1)*Rt[10] + K_(1, 2)*Rt[11];
+    T P22 = K_(1, 0)*Rt[4] + K_(1, 1)*Rt[5] + K_(1, 2)*Rt[6];
+    T P23 = K_(1, 0)*Rt[8] + K_(1, 1)*Rt[9] + K_(1, 2)*Rt[10];
+    T P24 = K_(1, 0)*Rt[12] + K_(1, 1)*Rt[13] + K_(1, 2)*Rt[14];
 
     T P31 = K_(2, 0)*Rt[0] + K_(2, 1)*Rt[1] + K_(2, 2)*Rt[2];
-    T P32 = K_(2, 0)*Rt[3] + K_(2, 1)*Rt[4] + K_(2, 2)*Rt[5];
-    T P33 = K_(2, 0)*Rt[6] + K_(2, 1)*Rt[7] + K_(2, 2)*Rt[8];
-    T P34 = K_(2, 0)*Rt[9] + K_(2, 1)*Rt[10] + K_(2, 2)*Rt[11];
+    T P32 = K_(2, 0)*Rt[4] + K_(2, 1)*Rt[5] + K_(2, 2)*Rt[6];
+    T P33 = K_(2, 0)*Rt[8] + K_(2, 1)*Rt[9] + K_(2, 2)*Rt[10];
+    T P34 = K_(2, 0)*Rt[12] + K_(2, 1)*Rt[13] + K_(2, 2)*Rt[14];
 
     // Compute image space scale, assuming homogeneous coordinate is 1.0.
     T scale = P31 * X[0] + P32 * X[1] + P33 * X[2] + P34;
@@ -152,9 +152,17 @@ struct BundleAdjustmentError {
 
   // Factory method.
   static ceres::CostFunction* Create(const Feature& x, const Matrix3d& K) {
+    // 2 residuals: image space u and v coordinates.
     static const int kNumResiduals = 2;
-    static const int kNumExtrinsicParameters = 12;
+
+    // 16 camera extrinsic parameters, but only 12 are optimized over. This is
+    // because the camera pose matrices are homogeneous, but are expressed in
+    // column-major order.
+    static const int kNumExtrinsicParameters = 16;
+
+    // 3 landmark position parameters: world space x, y, z.
     static const int kNumLandmarkParameters = 3;
+
     return new ceres::AutoDiffCostFunction<BundleAdjustmentError,
            kNumResiduals,
            kNumExtrinsicParameters,

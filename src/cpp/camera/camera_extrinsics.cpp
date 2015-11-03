@@ -148,10 +148,11 @@ Matrix34d CameraExtrinsics::Rt() const {
   return WorldToCamera().Dehomogenize();
 }
 
-// Returns a raw pointer to the data elements of the [R | t] matrix. This is
-// useful for optimization on the camera pose (e.g. in bundle adjustment).
-double* CameraExtrinsics::RtData() {
-  return world_to_camera_.Get().block(0, 0, 3, 4).data();
+// Returns a raw pointer to the data elements of the homogeneous [R | t] matrix.
+// This is useful for optimization on the camera pose (e.g. in bundle
+// adjustment).
+double* CameraExtrinsics::PoseData() {
+  return world_to_camera_.Get().data();
 }
 
 // Convert a world frame point into the camera frame.

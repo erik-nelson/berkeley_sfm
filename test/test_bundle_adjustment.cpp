@@ -104,6 +104,7 @@ Camera RandomCamera(math::RandomGenerator& rng, const Point3DList& points) {
 }
 
 }  //\namespace
+
 TEST(BundleAdjuster, TestTwoViewsNoNoise) {
   // Create two views with perfect matches that both view the same set of 3D
   // points. Bundle adjustment shouldn't change a thing.
@@ -171,6 +172,73 @@ TEST(BundleAdjuster, TestTwoViewsNoNoise) {
 
   EXPECT_TRUE(camera1.Rt().isApprox(view1->Camera().Rt()));
   EXPECT_TRUE(camera2.Rt().isApprox(view2->Camera().Rt()));
+
+  // Clean up.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+}
+
+TEST(BundleAdjuster, TestManyViewsNoNoise) {
+  // Create lots of views with perfect matches all view the same set of 3D
+  // points. Bundle adjustment shouldn't change a thing.
+
+  // Clean up from other tests.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+
+  // Make 3D points.
+  math::RandomGenerator rng(0);
+  Point3DList points;
+  MakePoints(50, rng, points);
+
+  // Make a bunch of random cameras.
+  std::vector<Camera> cameras;
+  for (int ii = 0; ii < 50; ++ii) {
+    cameras.push_back(RandomCamera(rng, points));
+    View::Create(cameras.back());
+  }
+
+  for (const auto& p : points) {
+    Descriptor descriptor(Descriptor::Random(32));
+    Landmark::Ptr landmark = Landmark::Create();
+
+    double u = 0.0, v = 0.0;
+    for (size_t ii = 0; ii < cameras.size(); ++ii) {
+      EXPECT_TRUE(cameras[ii].WorldToImage(p.X(), p.Y(), p.Z(), &u, &v));
+      Feature feature(u, v);
+
+      View::Ptr view = View::GetView(ii);
+      Observation::Ptr observation =
+          Observation::Create(view, feature, descriptor);
+      view->AddObservation(observation);
+      EXPECT_TRUE(landmark->IncorporateObservation(observation));
+    }
+    EXPECT_NEAR(p.X(), landmark->Position().X(), 1e-8);
+    EXPECT_NEAR(p.Y(), landmark->Position().Y(), 1e-8);
+    EXPECT_NEAR(p.Z(), landmark->Position().Z(), 1e-8);
+  }
+
+  // Bundle adjust over the views and points that were just created.
+  BundleAdjuster bundle_adjuster;
+  BundleAdjustmentOptions options;
+
+  std::vector<ViewIndex> view_indices;
+  for (ViewIndex ii = 0; ii < View::NumExistingViews(); ++ii)
+    view_indices.push_back(ii);
+
+  EXPECT_TRUE(bundle_adjuster.Solve(options, view_indices));
+
+  for (size_t ii = 0; ii < points.size(); ++ii) {
+    Landmark::Ptr landmark = Landmark::GetLandmark(ii);
+    EXPECT_NEAR(points[ii].X(), landmark->Position().X(), 1e-8);
+    EXPECT_NEAR(points[ii].Y(), landmark->Position().Y(), 1e-8);
+    EXPECT_NEAR(points[ii].Z(), landmark->Position().Z(), 1e-8);
+  }
+
+  for (const auto& view_index : view_indices) {
+    View::Ptr view = View::GetView(view_index);
+    EXPECT_TRUE(cameras[view_index].Rt().isApprox(view->Camera().Rt()));
+  }
 
   // Clean up.
   Landmark::ResetLandmarks();

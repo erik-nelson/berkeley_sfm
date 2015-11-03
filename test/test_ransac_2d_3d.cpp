@@ -62,7 +62,7 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 
-DEFINE_int32(min_features_in_camera, 6,
+DEFINE_int32(min_features_in_camera, 10,
 	     "Minimum number of landmarks that project into any given camera.");
 
 namespace bsfm {
@@ -102,7 +102,7 @@ class TestSimpleNoiselessSfmRansac : public ::testing::Test {
     std::vector<Descriptor> descriptors;
     for (int ii = 0; ii < kNumPoints_; ++ii) {
       const double x = rng.DoubleUniform(-2.0, 2.0);
-     const double y = rng.DoubleUniform(-2.0, 2.0);
+      const double y = rng.DoubleUniform(-2.0, 2.0);
       const double z = rng.DoubleUniform(-2.0, 2.0);
       points_.emplace_back(x, y, z);
       descriptors_.push_back(Descriptor::Random(64));
@@ -178,6 +178,7 @@ class TestSimpleNoiselessSfmRansac : public ::testing::Test {
     intrinsics.SetImageWidth(kImageWidth_);
     intrinsics.SetImageHeight(kImageHeight_);
     intrinsics.SetVerticalFOV(kVerticalFov_);
+    intrinsics.SetFV(1.0);
     intrinsics.SetFU(intrinsics.f_v());
     intrinsics.SetCU(0.5 * kImageWidth_);
     intrinsics.SetCV(0.5 * kImageHeight_);
@@ -189,7 +190,7 @@ class TestSimpleNoiselessSfmRansac : public ::testing::Test {
   int kImageHeight_ = 1080;
   int kVerticalFov_ = D2R(90.0);
 
-  int kNumPoints_ = 100;
+  int kNumPoints_ = 1000;
   int kNumCameras_ = 20;
 
   std::vector<Point3D> points_;
@@ -291,8 +292,6 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     std::vector<Descriptor> descriptors;
     SimulateFeatureExtraction(ii, features, descriptors);
 
-    std::cout << "Number of features in this frame: " << descriptors.size() << std::endl;
-    
     // Skip if not enough points project into this camera.
     if (descriptors.size() < FLAGS_min_features_in_camera) {
       std::cout << "Insufficient features project into this camera. Skipping." << std::endl;
@@ -310,16 +309,13 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     for (size_t jj = 0; jj < max_landmark_index; jj++)
       landmark_indices[jj] = static_cast<LandmarkIndex>(jj);
 
-    std::cout << "Number of keypoints: " << max_landmark_index << std::endl;
-    
     // Match with existing landmarks.
-    FeatureMatcherOptions options;
+    matcher_options.min_num_feature_matches = FLAGS_min_features_in_camera;
     std::vector<Observation::Ptr> matches_2d_3d;
-    NaiveMatcher2D3D matcher_2d_3d(options, new_view);
-    matcher_2d_3d.Match(landmark_indices, features, descriptors, matches_2d_3d);
+    NaiveMatcher2D3D matcher_2d_3d(matcher_options, new_view);
+    ASSERT_TRUE(matcher_2d_3d.Match(landmark_indices, features,
+				    descriptors, matches_2d_3d));
 
-    std::cout << "I got here." << std::endl;
-    
     // 2D<-->3D pose estimation.
     // Initialize the PnP ransac problem.
     PnPRansacProblem pnp_ransac_problem;
@@ -341,8 +337,6 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     // Get the solution from the problem object.
     ASSERT_TRUE(pnp_ransac_problem.SolutionFound());
 
-    std::cout << "I got here." << std::endl;
-    
     // Add all inlier landmarks to the view as observations.
     for (const auto& observation : pnp_ransac_problem.Inliers()) {
        CHECK_NOTNULL(observation.get());

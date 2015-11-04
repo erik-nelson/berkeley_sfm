@@ -68,16 +68,9 @@ class NaiveMatcher2D3D {
   NaiveMatcher2D3D();
   ~NaiveMatcher2D3D();
 
-#if 0
-  // Match a FeatureList to a set of Landmarks by doing a pairwise comparison of
-  // all of individual descriptor vectors. To match we may need to normalize
-  // descriptors, so they are passed as non-const reference.
-  bool Match(const std::vector<LandmarkIndex>& landmark_indices,
-             const FeatureList& points_2d,
-             std::vector<Descriptor>& descriptors_2d,
-             std::vector<Observation::Ptr>& matches);
-#endif
-
+  // Match observations stored in the view referred to by 'view_index' with
+  // landmarks in 'landmark_indices'. Update all matched observations in the
+  // view.
   bool Match(const FeatureMatcherOptions& options,
              const ViewIndex& view_index,
              const std::vector<LandmarkIndex>& landmark_indices);

@@ -65,7 +65,6 @@
 
 namespace bsfm {
 
-using Eigen::Map;
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
 

@@ -84,6 +84,21 @@ Matrix34d Camera::Rt() const {
   return extrinsics_.Rt();
 }
 
+// Get the camera's world frame translation from extrinsics.
+Vector3d Camera::Translation() const {
+  return extrinsics_.Translation();
+}
+
+// Get the camera's world frame rotation from extrinsics.
+Matrix3d Camera::Rotation() const {
+  return extrinsics_.Rotation();
+}
+
+// Get the camera's world frame rotation in axis angle parameterization.
+Vector3d Camera::AxisAngleRotation() const {
+  return extrinsics_.WorldToCamera().AxisAngle();
+}
+
 // Transform points from world to camera coordinates.
 void Camera::WorldToCamera(double wx, double wy, double wz, double *cx,
                            double *cy, double *cz) const {

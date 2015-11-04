@@ -105,79 +105,6 @@ Camera RandomCamera(math::RandomGenerator& rng, const Point3DList& points) {
 
 }  //\namespace
 
-TEST(BundleAdjuster, TestTwoViewsNoNoise) {
-  // Create two views with perfect matches that both view the same set of 3D
-  // points. Bundle adjustment shouldn't change a thing.
-
-  // Clean up from other tests.
-  Landmark::ResetLandmarks();
-  View::ResetViews();
-
-  // Make 3D points.
-  math::RandomGenerator rng(0);
-  Point3DList points;
-  MakePoints(100, rng, points);
-
-  Camera camera1 = RandomCamera(rng, points);
-  Camera camera2 = RandomCamera(rng, points);
-
-  // Initialize a view for each camera, a landmark for each point, and an
-  // observation for each sighting of each landmark in each camera.
-  View::Ptr view1 = View::Create(camera1);
-  View::Ptr view2 = View::Create(camera2);
-
-  for (const auto& point : points) {
-    Descriptor descriptor(Descriptor::Random(32));
-
-    double u = 0.0, v = 0.0;
-    EXPECT_TRUE(camera1.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v));
-    Feature feature1(u, v);
-    Observation::Ptr observation1 =
-        Observation::Create(view1, feature1, descriptor);
-
-    EXPECT_TRUE(camera2.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v));
-    Feature feature2(u, v);
-    Observation::Ptr observation2 =
-        Observation::Create(view2, feature2, descriptor);
-
-    Landmark::Ptr landmark = Landmark::Create();
-    view1->AddObservation(observation1);
-    view2->AddObservation(observation2);
-    EXPECT_TRUE(landmark->IncorporateObservation(observation1));
-    EXPECT_TRUE(landmark->IncorporateObservation(observation2));
-    EXPECT_NEAR(point.X(), landmark->Position().X(), 1e-8);
-    EXPECT_NEAR(point.Y(), landmark->Position().Y(), 1e-8);
-    EXPECT_NEAR(point.Z(), landmark->Position().Z(), 1e-8);
-  }
-
-  view1->UpdateObservedLandmarks();
-  view2->UpdateObservedLandmarks();
-
-  // We now have 100 observations in each view, and 100 corresponding landmarks
-  // that are triangulated from the observation positions. Bundle adjustment
-  // should have 0 error, and should terminate without altering the positions of
-  // any landmarks or cameras.
-  BundleAdjuster bundle_adjuster;
-  BundleAdjustmentOptions options;
-
-  std::vector<ViewIndex> view_indices = { 0, 1 };
-  EXPECT_TRUE(bundle_adjuster.Solve(options, view_indices));
-
-  for (size_t ii = 0; ii < points.size(); ++ii) {
-    Landmark::Ptr landmark = Landmark::GetLandmark(ii);
-    EXPECT_NEAR(points[ii].X(), landmark->Position().X(), 1e-8);
-    EXPECT_NEAR(points[ii].Y(), landmark->Position().Y(), 1e-8);
-    EXPECT_NEAR(points[ii].Z(), landmark->Position().Z(), 1e-8);
-  }
-
-  EXPECT_TRUE(camera1.Rt().isApprox(view1->Camera().Rt()));
-  EXPECT_TRUE(camera2.Rt().isApprox(view2->Camera().Rt()));
-
-  // Clean up.
-  Landmark::ResetLandmarks();
-  View::ResetViews();
-}
-
 TEST(BundleAdjuster, TestManyViewsNoNoise) {
   // Create lots of views with perfect matches all view the same set of 3D
   // points. Bundle adjustment shouldn't change a thing.
@@ -198,6 +125,7 @@ TEST(BundleAdjuster, TestManyViewsNoNoise) {
     View::Create(cameras.back());
   }
 
+  // Create landmarks and observations for each 3D point in each view.
   for (const auto& p : points) {
     Descriptor descriptor(Descriptor::Random(32));
     Landmark::Ptr landmark = Landmark::Create();
@@ -213,12 +141,9 @@ TEST(BundleAdjuster, TestManyViewsNoNoise) {
       view->AddObservation(observation);
       EXPECT_TRUE(landmark->IncorporateObservation(observation));
     }
-    EXPECT_NEAR(p.X(), landmark->Position().X(), 1e-8);
-    EXPECT_NEAR(p.Y(), landmark->Position().Y(), 1e-8);
-    EXPECT_NEAR(p.Z(), landmark->Position().Z(), 1e-8);
   }
 
-  // Bundle adjust over the views and points that were just created.
+  // Bundle adjust over the views and points that were created.
   BundleAdjuster bundle_adjuster;
   BundleAdjustmentOptions options;
 
@@ -228,6 +153,7 @@ TEST(BundleAdjuster, TestManyViewsNoNoise) {
 
   EXPECT_TRUE(bundle_adjuster.Solve(options, view_indices));
 
+  // Check that landmarks were bundle adjusted to their original positions.
   for (size_t ii = 0; ii < points.size(); ++ii) {
     Landmark::Ptr landmark = Landmark::GetLandmark(ii);
     EXPECT_NEAR(points[ii].X(), landmark->Position().X(), 1e-8);
@@ -235,6 +161,7 @@ TEST(BundleAdjuster, TestManyViewsNoNoise) {
     EXPECT_NEAR(points[ii].Z(), landmark->Position().Z(), 1e-8);
   }
 
+  // Check that cameras were bundle adjusted to their original positions.
   for (const auto& view_index : view_indices) {
     View::Ptr view = View::GetView(view_index);
     EXPECT_TRUE(cameras[view_index].Rt().isApprox(view->Camera().Rt()));
@@ -244,5 +171,95 @@ TEST(BundleAdjuster, TestManyViewsNoNoise) {
   Landmark::ResetLandmarks();
   View::ResetViews();
 }
+
+TEST(BundleAdjuster, TestManyViewsTranslationNoise) {
+  // Create lots of views that observe a bunch of points. Project the features
+  // into the image, and then add noise to the 3D points. Make sure bundle
+  // adjustment preserves distances between all points and cameras. Note that
+  // bundle adjustment only will give a unique solution if overconstrained, i.e.
+  // we need 2*n*m >= 3*n + 6*m, where n is the number of points and m is the
+  // number of cameras. This is satisfied for, e.g. n = m = 50.
+
+  // Clean up from other tests.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+
+  // Make 3D points.
+  math::RandomGenerator rng(0);
+  Point3DList points;
+  MakePoints(50, rng, points);
+
+  // Make random cameras.
+  std::vector<Camera> cameras;
+  for (int ii = 0; ii < 50; ++ii) {
+    cameras.push_back(RandomCamera(rng, points));
+    View::Create(cameras.back());
+  }
+
+  // Create landmarks and observations for each 3D point in each view.
+  for (const auto& p : points) {
+    Descriptor descriptor(Descriptor::Random(32));
+    Landmark::Ptr landmark = Landmark::Create();
+
+    double u = 0.0, v = 0.0;
+    for (size_t ii = 0; ii < cameras.size(); ++ii) {
+      EXPECT_TRUE(cameras[ii].WorldToImage(p.X(), p.Y(), p.Z(), &u, &v));
+      Feature feature(u, v);
+
+      View::Ptr view = View::GetView(ii);
+      Observation::Ptr observation =
+          Observation::Create(view, feature, descriptor);
+      view->AddObservation(observation);
+      EXPECT_TRUE(landmark->IncorporateObservation(observation));
+    }
+
+    // Now that the landmark has been triangulated, corrupt it with some
+    // translation noise.
+    Vector3d old_position = landmark->Position().Get();
+    Vector3d noise(Vector3d::Random()*5.0);
+    landmark->SetPosition(Point3D(old_position + noise));
+  }
+
+  // Our test invariant will be the distances between points and cameras.
+  std::vector<double> distances;
+  for (const auto& point : points) {
+    for (const auto& camera : cameras) {
+      const Vector3d delta = point.Get() - camera.Translation();
+      distances.push_back(delta.norm());
+    }
+  }
+
+  // Bundle adjust over the views and points that were created.
+  BundleAdjuster bundle_adjuster;
+  BundleAdjustmentOptions options;
+
+  std::vector<ViewIndex> view_indices;
+  for (ViewIndex ii = 0; ii < View::NumExistingViews(); ++ii)
+    view_indices.push_back(ii);
+
+  EXPECT_TRUE(bundle_adjuster.Solve(options, view_indices));
+
+  // Check if all distances between points and cameras is the same, up to a
+  // scale factor.
+  const Vector3d p1 = Landmark::GetLandmark(0)->Position().Get();
+  const Vector3d p0 = View::GetView(0)->Camera().Translation();
+  double distance_scale = distances[0] / (p1 - p0).norm();
+
+  int iter = 0;
+  for (LandmarkIndex ii = 0; ii < Landmark::NumExistingLandmarks(); ++ii) {
+    for (ViewIndex jj = 0; jj < View::NumExistingViews(); ++jj) {
+      const Landmark::Ptr landmark = Landmark::GetLandmark(ii);
+      const View::Ptr view = View::GetView(jj);
+      const Vector3d delta =
+          landmark->Position().Get() - view->Camera().Translation();
+      EXPECT_NEAR(distances[iter++], distance_scale * delta.norm(), 1e-4);
+    }
+  }
+
+  // Clean up.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+}
+
 
 }  //\namespace bsfm

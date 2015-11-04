@@ -63,7 +63,7 @@ TEST(Pose, TestPoseAxisAngle) {
   Pose p2 = p1;
 
   // Convert to/from axis angle representation and check nothing has changed.
-  Vector3d aa = p2.ToAxisAngle();
+  Vector3d aa = p2.AxisAngle();
   p2.FromAxisAngle(aa);
   EXPECT_TRUE(p1.IsApprox(p2));
 }

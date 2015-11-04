@@ -41,6 +41,7 @@
 #include <camera/camera_intrinsics.h>
 #include <camera/camera.h>
 
+#include <iostream>
 
 namespace bsfm {
 
@@ -85,7 +86,7 @@ bool PnPRansacModel::IsGoodFit(const Observation::Ptr& observation,
   return false;
 }
 
-// Compute reprojection error of this landmark. Return -1.0 if point
+// Compute reprojection error of this landmark. Return infinity if point
 // does not project into the image.
 double PnPRansacModel::EvaluateReprojectionError(
    const Observation::Ptr& observation) const {
@@ -106,7 +107,7 @@ double PnPRansacModel::EvaluateReprojectionError(
 
   // Check that the landmark projects into the image.
   if (!in_camera)
-    return -1.0;
+    return std::numeric_limits<double>::infinity();
 
   // Compute error and return.
   double delta_u = u - feature.u_;
@@ -137,7 +138,7 @@ std::vector<Observation::Ptr> PnPRansacProblem::SampleData(
   // Make sure we don't over step.
   if (static_cast<size_t>(num_samples) > data_.size()) {
     VLOG(1) << "Requested more RANSAC data samples than are available. "
-      "Returning all data.";
+	    << "Returning all data.";
     num_samples = data_.size();
   }
 
@@ -167,8 +168,8 @@ PnPRansacModel PnPRansacProblem::FitModel(
     const std::vector<Observation::Ptr>& input_data) const {
 
   // Extract a FeatureList and a Point3DList from input_data.
-  FeatureList points_2d;
-  Point3DList points_3d;
+  FeatureList points_2d(input_data.size());
+  Point3DList points_3d(input_data.size());
 
   for (const auto& observation : input_data) {
     CHECK_NOTNULL(observation.get());
@@ -176,7 +177,7 @@ PnPRansacModel PnPRansacProblem::FitModel(
     // Extract feature and append.
     points_2d.push_back(observation->Feature());
 
-    // Estract landmark position and append.
+    // Extract landmark position and append.
     Landmark::Ptr landmark = observation->GetLandmark();
     CHECK_NOTNULL(landmark.get());
     points_3d.push_back(landmark->Position());
@@ -188,8 +189,11 @@ PnPRansacModel PnPRansacProblem::FitModel(
 
   // Solve.
   Pose calculated_pose;
-  solver.Solve(calculated_pose);
-
+  if (!solver.Solve(calculated_pose)) {
+    VLOG(1) << "Could not estimate a pose using the PnP solver. "
+	    << "Assuming identity pose.";
+  }
+  
   // Generate a model from this Pose.
   CameraExtrinsics extrinsics(calculated_pose);
   Camera camera(extrinsics, intrinsics_);

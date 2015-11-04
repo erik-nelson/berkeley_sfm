@@ -78,9 +78,9 @@ Landmark::Ptr Observation::GetLandmark() const {
   return landmark;
 }
 
-// Associates a landmark with this observation. This is called by
-// Landmark::IncorporateObservation().
-void Observation::SetLandmark(LandmarkIndex landmark_index) {
+// Sets the landmark as a potential match for this observation. The observation
+// still has not been incorporated into the landmark.
+void Observation::SetMatchedLandmark(LandmarkIndex landmark_index) {
   CHECK_NE(kInvalidLandmark, landmark_index);
   landmark_index_ = landmark_index;
   is_matched_ = true;
@@ -90,6 +90,20 @@ void Observation::SetLandmark(LandmarkIndex landmark_index) {
 // this returns false, 'GetLandmark()' will return a null pointer.
 bool Observation::IsMatched() const {
   return is_matched_;
+}
+
+// Associates a landmark with this observation. This is called by
+// Landmark::IncorporateObservation().
+void Observation::SetIncorporatedLandmark(LandmarkIndex landmark_index) {
+  CHECK_NE(kInvalidLandmark, landmark_index);
+  landmark_index_ = landmark_index;
+  is_matched_ = true;
+  is_incorporated_ = true;
+}
+
+// Returns whether or not the observation has been incorporated into a landmark.
+bool Observation::IsIncorporated() const {
+  return is_incorporated_;
 }
 
 // Get this observation's feature.
@@ -112,6 +126,7 @@ Observation::Observation(const View::Ptr& view_ptr,
                          const ::bsfm::Descriptor& descriptor)
     : landmark_index_(kInvalidLandmark),
       is_matched_(false),
+      is_incorporated_(false),
       feature_(feature),
       descriptor_(descriptor) {
   // Store the view's index to access it later.

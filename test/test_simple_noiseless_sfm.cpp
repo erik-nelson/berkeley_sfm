@@ -100,8 +100,14 @@ class TestSimpleNoiselessSfm : public ::testing::Test {
       descriptors_.push_back(Descriptor::Random(64));
     }
 
-    // Generate cameras such that each camera sees at least 8 points.
+    // Use the same intrinsics for all cameras.
     CameraIntrinsics intrinsics = DefaultIntrinsics();
+
+    // Generate the first camera at identity for easy testing.
+    cameras_.push_back(Camera());
+    cameras_.back().SetIntrinsics(intrinsics);
+
+    // Generate cameras such that each camera sees at least 8 points.
     while (cameras_.size() < kNumCameras_) {
       Camera camera;
       CameraExtrinsics extrinsics;
@@ -137,6 +143,10 @@ class TestSimpleNoiselessSfm : public ::testing::Test {
       if (sees_at_least_eight)
         cameras_.push_back(camera);
     }
+
+    // Set the global scale to be the distance between the first two cameras.
+    global_scale_ =
+        (cameras_[0].Translation() - cameras_[1].Translation()).norm();
   }
 
   // Simulate feature extraction from the camera at a specified index.
@@ -183,6 +193,9 @@ class TestSimpleNoiselessSfm : public ::testing::Test {
 
   int kNumPoints_ = 100;
   int kNumCameras_ = 20;
+
+  // The distance between the first two cameras' centers.
+  double global_scale_ = 0.0;
 
   std::vector<Point3D> points_;
   std::vector<Descriptor> descriptors_;
@@ -300,22 +313,23 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
       existing_landmarks.push_back(jj);
 
     // Match features seen by this new view with existing landmarks.
-    std::vector<Observation::Ptr> matches_2d3d;
-    NaiveMatcher2D3D feature_matcher_2d3d(matcher_options, new_view);
-    ASSERT_TRUE(feature_matcher_2d3d.Match(existing_landmarks,
-                                           features,
-                                           descriptors,
-                                           matches_2d3d));
+    NaiveMatcher2D3D feature_matcher_2d3d;
+    if (!feature_matcher_2d3d.Match(matcher_options,
+                                    new_view->Index(),
+                                    existing_landmarks)) {
+      continue;
+    }
 
-#if 0
     // Get 2D and 3D points from the match.
     FeatureList points_2d;
     Point3DList points_3d;
-    for (const auto& match_2d3d : matches_2d3d) {
-      points_2d.push_back(match_2d3d->Feature());
-      points_3d.push_back(match_2d3d->GetLandmark()->Position());
+    for (const auto& observation : new_view->Observations()) {
+      CHECK_NOTNULL(observation.get());
+      if (!observation->IsMatched())
+        continue;
 
-      // Update observations in the view.
+      points_2d.push_back(observation->Feature());
+      points_3d.push_back(observation->GetLandmark()->Position());
     }
 
     // Calculate the 3D pose of this camera.
@@ -327,11 +341,16 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
     // Set the extrinsic parameters of the camera in the new view.
     CameraExtrinsics extrinsics(calculated_pose);
     new_view->MutableCamera().SetExtrinsics(extrinsics);
-#endif
-  }
 
-  // Try to find new landmarks by matching descriptors against descriptors
-  // from other images that have not been used yet.
+    const Matrix3d expected_R = cameras_[ii].Rotation();
+    const Matrix3d actual_R = new_view->Camera().Rotation();
+    const Vector3d expected_t = cameras_[ii].Translation() / global_scale_;
+    const Vector3d actual_t = new_view->Camera().Translation();
+
+    // Did SfM work? :)
+    EXPECT_TRUE(expected_R.isApprox(actual_R, 1e-8));
+    EXPECT_TRUE(expected_t.isApprox(actual_t, 1e-8));
+  }
 }
 
 }  //\namespace bsfm

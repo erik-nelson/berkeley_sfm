@@ -65,10 +65,10 @@ namespace bsfm {
 
 class NaiveMatcher2D3D {
  public:
-  NaiveMatcher2D3D(const FeatureMatcherOptions& options,
-                   const View::Ptr& view);
+  NaiveMatcher2D3D();
   ~NaiveMatcher2D3D();
 
+#if 0
   // Match a FeatureList to a set of Landmarks by doing a pairwise comparison of
   // all of individual descriptor vectors. To match we may need to normalize
   // descriptors, so they are passed as non-const reference.
@@ -76,8 +76,15 @@ class NaiveMatcher2D3D {
              const FeatureList& points_2d,
              std::vector<Descriptor>& descriptors_2d,
              std::vector<Observation::Ptr>& matches);
+#endif
+
+  bool Match(const FeatureMatcherOptions& options,
+             const ViewIndex& view_index,
+             const std::vector<LandmarkIndex>& landmark_indices);
 
  private:
+  DISALLOW_COPY_AND_ASSIGN(NaiveMatcher2D3D)
+
   // Compute one-way matches.
   // Note: this is essentially the function
   // NaiveFeatureMatcher::ComputePutativeMatches but it has been adjusted
@@ -93,10 +100,9 @@ class NaiveMatcher2D3D {
       const std::vector<LightFeatureMatch>& feature_matches_lhs,
       std::vector<LightFeatureMatch>& feature_matches_rhs);
 
+  // Feature matching options.
   FeatureMatcherOptions options_;
-  View::Ptr view_;
 
-  DISALLOW_COPY_AND_ASSIGN(NaiveMatcher2D3D)
 };  //\class NaiveMatcher2D3D
 
 }  //\namespace bsfm

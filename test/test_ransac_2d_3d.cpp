@@ -301,6 +301,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
     for (LandmarkIndex jj = 0; jj < max_landmark_index; jj++)
       landmark_indices.push_back(jj);
 
+#if 0
     // Match with existing landmarks.
     matcher_options.min_num_feature_matches = FLAGS_min_features_in_camera;
     std::vector<Observation::Ptr> matches_2d_3d;
@@ -337,6 +338,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
 
       ASSERT_TRUE(distance(matched_descriptor, landmark->Descriptor()) < 1e-8);
     }
+#endif
 
 #if 0
 

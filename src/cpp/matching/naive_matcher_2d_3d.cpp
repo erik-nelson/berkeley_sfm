@@ -39,29 +39,44 @@
 
 namespace bsfm {
 
-NaiveMatcher2D3D::NaiveMatcher2D3D(const FeatureMatcherOptions& options,
-                                   const View::Ptr& view)
-    : options_(options), view_(view) {}
+NaiveMatcher2D3D::NaiveMatcher2D3D() {}
 
 NaiveMatcher2D3D::~NaiveMatcher2D3D() {}
 
-// Match a FeatureList to a set of Landmarks by doing a pairwise
-// comparison of all of individual descriptor vectors.
-bool NaiveMatcher2D3D::Match(const std::vector<LandmarkIndex>& landmark_indices,
-                             const FeatureList& points_2d,
-                             std::vector<Descriptor>& descriptors_2d,
-                             std::vector<Observation::Ptr>& matches) {
-  matches.clear();
+bool NaiveMatcher2D3D::Match(
+    const FeatureMatcherOptions& options, const ViewIndex& view_index,
+    const std::vector<LandmarkIndex>& landmark_indices) {
+  // Copy options.
+  options_ = options;
 
-  // Extract descriptors from landmarks.
+  // Make sure the view is valid.
+  View::Ptr view = View::GetView(view_index);
+  if (view == nullptr) {
+    LOG(WARNING) << "Cannot perform 2D<-->3D matching. View must not be null.";
+    return false;
+  }
+
+  // Get descriptors from unincorporated observations in the view.
+  std::vector<Descriptor> descriptors_2d;
+  std::vector<size_t> observation_indices;
+  std::vector<Observation::Ptr> observations = view->Observations();
+  for (size_t ii = 0; ii < observations.size(); ++ii) {
+    CHECK_NOTNULL(observations[ii].get());
+    if (!observations[ii]->IsIncorporated()) {
+      descriptors_2d.push_back(observations[ii]->Descriptor());
+      observation_indices.push_back(ii);
+    }
+  }
+
+  // Get descriptors from landmarks.
   std::vector<Descriptor> descriptors_3d;
   descriptors_3d.reserve(landmark_indices.size());
   for (size_t ii = 0; ii < landmark_indices.size(); ii++) {
     Landmark::Ptr landmark = Landmark::GetLandmark(landmark_indices[ii]);
     CHECK_NOTNULL(landmark.get());
-
     descriptors_3d.push_back(landmark->Descriptor());
   }
+
   // Normalize descriptors if required by the distance metric.
   DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors_2d);
   DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors_3d);
@@ -97,21 +112,15 @@ bool NaiveMatcher2D3D::Match(const std::vector<LandmarkIndex>& landmark_indices,
                       LightFeatureMatch::SortByDistance);
   }
 
-  // Generate an Observation for each match.
+  // Update Observations in the provided view based on their matches with
+  // landmarks. Also set all observations as matched.
   for (size_t ii = 0; ii < forward_matches.size(); ii++) {
-    const Feature feature =
-        points_2d[forward_matches[ii].feature_index1_];
-    const Descriptor descriptor =
-        descriptors_2d[forward_matches[ii].feature_index1_];
-    const LandmarkIndex kLandmarkIndex =
+    const size_t observation_index =
+        observation_indices[forward_matches[ii].feature_index1_];
+    const LandmarkIndex landmark_index =
         landmark_indices[forward_matches[ii].feature_index2_];
 
-    Observation::Ptr observation =
-        Observation::Create(view_, feature, descriptor);
-    CHECK_NOTNULL(observation.get());
-
-    observation->SetLandmark(kLandmarkIndex);
-    matches.push_back(observation);
+    observations[observation_index]->SetMatchedLandmark(landmark_index);
   }
 
   return true;

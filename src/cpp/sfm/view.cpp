@@ -104,12 +104,6 @@ ViewIndex View::Index() const {
 void View::AddObservation(const Observation::Ptr& observation) {
   CHECK_NOTNULL(observation.get());
   observations_.push_back(observation);
-
-  // If the observation is matched to a landmark, add that landmark to our
-  // registry.
-  if (observation->IsMatched()) {
-    landmarks_.insert(observation->GetLandmark()->Index());
-  }
 }
 
 const std::vector<Observation::Ptr>& View::Observations() const {
@@ -123,7 +117,7 @@ bool View::HasObservedLandmark(LandmarkIndex landmark_index) const {
 void View::UpdateObservedLandmarks() {
   for (const auto& observation : observations_) {
     CHECK_NOTNULL(observation.get());
-    if (!observation->IsMatched()) continue;
+    if (!observation->IsIncorporated()) continue;
 
     // Calls to std::set::insert() will overwrite old key value pairs.
     landmarks_.insert(observation->GetLandmark()->Index());

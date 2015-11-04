@@ -80,13 +80,21 @@ class Observation {
   // pointer if the observation has not been matched with a landmark.
   std::shared_ptr<Landmark> GetLandmark() const;
 
-  // Associates a landmark with this observation. This is called by
-  // Landmark::IncorporateObservation();
-  void SetLandmark(LandmarkIndex landmark_index);
+  // Sets a landmark as a potential match for this observation. The observation
+  // has still not been incorporated into the landmark.
+  void SetMatchedLandmark(LandmarkIndex landmark_index);
 
   // Returns whether or not the observation has been matched with a landmark. If
   // this returns false, 'GetLandmark()' will return a null pointer.
   bool IsMatched() const;
+
+  // Associates a landmark with this observation. This is called by
+  // Landmark::IncorporateObservation();
+  void SetIncorporatedLandmark(LandmarkIndex landmark_index);
+
+  // Returns whether or not the observation has been incorporated with its
+  // landmark.
+  bool IsIncorporated() const;
 
   // Get this observation's feature.
   const ::bsfm::Feature& Feature() const;
@@ -117,6 +125,11 @@ class Observation {
   // A boolean flag describing whether or not this observation of a feature has
   // been matched with a 3D point landmark.
   bool is_matched_;
+
+  // A boolean flag describing whether or not this observation of a feature has
+  // been incorporated into its landmark, and used to triangulate that
+  // landmark's position.
+  bool is_incorporated_;
 
   // A feature containing the (u, v) image space coordinates of the observation.
   ::bsfm::Feature feature_;

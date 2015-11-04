@@ -136,7 +136,7 @@ bool Landmark::IncorporateObservation(const Observation::Ptr& observation,
   // If this is our first observation, store it, tell the observation that it
   // has been matched with us, and return.
   if (observations_.empty()) {
-    observation->SetLandmark(this->Index());
+    observation->SetIncorporatedLandmark(this->Index());
     observations_.push_back(observation);
     descriptor_ = observation->Descriptor();
     return true;
@@ -176,7 +176,7 @@ bool Landmark::IncorporateObservation(const Observation::Ptr& observation,
 
   // Successfully triangulated the landmark. Update its position and store this
   // observation. Also tell the observation that it has been matched with us.
-  observation->SetLandmark(this->Index());
+  observation->SetIncorporatedLandmark(this->Index());
   observations_.push_back(observation);
 
   return true;

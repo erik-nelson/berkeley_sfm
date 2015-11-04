@@ -77,7 +77,7 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
     const std::vector<Observation::Ptr> observations = view->Observations();
     for (size_t jj = 0; jj < observations.size(); ++jj) {
       CHECK_NOTNULL(observations[jj].get());
-      if (!observations[jj]->IsMatched())
+      if (!observations[jj]->IsIncorporated())
         continue;
 
       Landmark::Ptr landmark = observations[jj]->GetLandmark();

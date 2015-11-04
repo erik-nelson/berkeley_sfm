@@ -37,7 +37,6 @@
 
 #include "bundle_adjuster.h"
 
-#include <ceres/ceres.h>
 #include <glog/logging.h>
 
 #include "../optimization/cost_functors.h"
@@ -103,11 +102,18 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
   }
 
   // Solve the bundle adjustment problem.
-  ceres::Solver::Summary summary;
   ceres::Solver::Options ceres_options;
-  // ceres_options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
-  ceres_options.linear_solver_type = ceres::DENSE_SCHUR;
+  if (!ConvertOptionsToCeresOptions(options, &ceres_options)) {
+    LOG(WARNING) << "Bundle adjustment options are not valid.";
+  }
+
+  ceres::Solver::Summary summary;
   ceres::Solve(ceres_options, &problem, &summary);
+
+  // Print a summary of the optimization.
+  if (options.print_summary) {
+    std::cout << summary.FullReport() << std::endl;
+  }
 
   // Assign optimized camera parameters back into views.
   for (size_t ii = 0; ii < view_indices.size(); ++ii) {
@@ -121,6 +127,55 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
   }
 
   return summary.IsSolutionUsable();
+}
+
+bool BundleAdjuster::ConvertOptionsToCeresOptions(
+    const BundleAdjustmentOptions& options,
+    ceres::Solver::Options* ceres_options) const {
+  CHECK_NOTNULL(ceres_options);
+
+  // Trust region strategy must be LM.
+  ceres_options->trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+
+  // Set linear solver type.
+  if (options.solver_type.compare("DENSE_QR")==0) {
+    ceres_options->linear_solver_type = ceres::DENSE_QR;
+  } else if (options.solver_type.compare("DENSE_NORMAL_CHOLESKY")==0) {
+    ceres_options->linear_solver_type = ceres::DENSE_NORMAL_CHOLESKY;
+  } else if (options.solver_type.compare("SPARSE_NORMAL_CHOLESKY")==0) {
+    ceres_options->linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
+  } else if (options.solver_type.compare("CGNR")==0) {
+    ceres_options->linear_solver_type = ceres::CGNR;
+  } else if (options.solver_type.compare("DENSE_SCHUR")==0) {
+    ceres_options->linear_solver_type = ceres::DENSE_SCHUR;
+  } else if (options.solver_type.compare("SPARSE_SCHUR")==0) {
+    ceres_options->linear_solver_type = ceres::SPARSE_SCHUR;
+  } else if (options.solver_type.compare("ITERATIVE_SCHUR")==0) {
+    ceres_options->linear_solver_type = ceres::ITERATIVE_SCHUR;
+  } else {
+    ceres_options->linear_solver_type = ceres::SPARSE_SCHUR;
+  }
+
+  // Set print progress.
+  if (options.print_progress) {
+    ceres_options->logging_type = ceres::PER_MINIMIZER_ITERATION;
+    ceres_options->minimizer_progress_to_stdout = true;
+  } else {
+    ceres_options->logging_type = ceres::SILENT;
+    ceres_options->minimizer_progress_to_stdout = false;
+  }
+
+  // Set gradient and function tolerance.
+  ceres_options->gradient_tolerance = options.gradient_tolerance;
+  ceres_options->function_tolerance = options.function_tolerance;
+
+  // Make sure the options we set are valid.
+  std::string error_message;
+  bool valid_options = ceres_options->IsValid(&error_message);
+  if (!valid_options) {
+    LOG(WARNING) << "Ceres options error: " << error_message;
+  }
+  return valid_options;
 }
 
 }  //\namespace bsfm

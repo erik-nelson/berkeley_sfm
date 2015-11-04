@@ -178,7 +178,7 @@ TEST(BundleAdjuster, TestManyViewsTranslationNoise) {
   // adjustment preserves distances between all points and cameras. Note that
   // bundle adjustment only will give a unique solution if overconstrained, i.e.
   // we need 2*n*m >= 3*n + 6*m, where n is the number of points and m is the
-  // number of cameras. This is satisfied for, e.g. n = m = 50.
+  // number of cameras. This is satisfied for, e.g. n = m = 20.
 
   // Clean up from other tests.
   Landmark::ResetLandmarks();
@@ -187,11 +187,11 @@ TEST(BundleAdjuster, TestManyViewsTranslationNoise) {
   // Make 3D points.
   math::RandomGenerator rng(0);
   Point3DList points;
-  MakePoints(50, rng, points);
+  MakePoints(20, rng, points);
 
   // Make random cameras.
   std::vector<Camera> cameras;
-  for (int ii = 0; ii < 50; ++ii) {
+  for (int ii = 0; ii < 20; ++ii) {
     cameras.push_back(RandomCamera(rng, points));
     View::Create(cameras.back());
   }
@@ -237,22 +237,30 @@ TEST(BundleAdjuster, TestManyViewsTranslationNoise) {
   for (ViewIndex ii = 0; ii < View::NumExistingViews(); ++ii)
     view_indices.push_back(ii);
 
-  EXPECT_TRUE(bundle_adjuster.Solve(options, view_indices));
+  // Test bundle adjustment using all solver types.
+  const std::vector<std::string> solver_types = {
+      "DENSE_QR",    "DENSE_NORMAL_CHOLESKY", "SPARSE_NORMAL_CHOLESKY", "CGNR",
+      "DENSE_SCHUR", "SPARSE_SCHUR",          "ITERATIVE_SCHUR",        ""};
 
-  // Check if all distances between points and cameras is the same, up to a
-  // scale factor.
-  const Vector3d p1 = Landmark::GetLandmark(0)->Position().Get();
-  const Vector3d p0 = View::GetView(0)->Camera().Translation();
-  double distance_scale = distances[0] / (p1 - p0).norm();
+  for (const auto& solver_type : solver_types) {
+    options.solver_type = solver_type;
+    EXPECT_TRUE(bundle_adjuster.Solve(options, view_indices));
 
-  int iter = 0;
-  for (LandmarkIndex ii = 0; ii < Landmark::NumExistingLandmarks(); ++ii) {
-    for (ViewIndex jj = 0; jj < View::NumExistingViews(); ++jj) {
-      const Landmark::Ptr landmark = Landmark::GetLandmark(ii);
-      const View::Ptr view = View::GetView(jj);
-      const Vector3d delta =
-          landmark->Position().Get() - view->Camera().Translation();
-      EXPECT_NEAR(distances[iter++], distance_scale * delta.norm(), 1e-4);
+    // Check if all distances between points and cameras is the same, up to a
+    // scale factor.
+    const Vector3d p1 = Landmark::GetLandmark(0)->Position().Get();
+    const Vector3d p0 = View::GetView(0)->Camera().Translation();
+    double distance_scale = distances[0] / (p1 - p0).norm();
+
+    int iter = 0;
+    for (LandmarkIndex ii = 0; ii < Landmark::NumExistingLandmarks(); ++ii) {
+      for (ViewIndex jj = 0; jj < View::NumExistingViews(); ++jj) {
+        const Landmark::Ptr landmark = Landmark::GetLandmark(ii);
+        const View::Ptr view = View::GetView(jj);
+        const Vector3d delta =
+            landmark->Position().Get() - view->Camera().Translation();
+        EXPECT_NEAR(distances[iter++], distance_scale * delta.norm(), 1e-4);
+      }
     }
   }
 

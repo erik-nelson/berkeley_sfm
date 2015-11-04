@@ -54,6 +54,7 @@
 #ifndef BSFM_SFM_BUNDLE_ADJUSTER_H
 #define BSFM_SFM_BUNDLE_ADJUSTER_H
 
+#include <ceres/ceres.h>
 #include <Eigen/Core>
 #include <vector>
 
@@ -81,6 +82,13 @@ class BundleAdjuster {
 
  private:
   DISALLOW_COPY_AND_ASSIGN(BundleAdjuster)
+
+  // Convert a set of bundle adjustment options into Ceres options for
+  // optimization. Return whether or not the converted options are valid
+  // according to Ceres.
+  bool ConvertOptionsToCeresOptions(
+      const BundleAdjustmentOptions& options,
+      ceres::Solver::Options* ceres_options) const;
 
 };  //\class BundleAdjuster
 

@@ -38,16 +38,51 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 // This struct defines a set of options that are used during bundle adjustment.
+// Most of the options define the behavior of the non-linear least-squares
+// optimization, which is performed by Ceres. More details on these options can
+// be found at: http://ceres-solver.org/nnls_solving.html#solver-options
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef BSFM_SFM_BUNDLE_ADJUSTMENT_OPTIONS_H
 #define BSFM_SFM_BUNDLE_ADJUSTMENT_OPTIONS_H
 
+#include <string>
+
 namespace bsfm {
 
 struct BundleAdjustmentOptions {
+  // Set ceres solver type. DENSE_SCHUR SPARSE_SCHUR are good solvers for Bundle
+  // Adjustment problems, where DENSE_SCHUR will be faster for small-ish
+  // problems, and SPARSE_SCHUR will be faster for larger problems (i.e. >1000
+  // cameras, >1000 points). Valid options (as well as benchmark time using 100
+  // points and 100 cameras) are:
+  // - DENSE_QR               - 19.011 seconds
+  // - DENSE_NORMAL_CHOLESKY  -  1.587 seconds
+  // - SPARSE_NORMAL_CHOLESKY -  0.044 seconds
+  // - CGNR                   -  0.028 seconds
+  // - DENSE_SCHUR            -  0.050 seconds
+  // - SPARSE_SCHUR           -  0.110 seconds
+  // - ITERATIVE_SCHUR        -  0.026 seconds
+  std::string solver_type = "DENSE_SCHUR";
 
+  // Print the full ceres report after finishing bundle adjustment.
+  bool print_summary = false;
+
+  // Print optimization progress as ceres is solving.
+  bool print_progress = false;
+
+  // Maximum number of steps that the optimizer will take.
+  unsigned int max_num_iterations = 50;
+
+  // The solver will terminate if | delta cost | / cost < function_tolerance.
+  double function_tolerance = 1e-16;
+
+  // The solver will terminate if the computed gradient is less than this.
+  double gradient_tolerance = 1e-16;
+
+  // TODO(eanelson): Add option to optimize camera parameters, e.g. focal
+  // length, skew, aspect ratio, radial distortion, principal point.
 
 };  //\struct BundleAdjustmentOptions
 

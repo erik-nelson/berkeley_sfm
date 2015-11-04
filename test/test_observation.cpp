@@ -82,7 +82,7 @@ TEST(Observation, TestGetters) {
   // with invalid landmarks.
   Camera camera;
   View::Ptr view = View::Create(camera);
-  Observation::Ptr observation(new Observation(view, feature, descriptor));
+  Observation::Ptr observation = Observation::Create(view, feature, descriptor);
   EXPECT_EQ(view, observation->GetView());
   EXPECT_EQ(nullptr, observation->GetLandmark());
   EXPECT_FALSE(observation->IsMatched());
@@ -184,7 +184,6 @@ TEST(Observation, TestTriangulateObservations) {
       View::Ptr view = View::Create(cameras[ii]);
       Observation::Ptr observation =
           Observation::Create(view, features[ii], descriptor);
-      view->AddObservation(observation);
     }
 
     // Create a landmark whose position we don't know yet.

@@ -42,30 +42,16 @@
 
 namespace bsfm {
 
-// Initialize an observation with the view that it came from, an image-space
-// feature coordinate pair, and an associated descriptor. Implicitly initializes
-// the landmark to be invalid, since the observation has not been matched with a
-// 3D landmark yet.
-Observation::Observation(const View::Ptr& view_ptr,
-                         const ::bsfm::Feature& feature,
-                         const ::bsfm::Descriptor& descriptor)
-    : landmark_index_(kInvalidLandmark),
-      is_matched_(false),
-      feature_(feature),
-      descriptor_(descriptor) {
-  // Store the view's index to access it later.
-  CHECK_NOTNULL(view_ptr.get());
-  view_index_ = view_ptr->Index();
-}
-
-Observation::~Observation() {}
-
 // Factory method.
 Observation::Ptr Observation::Create(const std::shared_ptr<View>& view_ptr,
                                      const ::bsfm::Feature& feature,
                                      const ::bsfm::Descriptor& descriptor) {
-  return Observation::Ptr(new Observation(view_ptr, feature, descriptor));
+  Observation::Ptr observation(new Observation(view_ptr, feature, descriptor));
+  view_ptr->AddObservation(observation);
+  return observation;
 }
+
+Observation::~Observation() {}
 
 // Get the view that this observation was seen from.
 std::shared_ptr<View> Observation::GetView() const {
@@ -114,6 +100,23 @@ const ::bsfm::Feature& Observation::Feature() const {
 // Get the descriptor corresponding to this observation's feature.
 const ::bsfm::Descriptor& Observation::Descriptor() const {
   return descriptor_;
+}
+
+// Constructor is private to enforce usage of factory method. Initialize an
+// observation with the view that it came from, an image-space feature
+// coordinate pair, and an associated descriptor. Implicitly initializes the
+// landmark to be invalid, since the observation has not been matched with a 3D
+// landmark yet.
+Observation::Observation(const View::Ptr& view_ptr,
+                         const ::bsfm::Feature& feature,
+                         const ::bsfm::Descriptor& descriptor)
+    : landmark_index_(kInvalidLandmark),
+      is_matched_(false),
+      feature_(feature),
+      descriptor_(descriptor) {
+  // Store the view's index to access it later.
+  CHECK_NOTNULL(view_ptr.get());
+  view_index_ = view_ptr->Index();
 }
 
 }  //\namespace bsfm

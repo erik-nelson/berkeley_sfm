@@ -65,19 +65,13 @@ class Observation {
   typedef std::shared_ptr<Observation> Ptr;
   typedef std::shared_ptr<const Observation> ConstPtr;
 
-  // Initialize an observation with the view that it came from, an image-space
-  // feature coordinate pair, and an associated descriptor. Implicitly
-  // initializes the landmark to be invalid, since the observation has not been
-  // matched with a 3D landmark yet.
-  Observation(const std::shared_ptr<View>& view_ptr,
-              const ::bsfm::Feature& feature,
-              const ::bsfm::Descriptor& descriptor);
-  ~Observation();
-
-  // Factory method.
+  // Factory method. Creating an observation will automatically call
+  // view_ptr->AddObservation(this), to register the new observation with the
+  // view.
   static Observation::Ptr Create(const std::shared_ptr<View>& view_ptr,
                                  const ::bsfm::Feature& feature,
                                  const ::bsfm::Descriptor& descriptor);
+  ~Observation();
 
   // Get the view that this observation was seen from.
   std::shared_ptr<View> GetView() const;
@@ -103,6 +97,15 @@ class Observation {
  private:
   // No default constructor.
   Observation();
+
+  // Hide constructor to enforce use of factory method. Initialize an
+  // observation with the view that it came from, an image-space feature
+  // coordinate pair, and an associated descriptor. Implicitly initializes the
+  // landmark to be invalid, since the observation has not been matched with a
+  // 3D landmark yet.
+  Observation(const std::shared_ptr<View>& view_ptr,
+              const ::bsfm::Feature& feature,
+              const ::bsfm::Descriptor& descriptor);
 
   // The index corresponding to the view that this feature was observed from.
   ViewIndex view_index_;

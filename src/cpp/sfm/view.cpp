@@ -112,12 +112,6 @@ void View::AddObservation(const Observation::Ptr& observation) {
   }
 }
 
-void View::AddObservations(const std::vector<Observation::Ptr>& observations) {
-  for (const auto& observation : observations) {
-    AddObservation(observation);
-  }
-}
-
 const std::vector<Observation::Ptr>& View::Observations() const {
   return observations_;
 }

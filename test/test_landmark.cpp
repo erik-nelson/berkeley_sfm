@@ -118,8 +118,6 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
       Observation::Create(view1, feature, descriptor);
   Observation::Ptr observation2 =
       Observation::Create(view2, feature, descriptor);
-  view1->AddObservation(observation1);
-  view2->AddObservation(observation2);
 
   // The landmark still should not have been observed, since neither view
   // contains observations that have specifically been matched with this
@@ -142,7 +140,6 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
     View::Ptr view = View::Create(Camera());
     Observation::Ptr observation =
         Observation::Create(view, feature, descriptor);
-    view->AddObservation(observation);
 
     view_indices.push_back(view->Index());
     EXPECT_TRUE(landmark->IncorporateObservation(observation, kRetriangulate));

@@ -40,13 +40,17 @@
 #include <camera/camera_intrinsics.h>
 #include <geometry/eight_point_algorithm_solver.h>
 #include <geometry/essential_matrix_solver.h>
+#include <geometry/pose_estimator_2d_3d.h>
 #include <geometry/rotation.h>
 #include <matching/distance_metric.h>
 #include <matching/feature_matcher_options.h>
 #include <matching/pairwise_image_match.h>
 #include <matching/naive_feature_matcher.h>
+#include <matching/naive_matcher_2d_3d.h>
 #include <math/random_generator.h>
 #include <pose/pose.h>
+#include <ransac/pnp_ransac_problem.h>
+#include <ransac/ransac.h>
 #include <sfm/view.h>
 #include <slam/landmark.h>
 #include <slam/observation.h>
@@ -54,13 +58,6 @@
 
 #include <Eigen/Core>
 #include <gtest/gtest.h>
-
-#include <matching/naive_matcher_2d_3d.h>
-#include <ransac/pnp_ransac_problem.h>
-#include <ransac/ransac.h>
-#include <matching/distance_metric.h>
-#include <geometry/pose_estimator_2d_3d.h>
-
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 
@@ -276,9 +273,6 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
     EXPECT_NEAR(initial_points[ii].X(), landmark->Position().X(), 1e-8);
     EXPECT_NEAR(initial_points[ii].Y(), landmark->Position().Y(), 1e-8);
     EXPECT_NEAR(initial_points[ii].Z(), landmark->Position().Z(), 1e-8);
-
-    view1->AddObservation(observation1);
-    view2->AddObservation(observation2);
   }
 
   // Loop over remaining cameras as if we are receiving their images
@@ -291,7 +285,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
 
     // Skip if not enough points project into this camera.
     if (descriptors.size() < FLAGS_min_features_in_camera) {
-      std::cout << "Insufficient features project into this camera. " 
+      std::cout << "Insufficient features project into this camera. "
 		<< "Skipping." << std::endl;
       continue;
     }
@@ -345,7 +339,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
     }
 
 #if 0
-    
+
     // Extract a FeatureList and a Point3DList from input_data.
     FeatureList points_2d;
     Point3DList points_3d;
@@ -377,7 +371,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
     CameraExtrinsics calculated_extrinsics(calculated_pose);
     Camera calculated_camera(calculated_extrinsics, intrinsics);
 #endif
-    
+
 #if 0
     // 2D<-->3D pose estimation.
     // Initialize the PnP ransac problem.
@@ -408,12 +402,11 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
        Landmark::Ptr landmark = observation->GetLandmark();
        CHECK_NOTNULL(landmark.get());
        landmark->IncorporateObservation(observation);
-       new_view->AddObservation(observation);
     }
 #endif
 
 #if 0
-    
+
     // Extract calculated camera and update view.
     //    Camera calculated_camera = pnp_ransac_problem.Model().camera_;
     new_view->SetCamera(calculated_camera);

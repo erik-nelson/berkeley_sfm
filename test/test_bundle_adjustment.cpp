@@ -135,10 +135,8 @@ TEST(BundleAdjuster, TestManyViewsNoNoise) {
       EXPECT_TRUE(cameras[ii].WorldToImage(p.X(), p.Y(), p.Z(), &u, &v));
       Feature feature(u, v);
 
-      View::Ptr view = View::GetView(ii);
       Observation::Ptr observation =
-          Observation::Create(view, feature, descriptor);
-      view->AddObservation(observation);
+          Observation::Create(View::GetView(ii), feature, descriptor);
       EXPECT_TRUE(landmark->IncorporateObservation(observation));
     }
   }
@@ -206,10 +204,8 @@ TEST(BundleAdjuster, TestManyViewsTranslationNoise) {
       EXPECT_TRUE(cameras[ii].WorldToImage(p.X(), p.Y(), p.Z(), &u, &v));
       Feature feature(u, v);
 
-      View::Ptr view = View::GetView(ii);
       Observation::Ptr observation =
-          Observation::Create(view, feature, descriptor);
-      view->AddObservation(observation);
+          Observation::Create(View::GetView(ii), feature, descriptor);
       EXPECT_TRUE(landmark->IncorporateObservation(observation));
     }
 

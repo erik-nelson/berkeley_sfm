@@ -40,11 +40,13 @@
 #include <camera/camera_intrinsics.h>
 #include <geometry/eight_point_algorithm_solver.h>
 #include <geometry/essential_matrix_solver.h>
+#include <geometry/pose_estimator_2d_3d.h>
 #include <geometry/rotation.h>
 #include <matching/distance_metric.h>
 #include <matching/feature_matcher_options.h>
 #include <matching/pairwise_image_match.h>
 #include <matching/naive_feature_matcher.h>
+#include <matching/naive_matcher_2d_3d.h>
 #include <math/random_generator.h>
 #include <pose/pose.h>
 #include <sfm/view.h>
@@ -240,7 +242,9 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
   camera1.SetIntrinsics(intrinsics);
   camera2.SetIntrinsics(intrinsics);
 
-  // Triangulate features in 3D.
+  // Triangulate features in 3D. This not needed in a real implementation. We
+  // are doing it so that we can check if landmarks automatically triangulate
+  // points.
   Point3DList initial_points;
   ASSERT_TRUE(Triangulate(feature_matches, camera1, camera2, initial_points));
   ASSERT_EQ(initial_points.size(), feature_matches.size());
@@ -255,6 +259,7 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
     Descriptor d2 = descriptors2[image_match.descriptor_indices2_[ii]];
     ASSERT_TRUE(d1.isApprox(d2));
 
+    // Creating observations automatically adds them to their views.
     Observation::Ptr observation1 =
         Observation::Create(view1, feature_matches[ii].feature1_, d1);
     Observation::Ptr observation2 =
@@ -268,12 +273,8 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
     EXPECT_NEAR(initial_points[ii].X(), landmark->Position().X(), 1e-8);
     EXPECT_NEAR(initial_points[ii].Y(), landmark->Position().Y(), 1e-8);
     EXPECT_NEAR(initial_points[ii].Z(), landmark->Position().Z(), 1e-8);
-
-    view1->AddObservation(observation1);
-    view2->AddObservation(observation2);
   }
 
-#if 0
   // Loop over remaining cameras as if we are receiving their images
   // incrementally.
   for (int ii = 2; ii < kNumCameras_; ++ii) {
@@ -282,44 +283,55 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
     std::vector<Descriptor> descriptors;
     SimulateFeatureExtraction(ii, features, descriptors);
 
-    // Match with existing landmarks.
-    std::vector<LandmarkIndex> landmark_indices =
-        FindLandmarkMatches(descriptors);
+    // Create a new view with identity camera extrinsics.
+    Camera new_camera;
+    new_camera.SetIntrinsics(intrinsics);
+    View::Ptr new_view = View::Create(new_camera);
 
-    // 2D<-->3D pose estimation.
-    Point3DList points;
-    for (const auto& index : landmark_indices)
-      points.push_back(Landmark::GetLandmark(index)->Position());
+    // Add features and descriptors as observations to the view.
+    for (size_t jj = 0; jj < features.size(); ++jj) {
+      // Creating observations automatically adds them to their views.
+      Observation::Create(new_view, features[jj], descriptors[jj]);
+    }
+
+    // Get a list of all existing landmarks.
+    std::vector<LandmarkIndex> existing_landmarks;
+    for (LandmarkIndex jj = 0; jj < Landmark::NumExistingLandmarks(); ++jj)
+      existing_landmarks.push_back(jj);
+
+    // Match features seen by this new view with existing landmarks.
+    std::vector<Observation::Ptr> matches_2d3d;
+    NaiveMatcher2D3D feature_matcher_2d3d(matcher_options, new_view);
+    ASSERT_TRUE(feature_matcher_2d3d.Match(existing_landmarks,
+                                           features,
+                                           descriptors,
+                                           matches_2d3d));
+
+#if 0
+    // Get 2D and 3D points from the match.
+    FeatureList points_2d;
+    Point3DList points_3d;
+    for (const auto& match_2d3d : matches_2d3d) {
+      points_2d.push_back(match_2d3d->Feature());
+      points_3d.push_back(match_2d3d->GetLandmark()->Position());
+
+      // Update observations in the view.
+    }
 
     // Calculate the 3D pose of this camera.
     Pose calculated_pose;
     PoseEstimator2D3D pose_estimator;
-    pose_estimator.Initialize(features, points, intrinsics);
-    pose_estimator.Solve(calculated_pose);
+    pose_estimator.Initialize(points_2d, points_3d, intrinsics);
+    ASSERT_TRUE(pose_estimator.Solve(calculated_pose));
 
-    // Create a camera and view.
-    Camera new_camera;
-    CameraExtrinsics new_extrinsics;
-    extrinsics.SetWorldToCamera(calculated_pose);
-    new_camera.SetExtrinsics(extrinsics);
-    new_camera.SetIntrinsics(intrinsics);
-    View::Ptr new_view = View::Create(new_camera);
-
-    // Add all observed landmarks to the view.
-    for (size_t ii = 0; ii < landmark_indices.size(); ++ii) {
-      Observation::Ptr observation =
-          Observation::Create(new_view, features[ii], descriptors[ii]);
-      Landmark::Ptr landmark = Landmark::GetLandmark(landmark_indices[ii]);
-      landmark->IncorporateObservation(observation);
-      new_view->AddObservation(observation);
-    }
-
-    // Try to find new landmarks by matching descriptors against descriptors
-    // from other images that have not been used yet.
-
-
-  }
+    // Set the extrinsic parameters of the camera in the new view.
+    CameraExtrinsics extrinsics(calculated_pose);
+    new_view->MutableCamera().SetExtrinsics(extrinsics);
 #endif
+  }
+
+  // Try to find new landmarks by matching descriptors against descriptors
+  // from other images that have not been used yet.
 }
 
 }  //\namespace bsfm

@@ -98,9 +98,6 @@ class View {
   // Get this view's index.
   ViewIndex Index() const;
 
-  // Add observations to this view.
-  void AddObservation(const Observation::Ptr& observation);
-  void AddObservations(const std::vector<Observation::Ptr>& observations);
 
   // Get observations.
   const std::vector<Observation::Ptr>& Observations() const;
@@ -129,6 +126,11 @@ class View {
   // Static method for determining the next index across all Views
   // constructed so far. This is called in the View constructor.
   static ViewIndex NextViewIndex();
+
+  // Make Observation a friend class so that it can privately add itself to this
+  // view. Observations will be added to the view whenever they are created.
+  friend class Observation;
+  void AddObservation(const Observation::Ptr& observation);
 
   // Includes intrinsics and extrinsics.
   ::bsfm::Camera camera_;

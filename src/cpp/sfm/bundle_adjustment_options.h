@@ -52,8 +52,8 @@
 namespace bsfm {
 
 struct BundleAdjustmentOptions {
-  // Set ceres solver type. DENSE_SCHUR SPARSE_SCHUR are good solvers for Bundle
-  // Adjustment problems, where DENSE_SCHUR will be faster for small-ish
+  // Set ceres solver type. DENSE_SCHUR and SPARSE_SCHUR are good solvers for
+  // bundle adjustment problems, where DENSE_SCHUR will be faster for small-ish
   // problems, and SPARSE_SCHUR will be faster for larger problems (i.e. >1000
   // cameras, >1000 points). Valid options (as well as benchmark time using 100
   // points and 100 cameras) are:

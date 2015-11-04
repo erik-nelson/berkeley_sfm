@@ -53,10 +53,11 @@ namespace bsfm {
 
 struct BundleAdjustmentOptions {
   // Set ceres solver type. DENSE_SCHUR and SPARSE_SCHUR are good solvers for
-  // bundle adjustment problems, where DENSE_SCHUR will be faster for small-ish
-  // problems, and SPARSE_SCHUR will be faster for larger problems (i.e. >1000
-  // cameras, >1000 points). Valid options (as well as benchmark time using 100
-  // points and 100 cameras) are:
+  // bundle adjustment problems, where DENSE_SCHUR will be faster for problems
+  // with roughly the same number of cameras and points. However, most bundle
+  // adjustment problems have number of cameras << number of points, and in this
+  // case SPARSE_SCHUR will be faster. CGNR is also a good choice. Valid options
+  // (as well as benchmark time using 100 points and 100 cameras) are:
   // - DENSE_QR               - 19.011 seconds
   // - DENSE_NORMAL_CHOLESKY  -  1.587 seconds
   // - SPARSE_NORMAL_CHOLESKY -  0.044 seconds
@@ -64,7 +65,7 @@ struct BundleAdjustmentOptions {
   // - DENSE_SCHUR            -  0.050 seconds
   // - SPARSE_SCHUR           -  0.110 seconds
   // - ITERATIVE_SCHUR        -  0.026 seconds
-  std::string solver_type = "DENSE_SCHUR";
+  std::string solver_type = "SPARSE_SCHUR";
 
   // Print the full ceres report after finishing bundle adjustment.
   bool print_summary = false;

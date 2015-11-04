@@ -54,14 +54,14 @@ bool NaiveMatcher2D3D::Match(const std::vector<LandmarkIndex>& landmark_indices,
   matches.clear();
 
   // Extract descriptors from landmarks.
-  std::vector<Descriptor> descriptors_3d(landmark_indices.size());
+  std::vector<Descriptor> descriptors_3d;
+  descriptors_3d.reserve(landmark_indices.size());
   for (size_t ii = 0; ii < landmark_indices.size(); ii++) {
     Landmark::Ptr landmark = Landmark::GetLandmark(landmark_indices[ii]);
     CHECK_NOTNULL(landmark.get());
 
-    descriptors_3d[ii] = landmark->Descriptor();
+    descriptors_3d.push_back(landmark->Descriptor());
   }
-
   // Normalize descriptors if required by the distance metric.
   DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors_2d);
   DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors_3d);

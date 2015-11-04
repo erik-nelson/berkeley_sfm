@@ -73,7 +73,7 @@ class NaiveMatcher2D3D {
   // all of individual descriptor vectors. To match we may need to normalize
   // descriptors, so they are passed as non-const reference.
   bool Match(const std::vector<LandmarkIndex>& landmark_indices,
-             const FeatureList& points_2d,
+	     const FeatureList& points_2d,
              std::vector<Descriptor>& descriptors_2d,
              std::vector<Observation::Ptr>& matches);
 

@@ -195,7 +195,7 @@ class TestSimpleNoiselessSfmRansac : public ::testing::Test {
   std::vector<Camera> cameras_;
 };
 
-TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
+TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
 
   // Make some fake 3D points, a random descriptor for each point, and cameras
   // that are able to observe at least 1 point.
@@ -291,7 +291,8 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
 
     // Skip if not enough points project into this camera.
     if (descriptors.size() < FLAGS_min_features_in_camera) {
-      std::cout << "Insufficient features project into this camera. Skipping." << std::endl;
+      std::cout << "Insufficient features project into this camera. " 
+		<< "Skipping." << std::endl;
       continue;
     }
 
@@ -343,6 +344,8 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
       ASSERT_TRUE(distance(matched_descriptor, landmark->Descriptor()) < 1e-8);
     }
 
+#if 0
+    
     // Extract a FeatureList and a Point3DList from input_data.
     FeatureList points_2d;
     Point3DList points_3d;
@@ -373,7 +376,8 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     // Generate a model from this pose.
     CameraExtrinsics calculated_extrinsics(calculated_pose);
     Camera calculated_camera(calculated_extrinsics, intrinsics);
-
+#endif
+    
 #if 0
     // 2D<-->3D pose estimation.
     // Initialize the PnP ransac problem.
@@ -408,6 +412,8 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     }
 #endif
 
+#if 0
+    
     // Extract calculated camera and update view.
     //    Camera calculated_camera = pnp_ransac_problem.Model().camera_;
     new_view->SetCamera(calculated_camera);
@@ -420,6 +426,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     EXPECT_TRUE(
         calculated_camera.Rotation().isApprox(cameras_[ii].Rotation(), 1e-8));
 
+#endif
     // Try to find new landmarks by matching descriptors against descriptors
     // from other images that have not been used yet.
     // TODO!!!

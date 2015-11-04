@@ -119,9 +119,9 @@ class Pose {
   Matrix34d Dehomogenize();
 
   // Output axis-angle representation.
-  VectorXd ToAxisAngle();
+  Vector3d AxisAngle();
 
-  // Set based on axis-angle input.
+  // Set based on axis-angle input, and return homogeneous matrix.
   Matrix4d FromAxisAngle(const Vector3d& aa);
 
   // Set translation directly.

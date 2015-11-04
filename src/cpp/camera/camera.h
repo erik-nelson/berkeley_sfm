@@ -90,6 +90,15 @@ class Camera {
   // Get the camera extrinsics matrix, [R | t].
   Matrix34d Rt() const;
 
+  // Get the camera's world frame translation from extrinsics.
+  Vector3d Translation() const;
+
+  // Get the camera's world frame rotation from extrinsics.
+  Matrix3d Rotation() const;
+
+  // Get the camera's world frame rotation in axis angle parameterization.
+  Vector3d AxisAngleRotation() const;
+
   // Transform points from world to camera coordinates.
   void WorldToCamera(double wx, double wy, double wz, double* cx, double* cy,
                      double* cz) const;

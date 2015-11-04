@@ -53,6 +53,7 @@
 #ifndef BSFM_OPTIMIZATION_COST_FUNCTORS_H
 #define BSFM_OPTIMIZATION_COST_FUNCTORS_H
 
+#include <ceres/rotation.h>
 #include <Eigen/Core>
 #include <glog/logging.h>
 
@@ -109,43 +110,52 @@ struct GeometricError {
 // intrinsic and extrinsic parameter matrices, respectively. K is held constant
 // during the optimization, and only the camera pose matrix [R | t] is optimized
 // over.
+//
+// For speed, we optimize over an axis-angle parameterization of R (3
+// varibales), rather than the 9 variables in a rotation matrix, in addition,
+// for readability/cleanliness, we optimize over c, the camera center in world
+// space, rather than t. These are related by c = -R'*t.
 struct BundleAdjustmentError {
   // Inputs are the image space point x and the intrinsics matrix K.
   // Optimization variables are the 3D landmark position X, and the camera
-  // extrinsics matrix [R | t].
+  // extrinsics matrix [R | t], expressed as an axis-angle rotation and a 3D
+  // translation vector, and as the camera origin expressed in world frame
+  // coordinates, c.
   Feature x_;
   Matrix3d K_;
   BundleAdjustmentError(const Feature& x, const Matrix3d& K) : x_(x), K_(K) {}
 
   template <typename T>
-  bool operator()(const T* const Rt, const T* const X,
-                  T* bundle_adjustment_error) const {
+  bool operator()(const T* const rotation, const T* const translation,
+                  const T* const point, T* bundle_adjustment_error) const {
+    // Normally one would compute x = K * [R | t] X. Instead we have an
+    // axis-angle version of R, and the camera position c. To put the
+    // point X in camera frame, we need to compute R*X+t. Note that t = -R'*c,
+    // so R*X+t = R*(X+R'*t) = R*(X-c). Hence we can first subtract out the given
+    // camera position, and then perform the axis-angle rotation.
 
-    // Matrix multiplication: P = K * [R | t]. Note that [R | t] is provided in
-    // column-major order.
-    T P11 = K_(0, 0)*Rt[0] + K_(0, 1)*Rt[1] + K_(0, 2)*Rt[2];
-    T P12 = K_(0, 0)*Rt[4] + K_(0, 1)*Rt[5] + K_(0, 2)*Rt[6];
-    T P13 = K_(0, 0)*Rt[8] + K_(0, 1)*Rt[9] + K_(0, 2)*Rt[10];
-    T P14 = K_(0, 0)*Rt[12] + K_(0, 1)*Rt[13] + K_(0, 2)*Rt[14];
+    // Remove camera translation.
+    T origin_point[3];
+    origin_point[0] = point[0] - translation[0];
+    origin_point[1] = point[1] - translation[1];
+    origin_point[2] = point[2] - translation[2];
 
-    T P21 = K_(1, 0)*Rt[0] + K_(1, 1)*Rt[1] + K_(1, 2)*Rt[2];
-    T P22 = K_(1, 0)*Rt[4] + K_(1, 1)*Rt[5] + K_(1, 2)*Rt[6];
-    T P23 = K_(1, 0)*Rt[8] + K_(1, 1)*Rt[9] + K_(1, 2)*Rt[10];
-    T P24 = K_(1, 0)*Rt[12] + K_(1, 1)*Rt[13] + K_(1, 2)*Rt[14];
+    // Rotate point to camera frame.
+    T cam_point[3];
+    ceres::AngleAxisRotatePoint(rotation, origin_point, cam_point);
 
-    T P31 = K_(2, 0)*Rt[0] + K_(2, 1)*Rt[1] + K_(2, 2)*Rt[2];
-    T P32 = K_(2, 0)*Rt[4] + K_(2, 1)*Rt[5] + K_(2, 2)*Rt[6];
-    T P33 = K_(2, 0)*Rt[8] + K_(2, 1)*Rt[9] + K_(2, 2)*Rt[10];
-    T P34 = K_(2, 0)*Rt[12] + K_(2, 1)*Rt[13] + K_(2, 2)*Rt[14];
+    // Get normalized pixel projection.
+    const T& depth = cam_point[2];
+    const T normalized_point[2] = {cam_point[0] / depth, cam_point[1] / depth};
 
-    // Compute image space scale, assuming homogeneous coordinate is 1.0.
-    T scale = P31 * X[0] + P32 * X[1] + P33 * X[2] + P34;
+    // Project normalized point into image using intrinsic parameters.
+    const T u = K_(0, 0) * normalized_point[0] +
+                K_(0, 1) * normalized_point[1] + K_(0, 2);
+    const T v = K_(1, 1) * normalized_point[1] + K_(1, 2);
 
-    // Compute geometric error in image-space.
-    bundle_adjustment_error[0] =
-        x_.u_ - (P11 * X[0] + P12 * X[1] + P13 * X[2] + P14) / scale;
-    bundle_adjustment_error[1] =
-        x_.v_ - (P21 * X[0] + P22 * X[1] + P23 * X[2] + P24) / scale;
+    // Error is computed in image space.
+    bundle_adjustment_error[0] = x_.u_ - u;
+    bundle_adjustment_error[1] = x_.v_ - v;
 
     return true;
   }
@@ -155,17 +165,19 @@ struct BundleAdjustmentError {
     // 2 residuals: image space u and v coordinates.
     static const int kNumResiduals = 2;
 
-    // 16 camera extrinsic parameters, but only 12 are optimized over. This is
-    // because the camera pose matrices are homogeneous, but are expressed in
-    // column-major order.
-    static const int kNumExtrinsicParameters = 16;
+    // 3 parameters, axis-angle representation.
+    static const int kNumRotationParameters = 3;
+
+    // 3 parameters for camera translation.
+    static const int kNumTranslationParameters = 3;
 
     // 3 landmark position parameters: world space x, y, z.
     static const int kNumLandmarkParameters = 3;
 
     return new ceres::AutoDiffCostFunction<BundleAdjustmentError,
            kNumResiduals,
-           kNumExtrinsicParameters,
+           kNumRotationParameters,
+           kNumTranslationParameters,
            kNumLandmarkParameters>(new BundleAdjustmentError(x, K));
   }
 };  //\BundleAdjustmentError

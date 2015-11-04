@@ -94,7 +94,7 @@ public:
   void SetRotation(double phi, double theta, double psi);
   void Rotate(const Matrix3d& delta);
   void Rotate(double dphi, double dtheta, double dpsi);
-  Matrix3d WorldToCameraRotation() const;
+  Matrix3d Rotation() const;
 
   // Translate the world-to-camera frame. All inputs correspond to the
   // coordinates of the camera in world-frame.
@@ -105,15 +105,10 @@ public:
   void TranslateX(double dx);
   void TranslateY(double dy);
   void TranslateZ(double dz);
-  Vector3d WorldToCameraTranslation() const;
+  Vector3d Translation() const;
 
   // The extrinsics matrix is 3x4 matrix: [R | t].
   Matrix34d Rt() const;
-
-  // Returns a raw pointer to the data elements of the homogeneous [R | t]
-  // matrix. This is useful for optimization on the camera pose (e.g. in bundle
-  // adjustment).
-  double* PoseData();
 
   // Convert a world frame point into the camera frame.
   void WorldToCamera(double wx, double wy, double wz,

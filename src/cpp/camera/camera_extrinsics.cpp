@@ -99,7 +99,7 @@ void CameraExtrinsics::Rotate(double dphi, double dtheta, double dpsi) {
   Rotate(EulerAnglesToMatrix(dphi, dtheta, dpsi));
 }
 
-Matrix3d CameraExtrinsics::WorldToCameraRotation() const {
+Matrix3d CameraExtrinsics::Rotation() const {
   return world_to_camera_.Rotation();
 }
 
@@ -137,7 +137,7 @@ void CameraExtrinsics::TranslateZ(double dz) {
   Translate(Vector3d(0, 0, dz));
 }
 
-Vector3d CameraExtrinsics::WorldToCameraTranslation() const {
+Vector3d CameraExtrinsics::Translation() const {
   const Vector3d t = world_to_camera_.Translation();
   const Matrix3d R = world_to_camera_.Rotation();
   return -R.transpose() * t;
@@ -146,13 +146,6 @@ Vector3d CameraExtrinsics::WorldToCameraTranslation() const {
 // The extrinsics matrix is 3x4 matrix: [R | t].
 Matrix34d CameraExtrinsics::Rt() const {
   return WorldToCamera().Dehomogenize();
-}
-
-// Returns a raw pointer to the data elements of the homogeneous [R | t] matrix.
-// This is useful for optimization on the camera pose (e.g. in bundle
-// adjustment).
-double* CameraExtrinsics::PoseData() {
-  return world_to_camera_.Get().data();
 }
 
 // Convert a world frame point into the camera frame.

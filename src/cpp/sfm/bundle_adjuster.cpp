@@ -49,30 +49,39 @@ namespace bsfm {
 // (any landmark seen by at least 2 views).
 bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
                            const std::vector<ViewIndex>& view_indices) const {
-
+  // Create a ceres optimization problem.
   ceres::Problem problem;
 
-  for (const auto& view_index : view_indices) {
-    View::Ptr view = View::GetView(view_index);
+  // Create storage containers for optimization variables. We only do this
+  // because camera extrinsics by default are represented as a 4x4 homogeneous
+  // matrix, and we would prefer to optimize 6 camera variables (rotation and
+  // translation) instead of 16.
+  std::vector<Vector3d> rotations(view_indices.size());
+  std::vector<Vector3d> translations(view_indices.size());
+
+  for (size_t ii = 0; ii < view_indices.size(); ++ii) {
+    View::Ptr view = View::GetView(view_indices[ii]);
     if (view == nullptr) {
       LOG(WARNING) << "View is null. Cannot perform bundle adjustment.";
       return false;
     }
 
-    // Get mutable camera extrinsics matrix for optimization.
-    double* camera_pose = view->MutableCamera().MutableExtrinsics().PoseData();
+    // Get camera extrinsics matrix for optimization.
+    rotations[ii] = view->Camera().AxisAngleRotation();
+    translations[ii] = view->Camera().Translation();
 
     // Get static camera intrinsics for evaluating cost function.
     Matrix3d K = view->Camera().K();
 
     // Make a new residual block on the problem for every 3D point that this
     // view sees.
-    for (const auto& observation : view->Observations()) {
-      CHECK_NOTNULL(observation.get());
-      if (!observation->IsMatched())
+    const std::vector<Observation::Ptr> observations = view->Observations();
+    for (size_t jj = 0; jj < observations.size(); ++jj) {
+      CHECK_NOTNULL(observations[jj].get());
+      if (!observations[jj]->IsMatched())
         continue;
 
-      Landmark::Ptr landmark = observation->GetLandmark();
+      Landmark::Ptr landmark = observations[jj]->GetLandmark();
       if (landmark == nullptr) {
         LOG(WARNING) << "Landmark is null. Cannot perform bundle adjustment.";
         return false;
@@ -83,23 +92,33 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
       if (!landmark->SeenByAtLeastTwoViews(view_indices))
         continue;
 
-      // Get mutable landmark position for optimization.
-      double* landmark_position = landmark->PositionData();
-
-      // Add a reprojection error residual block.
+      // Add a residual block to the cost function.
       problem.AddResidualBlock(
-          BundleAdjustmentError::Create(observation->Feature(), K),
+          BundleAdjustmentError::Create(observations[jj]->Feature(), K),
           NULL, /* squared loss */
-          camera_pose,
-          landmark_position);
+          rotations[ii].data(),
+          translations[ii].data(),
+          landmark->PositionData());
     }
   }
 
   // Solve the bundle adjustment problem.
   ceres::Solver::Summary summary;
   ceres::Solver::Options ceres_options;
-  ceres_options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+  // ceres_options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+  ceres_options.linear_solver_type = ceres::DENSE_SCHUR;
   ceres::Solve(ceres_options, &problem, &summary);
+
+  // Assign optimized camera parameters back into views.
+  for (size_t ii = 0; ii < view_indices.size(); ++ii) {
+    Pose pose;
+    pose.FromAxisAngle(rotations[ii]);
+
+    // We already know this view is not null.
+    View::Ptr view = View::GetView(view_indices[ii]);
+    view->MutableCamera().MutableExtrinsics().SetWorldToCamera(pose);
+    view->MutableCamera().MutableExtrinsics().SetTranslation(translations[ii]);
+  }
 
   return summary.IsSolutionUsable();
 }

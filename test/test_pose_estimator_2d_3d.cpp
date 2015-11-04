@@ -52,24 +52,25 @@ using Eigen::Matrix3d;
 using Eigen::Vector3d;;
 
 namespace {
-  const int kNumPoints = 20;
-  const int kImageWidth = 1920;
-  const int kImageHeight = 1080;
-  const double kVerticalFov = 0.5 * M_PI;
+// Minimum number of points to constrain the problem. See H&Z pg. 179.
+const int kNumPoints = 6;
+const int kImageWidth = 1920;
+const int kImageHeight = 1080;
+const double kVerticalFov = D2R(90.0);
 
-  CameraIntrinsics DefaultIntrinsics() {
-    CameraIntrinsics intrinsics;
-    intrinsics.SetImageLeft(0);
-    intrinsics.SetImageTop(0);
-    intrinsics.SetImageWidth(kImageWidth);
-    intrinsics.SetImageHeight(kImageHeight);
-    intrinsics.SetVerticalFOV(kVerticalFov);
-    intrinsics.SetFU(intrinsics.f_v());
-    intrinsics.SetCU(0.5 * kImageWidth);
-    intrinsics.SetCV(0.5 * kImageHeight);
+CameraIntrinsics DefaultIntrinsics() {
+  CameraIntrinsics intrinsics;
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(kImageWidth);
+  intrinsics.SetImageHeight(kImageHeight);
+  intrinsics.SetVerticalFOV(kVerticalFov);
+  intrinsics.SetFU(intrinsics.f_v());
+  intrinsics.SetCU(0.5 * kImageWidth);
+  intrinsics.SetCV(0.5 * kImageHeight);
 
-    return intrinsics;
-  }
+  return intrinsics;
+}
 }  //\namespace
 
 // Test if the pose estimator can correctly predict camera position when a set
@@ -85,29 +86,24 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
     const double cy = rng.DoubleUniform(-2.0, 2.0);
     const double cz = rng.DoubleUniform(-2.0, 2.0);
 
-    // Wobble it around a little.
-    Vector3d e_in;
-    e_in.setRandom();  // sets all elements to be \in (-1, 1).
-    e_in *= D2R(20.0);  // all angles are \in (-20, 20) degrees.
-    const Matrix3d R_in = EulerAnglesToMatrix(e_in);
+    // Wobble it around.
+    const Vector3d euler_angles(Vector3d::Random()*D2R(180.0));
 
     Camera camera;
     CameraExtrinsics extrinsics;
-    extrinsics.Rotate(R_in);
+    extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));
     extrinsics.Translate(cx, cy, cz);
     camera.SetExtrinsics(extrinsics);
     camera.SetIntrinsics(DefaultIntrinsics());
 
-    // Randomly create a bunch of 3D points. The camera will be looking down the
-    // world's -Y direction, so make the points somewhere out there. Then
-    // project all the points into the camera
+    // Randomly create 3D points and project them into the camera.
     Point3DList points_3d;
     FeatureList points_2d;
     while (points_3d.size() < kNumPoints) {
-      // Make some points out in front of the camea
+      // Make some points out in front of the camera.
       double x = rng.DoubleUniform(-10.0, 10.0);
-      double y = rng.DoubleUniform(-1.0, 10.0);
-      double z = rng.DoubleUniform(10.0, 20.0);
+      double y = rng.DoubleUniform(-10.0, 10.0);
+      double z = rng.DoubleUniform(-10.0, 10.0);
 
       // Project the point into the camera. No noise.
       Feature point_2d;

@@ -93,11 +93,6 @@ class TestSimpleNoiselessSfmRansac : public ::testing::Test {
     points_.clear();
     descriptors_.clear();
     cameras_.clear();
-
-    // Generate a bunch of 3D points, and then a bunch of cameras that each
-    // observe some subset of the points. Run a simple incremental SfM pipeline
-    // to estimate the 3D points of all cameras and images, and check that they
-    // are all in the right places.
     math::RandomGenerator rng(0);
 
     // Generate random points in 3D, and give them each a unique descriptor.
@@ -299,7 +294,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
       std::cout << "Insufficient features project into this camera. Skipping." << std::endl;
       continue;
     }
-    
+
     // Create a camera and view.
     Camera new_camera;
     new_camera.SetIntrinsics(intrinsics);
@@ -307,19 +302,20 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
 
     // Obtain a list of all landmarks in the registry.
     LandmarkIndex max_landmark_index = Landmark::NumExistingLandmarks();
-    std::vector<LandmarkIndex> landmark_indices(max_landmark_index);
-    for (size_t jj = 0; jj < max_landmark_index; jj++)
-      landmark_indices[jj] = static_cast<LandmarkIndex>(jj);
+    std::vector<LandmarkIndex> landmark_indices;
+    for (LandmarkIndex jj = 0; jj < max_landmark_index; jj++)
+      landmark_indices.push_back(jj);
 
     // Match with existing landmarks.
     matcher_options.min_num_feature_matches = FLAGS_min_features_in_camera;
     std::vector<Observation::Ptr> matches_2d_3d;
     NaiveMatcher2D3D matcher_2d_3d(matcher_options, new_view);
-    ASSERT_TRUE(matcher_2d_3d.Match(landmark_indices, features,
-				    descriptors, matches_2d_3d));
+    ASSERT_TRUE(matcher_2d_3d.Match(landmark_indices, features, descriptors,
+                                    matches_2d_3d));
 
     // Check that we get good matches.
     ASSERT_TRUE(matches_2d_3d.size() == descriptors.size());
+    DistanceMetric& distance = DistanceMetric::Instance();
     for (const auto& observation : matches_2d_3d) {
       CHECK_NOTNULL(observation.get());
 
@@ -330,13 +326,13 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
 
       bool found_match = false;
       for (size_t jj = 0; jj < descriptors.size(); jj++) {
-	Descriptor descriptor = descriptors[jj];
-	if (DistanceMetric::Instance()(matched_descriptor, descriptor) < 1e-8) {
-	  found_match = true;
-	  ASSERT_NEAR(matched_feature.u_, features[jj].u_, 1e-8);
-	  ASSERT_NEAR(matched_feature.v_, features[jj].v_, 1e-8);
-	  break;
-	}
+        Descriptor descriptor = descriptors[jj];
+        if (distance(matched_descriptor, descriptor) < 1e-8) {
+          found_match = true;
+          ASSERT_NEAR(matched_feature.u_, features[jj].u_, 1e-8);
+          ASSERT_NEAR(matched_feature.v_, features[jj].v_, 1e-8);
+          break;
+        }
       }
       ASSERT_TRUE(found_match);
 
@@ -344,42 +340,40 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
       Landmark::Ptr landmark = observation->GetLandmark();
       CHECK_NOTNULL(landmark.get());
 
-      ASSERT_TRUE(DistanceMetric::Instance()(matched_descriptor,
-					     landmark->Descriptor()) < 1e-8);
+      ASSERT_TRUE(distance(matched_descriptor, landmark->Descriptor()) < 1e-8);
     }
 
-
     // Extract a FeatureList and a Point3DList from input_data.
-    FeatureList points_2d(matches_2d_3d.size());
-    Point3DList points_3d(matches_2d_3d.size());
-    
+    FeatureList points_2d;
+    Point3DList points_3d;
+
     for (const auto& observation : matches_2d_3d) {
       CHECK_NOTNULL(observation.get());
-      
+
       // Extract feature and append.
       points_2d.push_back(observation->Feature());
-      
+
       // Extract landmark position and append.
       Landmark::Ptr landmark = observation->GetLandmark();
       CHECK_NOTNULL(landmark.get());
       points_3d.push_back(landmark->Position());
     }
-    
+
     // Set up solver.
     PoseEstimator2D3D solver;
     solver.Initialize(points_2d, points_3d, intrinsics);
-    
+
     // Solve.
     Pose calculated_pose;
     if (!solver.Solve(calculated_pose)) {
       VLOG(1) << "Could not estimate a pose using the PnP solver. "
-	      << "Assuming identity pose.";
+              << "Assuming identity pose.";
     }
-  
-    // Generate a model from this Pose.
+
+    // Generate a model from this pose.
     CameraExtrinsics calculated_extrinsics(calculated_pose);
     Camera calculated_camera(calculated_extrinsics, intrinsics);
-    
+
 #if 0
     // 2D<-->3D pose estimation.
     // Initialize the PnP ransac problem.
@@ -402,7 +396,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     // Get the solution from the problem object.
     ASSERT_TRUE(pnp_ransac_problem.SolutionFound());
 #endif
-    
+
 #if 0
     // Add all inlier landmarks to the view as observations.
     for (const auto& observation : pnp_ransac_problem.Inliers()) {
@@ -413,7 +407,7 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
        new_view->AddObservation(observation);
     }
 #endif
-    
+
     // Extract calculated camera and update view.
     //    Camera calculated_camera = pnp_ransac_problem.Model().camera_;
     new_view->SetCamera(calculated_camera);
@@ -423,9 +417,9 @@ TEST_F(TestSimpleNoiselessSfmRansac, TestNoBundleAdjustment) {
     std::cout << calculated_camera.Extrinsics().Rt() << std::endl;
     std::cout << "Actual pose: " << std::endl;
     std::cout << cameras_[ii].Extrinsics().Rt() << std::endl;
-    EXPECT_TRUE(calculated_camera.Extrinsics().Rt().block(0, 0, 3, 3).isApprox(
-		cameras_[ii].Extrinsics().Rt().block(0, 0, 3, 3), 1e-8));
-    
+    EXPECT_TRUE(
+        calculated_camera.Rotation().isApprox(cameras_[ii].Rotation(), 1e-8));
+
     // Try to find new landmarks by matching descriptors against descriptors
     // from other images that have not been used yet.
     // TODO!!!

@@ -49,7 +49,7 @@ namespace bsfm {
 
 // Default constructor. Initialize to empty matches and default camera.
 // Note: this should really never be used -- instead use the constructor below.
-PnPRansacModel::PnPRansacModel() 
+PnPRansacModel::PnPRansacModel()
   : camera_(Camera()),
     matches_(std::vector<Observation::Ptr>()),
     error_(0.0) {}
@@ -127,7 +127,7 @@ PnPRansacProblem::~PnPRansacProblem() {}
 void PnPRansacProblem::SetIntrinsics(CameraIntrinsics& intrinsics) {
   intrinsics_ = intrinsics;
 }
-  
+
 // Subsample the data.
 std::vector<Observation::Ptr> PnPRansacProblem::SampleData(
    unsigned int num_samples) {
@@ -168,8 +168,10 @@ PnPRansacModel PnPRansacProblem::FitModel(
     const std::vector<Observation::Ptr>& input_data) const {
 
   // Extract a FeatureList and a Point3DList from input_data.
-  FeatureList points_2d(input_data.size());
-  Point3DList points_3d(input_data.size());
+  FeatureList points_2d;
+  Point3DList points_3d;
+  points_2d.reserve(input_data.size());
+  points_3d.reserve(input_data.size());
 
   for (const auto& observation : input_data) {
     CHECK_NOTNULL(observation.get());
@@ -193,7 +195,7 @@ PnPRansacModel PnPRansacProblem::FitModel(
     VLOG(1) << "Could not estimate a pose using the PnP solver. "
 	    << "Assuming identity pose.";
   }
-  
+
   // Generate a model from this Pose.
   CameraExtrinsics extrinsics(calculated_pose);
   Camera camera(extrinsics, intrinsics_);

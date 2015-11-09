@@ -69,6 +69,9 @@ class DistanceMetric {
   // Set distance metric type.
   void SetMetric(const Metric& metric = Metric::SCALED_L2);
 
+  // Set distance metric type from string.
+  void SetMetric(const std::string& metric = "SCALED_L2");
+
   // Set a maximum tolerable distance between two descriptors. This is not
   // required, but is useful for comparisons like:
   //

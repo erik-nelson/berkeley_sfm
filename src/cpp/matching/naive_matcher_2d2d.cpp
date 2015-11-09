@@ -47,12 +47,11 @@ bool NaiveMatcher2D2D::MatchImagePair(
   image_match.descriptor_indices2_.clear();
 
   // Get the descriptors corresponding to these two images.
-  std::vector<Descriptor>& descriptors1 =
-      this->image_descriptors_[image_index1];
-  std::vector<Descriptor>& descriptors2 =
-      this->image_descriptors_[image_index2];
+  std::vector<Descriptor>& descriptors1 = image_descriptors_[image_index1];
+  std::vector<Descriptor>& descriptors2 = image_descriptors_[image_index2];
 
   // Normalize descriptors if required by the distance metric.
+  DistanceMetric::Instance().SetMetric(options_.distance_metric);
   DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors1);
   DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors2);
 
@@ -62,27 +61,27 @@ bool NaiveMatcher2D2D::MatchImagePair(
 
   // Check that we got enough matches here. If we didn't, reverse matches won't
   // help us.
-  if (light_feature_matches.size() < this->options_.min_num_feature_matches) {
+  if (light_feature_matches.size() < options_.min_num_feature_matches) {
     return false;
   }
 
-  if (this->options_.require_symmetric_matches) {
+  if (options_.require_symmetric_matches) {
     LightFeatureMatchList reverse_light_feature_matches;
     ComputePutativeMatches(descriptors2, descriptors1,
                            reverse_light_feature_matches);
-    this->SymmetricMatches(reverse_light_feature_matches,
+    SymmetricMatches(reverse_light_feature_matches,
                            light_feature_matches);
   }
 
-  if (light_feature_matches.size() < this->options_.min_num_feature_matches) {
+  if (light_feature_matches.size() < options_.min_num_feature_matches) {
     return false;
   }
 
   // Check how many features the user wants.
   unsigned int num_features_out = light_feature_matches.size();
-  if (this->options_.only_keep_best_matches) {
+  if (options_.only_keep_best_matches) {
     num_features_out =
-        std::min(num_features_out, this->options_.num_best_matches);
+        std::min(num_features_out, options_.num_best_matches);
 
     // Return relevant matches in sorted order.
     std::partial_sort(light_feature_matches.begin(),
@@ -96,9 +95,9 @@ bool NaiveMatcher2D2D::MatchImagePair(
     const auto& match = light_feature_matches[ii];
 
     const Feature& matched_feature1 =
-        this->image_features_[image_index1][match.feature_index1_];
+        image_features_[image_index1][match.feature_index1_];
     const Feature& matched_feature2 =
-        this->image_features_[image_index2][match.feature_index2_];
+        image_features_[image_index2][match.feature_index2_];
 
     image_match.feature_matches_.emplace_back(matched_feature1,
                                               matched_feature2);
@@ -139,7 +138,7 @@ void NaiveMatcher2D2D::ComputePutativeMatches(
     }
 
     // Store the best match for this element of features2.
-    if (this->options_.use_lowes_ratio) {
+    if (options_.use_lowes_ratio) {
       // Sort by distance. We only care about the distances between the best 2
       // matches for the Lowes ratio test.
       std::partial_sort(one_way_matches.begin(),
@@ -148,8 +147,7 @@ void NaiveMatcher2D2D::ComputePutativeMatches(
                         LightFeatureMatch::SortByDistance);
 
       // The second best match must be within the lowes ratio of the best match.
-      double lowes_ratio_squared =
-          this->options_.lowes_ratio * this->options_.lowes_ratio;
+      double lowes_ratio_squared = options_.lowes_ratio * options_.lowes_ratio;
       if (one_way_matches[0].distance_ <
           lowes_ratio_squared * one_way_matches[1].distance_) {
         putative_matches.emplace_back(one_way_matches[0]);

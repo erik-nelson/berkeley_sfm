@@ -83,6 +83,7 @@ TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherSiftSift) {
   image2.RotateClockwise();
 
   FeatureMatcherOptions options;
+  options.distance_metric = "SCALED_L2";
   NaiveMatcher2D2D feature_matcher;
 
   KeypointDetector detector;
@@ -95,7 +96,7 @@ TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherSiftSift) {
   LOG(INFO) << "Detected " << keypoints1.size() << " keypoints from image 1.";
   LOG(INFO) << "Detected " << keypoints2.size() << " keypoints from image 2.";
 
-  DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
+  // DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
   DescriptorExtractor extractor;
   extractor.SetDescriptor("SIFT");
 
@@ -155,9 +156,6 @@ TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherFastOrb) {
   image1.RotateClockwise();
   image2.RotateClockwise();
 
-  FeatureMatcherOptions options;
-  NaiveMatcher2D2D feature_matcher;
-
   KeypointDetector detector;
   detector.SetDetector("FAST");
 
@@ -168,7 +166,6 @@ TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherFastOrb) {
   LOG(INFO) << "Detected " << keypoints1.size() << " keypoints from image 1.";
   LOG(INFO) << "Detected " << keypoints2.size() << " keypoints from image 2.";
 
-  DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::HAMMING);
   DescriptorExtractor extractor;
   extractor.SetDescriptor("ORB");
 
@@ -180,6 +177,10 @@ TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherFastOrb) {
   extractor.DescribeFeatures(image2, keypoints2, features2, descriptors2);
   LOG(INFO) << "Extracted " << features1.size() << " features from image 1.";
   LOG(INFO) << "Extracted " << features2.size() << " features from image 2.";
+
+  FeatureMatcherOptions options;
+  options.distance_metric = "HAMMING";
+  NaiveMatcher2D2D feature_matcher;
 
   feature_matcher.AddImageFeatures(features1, descriptors1);
   feature_matcher.AddImageFeatures(features2, descriptors2);

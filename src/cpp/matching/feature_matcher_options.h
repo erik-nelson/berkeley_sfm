@@ -44,6 +44,8 @@
 #ifndef BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
 #define BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
 
+#include <string>
+
 namespace bsfm {
 
 struct FeatureMatcherOptions {
@@ -80,6 +82,10 @@ struct FeatureMatcherOptions {
   // a match. This value will only be used if
   // 'enforce_maximum_descriptor_distance' is true.
   double maximum_descriptor_distance = 1.0;
+
+  // The distance metric to be used for matching. Options can be found under
+  // matching/distance_metric.h.
+  std::string distance_metric = "SCALED_L2";
 
 };  //\struct FeatureMatcherOptions
 

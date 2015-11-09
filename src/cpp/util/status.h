@@ -43,9 +43,9 @@
 // Status GetElement(vector<int> ints, int index, int& element) {
 //   if (index < ints.size()) {
 //     element = ints[index];
-//     return Status::OK();
+//     return Status::Ok();
 //   } else {
-//     return Status::OUT_OF_RANGE("Invalid index!");
+//     return Status::OutOfRange("Invalid index!");
 //   }
 // }
 //

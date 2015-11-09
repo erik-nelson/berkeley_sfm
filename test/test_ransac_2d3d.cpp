@@ -201,14 +201,14 @@ void TestRansac2D3D(unsigned int num_bad_matches) {
   // therefore result in an error of < 1e-8.
   Ransac<Observation::Ptr, PnPRansacModel> solver;
   RansacOptions options;
-  options.iterations = 10000;
+  options.iterations = 100;
   options.acceptable_error = 1e-8;
   options.num_samples = 6;
   options.minimum_num_inliers = projected_landmarks.size();
 
   solver.SetOptions(options);
   solver.Run(problem);
-  
+
   // Get the solution from the problem object.
   ASSERT_TRUE(problem.SolutionFound());
 

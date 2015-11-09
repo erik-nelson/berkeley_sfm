@@ -3,9 +3,6 @@
 # Quit on errors.
 set -o errexit -o nounset
 
-# Get to the top directory.
-cd ..
-
 # Settings.
 DOCUMENTATION_PATH=documentation
 CHANGESET=$(git rev-parse --verify HEAD)
@@ -24,16 +21,15 @@ git fetch origin
 # Commit new documentation from master branch.
 touch ${DOCUMENTATION_PATH}
 git add ${DOCUMENTATION_PATH}
-git commit -m ""
+git commit -m "."
 
 # Check out gh-pages branch and merge documentation from master commit.
 git checkout -b gh-pages origin/gh-pages
-rm -r ${DOCUMENTATION_PATH}
+sudo rm -r ${DOCUMENTATION_PATH}
 git checkout master ${DOCUMENTATION_PATH}
 
 # Add the merged changes and push.
-git add -A
-git commit -m "Automated documentation build for changeset ${CHANGESET}."
+git commit -a -m "Automated documentation build for changeset ${CHANGESET}."
 git push -u origin gh-pages
 
 echo "-- Successfully updated documentation!"

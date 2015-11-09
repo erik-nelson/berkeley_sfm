@@ -152,7 +152,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html#l00084">84</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a>.</p>
+<p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html#l00087">87</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="aa9cd38c26f3ea8a610e2e44a0dd2f7d4"></a>
 <div class="memitem">
@@ -226,7 +226,7 @@ Additional Inherited Members</h2></td></tr>
 <p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html#l00147">147</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html">fundamental_matrix_ransac_problem.cpp</a>.</p>
 <div class="fragment"><div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;                                                     {</div>
 <div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="comment">// Create an empty fundamental matrix.</span></div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  Eigen::Matrix3d F;</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  Matrix3d F;</div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  <span class="comment">// Run the 8-point algorithm with default options.</span></div>
 <div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;  EightPointAlgorithmSolver solver;</div>
@@ -247,7 +247,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordflow">return</span> model_out;</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  }</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;  <span class="comment">// Set a large error - we didn&#39;t find a model that fits the data.</span></div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  FundamentalMatrixRansacModel model_out(Eigen::Matrix3d::Identity());</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  FundamentalMatrixRansacModel model_out(Matrix3d::Identity());</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  model_out.error_ = std::numeric_limits&lt;double&gt;::infinity();</div>
 <div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  <span class="keywordflow">return</span> model_out;</div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;}</div>
@@ -342,8 +342,8 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/ransac/<a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a></li>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/ransac/<a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html">fundamental_matrix_ransac_problem.cpp</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/ransac/<a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/ransac/<a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html">fundamental_matrix_ransac_problem.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

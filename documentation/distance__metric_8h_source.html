@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.10"/>
-<title>Berkeley SfM: /Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/matching/distance_metric.h Source File</title>
+<title>Berkeley SfM: /Users/eanelson/Git/berkeley_sfm/src/cpp/matching/distance_metric.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -128,84 +128,114 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment"></span></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">///////////////////////////////////////////////////////////////////////////////</span></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment"></span><span class="comment">//</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">// This file defines distance metrics that can be used to compare feature</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">// descriptors to one another to e.g. find the closest match between images.</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">// Each distance metric struct should be a functor, defining three members:</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">// 1) A typedef&#39;d Descriptor type.</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">// 2) operator(), which operates on two Descriptor types to compute a distance.</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">// 3) A &#39;MaybeNormalizeDescriptors&#39; static method.</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">//</span><span class="comment"></span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">///////////////////////////////////////////////////////////////////////////////</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#ifndef BSFM_MATCHING_DISTANCE_METRIC_H</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#define BSFM_MATCHING_DISTANCE_METRIC_H</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">// The DistanceMetric class defines a singleton that computes distances between</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">// two descriptors. The descriptor and distance metric have global access via</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">// the DistanceMetric::Instance() method.</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">//</span><span class="comment"></span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">///////////////////////////////////////////////////////////////////////////////</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="preprocessor">#ifndef BSFM_MATCHING_DISTANCE_METRIC_H</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#define BSFM_MATCHING_DISTANCE_METRIC_H</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="preprocessor">#include &lt;Eigen/Core&gt;</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#include &lt;glog/logging.h&gt;</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">#include &lt;limits&gt;</span></div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="descriptor__extractor_8h.html">descriptor_extractor.h</a>&quot;</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#include &lt;Eigen/Core&gt;</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="preprocessor">#include &lt;glog/logging.h&gt;</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#include &quot;../util/disallow_copy_and_assign.h&quot;</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="preprocessor">#include &quot;../util/types.h&quot;</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacebsfm.html">bsfm</a> {</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacebsfm.html">bsfm</a> {</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">// Compute the L2 norm of the difference between two descriptor vectors. If both</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">// descriptors have unit length, the L2 norm is equal to 2*(1-x.y). Since all</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">// distances are computed this way, we can drop the leading 2*. The L2 norm</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">// induces an inner product space over R^{n}, and we can test as such.</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno"><a class="line" href="structbsfm_1_1ScaledL2Distance.html">   64</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structbsfm_1_1ScaledL2Distance.html">ScaledL2Distance</a> {</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="comment">// Descriptor type that the ScaledL2Distance functor operates on.</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno"><a class="line" href="structbsfm_1_1ScaledL2Distance.html#a31335480273ea39ca67c994b5228c1fd">   66</a></span>&#160;  <span class="keyword">typedef</span> Eigen::VectorXf <a class="code" href="structbsfm_1_1ScaledL2Distance.html#a31335480273ea39ca67c994b5228c1fd">Descriptor</a>;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="comment">// Functor method.</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno"><a class="line" href="structbsfm_1_1ScaledL2Distance.html#a54ac1788130c3b4c1fc6436ed5e12c27">   69</a></span>&#160;  <span class="keywordtype">float</span> <a class="code" href="structbsfm_1_1ScaledL2Distance.html#a54ac1788130c3b4c1fc6436ed5e12c27">operator()</a>(<span class="keyword">const</span> Descriptor&amp; descriptor1,</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;                   <span class="keyword">const</span> Descriptor&amp; descriptor2) {</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    CHECK_EQ(descriptor1.size(), descriptor2.size());</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    <span class="keywordflow">return</span> 1.0f - descriptor1.dot(descriptor2);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  }</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="comment">// Descriptors need normalization.</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="structbsfm_1_1ScaledL2Distance.html#a1bc6d68686085880a71d84ead487b9c7">   76</a></span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="structbsfm_1_1ScaledL2Distance.html#a1bc6d68686085880a71d84ead487b9c7">MaybeNormalizeDescriptors</a>(std::vector&lt;Descriptor&gt;&amp; descriptors) {</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordflow">for</span> (<span class="keyword">auto</span>&amp; descriptor : descriptors) {</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;      descriptor.normalize();</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    }</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  }</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;};  <span class="comment">//\struct ScaledL2Distance</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">// Compute the Hamming distance between two binary descriptor vectors. This is</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">// the number of bits that are in disagreement (i.e. bit1 ^ bit2 == 1).</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno"><a class="line" href="structbsfm_1_1HammingDistance.html">   86</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structbsfm_1_1HammingDistance.html">HammingDistance</a> {</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="comment">// Descriptor type that the HammingDistance functor operates on.</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno"><a class="line" href="structbsfm_1_1HammingDistance.html#a0317adf45cb7daa55a03f642889c3480">   88</a></span>&#160;  <span class="keyword">typedef</span> Eigen::Matrix&lt;unsigned char, Eigen::Dynamic, 1&gt; <a class="code" href="structbsfm_1_1HammingDistance.html#a0317adf45cb7daa55a03f642889c3480">Descriptor</a>;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="comment">// Functor method.</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno"><a class="line" href="structbsfm_1_1HammingDistance.html#a34b54144e0dfae3f152569eff261c4b9">   91</a></span>&#160;  <span class="keywordtype">int</span> <a class="code" href="structbsfm_1_1HammingDistance.html#a34b54144e0dfae3f152569eff261c4b9">operator()</a>(<span class="keyword">const</span> Descriptor&amp; descriptor1, <span class="keyword">const</span> Descriptor&amp; descriptor2) {</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    CHECK_EQ(descriptor1.size(), descriptor2.size());</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">int</span> sum = 0;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> ii = 0; ii &lt; descriptor1.size(); ++ii)</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;      sum += descriptor1(ii) ^ descriptor2(ii);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordflow">return</span> sum;</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  }</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <span class="comment">// Descriptors don&#39;t need normalization.</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno"><a class="line" href="structbsfm_1_1HammingDistance.html#a202a2c152aec0e24d6ef96128dc15090">  100</a></span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="structbsfm_1_1HammingDistance.html#a202a2c152aec0e24d6ef96128dc15090">MaybeNormalizeDescriptors</a>(std::vector&lt;Descriptor&gt;&amp; descriptors) {</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  }</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;};  <span class="comment">//\struct HammingDistance</span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;}  <span class="comment">//\namespace bsfm</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="structbsfm_1_1ScaledL2Distance_html_a31335480273ea39ca67c994b5228c1fd"><div class="ttname"><a href="structbsfm_1_1ScaledL2Distance.html#a31335480273ea39ca67c994b5228c1fd">bsfm::ScaledL2Distance::Descriptor</a></div><div class="ttdeci">Eigen::VectorXf Descriptor</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00066">distance_metric.h:66</a></div></div>
-<div class="ttc" id="structbsfm_1_1ScaledL2Distance_html_a54ac1788130c3b4c1fc6436ed5e12c27"><div class="ttname"><a href="structbsfm_1_1ScaledL2Distance.html#a54ac1788130c3b4c1fc6436ed5e12c27">bsfm::ScaledL2Distance::operator()</a></div><div class="ttdeci">float operator()(const Descriptor &amp;descriptor1, const Descriptor &amp;descriptor2)</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00069">distance_metric.h:69</a></div></div>
-<div class="ttc" id="descriptor__extractor_8h_html"><div class="ttname"><a href="descriptor__extractor_8h.html">descriptor_extractor.h</a></div></div>
-<div class="ttc" id="structbsfm_1_1ScaledL2Distance_html"><div class="ttname"><a href="structbsfm_1_1ScaledL2Distance.html">bsfm::ScaledL2Distance</a></div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00064">distance_metric.h:64</a></div></div>
-<div class="ttc" id="structbsfm_1_1HammingDistance_html"><div class="ttname"><a href="structbsfm_1_1HammingDistance.html">bsfm::HammingDistance</a></div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00086">distance_metric.h:86</a></div></div>
-<div class="ttc" id="structbsfm_1_1HammingDistance_html_a34b54144e0dfae3f152569eff261c4b9"><div class="ttname"><a href="structbsfm_1_1HammingDistance.html#a34b54144e0dfae3f152569eff261c4b9">bsfm::HammingDistance::operator()</a></div><div class="ttdeci">int operator()(const Descriptor &amp;descriptor1, const Descriptor &amp;descriptor2)</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00091">distance_metric.h:91</a></div></div>
-<div class="ttc" id="structbsfm_1_1ScaledL2Distance_html_a1bc6d68686085880a71d84ead487b9c7"><div class="ttname"><a href="structbsfm_1_1ScaledL2Distance.html#a1bc6d68686085880a71d84ead487b9c7">bsfm::ScaledL2Distance::MaybeNormalizeDescriptors</a></div><div class="ttdeci">static bool MaybeNormalizeDescriptors(std::vector&lt; Descriptor &gt; &amp;descriptors)</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00076">distance_metric.h:76</a></div></div>
-<div class="ttc" id="namespacebsfm_html"><div class="ttname"><a href="namespacebsfm.html">bsfm</a></div><div class="ttdef"><b>Definition:</b> <a href="camera_8cpp_source.html#l00048">camera.cpp:48</a></div></div>
-<div class="ttc" id="structbsfm_1_1HammingDistance_html_a202a2c152aec0e24d6ef96128dc15090"><div class="ttname"><a href="structbsfm_1_1HammingDistance.html#a202a2c152aec0e24d6ef96128dc15090">bsfm::HammingDistance::MaybeNormalizeDescriptors</a></div><div class="ttdeci">static bool MaybeNormalizeDescriptors(std::vector&lt; Descriptor &gt; &amp;descriptors)</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00100">distance_metric.h:100</a></div></div>
-<div class="ttc" id="structbsfm_1_1HammingDistance_html_a0317adf45cb7daa55a03f642889c3480"><div class="ttname"><a href="structbsfm_1_1HammingDistance.html#a0317adf45cb7daa55a03f642889c3480">bsfm::HammingDistance::Descriptor</a></div><div class="ttdeci">Eigen::Matrix&lt; unsigned char, Eigen::Dynamic, 1 &gt; Descriptor</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00088">distance_metric.h:88</a></div></div>
+<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="classbsfm_1_1DistanceMetric.html">   58</a></span>&#160;<span class="keyword">class </span><a class="code" href="classbsfm_1_1DistanceMetric.html">DistanceMetric</a> {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="comment">// Possible metrics.</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7">   61</a></span>&#160;  <span class="keyword">enum</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7">Metric</a> {</div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7aa0d456b374cb1428f013c5baa44fa771">   62</a></span>&#160;    <a class="code" href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7aa0d456b374cb1428f013c5baa44fa771">SCALED_L2</a>,</div>
+<div class="line"><a name="l00063"></a><span class="lineno"><a class="line" href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7af006986d91d305829d116223a44f2c5e">   63</a></span>&#160;    <a class="code" href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7af006986d91d305829d116223a44f2c5e">HAMMING</a></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  };</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="comment">// Get the singleton instance of the distance metric.</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="keyword">static</span> <a class="code" href="classbsfm_1_1DistanceMetric.html">DistanceMetric</a>&amp; <a class="code" href="classbsfm_1_1DistanceMetric.html#a8344cbe912f8c373c135e8ec52f06321">Instance</a>();</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="comment">// Set distance metric type.</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a7f27162f727a29c492e5f06fd7ebfb03">SetMetric</a>(<span class="keyword">const</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7">Metric</a>&amp; metric = Metric::SCALED_L2);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="comment">// Set a maximum tolerable distance between two descriptors. This is not</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="comment">// required, but is useful for comparisons like:</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <span class="comment">//</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="comment">// DistanceMetric&amp; distance = DistanceMetric::Instance();</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="comment">// if (distance(descriptor1, descriptor2) &lt; DistanceMetric::Max()) {</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="comment">//    // This is a good match.</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <span class="comment">//  }</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="comment">//</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="comment">//  By default, a maximum distance is set to infinity, so if this function is</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="comment">//  not called, distance(descriptor1, descriptor2) &lt; DistanceMetric::Max()</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  <span class="comment">//  will always evaluate to true.</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a0c735e6f162e4faf5d0b1699305b4e7b">SetMaximumDistance</a>(<span class="keywordtype">double</span> maximum_distance);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="comment">// Returns the maximum tolerable distance between two descriptors. If this</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="comment">// value has not been set with &#39;SetMaximumDistance&#39;, returns 0.</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a3d0647c9c8bc64b16caff3aab05bb095">Max</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="comment">// Functor method computes distance between two input descriptors.</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#abf2a8935bf60ab9e904f9d1e0d79d95d">operator()</a>(<span class="keyword">const</span> <a class="code" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">Descriptor</a>&amp; descriptor1,</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                    <span class="keyword">const</span> <a class="code" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">Descriptor</a>&amp; descriptor2);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="comment">// Depending on the distance metric used, normalize descriptors.</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <span class="keywordtype">bool</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a018e786d1daf71fd3c24035d39b17535">MaybeNormalizeDescriptors</a>(std::vector&lt;Descriptor&gt;&amp; descriptors) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="comment">// Ensure that DistanceMetric is a singleton.</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <a class="code" href="disallow__copy__and__assign_8h.html#af8df3547bfde53a5acb93e2607b0034a">DISALLOW_COPY_AND_ASSIGN</a>(<a class="code" href="classbsfm_1_1DistanceMetric.html">DistanceMetric</a>)</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <a class="code" href="classbsfm_1_1DistanceMetric.html">DistanceMetric</a>();</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="comment">// Compute the L2 norm of the difference between two descriptor vectors. If both</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="comment">// descriptors have unit length, the L2 norm is equal to 2*(1-x.y). Since all</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="comment">// distances are computed this way, we can drop the leading 2*. The L2 norm</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="comment">// induces an inner product space over R^{n}, and we can test as such.</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a9f9ae4755d598405385169e77f7056a8">GetScaledL2Distance</a>(const <a class="code" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">Descriptor</a>&amp; descriptor1,</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                             const <a class="code" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">Descriptor</a>&amp; descriptor2) const;</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="comment">// Compute the Hamming distance between two binary descriptor vectors. This is</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="comment">// the number of bits that are in disagreement (i.e. bit1 ^ bit2 == 1).</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a71faea5874e4a3d26a1f8d1161258273">GetHammingDistance</a>(const <a class="code" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">Descriptor</a>&amp; descriptor1,</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;                            const <a class="code" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">Descriptor</a>&amp; descriptor2) const;</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="comment">// Normalize all input descriptor vectors.</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  <span class="keywordtype">void</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#a2aac10b7dcc34c46b8c216f303b07a33">NormalizeDescriptors</a>(<a class="code" href="namespacestd.html">std</a>::vector&lt;<a class="code" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">Descriptor</a>&gt;&amp; descriptors) const;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="comment">// The distance metric that will be used.</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno"><a class="line" href="classbsfm_1_1DistanceMetric.html#ad7130d2c34377c6bcf0bd3e91d3968f3">  117</a></span>&#160;  <a class="code" href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7">Metric</a> <a class="code" href="classbsfm_1_1DistanceMetric.html#ad7130d2c34377c6bcf0bd3e91d3968f3">metric_</a>;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="comment">// A maximum tolerable distance between two descriptors. Defaults to</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="comment">// std::numeric_limits&lt;double&gt;::max(), which would imply that all descriptors</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="comment">// match to one another.</span></div>
+<div class="line"><a name="l00122"></a><span class="lineno"><a class="line" href="classbsfm_1_1DistanceMetric.html#aa0e9fd15c5b7713467fddd4e3c822402">  122</a></span>&#160;  <span class="keywordtype">double</span> <a class="code" href="classbsfm_1_1DistanceMetric.html#aa0e9fd15c5b7713467fddd4e3c822402">maximum_distance_</a>;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;};  <span class="comment">//\class DistanceMetric</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;}  <span class="comment">//\namespace bsfm</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a3d0647c9c8bc64b16caff3aab05bb095"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a3d0647c9c8bc64b16caff3aab05bb095">bsfm::DistanceMetric::Max</a></div><div class="ttdeci">double Max() const </div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00055">distance_metric.cpp:55</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html">bsfm::DistanceMetric</a></div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00058">distance_metric.h:58</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a73078d79cdaf4033702368f556bb33e7"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7">bsfm::DistanceMetric::Metric</a></div><div class="ttdeci">Metric</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00061">distance_metric.h:61</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a73078d79cdaf4033702368f556bb33e7af006986d91d305829d116223a44f2c5e"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7af006986d91d305829d116223a44f2c5e">bsfm::DistanceMetric::HAMMING</a></div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00063">distance_metric.h:63</a></div></div>
+<div class="ttc" id="namespacestd_html"><div class="ttname"><a href="namespacestd.html">std</a></div><div class="ttdoc">STL namespace. </div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a71faea5874e4a3d26a1f8d1161258273"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a71faea5874e4a3d26a1f8d1161258273">bsfm::DistanceMetric::GetHammingDistance</a></div><div class="ttdeci">double GetHammingDistance(const Descriptor &amp;descriptor1, const Descriptor &amp;descriptor2) const </div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00103">distance_metric.cpp:103</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a8344cbe912f8c373c135e8ec52f06321"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a8344cbe912f8c373c135e8ec52f06321">bsfm::DistanceMetric::Instance</a></div><div class="ttdeci">static DistanceMetric &amp; Instance()</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00042">distance_metric.cpp:42</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a0c735e6f162e4faf5d0b1699305b4e7b"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a0c735e6f162e4faf5d0b1699305b4e7b">bsfm::DistanceMetric::SetMaximumDistance</a></div><div class="ttdeci">void SetMaximumDistance(double maximum_distance)</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00051">distance_metric.cpp:51</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_aa0e9fd15c5b7713467fddd4e3c822402"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#aa0e9fd15c5b7713467fddd4e3c822402">bsfm::DistanceMetric::maximum_distance_</a></div><div class="ttdeci">double maximum_distance_</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00122">distance_metric.h:122</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_abf2a8935bf60ab9e904f9d1e0d79d95d"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#abf2a8935bf60ab9e904f9d1e0d79d95d">bsfm::DistanceMetric::operator()</a></div><div class="ttdeci">double operator()(const Descriptor &amp;descriptor1, const Descriptor &amp;descriptor2)</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00059">distance_metric.cpp:59</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a9f9ae4755d598405385169e77f7056a8"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a9f9ae4755d598405385169e77f7056a8">bsfm::DistanceMetric::GetScaledL2Distance</a></div><div class="ttdeci">double GetScaledL2Distance(const Descriptor &amp;descriptor1, const Descriptor &amp;descriptor2) const </div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00097">distance_metric.cpp:97</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a7f27162f727a29c492e5f06fd7ebfb03"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a7f27162f727a29c492e5f06fd7ebfb03">bsfm::DistanceMetric::SetMetric</a></div><div class="ttdeci">void SetMetric(const Metric &amp;metric=Metric::SCALED_L2)</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00047">distance_metric.cpp:47</a></div></div>
+<div class="ttc" id="namespacebsfm_html"><div class="ttname"><a href="namespacebsfm.html">bsfm</a></div><div class="ttdef"><b>Definition:</b> <a href="camera_8cpp_source.html#l00050">camera.cpp:50</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_ad7130d2c34377c6bcf0bd3e91d3968f3"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#ad7130d2c34377c6bcf0bd3e91d3968f3">bsfm::DistanceMetric::metric_</a></div><div class="ttdeci">Metric metric_</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00117">distance_metric.h:117</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a018e786d1daf71fd3c24035d39b17535"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a018e786d1daf71fd3c24035d39b17535">bsfm::DistanceMetric::MaybeNormalizeDescriptors</a></div><div class="ttdeci">bool MaybeNormalizeDescriptors(std::vector&lt; Descriptor &gt; &amp;descriptors) const </div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00074">distance_metric.cpp:74</a></div></div>
+<div class="ttc" id="disallow__copy__and__assign_8h_html_af8df3547bfde53a5acb93e2607b0034a"><div class="ttname"><a href="disallow__copy__and__assign_8h.html#af8df3547bfde53a5acb93e2607b0034a">DISALLOW_COPY_AND_ASSIGN</a></div><div class="ttdeci">#define DISALLOW_COPY_AND_ASSIGN(TypeName)</div><div class="ttdef"><b>Definition:</b> <a href="disallow__copy__and__assign_8h_source.html#l00055">disallow_copy_and_assign.h:55</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a73078d79cdaf4033702368f556bb33e7aa0d456b374cb1428f013c5baa44fa771"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a73078d79cdaf4033702368f556bb33e7aa0d456b374cb1428f013c5baa44fa771">bsfm::DistanceMetric::SCALED_L2</a></div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8h_source.html#l00062">distance_metric.h:62</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a2aac10b7dcc34c46b8c216f303b07a33"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a2aac10b7dcc34c46b8c216f303b07a33">bsfm::DistanceMetric::NormalizeDescriptors</a></div><div class="ttdeci">void NormalizeDescriptors(std::vector&lt; Descriptor &gt; &amp;descriptors) const </div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00115">distance_metric.cpp:115</a></div></div>
+<div class="ttc" id="namespacebsfm_html_a56c3cc85b424b7ea061301e10787d2d0"><div class="ttname"><a href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">bsfm::Descriptor</a></div><div class="ttdeci">::Eigen::Matrix&lt; double, Eigen::Dynamic, 1 &gt; Descriptor</div><div class="ttdef"><b>Definition:</b> <a href="types_8h_source.html#l00083">types.h:83</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

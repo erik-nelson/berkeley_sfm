@@ -109,10 +109,10 @@ Public Types</h2></td></tr>
 Public Attributes</h2></td></tr>
 <tr class="memitem:aabd94a3b9246a62dcd565cb7c4ea26c6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacebsfm.html#a18de207d2c4e71753bcd18f32aaf2d4a">FeatureMatchList</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1PairwiseImageMatch.html#aabd94a3b9246a62dcd565cb7c4ea26c6">feature_matches_</a></td></tr>
 <tr class="separator:aabd94a3b9246a62dcd565cb7c4ea26c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf7fe860957d5804ae09387bad1f4f38"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1PairwiseImageMatch.html#acf7fe860957d5804ae09387bad1f4f38">image1_index_</a></td></tr>
-<tr class="separator:acf7fe860957d5804ae09387bad1f4f38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae6d723f4be8d6bf1132218fa4424e1f0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1PairwiseImageMatch.html#ae6d723f4be8d6bf1132218fa4424e1f0">image2_index_</a></td></tr>
-<tr class="separator:ae6d723f4be8d6bf1132218fa4424e1f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a384566048ae23dfe170290e4cb6c42"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1PairwiseImageMatch.html#a1a384566048ae23dfe170290e4cb6c42">descriptor_indices1_</a></td></tr>
+<tr class="separator:a1a384566048ae23dfe170290e4cb6c42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8414279ae7ef0c244e434960e3646ba"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1PairwiseImageMatch.html#ac8414279ae7ef0c244e434960e3646ba">descriptor_indices2_</a></td></tr>
+<tr class="separator:ac8414279ae7ef0c244e434960e3646ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
@@ -147,6 +147,34 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="a1a384566048ae23dfe170290e4cb6c42"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; bsfm::PairwiseImageMatch::descriptor_indices1_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="pairwise__image__match_8h_source.html#l00064">64</a> of file <a class="el" href="pairwise__image__match_8h_source.html">pairwise_image_match.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ac8414279ae7ef0c244e434960e3646ba"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;int&gt; bsfm::PairwiseImageMatch::descriptor_indices2_</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="pairwise__image__match_8h_source.html#l00065">65</a> of file <a class="el" href="pairwise__image__match_8h_source.html">pairwise_image_match.h</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="aabd94a3b9246a62dcd565cb7c4ea26c6"></a>
 <div class="memitem">
 <div class="memproto">
@@ -161,36 +189,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="acf7fe860957d5804ae09387bad1f4f38"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int bsfm::PairwiseImageMatch::image1_index_</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="pairwise__image__match_8h_source.html#l00064">64</a> of file <a class="el" href="pairwise__image__match_8h_source.html">pairwise_image_match.h</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ae6d723f4be8d6bf1132218fa4424e1f0"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int bsfm::PairwiseImageMatch::image2_index_</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="pairwise__image__match_8h_source.html#l00065">65</a> of file <a class="el" href="pairwise__image__match_8h_source.html">pairwise_image_match.h</a>.</p>
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/matching/<a class="el" href="pairwise__image__match_8h_source.html">pairwise_image_match.h</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/matching/<a class="el" href="pairwise__image__match_8h_source.html">pairwise_image_match.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

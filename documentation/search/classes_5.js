@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['image',['Image',['../classbsfm_1_1Image.html',1,'bsfm']]]
+  ['geometricerror',['GeometricError',['../structbsfm_1_1GeometricError.html',1,'bsfm']]]
 ];

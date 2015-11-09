@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.10"/>
-<title>Berkeley SfM: bsfm::Landmark&lt; Descriptor &gt; Class Template Reference</title>
+<title>Berkeley SfM: bsfm::Landmark Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -88,92 +88,138 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
+<a href="#pri-static-methods">Static Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
+<a href="#pri-static-attribs">Static Private Attributes</a> &#124;
 <a href="classbsfm_1_1Landmark-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">bsfm::Landmark&lt; Descriptor &gt; Class Template Reference</div>  </div>
+<div class="title">bsfm::Landmark Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
 <p><code>#include &lt;<a class="el" href="landmark_8h_source.html">landmark.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:ad2e29ef0d8b78f385087b2ea5222eeb9"><td class="memItemLeft" align="right" valign="top">typedef std::shared_ptr&lt; <a class="el" href="classbsfm_1_1Landmark.html">Landmark</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Ptr</a></td></tr>
+<tr class="separator:ad2e29ef0d8b78f385087b2ea5222eeb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a977f030668aba16a2638addc1b83ef4f"><td class="memItemLeft" align="right" valign="top">typedef std::shared_ptr&lt; const <a class="el" href="classbsfm_1_1Landmark.html">Landmark</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a977f030668aba16a2638addc1b83ef4f">ConstPtr</a></td></tr>
+<tr class="separator:a977f030668aba16a2638addc1b83ef4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad2f0c11e1a1c994ece085b3e9cf6a7c9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#ad2f0c11e1a1c994ece085b3e9cf6a7c9">Landmark</a> ()</td></tr>
-<tr class="separator:ad2f0c11e1a1c994ece085b3e9cf6a7c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a436df7d19473d995bd49806d5197a76d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a436df7d19473d995bd49806d5197a76d">~Landmark</a> ()</td></tr>
-<tr class="separator:a436df7d19473d995bd49806d5197a76d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19d2cb26a7c372ec5612bcf61ecee451"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a19d2cb26a7c372ec5612bcf61ecee451">SetDescriptor</a> (const <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &amp;descriptor)</td></tr>
-<tr class="separator:a19d2cb26a7c372ec5612bcf61ecee451"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a18859877896ad07a7eae65ef9e633d05"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a18859877896ad07a7eae65ef9e633d05">SetDescriptor</a> (const std::shared_ptr&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt; &amp;descriptor_ptr)</td></tr>
-<tr class="separator:a18859877896ad07a7eae65ef9e633d05"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ff8abcd34805bce59f918be0ad54dfb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a7ff8abcd34805bce59f918be0ad54dfb">ClearObservations</a> ()</td></tr>
-<tr class="separator:a7ff8abcd34805bce59f918be0ad54dfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a445f91ed4a716387cec76a8c9ca0787d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbsfm_1_1Point3D.html">Point3D</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a445f91ed4a716387cec76a8c9ca0787d">Position</a> () const </td></tr>
-<tr class="separator:a445f91ed4a716387cec76a8c9ca0787d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a972e78e4174513a7bfcb567031a8b8b1"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbsfm_1_1Covariance3D.html">Covariance3D</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a972e78e4174513a7bfcb567031a8b8b1">Covariance</a> () const </td></tr>
-<tr class="separator:a972e78e4174513a7bfcb567031a8b8b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6819a69fae5ef15c2b91da00bdf85049"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; <a class="el" href="structbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a6819a69fae5ef15c2b91da00bdf85049">Observations</a> () const </td></tr>
-<tr class="separator:a6819a69fae5ef15c2b91da00bdf85049"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac93bba312e5fd9a1eff0601f10f3b3ab"><td class="memItemLeft" align="right" valign="top">const std::shared_ptr&lt; Descriptor &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> () const </td></tr>
-<tr class="separator:ac93bba312e5fd9a1eff0601f10f3b3ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd4117be2a66ba440f97e319feff7184"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#abd4117be2a66ba440f97e319feff7184">IncorporateObservation</a> (const <a class="el" href="structbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &amp;observation)</td></tr>
-<tr class="separator:abd4117be2a66ba440f97e319feff7184"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55ac981f9d0c4c147d6e0a2c5e7d3e60"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a55ac981f9d0c4c147d6e0a2c5e7d3e60">~Landmark</a> ()</td></tr>
+<tr class="separator:a55ac981f9d0c4c147d6e0a2c5e7d3e60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee65b730570f8ad046b6b9888a058724"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#aee65b730570f8ad046b6b9888a058724">Index</a> () const </td></tr>
+<tr class="separator:aee65b730570f8ad046b6b9888a058724"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa40b12a29e8b98fea1f9114de87f31f6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#aa40b12a29e8b98fea1f9114de87f31f6">SetPosition</a> (const <a class="el" href="classbsfm_1_1Point3D.html">Point3D</a> &amp;position)</td></tr>
+<tr class="separator:aa40b12a29e8b98fea1f9114de87f31f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93a058db95a4eaeb12124f8c9ad6e853"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a93a058db95a4eaeb12124f8c9ad6e853">SetDescriptor</a> (const ::<a class="el" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">bsfm::Descriptor</a> &amp;descriptor)</td></tr>
+<tr class="separator:a93a058db95a4eaeb12124f8c9ad6e853"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf7a7c42fa6dc398cd5fa37112f6cfdb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#adf7a7c42fa6dc398cd5fa37112f6cfdb">ClearObservations</a> ()</td></tr>
+<tr class="separator:adf7a7c42fa6dc398cd5fa37112f6cfdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f8cd9f09142dc321bcc6de7629ac91b"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbsfm_1_1Point3D.html">Point3D</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a8f8cd9f09142dc321bcc6de7629ac91b">Position</a> () const </td></tr>
+<tr class="separator:a8f8cd9f09142dc321bcc6de7629ac91b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb84bd36455b64920730eeb6115b0c60"><td class="memItemLeft" align="right" valign="top">const ::<a class="el" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">bsfm::Descriptor</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#abb84bd36455b64920730eeb6115b0c60">Descriptor</a> () const </td></tr>
+<tr class="separator:abb84bd36455b64920730eeb6115b0c60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b33503eb1272d2dbd4ac0dcbce48ebc"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; <a class="el" href="classbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a5b33503eb1272d2dbd4ac0dcbce48ebc">Observations</a> () const </td></tr>
+<tr class="separator:a5b33503eb1272d2dbd4ac0dcbce48ebc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabf2267d84303594ab95ba76fd2b32f4"><td class="memItemLeft" align="right" valign="top">double *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#aabf2267d84303594ab95ba76fd2b32f4">PositionData</a> ()</td></tr>
+<tr class="separator:aabf2267d84303594ab95ba76fd2b32f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a834a80812136d8edf2cce8351a17bb94"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a834a80812136d8edf2cce8351a17bb94">IncorporateObservation</a> (const <a class="el" href="classbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &amp;observation, bool retriangulate=true)</td></tr>
+<tr class="separator:a834a80812136d8edf2cce8351a17bb94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8ae978b43568094b0a6cd5a70a9f9be"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classbsfm_1_1View.html">View</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#af8ae978b43568094b0a6cd5a70a9f9be">SourceView</a> () const </td></tr>
+<tr class="separator:af8ae978b43568094b0a6cd5a70a9f9be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a585b143f649d51d4a117adcc10ecf3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a1a585b143f649d51d4a117adcc10ecf3">SeenByAtLeastTwoViews</a> (const std::vector&lt; <a class="el" href="namespacebsfm.html#a06cef0b0e9fe2e6ae636844dfa86ccdd">ViewIndex</a> &gt; &amp;view_indices)</td></tr>
+<tr class="separator:a1a585b143f649d51d4a117adcc10ecf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a20ee5612fc3cd569c6b07ee97717dc7d"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Landmark::Ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a20ee5612fc3cd569c6b07ee97717dc7d">Create</a> ()</td></tr>
+<tr class="separator:a20ee5612fc3cd569c6b07ee97717dc7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a408ddd2e0d39327cd2e3a0c734709b70"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Landmark::Ptr</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a408ddd2e0d39327cd2e3a0c734709b70">GetLandmark</a> (<a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a> landmark_index)</td></tr>
+<tr class="separator:a408ddd2e0d39327cd2e3a0c734709b70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28949e03a61304ccd42fdb590ff08f3c"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a28949e03a61304ccd42fdb590ff08f3c">NumExistingLandmarks</a> ()</td></tr>
+<tr class="separator:a28949e03a61304ccd42fdb590ff08f3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9236b124d1b56ff5190d63c1c854add1"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a9236b124d1b56ff5190d63c1c854add1">IsValidLandmark</a> (<a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a> landmark_index)</td></tr>
+<tr class="separator:a9236b124d1b56ff5190d63c1c854add1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37733d8814adac7e027ad3f167d2889c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a37733d8814adac7e027ad3f167d2889c">ResetLandmarks</a> ()</td></tr>
+<tr class="separator:a37733d8814adac7e027ad3f167d2889c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a5f862efa6d6dcb769aff3237578dc032"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a5f862efa6d6dcb769aff3237578dc032">Landmark</a> ()</td></tr>
+<tr class="separator:a5f862efa6d6dcb769aff3237578dc032"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-methods"></a>
+Static Private Member Functions</h2></td></tr>
+<tr class="memitem:ab6fa59c0cc49c93ed6e1df28cfdad285"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#ab6fa59c0cc49c93ed6e1df28cfdad285">NextLandmarkIndex</a> ()</td></tr>
+<tr class="separator:ab6fa59c0cc49c93ed6e1df28cfdad285"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a5c97ead1cc0f4ff8b33898ab456f3206"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsfm_1_1Point3D.html">Point3D</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a5c97ead1cc0f4ff8b33898ab456f3206">position_</a></td></tr>
-<tr class="separator:a5c97ead1cc0f4ff8b33898ab456f3206"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d1fbf6059f0dba458cc5d932efa2e49"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsfm_1_1Covariance3D.html">Covariance3D</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a5d1fbf6059f0dba458cc5d932efa2e49">covariance_</a></td></tr>
-<tr class="separator:a5d1fbf6059f0dba458cc5d932efa2e49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a673f2ad05e0800602d1dc6c25bd36268"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="structbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a673f2ad05e0800602d1dc6c25bd36268">observations_</a></td></tr>
-<tr class="separator:a673f2ad05e0800602d1dc6c25bd36268"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7926ff2170f2ea3f32fde65053d651f9"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a7926ff2170f2ea3f32fde65053d651f9">descriptor_ptr_</a></td></tr>
-<tr class="separator:a7926ff2170f2ea3f32fde65053d651f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a070827a954614fedc6ecec8d7f00db86"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsfm_1_1Point3D.html">Point3D</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">position_</a></td></tr>
+<tr class="separator:a070827a954614fedc6ecec8d7f00db86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba98b4351f3025829ba1dd39e233f12c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#aba98b4351f3025829ba1dd39e233f12c">landmark_index_</a></td></tr>
+<tr class="separator:aba98b4351f3025829ba1dd39e233f12c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52c328631e566ef6f441bc825a520a4a"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">observations_</a></td></tr>
+<tr class="separator:a52c328631e566ef6f441bc825a520a4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7465632320473bba9c91322e580f1d52"><td class="memItemLeft" align="right" valign="top">::<a class="el" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">bsfm::Descriptor</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">descriptor_</a></td></tr>
+<tr class="separator:a7465632320473bba9c91322e580f1d52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-static-attribs"></a>
+Static Private Attributes</h2></td></tr>
+<tr class="memitem:ad9eca4cb14ee187585451be30c68c6eb"><td class="memItemLeft" align="right" valign="top">static std::unordered_map&lt; <a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>, <a class="el" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Landmark::Ptr</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">landmark_registry_</a></td></tr>
+<tr class="separator:ad9eca4cb14ee187585451be30c68c6eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7290258e8f1f6702f8ea5e678383d387"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">current_landmark_index_</a> = 0</td></tr>
+<tr class="separator:a7290258e8f1f6702f8ea5e678383d387"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;typename Descriptor&gt;<br />
-class bsfm::Landmark&lt; Descriptor &gt;</h3>
-
-
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00060">60</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="ad2f0c11e1a1c994ece085b3e9cf6a7c9"></a>
+<div class="textblock">
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00064">64</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+</div><h2 class="groupheader">Member Typedef Documentation</h2>
+<a class="anchor" id="a977f030668aba16a2638addc1b83ef4f"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::<a class="el" href="classbsfm_1_1Landmark.html">Landmark</a> </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
+          <td class="memname">typedef std::shared_ptr&lt;const <a class="el" href="classbsfm_1_1Landmark.html">Landmark</a>&gt; <a class="el" href="classbsfm_1_1Landmark.html#a977f030668aba16a2638addc1b83ef4f">bsfm::Landmark::ConstPtr</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00092">92</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    : <a class="code" href="classbsfm_1_1Landmark.html#a5c97ead1cc0f4ff8b33898ab456f3206">position_</a>(Point3D(0.0, 0.0, 0.0)),</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;      <a class="code" href="classbsfm_1_1Landmark.html#a5d1fbf6059f0dba458cc5d932efa2e49">covariance_</a>(<a class="code" href="classbsfm_1_1Covariance3D.html#a6c43fe49f8c72ddf0fec6cbcb9d217a1">Covariance3D::Identity</a>()) {}</div>
-<div class="ttc" id="classbsfm_1_1Landmark_html_a5c97ead1cc0f4ff8b33898ab456f3206"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a5c97ead1cc0f4ff8b33898ab456f3206">bsfm::Landmark::position_</a></div><div class="ttdeci">Point3D position_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00080">landmark.h:80</a></div></div>
-<div class="ttc" id="classbsfm_1_1Landmark_html_a5d1fbf6059f0dba458cc5d932efa2e49"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a5d1fbf6059f0dba458cc5d932efa2e49">bsfm::Landmark::covariance_</a></div><div class="ttdeci">Covariance3D covariance_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00081">landmark.h:81</a></div></div>
-<div class="ttc" id="classbsfm_1_1Covariance3D_html_a6c43fe49f8c72ddf0fec6cbcb9d217a1"><div class="ttname"><a href="classbsfm_1_1Covariance3D.html#a6c43fe49f8c72ddf0fec6cbcb9d217a1">bsfm::Covariance3D::Identity</a></div><div class="ttdeci">static Covariance3D Identity()</div><div class="ttdef"><b>Definition:</b> <a href="covariance__3d_8cpp_source.html#l00074">covariance_3d.cpp:74</a></div></div>
-</div><!-- fragment -->
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00067">67</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+
 </div>
 </div>
-<a class="anchor" id="a436df7d19473d995bd49806d5197a76d"></a>
+<a class="anchor" id="ad2e29ef0d8b78f385087b2ea5222eeb9"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::shared_ptr&lt;<a class="el" href="classbsfm_1_1Landmark.html">Landmark</a>&gt; <a class="el" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">bsfm::Landmark::Ptr</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00066">66</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a55ac981f9d0c4c147d6e0a2c5e7d3e60"></a>
+<div class="memitem">
+<div class="memproto">
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::~<a class="el" href="classbsfm_1_1Landmark.html">Landmark</a> </td>
+          <td class="memname">bsfm::Landmark::~Landmark </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -186,20 +232,47 @@ template&lt;typename Descriptor &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00063">63</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;{ }</div>
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00074">74</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;{}</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a5f862efa6d6dcb769aff3237578dc032"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bsfm::Landmark::Landmark </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00222">222</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    : <a class="code" href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">position_</a>(Point3D(0.0, 0.0, 0.0)), <a class="code" href="classbsfm_1_1Landmark.html#aba98b4351f3025829ba1dd39e233f12c">landmark_index_</a>(<a class="code" href="classbsfm_1_1Landmark.html#ab6fa59c0cc49c93ed6e1df28cfdad285">NextLandmarkIndex</a>()) {}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_ab6fa59c0cc49c93ed6e1df28cfdad285"><div class="ttname"><a href="classbsfm_1_1Landmark.html#ab6fa59c0cc49c93ed6e1df28cfdad285">bsfm::Landmark::NextLandmarkIndex</a></div><div class="ttdeci">static LandmarkIndex NextLandmarkIndex()</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8cpp_source.html#l00227">landmark.cpp:227</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_aba98b4351f3025829ba1dd39e233f12c"><div class="ttname"><a href="classbsfm_1_1Landmark.html#aba98b4351f3025829ba1dd39e233f12c">bsfm::Landmark::landmark_index_</a></div><div class="ttdeci">LandmarkIndex landmark_index_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00142">landmark.h:142</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a070827a954614fedc6ecec8d7f00db86"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">bsfm::Landmark::position_</a></div><div class="ttdeci">Point3D position_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00139">landmark.h:139</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a7ff8abcd34805bce59f918be0ad54dfb"></a>
+<a class="anchor" id="adf7a7c42fa6dc398cd5fa37112f6cfdb"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::ClearObservations </td>
+          <td class="memname">void bsfm::Landmark::ClearObservations </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -207,22 +280,54 @@ template&lt;typename Descriptor &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00111">111</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;                                             {</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#a673f2ad05e0800602d1dc6c25bd36268">observations_</a>.clear();</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1Landmark_html_a673f2ad05e0800602d1dc6c25bd36268"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a673f2ad05e0800602d1dc6c25bd36268">bsfm::Landmark::observations_</a></div><div class="ttdeci">std::vector&lt; Observation::Ptr &gt; observations_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00082">landmark.h:82</a></div></div>
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00104">104</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                                 {</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">observations_</a>.clear();</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a52c328631e566ef6f441bc825a520a4a"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">bsfm::Landmark::observations_</a></div><div class="ttdeci">std::vector&lt; Observation::Ptr &gt; observations_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00150">landmark.h:150</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="a972e78e4174513a7bfcb567031a8b8b1"></a>
+<a class="anchor" id="a20ee5612fc3cd569c6b07ee97717dc7d"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classbsfm_1_1Covariance3D.html">Covariance3D</a>&amp; <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::Covariance </td>
+          <td class="memname"><a class="el" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Landmark::Ptr</a> bsfm::Landmark::Create </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00050">50</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                             {</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="comment">// Create a new Landmark, implicitly assigning a unique index.</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Landmark::Ptr</a> landmark(<span class="keyword">new</span> <a class="code" href="classbsfm_1_1Landmark.html#a5f862efa6d6dcb769aff3237578dc032">Landmark</a>());</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">landmark_registry_</a>.insert(std::make_pair(landmark-&gt;Index(), landmark));</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="keywordflow">return</span> landmark;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a5f862efa6d6dcb769aff3237578dc032"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a5f862efa6d6dcb769aff3237578dc032">bsfm::Landmark::Landmark</a></div><div class="ttdeci">Landmark()</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8cpp_source.html#l00222">landmark.cpp:222</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_ad9eca4cb14ee187585451be30c68c6eb"><div class="ttname"><a href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">bsfm::Landmark::landmark_registry_</a></div><div class="ttdeci">static std::unordered_map&lt; LandmarkIndex, Landmark::Ptr &gt; landmark_registry_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00146">landmark.h:146</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_ad2e29ef0d8b78f385087b2ea5222eeb9"><div class="ttname"><a href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">bsfm::Landmark::Ptr</a></div><div class="ttdeci">std::shared_ptr&lt; Landmark &gt; Ptr</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00066">landmark.h:66</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="abb84bd36455b64920730eeb6115b0c60"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const ::<a class="el" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">bsfm::Descriptor</a> &amp; bsfm::Landmark::Descriptor </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -230,16 +335,143 @@ template&lt;typename Descriptor &gt; </div>
       </table>
 </div><div class="memdoc">
 
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00114">114</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                                                 {</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">descriptor_</a>;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a7465632320473bba9c91322e580f1d52"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">bsfm::Landmark::descriptor_</a></div><div class="ttdeci">::bsfm::Descriptor descriptor_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00154">landmark.h:154</a></div></div>
+</div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="ac93bba312e5fd9a1eff0601f10f3b3ab"></a>
+<a class="anchor" id="a408ddd2e0d39327cd2e3a0c734709b70"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const std::shared_ptr&lt; Descriptor &gt; &amp; <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; Descriptor &gt;::Descriptor </td>
+          <td class="memname"><a class="el" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Landmark::Ptr</a> bsfm::Landmark::GetLandmark </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>&#160;</td>
+          <td class="paramname"><em>landmark_index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00059">59</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;                                                              {</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keyword">auto</span> registry_element = <a class="code" href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">landmark_registry_</a>.find(landmark_index);</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="keywordflow">if</span> (registry_element == <a class="code" href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">landmark_registry_</a>.end()) {</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    LOG(WARNING)</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        &lt;&lt; <span class="stringliteral">&quot;Landmark does not exist in registry. Returning a null pointer.&quot;</span>;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Landmark::Ptr</a>();</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  }</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="keywordflow">return</span> registry_element-&gt;second;</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_ad9eca4cb14ee187585451be30c68c6eb"><div class="ttname"><a href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">bsfm::Landmark::landmark_registry_</a></div><div class="ttdeci">static std::unordered_map&lt; LandmarkIndex, Landmark::Ptr &gt; landmark_registry_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00146">landmark.h:146</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_ad2e29ef0d8b78f385087b2ea5222eeb9"><div class="ttname"><a href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">bsfm::Landmark::Ptr</a></div><div class="ttdeci">std::shared_ptr&lt; Landmark &gt; Ptr</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00066">landmark.h:66</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a834a80812136d8edf2cce8351a17bb94"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool bsfm::Landmark::IncorporateObservation </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &amp;&#160;</td>
+          <td class="paramname"><em>observation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>retriangulate</em> = <code>true</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00132">132</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;                                                          {</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  CHECK_NOTNULL(observation.get());</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  <span class="comment">// If this is our first observation, store it, tell the observation that it</span></div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="comment">// has been matched with us, and return.</span></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">observations_</a>.empty()) {</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    observation-&gt;SetIncorporatedLandmark(this-&gt;<a class="code" href="classbsfm_1_1Landmark.html#aee65b730570f8ad046b6b9888a058724">Index</a>());</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;    <a class="code" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">observations_</a>.push_back(observation);</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;    <a class="code" href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">descriptor_</a> = observation-&gt;Descriptor();</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  }</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="comment">// Does our own descriptor match with the observation&#39;s descriptor?</span></div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  std::vector&lt;::bsfm::Descriptor&gt; descriptors;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  descriptors.push_back(<a class="code" href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">descriptor_</a>);</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  descriptors.push_back(observation-&gt;Descriptor());</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  DistanceMetric&amp; distance = <a class="code" href="classbsfm_1_1DistanceMetric.html#a8344cbe912f8c373c135e8ec52f06321">DistanceMetric::Instance</a>();</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  distance.MaybeNormalizeDescriptors(descriptors);</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  <span class="keywordflow">if</span> (distance(descriptors[0], descriptors[1]) &gt; distance.Max()) {</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    VLOG(1) &lt;&lt; <span class="stringliteral">&quot;Observation was not matched to landmark &quot;</span> &lt;&lt; this-&gt;<a class="code" href="classbsfm_1_1Landmark.html#aee65b730570f8ad046b6b9888a058724">Index</a>();</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  }</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;  <span class="comment">// Triangulate the landmark&#39;s putative position if we were to incorporate the</span></div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <span class="comment">// new observation.</span></div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;  <span class="keywordflow">if</span> (retriangulate) {</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    std::vector&lt;Camera&gt; cameras;</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    std::vector&lt;Feature&gt; features;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; obs : <a class="code" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">observations_</a>) {</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;      cameras.push_back(obs-&gt;GetView()-&gt;Camera());</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;      features.push_back(obs-&gt;Feature());</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    }</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    cameras.push_back(observation-&gt;GetView()-&gt;Camera());</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    features.push_back(observation-&gt;Feature());</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="comment">// If triangulation fails, we don&#39;t have a match and won&#39;t update position.</span></div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    Point3D new_position;</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="keywordflow">if</span> (!<a class="code" href="namespacebsfm.html#a6aa7298f9043609851456ded3ae4a312">Triangulate</a>(features, cameras, new_position)) {</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;      <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    }</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    <a class="code" href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">position_</a> = new_position;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;  }</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  <span class="comment">// Successfully triangulated the landmark. Update its position and store this</span></div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;  <span class="comment">// observation. Also tell the observation that it has been matched with us.</span></div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;  observation-&gt;SetIncorporatedLandmark(this-&gt;<a class="code" href="classbsfm_1_1Landmark.html#aee65b730570f8ad046b6b9888a058724">Index</a>());</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;  observations_.push_back(observation);</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;  <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a7465632320473bba9c91322e580f1d52"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">bsfm::Landmark::descriptor_</a></div><div class="ttdeci">::bsfm::Descriptor descriptor_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00154">landmark.h:154</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a070827a954614fedc6ecec8d7f00db86"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">bsfm::Landmark::position_</a></div><div class="ttdeci">Point3D position_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00139">landmark.h:139</a></div></div>
+<div class="ttc" id="classbsfm_1_1DistanceMetric_html_a8344cbe912f8c373c135e8ec52f06321"><div class="ttname"><a href="classbsfm_1_1DistanceMetric.html#a8344cbe912f8c373c135e8ec52f06321">bsfm::DistanceMetric::Instance</a></div><div class="ttdeci">static DistanceMetric &amp; Instance()</div><div class="ttdef"><b>Definition:</b> <a href="distance__metric_8cpp_source.html#l00042">distance_metric.cpp:42</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a52c328631e566ef6f441bc825a520a4a"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">bsfm::Landmark::observations_</a></div><div class="ttdeci">std::vector&lt; Observation::Ptr &gt; observations_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00150">landmark.h:150</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_aee65b730570f8ad046b6b9888a058724"><div class="ttname"><a href="classbsfm_1_1Landmark.html#aee65b730570f8ad046b6b9888a058724">bsfm::Landmark::Index</a></div><div class="ttdeci">LandmarkIndex Index() const </div><div class="ttdef"><b>Definition:</b> <a href="landmark_8cpp_source.html#l00089">landmark.cpp:89</a></div></div>
+<div class="ttc" id="namespacebsfm_html_a6aa7298f9043609851456ded3ae4a312"><div class="ttname"><a href="namespacebsfm.html#a6aa7298f9043609851456ded3ae4a312">bsfm::Triangulate</a></div><div class="ttdeci">bool Triangulate(const FeatureList &amp;features, const std::vector&lt; Camera &gt; &amp;cameras, Point3D &amp;point)</div><div class="ttdef"><b>Definition:</b> <a href="triangulation_8cpp_source.html#l00052">triangulation.cpp:52</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="aee65b730570f8ad046b6b9888a058724"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a> bsfm::Landmark::Index </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -247,137 +479,343 @@ template&lt;typename Descriptor &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00136">136</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;                                                                        {</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keywordflow">return</span> descriptor_;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;}</div>
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00089">89</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                                    {</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#aba98b4351f3025829ba1dd39e233f12c">landmark_index_</a>;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_aba98b4351f3025829ba1dd39e233f12c"><div class="ttname"><a href="classbsfm_1_1Landmark.html#aba98b4351f3025829ba1dd39e233f12c">bsfm::Landmark::landmark_index_</a></div><div class="ttdeci">LandmarkIndex landmark_index_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00142">landmark.h:142</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="abd4117be2a66ba440f97e319feff7184"></a>
+<a class="anchor" id="a9236b124d1b56ff5190d63c1c854add1"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::IncorporateObservation </td>
+          <td class="memname">bool bsfm::Landmark::IsValidLandmark </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &amp;&#160;</td>
-          <td class="paramname"><em>observation</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>&#160;</td>
+          <td class="paramname"><em>landmark_index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00077">77</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;                                                           {</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <span class="keywordflow">return</span> landmark_index &lt;= <a class="code" href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">current_landmark_index_</a>;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a7290258e8f1f6702f8ea5e678383d387"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">bsfm::Landmark::current_landmark_index_</a></div><div class="ttdeci">static LandmarkIndex current_landmark_index_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00157">landmark.h:157</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="ab6fa59c0cc49c93ed6e1df28cfdad285"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a> bsfm::Landmark::NextLandmarkIndex </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00227">227</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;                                          {</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">current_landmark_index_</a>++;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a7290258e8f1f6702f8ea5e678383d387"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">bsfm::Landmark::current_landmark_index_</a></div><div class="ttdeci">static LandmarkIndex current_landmark_index_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00157">landmark.h:157</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a28949e03a61304ccd42fdb590ff08f3c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a> bsfm::Landmark::NumExistingLandmarks </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00071">71</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;                                             {</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">landmark_registry_</a>.size();</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_ad9eca4cb14ee187585451be30c68c6eb"><div class="ttname"><a href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">bsfm::Landmark::landmark_registry_</a></div><div class="ttdeci">static std::unordered_map&lt; LandmarkIndex, Landmark::Ptr &gt; landmark_registry_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00146">landmark.h:146</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a5b33503eb1272d2dbd4ac0dcbce48ebc"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::vector&lt; <a class="el" href="classbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &gt; &amp; bsfm::Landmark::Observations </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00119">119</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;                                                              {</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">observations_</a>;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a52c328631e566ef6f441bc825a520a4a"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">bsfm::Landmark::observations_</a></div><div class="ttdeci">std::vector&lt; Observation::Ptr &gt; observations_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00150">landmark.h:150</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a8f8cd9f09142dc321bcc6de7629ac91b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="classbsfm_1_1Point3D.html">Point3D</a> &amp; bsfm::Landmark::Position </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00109">109</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;                                        {</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">position_</a>;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a070827a954614fedc6ecec8d7f00db86"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">bsfm::Landmark::position_</a></div><div class="ttdeci">Point3D position_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00139">landmark.h:139</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="aabf2267d84303594ab95ba76fd2b32f4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double * bsfm::Landmark::PositionData </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00142">142</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;                                       {</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="comment">// TODO</span></div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;}</div>
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00126">126</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;                               {</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">position_</a>.<a class="code" href="classbsfm_1_1Point3D.html#af608f3c8fc2499fe22a7fa648dc8fa82">Get</a>().data();</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a070827a954614fedc6ecec8d7f00db86"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">bsfm::Landmark::position_</a></div><div class="ttdeci">Point3D position_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00139">landmark.h:139</a></div></div>
+<div class="ttc" id="classbsfm_1_1Point3D_html_af608f3c8fc2499fe22a7fa648dc8fa82"><div class="ttname"><a href="classbsfm_1_1Point3D.html#af608f3c8fc2499fe22a7fa648dc8fa82">bsfm::Point3D::Get</a></div><div class="ttdeci">Vector3d &amp; Get()</div><div class="ttdef"><b>Definition:</b> <a href="point__3d_8cpp_source.html#l00098">point_3d.cpp:98</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="a6819a69fae5ef15c2b91da00bdf85049"></a>
+<a class="anchor" id="a37733d8814adac7e027ad3f167d2889c"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const std::vector&lt; <a class="el" href="structbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a> &gt; &amp; <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::Observations </td>
+          <td class="memname">void bsfm::Landmark::ResetLandmarks </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00083">83</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                              {</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">current_landmark_index_</a> = 0;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">landmark_registry_</a>.clear();</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a7290258e8f1f6702f8ea5e678383d387"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">bsfm::Landmark::current_landmark_index_</a></div><div class="ttdeci">static LandmarkIndex current_landmark_index_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00157">landmark.h:157</a></div></div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_ad9eca4cb14ee187585451be30c68c6eb"><div class="ttname"><a href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">bsfm::Landmark::landmark_registry_</a></div><div class="ttdeci">static std::unordered_map&lt; LandmarkIndex, Landmark::Ptr &gt; landmark_registry_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00146">landmark.h:146</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="a1a585b143f649d51d4a117adcc10ecf3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool bsfm::Landmark::SeenByAtLeastTwoViews </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; <a class="el" href="namespacebsfm.html#a06cef0b0e9fe2e6ae636844dfa86ccdd">ViewIndex</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>view_indices</em></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00129">129</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;          {</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#a673f2ad05e0800602d1dc6c25bd36268">observations_</a>;</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1Landmark_html_a673f2ad05e0800602d1dc6c25bd36268"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a673f2ad05e0800602d1dc6c25bd36268">bsfm::Landmark::observations_</a></div><div class="ttdeci">std::vector&lt; Observation::Ptr &gt; observations_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00082">landmark.h:82</a></div></div>
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00198">198</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;                                                                             {</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> count = 0;</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;  <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; view_index : view_indices) {</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="comment">// If they gave us a bad input, ignore it and continue.</span></div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keywordflow">if</span> (!<a class="code" href="classbsfm_1_1View.html#ad261481bad599ecd9392635d49c344b0">View::IsValidView</a>(view_index))</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;      <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="comment">// Make sure this view knows all landmarks its observations have seen.</span></div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    <a class="code" href="classbsfm_1_1View.html#a78247f3e12bb57e7b762d59221c3ea26">View::Ptr</a> view = <a class="code" href="classbsfm_1_1View.html#a536ea09cb57d8f8898ac19085b41008f">View::GetView</a>(view_index);</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    view-&gt;UpdateObservedLandmarks();</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordflow">if</span> (view-&gt;HasObservedLandmark(this-&gt;Index())) {</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;      count++;</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    }</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="keywordflow">if</span> (count == 2) {</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;      <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    }</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;  }</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;</div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;  <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1View_html_a536ea09cb57d8f8898ac19085b41008f"><div class="ttname"><a href="classbsfm_1_1View.html#a536ea09cb57d8f8898ac19085b41008f">bsfm::View::GetView</a></div><div class="ttdeci">static View::Ptr GetView(ViewIndex view_index)</div><div class="ttdef"><b>Definition:</b> <a href="view_8cpp_source.html#l00060">view.cpp:60</a></div></div>
+<div class="ttc" id="classbsfm_1_1View_html_a78247f3e12bb57e7b762d59221c3ea26"><div class="ttname"><a href="classbsfm_1_1View.html#a78247f3e12bb57e7b762d59221c3ea26">bsfm::View::Ptr</a></div><div class="ttdeci">std::shared_ptr&lt; View &gt; Ptr</div><div class="ttdef"><b>Definition:</b> <a href="view_8h_source.html#l00066">view.h:66</a></div></div>
+<div class="ttc" id="classbsfm_1_1View_html_ad261481bad599ecd9392635d49c344b0"><div class="ttname"><a href="classbsfm_1_1View.html#ad261481bad599ecd9392635d49c344b0">bsfm::View::IsValidView</a></div><div class="ttdeci">static bool IsValidView(ViewIndex view_index)</div><div class="ttdef"><b>Definition:</b> <a href="view_8cpp_source.html#l00077">view.cpp:77</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="a445f91ed4a716387cec76a8c9ca0787d"></a>
+<a class="anchor" id="a93a058db95a4eaeb12124f8c9ad6e853"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">const <a class="el" href="classbsfm_1_1Point3D.html">Point3D</a>&amp; <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::Position </td>
+          <td class="memname">void bsfm::Landmark::SetDescriptor </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a19d2cb26a7c372ec5612bcf61ecee451"></a>
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::SetDescriptor </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &amp;&#160;</td>
+          <td class="paramtype">const ::<a class="el" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">bsfm::Descriptor</a> &amp;&#160;</td>
           <td class="paramname"><em>descriptor</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00098">98</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                                                                     {</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#a7926ff2170f2ea3f32fde65053d651f9">descriptor_ptr_</a>.reset(<span class="keyword">new</span> <a class="code" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a>(descriptor));</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1Landmark_html_ac93bba312e5fd9a1eff0601f10f3b3ab"><div class="ttname"><a href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">bsfm::Landmark::Descriptor</a></div><div class="ttdeci">const std::shared_ptr&lt; Descriptor &gt; &amp; Descriptor() const </div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00136">landmark.h:136</a></div></div>
-<div class="ttc" id="classbsfm_1_1Landmark_html_a7926ff2170f2ea3f32fde65053d651f9"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a7926ff2170f2ea3f32fde65053d651f9">bsfm::Landmark::descriptor_ptr_</a></div><div class="ttdeci">std::shared_ptr&lt; Descriptor &gt; descriptor_ptr_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00083">landmark.h:83</a></div></div>
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00099">99</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                                                             {</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">descriptor_</a> = descriptor;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a7465632320473bba9c91322e580f1d52"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">bsfm::Landmark::descriptor_</a></div><div class="ttdeci">::bsfm::Descriptor descriptor_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00154">landmark.h:154</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="a18859877896ad07a7eae65ef9e633d05"></a>
+<a class="anchor" id="aa40b12a29e8b98fea1f9114de87f31f6"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">void <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::SetDescriptor </td>
+          <td class="memname">void bsfm::Landmark::SetPosition </td>
           <td>(</td>
-          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt; &amp;&#160;</td>
-          <td class="paramname"><em>descriptor_ptr</em></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="classbsfm_1_1Point3D.html">Point3D</a> &amp;&#160;</td>
+          <td class="paramname"><em>position</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00104">104</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                                                     {</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#a7926ff2170f2ea3f32fde65053d651f9">descriptor_ptr_</a> = descriptor_ptr;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1Landmark_html_a7926ff2170f2ea3f32fde65053d651f9"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a7926ff2170f2ea3f32fde65053d651f9">bsfm::Landmark::descriptor_ptr_</a></div><div class="ttdeci">std::shared_ptr&lt; Descriptor &gt; descriptor_ptr_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00083">landmark.h:83</a></div></div>
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00094">94</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;                                                  {</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  <a class="code" href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">position_</a> = position;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a070827a954614fedc6ecec8d7f00db86"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">bsfm::Landmark::position_</a></div><div class="ttdeci">Point3D position_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00139">landmark.h:139</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a class="anchor" id="af8ae978b43568094b0a6cd5a70a9f9be"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsfm_1_1View.html#a78247f3e12bb57e7b762d59221c3ea26">View::Ptr</a> bsfm::Landmark::SourceView </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8cpp_source.html#l00186">186</a> of file <a class="el" href="landmark_8cpp_source.html">landmark.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;                                   {</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">observations_</a>.empty()) {</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    LOG(WARNING) &lt;&lt; <span class="stringliteral">&quot;Landmark has not been associated with any observations, &quot;</span></div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;                    <span class="stringliteral">&quot;so source view is undefined. Returning null pointer.&quot;</span>;</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1View.html#a78247f3e12bb57e7b762d59221c3ea26">View::Ptr</a>();</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;  }</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">observations_</a>.front()-&gt;GetView();</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;}</div>
+<div class="ttc" id="classbsfm_1_1Landmark_html_a52c328631e566ef6f441bc825a520a4a"><div class="ttname"><a href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">bsfm::Landmark::observations_</a></div><div class="ttdeci">std::vector&lt; Observation::Ptr &gt; observations_</div><div class="ttdef"><b>Definition:</b> <a href="landmark_8h_source.html#l00150">landmark.h:150</a></div></div>
+<div class="ttc" id="classbsfm_1_1View_html_a78247f3e12bb57e7b762d59221c3ea26"><div class="ttname"><a href="classbsfm_1_1View.html#a78247f3e12bb57e7b762d59221c3ea26">bsfm::View::Ptr</a></div><div class="ttdeci">std::shared_ptr&lt; View &gt; Ptr</div><div class="ttdef"><b>Definition:</b> <a href="view_8h_source.html#l00066">view.h:66</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a class="anchor" id="a5d1fbf6059f0dba458cc5d932efa2e49"></a>
+<a class="anchor" id="a7290258e8f1f6702f8ea5e678383d387"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classbsfm_1_1Covariance3D.html">Covariance3D</a> <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::covariance_</td>
+          <td class="memname"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a> bsfm::Landmark::current_landmark_index_ = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00157">157</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a7465632320473bba9c91322e580f1d52"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">::<a class="el" href="namespacebsfm.html#a56c3cc85b424b7ea061301e10787d2d0">bsfm::Descriptor</a> bsfm::Landmark::descriptor_</td>
         </tr>
       </table>
   </td>
@@ -387,21 +825,19 @@ template&lt;typename Descriptor &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00081">81</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00154">154</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a7926ff2170f2ea3f32fde65053d651f9"></a>
+<a class="anchor" id="aba98b4351f3025829ba1dd39e233f12c"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt;<a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a>&gt; <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::descriptor_ptr_</td>
+          <td class="memname"><a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a> bsfm::Landmark::landmark_index_</td>
         </tr>
       </table>
   </td>
@@ -411,21 +847,41 @@ template&lt;typename Descriptor &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00083">83</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00142">142</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a673f2ad05e0800602d1dc6c25bd36268"></a>
+<a class="anchor" id="ad9eca4cb14ee187585451be30c68c6eb"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::vector&lt;<a class="el" href="structbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a>&gt; <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::observations_</td>
+          <td class="memname">std::unordered_map&lt; <a class="el" href="namespacebsfm.html#a2fb49028fd5632d6e91bfdbd23971688">LandmarkIndex</a>, <a class="el" href="classbsfm_1_1Landmark.html#ad2e29ef0d8b78f385087b2ea5222eeb9">Landmark::Ptr</a> &gt; bsfm::Landmark::landmark_registry_</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00146">146</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a52c328631e566ef6f441bc825a520a4a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt;<a class="el" href="classbsfm_1_1Observation.html#ac0b6d75816be8f88e60d3b164c39c865">Observation::Ptr</a>&gt; bsfm::Landmark::observations_</td>
         </tr>
       </table>
   </td>
@@ -435,21 +891,19 @@ template&lt;typename Descriptor &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00082">82</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00150">150</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a5c97ead1cc0f4ff8b33898ab456f3206"></a>
+<a class="anchor" id="a070827a954614fedc6ecec8d7f00db86"></a>
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;typename Descriptor &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classbsfm_1_1Point3D.html">Point3D</a> <a class="el" href="classbsfm_1_1Landmark.html">bsfm::Landmark</a>&lt; <a class="el" href="classbsfm_1_1Landmark.html#ac93bba312e5fd9a1eff0601f10f3b3ab">Descriptor</a> &gt;::position_</td>
+          <td class="memname"><a class="el" href="classbsfm_1_1Point3D.html">Point3D</a> bsfm::Landmark::position_</td>
         </tr>
       </table>
   </td>
@@ -459,12 +913,13 @@ template&lt;typename Descriptor &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="landmark_8h_source.html#l00080">80</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
+<p>Definition at line <a class="el" href="landmark_8h_source.html#l00139">139</a> of file <a class="el" href="landmark_8h_source.html">landmark.h</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/slam/<a class="el" href="landmark_8h_source.html">landmark.h</a></li>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/slam/<a class="el" href="landmark_8h_source.html">landmark.h</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/slam/<a class="el" href="landmark_8cpp_source.html">landmark.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

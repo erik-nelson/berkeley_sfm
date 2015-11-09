@@ -113,8 +113,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a1408c71f2d8c086cac93b34e8141a606"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aceb33966a00fb96269bf9197aac7b2f9"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#aceb33966a00fb96269bf9197aac7b2f9">~FundamentalMatrixRansacModel</a> ()</td></tr>
 <tr class="separator:aceb33966a00fb96269bf9197aac7b2f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5e7a60d1875f4911d5ecd4ec01531a6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#aa5e7a60d1875f4911d5ecd4ec01531a6">FundamentalMatrixRansacModel</a> (const Eigen::Matrix3d &amp;F)</td></tr>
-<tr class="separator:aa5e7a60d1875f4911d5ecd4ec01531a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade74a513a74981e0057cd5c1ef192ea8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#ade74a513a74981e0057cd5c1ef192ea8">FundamentalMatrixRansacModel</a> (const Matrix3d &amp;F)</td></tr>
+<tr class="separator:ade74a513a74981e0057cd5c1ef192ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab78815c56d7946a96c245df797ebdbb4"><td class="memItemLeft" align="right" valign="top">virtual double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#ab78815c56d7946a96c245df797ebdbb4">Error</a> () const </td></tr>
 <tr class="separator:ab78815c56d7946a96c245df797ebdbb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae97316c303cf7c945c329d90e9b55dd4"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#ae97316c303cf7c945c329d90e9b55dd4">IsGoodFit</a> (const <a class="el" href="structbsfm_1_1FeatureMatch.html">FeatureMatch</a> &amp;data_point, double error_tolerance)</td></tr>
@@ -129,14 +129,14 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aac1e8ede1c7886fd9ca381d21c18e586"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix3d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#aac1e8ede1c7886fd9ca381d21c18e586">F_</a></td></tr>
-<tr class="separator:aac1e8ede1c7886fd9ca381d21c18e586"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ea6d5271a415f658fb8ba36139d6de8"><td class="memItemLeft" align="right" valign="top">Matrix3d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a1ea6d5271a415f658fb8ba36139d6de8">F_</a></td></tr>
+<tr class="separator:a1ea6d5271a415f658fb8ba36139d6de8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3febab16167348b6c74396ba143831ed"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">error_</a></td></tr>
 <tr class="separator:a3febab16167348b6c74396ba143831ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html#l00059">59</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a>.</p>
+<p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html#l00062">62</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a1408c71f2d8c086cac93b34e8141a606"></a>
 <div class="memitem">
@@ -152,9 +152,9 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html#l00063">63</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html">fundamental_matrix_ransac_problem.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    : <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#aac1e8ede1c7886fd9ca381d21c18e586">F_</a>(Eigen::Matrix3d::Identity()), <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">error_</a>(0.0) {}</div>
-<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_aac1e8ede1c7886fd9ca381d21c18e586"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#aac1e8ede1c7886fd9ca381d21c18e586">bsfm::FundamentalMatrixRansacModel::F_</a></div><div class="ttdeci">Eigen::Matrix3d F_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00077">fundamental_matrix_ransac_problem.h:77</a></div></div>
-<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a3febab16167348b6c74396ba143831ed"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">bsfm::FundamentalMatrixRansacModel::error_</a></div><div class="ttdeci">double error_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00078">fundamental_matrix_ransac_problem.h:78</a></div></div>
+<div class="fragment"><div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    : <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a1ea6d5271a415f658fb8ba36139d6de8">F_</a>(Matrix3d::Identity()), <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">error_</a>(0.0) {}</div>
+<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a3febab16167348b6c74396ba143831ed"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">bsfm::FundamentalMatrixRansacModel::error_</a></div><div class="ttdeci">double error_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00081">fundamental_matrix_ransac_problem.h:81</a></div></div>
+<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a1ea6d5271a415f658fb8ba36139d6de8"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a1ea6d5271a415f658fb8ba36139d6de8">bsfm::FundamentalMatrixRansacModel::F_</a></div><div class="ttdeci">Matrix3d F_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00080">fundamental_matrix_ransac_problem.h:80</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -184,14 +184,14 @@ Public Attributes</h2></td></tr>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="aa5e7a60d1875f4911d5ecd4ec01531a6"></a>
+<a class="anchor" id="ade74a513a74981e0057cd5c1ef192ea8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">bsfm::FundamentalMatrixRansacModel::FundamentalMatrixRansacModel </td>
           <td>(</td>
-          <td class="paramtype">const Eigen::Matrix3d &amp;&#160;</td>
+          <td class="paramtype">const Matrix3d &amp;&#160;</td>
           <td class="paramname"><em>F</em></td><td>)</td>
           <td></td>
         </tr>
@@ -199,9 +199,9 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html#l00066">66</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html">fundamental_matrix_ransac_problem.cpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    : <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#aac1e8ede1c7886fd9ca381d21c18e586">F_</a>(F), <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">error_</a>(0.0) {}</div>
-<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_aac1e8ede1c7886fd9ca381d21c18e586"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#aac1e8ede1c7886fd9ca381d21c18e586">bsfm::FundamentalMatrixRansacModel::F_</a></div><div class="ttdeci">Eigen::Matrix3d F_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00077">fundamental_matrix_ransac_problem.h:77</a></div></div>
-<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a3febab16167348b6c74396ba143831ed"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">bsfm::FundamentalMatrixRansacModel::error_</a></div><div class="ttdeci">double error_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00078">fundamental_matrix_ransac_problem.h:78</a></div></div>
+<div class="fragment"><div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    : <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a1ea6d5271a415f658fb8ba36139d6de8">F_</a>(F), <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">error_</a>(0.0) {}</div>
+<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a3febab16167348b6c74396ba143831ed"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">bsfm::FundamentalMatrixRansacModel::error_</a></div><div class="ttdeci">double error_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00081">fundamental_matrix_ransac_problem.h:81</a></div></div>
+<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a1ea6d5271a415f658fb8ba36139d6de8"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a1ea6d5271a415f658fb8ba36139d6de8">bsfm::FundamentalMatrixRansacModel::F_</a></div><div class="ttdeci">Matrix3d F_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00080">fundamental_matrix_ransac_problem.h:80</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -233,7 +233,7 @@ Public Attributes</h2></td></tr>
 <div class="fragment"><div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;                                                 {</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">error_</a>;</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;}</div>
-<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a3febab16167348b6c74396ba143831ed"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">bsfm::FundamentalMatrixRansacModel::error_</a></div><div class="ttdeci">double error_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00078">fundamental_matrix_ransac_problem.h:78</a></div></div>
+<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a3febab16167348b6c74396ba143831ed"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">bsfm::FundamentalMatrixRansacModel::error_</a></div><div class="ttdeci">double error_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00081">fundamental_matrix_ransac_problem.h:81</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -254,15 +254,15 @@ Public Attributes</h2></td></tr>
 <p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html#l00091">91</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html">fundamental_matrix_ransac_problem.cpp</a>.</p>
 <div class="fragment"><div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                                     {</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="comment">// Construct vectors for 2D keypoints in match.</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  Eigen::Vector3d kp1, kp2;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  Vector3d kp1, kp2;</div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  kp1 &lt;&lt; match.feature1_.u_, match.feature1_.v_, 1;</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  kp2 &lt;&lt; match.feature2_.u_, match.feature2_.v_, 1;</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="comment">// Compute deviation from the epipolar condition.</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">double</span> epipolar_condition = kp2.transpose() * <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#aac1e8ede1c7886fd9ca381d21c18e586">F_</a> * kp1;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">double</span> epipolar_condition = kp2.transpose() * <a class="code" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a1ea6d5271a415f658fb8ba36139d6de8">F_</a> * kp1;</div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="keywordflow">return</span> epipolar_condition;</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;}</div>
-<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_aac1e8ede1c7886fd9ca381d21c18e586"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#aac1e8ede1c7886fd9ca381d21c18e586">bsfm::FundamentalMatrixRansacModel::F_</a></div><div class="ttdeci">Eigen::Matrix3d F_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00077">fundamental_matrix_ransac_problem.h:77</a></div></div>
+<div class="ttc" id="structbsfm_1_1FundamentalMatrixRansacModel_html_a1ea6d5271a415f658fb8ba36139d6de8"><div class="ttname"><a href="structbsfm_1_1FundamentalMatrixRansacModel.html#a1ea6d5271a415f658fb8ba36139d6de8">bsfm::FundamentalMatrixRansacModel::F_</a></div><div class="ttdeci">Matrix3d F_</div><div class="ttdef"><b>Definition:</b> <a href="fundamental__matrix__ransac__problem_8h_source.html#l00080">fundamental_matrix_ransac_problem.h:80</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -325,27 +325,27 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html#l00078">78</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a>.</p>
+<p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html#l00081">81</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="aac1e8ede1c7886fd9ca381d21c18e586"></a>
+<a class="anchor" id="a1ea6d5271a415f658fb8ba36139d6de8"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Eigen::Matrix3d bsfm::FundamentalMatrixRansacModel::F_</td>
+          <td class="memname">Matrix3d bsfm::FundamentalMatrixRansacModel::F_</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html#l00077">77</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a>.</p>
+<p>Definition at line <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html#l00080">80</a> of file <a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following files:<ul>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/ransac/<a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a></li>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/ransac/<a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html">fundamental_matrix_ransac_problem.cpp</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/ransac/<a class="el" href="fundamental__matrix__ransac__problem_8h_source.html">fundamental_matrix_ransac_problem.h</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/ransac/<a class="el" href="fundamental__matrix__ransac__problem_8cpp_source.html">fundamental_matrix_ransac_problem.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

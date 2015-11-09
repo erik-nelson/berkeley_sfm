@@ -1,9 +1,13 @@
 var searchData=
 [
-  ['matchimagepair',['MatchImagePair',['../classbsfm_1_1FeatureMatcher.html#a90ad23dd92f0f5eb699def6f28a16b24',1,'bsfm::FeatureMatcher::MatchImagePair()'],['../classbsfm_1_1NaiveFeatureMatcher.html#a2d35c67a5007638a072c3a2c28da46bc',1,'bsfm::NaiveFeatureMatcher::MatchImagePair()']]],
-  ['matchimages',['MatchImages',['../classbsfm_1_1FeatureMatcher.html#ae5fdd44b5b2932c074046437e741a3c9',1,'bsfm::FeatureMatcher']]],
-  ['maybenormalizedescriptors',['MaybeNormalizeDescriptors',['../structbsfm_1_1ScaledL2Distance.html#a1bc6d68686085880a71d84ead487b9c7',1,'bsfm::ScaledL2Distance::MaybeNormalizeDescriptors()'],['../structbsfm_1_1HammingDistance.html#a202a2c152aec0e24d6ef96128dc15090',1,'bsfm::HammingDistance::MaybeNormalizeDescriptors()']]],
+  ['match',['Match',['../classbsfm_1_1NaiveMatcher2D3D.html#a51307a109f93b36d72de6b791340d332',1,'bsfm::NaiveMatcher2D3D']]],
+  ['matchimagepair',['MatchImagePair',['../classbsfm_1_1FeatureMatcher.html#aa769f3185534803f5312586326cc487a',1,'bsfm::FeatureMatcher::MatchImagePair()'],['../classbsfm_1_1NaiveMatcher2D2D.html#aa6c0971a2a86566e8ddbe3842cd416cc',1,'bsfm::NaiveMatcher2D2D::MatchImagePair()']]],
+  ['matchimages',['MatchImages',['../classbsfm_1_1FeatureMatcher.html#a6d8609be2383f1305d94407bb8d53d16',1,'bsfm::FeatureMatcher']]],
+  ['matrixtoeulerangles',['MatrixToEulerAngles',['../namespacebsfm.html#a6235ce543a1bbce03853542f5b2eceb8',1,'bsfm']]],
+  ['max',['Max',['../classbsfm_1_1DistanceMetric.html#a3d0647c9c8bc64b16caff3aab05bb095',1,'bsfm::DistanceMetric']]],
+  ['maybenormalizedescriptors',['MaybeNormalizeDescriptors',['../classbsfm_1_1DistanceMetric.html#a018e786d1daf71fd3c24035d39b17535',1,'bsfm::DistanceMetric']]],
   ['model',['Model',['../classbsfm_1_1RansacProblem.html#aa9246eed3b3ceee1dc47260ffa25bc33',1,'bsfm::RansacProblem']]],
+  ['mutablecamera',['MutableCamera',['../classbsfm_1_1View.html#a19b759eab33b4c15dc85e59eb7dd8b79',1,'bsfm::View']]],
   ['mutableextrinsics',['MutableExtrinsics',['../classbsfm_1_1Camera.html#aca869bfc018199b2ca8f16da428d3eee',1,'bsfm::Camera']]],
   ['mutableintrinsics',['MutableIntrinsics',['../classbsfm_1_1Camera.html#aad389df67bd9f12804fcee91bb963eba',1,'bsfm::Camera']]],
   ['mutablex',['MutableX',['../classbsfm_1_1Pose.html#ab7a7014356f13f08f16f29327a64fa28',1,'bsfm::Pose']]],

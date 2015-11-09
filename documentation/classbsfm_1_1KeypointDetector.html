@@ -106,7 +106,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a78e0db9a250341a51cc2eeb6a3c64e2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab281f21766b682ec7b1947af646ff1ac"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1KeypointDetector.html#ab281f21766b682ec7b1947af646ff1ac">SetDetector</a> (const std::string &amp;detector_type)</td></tr>
 <tr class="separator:ab281f21766b682ec7b1947af646ff1ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f6b112e9bedef6ab66ea258b1ae5b3d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1KeypointDetector.html#a3f6b112e9bedef6ab66ea258b1ae5b3d">DetectKeypoints</a> (const <a class="el" href="classbsfm_1_1Image.html">Image</a> &amp;image, <a class="el" href="namespacebsfm.html#a86295c95313310a7b5a433a0524ebc7f">KeypointList</a> &amp;keypoints_out)</td></tr>
+<tr class="memitem:a3f6b112e9bedef6ab66ea258b1ae5b3d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1KeypointDetector.html#a3f6b112e9bedef6ab66ea258b1ae5b3d">DetectKeypoints</a> (const <a class="el" href="classbsfm_1_1Image.html">Image</a> &amp;image, <a class="el" href="namespacebsfm.html#a41e94b31ac2365e8eb70953d4745d8f4">KeypointList</a> &amp;keypoints_out)</td></tr>
 <tr class="separator:a3f6b112e9bedef6ab66ea258b1ae5b3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab43b6ea4074e66ac9bcbbf527b97dd7f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1KeypointDetector.html#ab43b6ea4074e66ac9bcbbf527b97dd7f">SetAdaptiveOn</a> (unsigned int min, unsigned int max, unsigned int iters)</td></tr>
 <tr class="separator:ab43b6ea4074e66ac9bcbbf527b97dd7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,7 +132,7 @@ Private Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00052">52</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
+<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00051">51</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="ae41637d6d7cfff63602614d95a78368f"></a>
 <div class="memitem">
@@ -154,10 +154,10 @@ Private Attributes</h2></td></tr>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;      <a class="code" href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">adaptive_iters_</a>(0) {</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  cv::initModule_nonfree();</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_ac2fd817b33314e416ea30e0f45e5cdec"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">bsfm::KeypointDetector::adaptive_iters_</a></div><div class="ttdeci">unsigned int adaptive_iters_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00087">keypoint_detector.h:87</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a51c04bf81d96ba6055ac88e50584bdff"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a51c04bf81d96ba6055ac88e50584bdff">bsfm::KeypointDetector::adaptive_max_</a></div><div class="ttdeci">unsigned int adaptive_max_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00086">keypoint_detector.h:86</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_afbdabc1b115a5f7bd4f009f4df9d753a"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#afbdabc1b115a5f7bd4f009f4df9d753a">bsfm::KeypointDetector::adaptive_min_</a></div><div class="ttdeci">unsigned int adaptive_min_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00085">keypoint_detector.h:85</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a2fcd5d4855a991caca863963a35cbeb4"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a2fcd5d4855a991caca863963a35cbeb4">bsfm::KeypointDetector::adaptive_</a></div><div class="ttdeci">bool adaptive_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00082">keypoint_detector.h:82</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_ac2fd817b33314e416ea30e0f45e5cdec"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">bsfm::KeypointDetector::adaptive_iters_</a></div><div class="ttdeci">unsigned int adaptive_iters_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00086">keypoint_detector.h:86</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a51c04bf81d96ba6055ac88e50584bdff"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a51c04bf81d96ba6055ac88e50584bdff">bsfm::KeypointDetector::adaptive_max_</a></div><div class="ttdeci">unsigned int adaptive_max_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00085">keypoint_detector.h:85</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_afbdabc1b115a5f7bd4f009f4df9d753a"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#afbdabc1b115a5f7bd4f009f4df9d753a">bsfm::KeypointDetector::adaptive_min_</a></div><div class="ttdeci">unsigned int adaptive_min_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00084">keypoint_detector.h:84</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a2fcd5d4855a991caca863963a35cbeb4"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a2fcd5d4855a991caca863963a35cbeb4">bsfm::KeypointDetector::adaptive_</a></div><div class="ttdeci">bool adaptive_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00081">keypoint_detector.h:81</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -182,8 +182,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00055">55</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;{}</div>
+<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00054">54</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;{}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -201,7 +201,7 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacebsfm.html#a86295c95313310a7b5a433a0524ebc7f">KeypointList</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="namespacebsfm.html#a41e94b31ac2365e8eb70953d4745d8f4">KeypointList</a> &amp;&#160;</td>
           <td class="paramname"><em>keypoints_out</em>&#160;</td>
         </tr>
         <tr>
@@ -241,8 +241,8 @@ Private Attributes</h2></td></tr>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
 <div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;  <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a6d4a5c5747ebb1e447d1985684357c32"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector::detector_</a></div><div class="ttdeci">cv::Ptr&lt; cv::FeatureDetector &gt; detector_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00081">keypoint_detector.h:81</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a6d4a5c5747ebb1e447d1985684357c32"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector::detector_</a></div><div class="ttdeci">cv::Ptr&lt; cv::FeatureDetector &gt; detector_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00079">keypoint_detector.h:79</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -278,14 +278,14 @@ Private Attributes</h2></td></tr>
 <div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <a class="code" href="classbsfm_1_1KeypointDetector.html#ab281f21766b682ec7b1947af646ff1ac">SetDetector</a>(<a class="code" href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">detector_type_</a>);</div>
 <div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;  }</div>
 <div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a6d4a5c5747ebb1e447d1985684357c32"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector::detector_</a></div><div class="ttdeci">cv::Ptr&lt; cv::FeatureDetector &gt; detector_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00081">keypoint_detector.h:81</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_ac2fd817b33314e416ea30e0f45e5cdec"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">bsfm::KeypointDetector::adaptive_iters_</a></div><div class="ttdeci">unsigned int adaptive_iters_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00087">keypoint_detector.h:87</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a51c04bf81d96ba6055ac88e50584bdff"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a51c04bf81d96ba6055ac88e50584bdff">bsfm::KeypointDetector::adaptive_max_</a></div><div class="ttdeci">unsigned int adaptive_max_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00086">keypoint_detector.h:86</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a6d4a5c5747ebb1e447d1985684357c32"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector::detector_</a></div><div class="ttdeci">cv::Ptr&lt; cv::FeatureDetector &gt; detector_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_ac2fd817b33314e416ea30e0f45e5cdec"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">bsfm::KeypointDetector::adaptive_iters_</a></div><div class="ttdeci">unsigned int adaptive_iters_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00086">keypoint_detector.h:86</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a51c04bf81d96ba6055ac88e50584bdff"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a51c04bf81d96ba6055ac88e50584bdff">bsfm::KeypointDetector::adaptive_max_</a></div><div class="ttdeci">unsigned int adaptive_max_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00085">keypoint_detector.h:85</a></div></div>
 <div class="ttc" id="classbsfm_1_1KeypointDetector_html_af723cda57daf3a77ac645478176b65a6"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#af723cda57daf3a77ac645478176b65a6">bsfm::KeypointDetector::SupportsAdaptiveAdjustment</a></div><div class="ttdeci">bool SupportsAdaptiveAdjustment() const </div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8cpp_source.html#l00220">keypoint_detector.cpp:220</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_afbdabc1b115a5f7bd4f009f4df9d753a"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#afbdabc1b115a5f7bd4f009f4df9d753a">bsfm::KeypointDetector::adaptive_min_</a></div><div class="ttdeci">unsigned int adaptive_min_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00085">keypoint_detector.h:85</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a2fcd5d4855a991caca863963a35cbeb4"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a2fcd5d4855a991caca863963a35cbeb4">bsfm::KeypointDetector::adaptive_</a></div><div class="ttdeci">bool adaptive_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00082">keypoint_detector.h:82</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_afbdabc1b115a5f7bd4f009f4df9d753a"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#afbdabc1b115a5f7bd4f009f4df9d753a">bsfm::KeypointDetector::adaptive_min_</a></div><div class="ttdeci">unsigned int adaptive_min_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00084">keypoint_detector.h:84</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a2fcd5d4855a991caca863963a35cbeb4"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a2fcd5d4855a991caca863963a35cbeb4">bsfm::KeypointDetector::adaptive_</a></div><div class="ttdeci">bool adaptive_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00081">keypoint_detector.h:81</a></div></div>
 <div class="ttc" id="classbsfm_1_1KeypointDetector_html_ab281f21766b682ec7b1947af646ff1ac"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ab281f21766b682ec7b1947af646ff1ac">bsfm::KeypointDetector::SetDetector</a></div><div class="ttdeci">bool SetDetector(const std::string &amp;detector_type)</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8cpp_source.html#l00052">keypoint_detector.cpp:52</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00079">keypoint_detector.h:79</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -338,14 +338,14 @@ Private Attributes</h2></td></tr>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <a class="code" href="classbsfm_1_1KeypointDetector.html#ab281f21766b682ec7b1947af646ff1ac">SetDetector</a>(<a class="code" href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">detector_type_</a>);</div>
 <div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;  }</div>
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a6d4a5c5747ebb1e447d1985684357c32"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector::detector_</a></div><div class="ttdeci">cv::Ptr&lt; cv::FeatureDetector &gt; detector_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00081">keypoint_detector.h:81</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_ac2fd817b33314e416ea30e0f45e5cdec"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">bsfm::KeypointDetector::adaptive_iters_</a></div><div class="ttdeci">unsigned int adaptive_iters_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00087">keypoint_detector.h:87</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a51c04bf81d96ba6055ac88e50584bdff"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a51c04bf81d96ba6055ac88e50584bdff">bsfm::KeypointDetector::adaptive_max_</a></div><div class="ttdeci">unsigned int adaptive_max_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00086">keypoint_detector.h:86</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a6d4a5c5747ebb1e447d1985684357c32"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector::detector_</a></div><div class="ttdeci">cv::Ptr&lt; cv::FeatureDetector &gt; detector_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_ac2fd817b33314e416ea30e0f45e5cdec"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">bsfm::KeypointDetector::adaptive_iters_</a></div><div class="ttdeci">unsigned int adaptive_iters_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00086">keypoint_detector.h:86</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a51c04bf81d96ba6055ac88e50584bdff"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a51c04bf81d96ba6055ac88e50584bdff">bsfm::KeypointDetector::adaptive_max_</a></div><div class="ttdeci">unsigned int adaptive_max_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00085">keypoint_detector.h:85</a></div></div>
 <div class="ttc" id="classbsfm_1_1KeypointDetector_html_af723cda57daf3a77ac645478176b65a6"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#af723cda57daf3a77ac645478176b65a6">bsfm::KeypointDetector::SupportsAdaptiveAdjustment</a></div><div class="ttdeci">bool SupportsAdaptiveAdjustment() const </div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8cpp_source.html#l00220">keypoint_detector.cpp:220</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_afbdabc1b115a5f7bd4f009f4df9d753a"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#afbdabc1b115a5f7bd4f009f4df9d753a">bsfm::KeypointDetector::adaptive_min_</a></div><div class="ttdeci">unsigned int adaptive_min_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00085">keypoint_detector.h:85</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a2fcd5d4855a991caca863963a35cbeb4"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a2fcd5d4855a991caca863963a35cbeb4">bsfm::KeypointDetector::adaptive_</a></div><div class="ttdeci">bool adaptive_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00082">keypoint_detector.h:82</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_afbdabc1b115a5f7bd4f009f4df9d753a"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#afbdabc1b115a5f7bd4f009f4df9d753a">bsfm::KeypointDetector::adaptive_min_</a></div><div class="ttdeci">unsigned int adaptive_min_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00084">keypoint_detector.h:84</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a2fcd5d4855a991caca863963a35cbeb4"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a2fcd5d4855a991caca863963a35cbeb4">bsfm::KeypointDetector::adaptive_</a></div><div class="ttdeci">bool adaptive_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00081">keypoint_detector.h:81</a></div></div>
 <div class="ttc" id="classbsfm_1_1KeypointDetector_html_ab281f21766b682ec7b1947af646ff1ac"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ab281f21766b682ec7b1947af646ff1ac">bsfm::KeypointDetector::SetDetector</a></div><div class="ttdeci">bool SetDetector(const std::string &amp;detector_type)</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8cpp_source.html#l00052">keypoint_detector.cpp:52</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00079">keypoint_detector.h:79</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -459,12 +459,12 @@ Private Attributes</h2></td></tr>
 <div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;</div>
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordflow">return</span> valid_detector_type;</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a6d4a5c5747ebb1e447d1985684357c32"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector::detector_</a></div><div class="ttdeci">cv::Ptr&lt; cv::FeatureDetector &gt; detector_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00081">keypoint_detector.h:81</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_ac2fd817b33314e416ea30e0f45e5cdec"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">bsfm::KeypointDetector::adaptive_iters_</a></div><div class="ttdeci">unsigned int adaptive_iters_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00087">keypoint_detector.h:87</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a51c04bf81d96ba6055ac88e50584bdff"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a51c04bf81d96ba6055ac88e50584bdff">bsfm::KeypointDetector::adaptive_max_</a></div><div class="ttdeci">unsigned int adaptive_max_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00086">keypoint_detector.h:86</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_afbdabc1b115a5f7bd4f009f4df9d753a"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#afbdabc1b115a5f7bd4f009f4df9d753a">bsfm::KeypointDetector::adaptive_min_</a></div><div class="ttdeci">unsigned int adaptive_min_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00085">keypoint_detector.h:85</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a2fcd5d4855a991caca863963a35cbeb4"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a2fcd5d4855a991caca863963a35cbeb4">bsfm::KeypointDetector::adaptive_</a></div><div class="ttdeci">bool adaptive_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00082">keypoint_detector.h:82</a></div></div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a6d4a5c5747ebb1e447d1985684357c32"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector::detector_</a></div><div class="ttdeci">cv::Ptr&lt; cv::FeatureDetector &gt; detector_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_ac2fd817b33314e416ea30e0f45e5cdec"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#ac2fd817b33314e416ea30e0f45e5cdec">bsfm::KeypointDetector::adaptive_iters_</a></div><div class="ttdeci">unsigned int adaptive_iters_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00086">keypoint_detector.h:86</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a51c04bf81d96ba6055ac88e50584bdff"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a51c04bf81d96ba6055ac88e50584bdff">bsfm::KeypointDetector::adaptive_max_</a></div><div class="ttdeci">unsigned int adaptive_max_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00085">keypoint_detector.h:85</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_afbdabc1b115a5f7bd4f009f4df9d753a"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#afbdabc1b115a5f7bd4f009f4df9d753a">bsfm::KeypointDetector::adaptive_min_</a></div><div class="ttdeci">unsigned int adaptive_min_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00084">keypoint_detector.h:84</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a2fcd5d4855a991caca863963a35cbeb4"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a2fcd5d4855a991caca863963a35cbeb4">bsfm::KeypointDetector::adaptive_</a></div><div class="ttdeci">bool adaptive_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00081">keypoint_detector.h:81</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00079">keypoint_detector.h:79</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -491,7 +491,7 @@ Private Attributes</h2></td></tr>
 <div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;</div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;  <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;}</div>
-<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00080">keypoint_detector.h:80</a></div></div>
+<div class="ttc" id="classbsfm_1_1KeypointDetector_html_a55bde2adf9f42aa5146efa8baa1243d5"><div class="ttname"><a href="classbsfm_1_1KeypointDetector.html#a55bde2adf9f42aa5146efa8baa1243d5">bsfm::KeypointDetector::detector_type_</a></div><div class="ttdeci">std::string detector_type_</div><div class="ttdef"><b>Definition:</b> <a href="keypoint__detector_8h_source.html#l00079">keypoint_detector.h:79</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -514,7 +514,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00082">82</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
+<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00081">81</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
 
 </div>
 </div>
@@ -536,7 +536,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00087">87</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
+<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00086">86</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
 
 </div>
 </div>
@@ -558,7 +558,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00086">86</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
+<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00085">85</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
 
 </div>
 </div>
@@ -580,7 +580,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00085">85</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
+<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00084">84</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
 
 </div>
 </div>
@@ -602,7 +602,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00081">81</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
+<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00080">80</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
 
 </div>
 </div>
@@ -624,13 +624,13 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00080">80</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
+<p>Definition at line <a class="el" href="keypoint__detector_8h_source.html#l00079">79</a> of file <a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/matching/<a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a></li>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/matching/<a class="el" href="keypoint__detector_8cpp_source.html">keypoint_detector.cpp</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/matching/<a class="el" href="keypoint__detector_8h_source.html">keypoint_detector.h</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/matching/<a class="el" href="keypoint__detector_8cpp_source.html">keypoint_detector.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

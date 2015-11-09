@@ -73,6 +73,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func.html"><span>Functions</span></a></li>
       <li><a href="functions_vars.html"><span>Variables</span></a></li>
       <li><a href="functions_type.html"><span>Typedefs</span></a></li>
+      <li><a href="functions_enum.html"><span>Enumerations</span></a></li>
+      <li><a href="functions_eval.html"><span>Enumerator</span></a></li>
+      <li><a href="functions_rela.html"><span>Related&#160;Functions</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -137,15 +140,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>Camera()
 : <a class="el" href="classbsfm_1_1Camera.html#aec6b23c3b8d87074479b3bc681922b45">bsfm::Camera</a>
+, <a class="el" href="classbsfm_1_1View.html#a984d6a83236fc8989c6cf1e2eb7ebac2">bsfm::View</a>
+</li>
+<li>camera_
+: <a class="el" href="structbsfm_1_1PnPRansacModel.html#a8d9d202b7fec4197f3b725fea753a088">bsfm::PnPRansacModel</a>
+, <a class="el" href="classbsfm_1_1View.html#a9536558db77e054488b30b03837ecc46">bsfm::View</a>
 </li>
 <li>CameraExtrinsics()
-: <a class="el" href="classbsfm_1_1CameraExtrinsics.html#a1bb3eef6917c536f5329ddc88a5b397c">bsfm::CameraExtrinsics</a>
+: <a class="el" href="classbsfm_1_1CameraExtrinsics.html#a0bd3c6fd4013f0545dc7f4b9c0ad0752">bsfm::CameraExtrinsics</a>
 </li>
 <li>CameraIntrinsics()
 : <a class="el" href="classbsfm_1_1CameraIntrinsics.html#ad65c845e0b4b8059d2ab48e7fd7cd724">bsfm::CameraIntrinsics</a>
-</li>
-<li>CameraToBody()
-: <a class="el" href="classbsfm_1_1CameraExtrinsics.html#a80928c6b6b73b62ceaf796c5cfd89728">bsfm::CameraExtrinsics</a>
 </li>
 <li>CameraToImage()
 : <a class="el" href="classbsfm_1_1Camera.html#ac65632b82edd7a9aaa6e9a5522bf47e7">bsfm::Camera</a>
@@ -159,7 +164,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classbsfm_1_1Image.html#adbfbbf7fdf238dedf47b6d7857e2d712">bsfm::Image</a>
 </li>
 <li>ClearObservations()
-: <a class="el" href="classbsfm_1_1Landmark.html#a7ff8abcd34805bce59f918be0ad54dfb">bsfm::Landmark&lt; Descriptor &gt;</a>
+: <a class="el" href="classbsfm_1_1Landmark.html#adf7a7c42fa6dc398cd5fa37112f6cfdb">bsfm::Landmark</a>
+</li>
+<li>Clock
+: <a class="el" href="classbsfm_1_1util_1_1Timer.html#a064d6e5e80de93b6985afe3c96da10b1">bsfm::util::Timer</a>
 </li>
 <li>Cols()
 : <a class="el" href="classbsfm_1_1Image.html#aeb3ebd53ab5e0ebda8bcb4e2122c2086">bsfm::Image</a>
@@ -168,33 +176,44 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classbsfm_1_1Pose.html#a817f2c747d99e61129992228f824efd0">bsfm::Pose</a>
 </li>
 <li>ComputeEssentialMatrix()
-: <a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#abd86cdd599ec849864a613724919e6a4">bsfm::EssentialMatrixSolver</a>
+: <a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#a6580eb60760ad7c71f163aee7b141be5">bsfm::EssentialMatrixSolver</a>
 </li>
 <li>ComputeExtrinsics()
-: <a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#a04d1d768bbbd4420e7604e05f50ac72d">bsfm::EssentialMatrixSolver</a>
+: <a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#ae8a85395671ae1fd50b5e98827c98855">bsfm::EssentialMatrixSolver</a>
 </li>
 <li>ComputeFundamentalMatrices()
-: <a class="el" href="classbsfm_1_1FundamentalMatrixSolver.html#af6ac8533392528a422f849e1097414e0">bsfm::FundamentalMatrixSolver</a>
+: <a class="el" href="classbsfm_1_1FundamentalMatrixSolver.html#a415ef4301960225cc5d27ebacede3533">bsfm::FundamentalMatrixSolver</a>
 </li>
 <li>ComputeFundamentalMatrix()
-: <a class="el" href="classbsfm_1_1EightPointAlgorithmSolver.html#a64be07c67e544a803a1f5fac143af0bf">bsfm::EightPointAlgorithmSolver</a>
-, <a class="el" href="classbsfm_1_1FundamentalMatrixSolver.html#af86a146ef80c538f914fd66581a619cc">bsfm::FundamentalMatrixSolver</a>
+: <a class="el" href="classbsfm_1_1EightPointAlgorithmSolver.html#ac83e9871c7f596248ff178bf4eb8177e">bsfm::EightPointAlgorithmSolver</a>
+, <a class="el" href="classbsfm_1_1FundamentalMatrixSolver.html#a0b4754449281ba0427644a655163c2d0">bsfm::FundamentalMatrixSolver</a>
 </li>
-<li>ComputeNormalization()
-: <a class="el" href="classbsfm_1_1EightPointAlgorithmSolver.html#a83fd85b2d20b4e1fd1069418913dae49">bsfm::EightPointAlgorithmSolver</a>
+<li>ComputeInitialSolution()
+: <a class="el" href="classbsfm_1_1PoseEstimator2D3D.html#a44ccffd8dbdd711b544ab995cceb0ee4">bsfm::PoseEstimator2D3D</a>
+</li>
+<li>ComputeOneWayMatches()
+: <a class="el" href="classbsfm_1_1NaiveMatcher2D3D.html#aa6ee1d8e99ceeb8cbb7ac161da3c6b6c">bsfm::NaiveMatcher2D3D</a>
 </li>
 <li>ComputePutativeMatches()
-: <a class="el" href="classbsfm_1_1NaiveFeatureMatcher.html#a41af83b8c5af4e8ca3539dcbd6620993">bsfm::NaiveFeatureMatcher&lt; DistanceMetric &gt;</a>
+: <a class="el" href="classbsfm_1_1NaiveMatcher2D2D.html#a26633fbcc88d5e84f82c52d1914ca9d9">bsfm::NaiveMatcher2D2D</a>
+</li>
+<li>ComputeSymmetricMatches()
+: <a class="el" href="classbsfm_1_1NaiveMatcher2D3D.html#a0ffca822546c420bf588f688a5b9540c">bsfm::NaiveMatcher2D3D</a>
 </li>
 <li>ConstPtr
 : <a class="el" href="classbsfm_1_1Covariance3D.html#abbb78c4a20463a7ca21a941d6aced60f">bsfm::Covariance3D</a>
 , <a class="el" href="structbsfm_1_1Feature.html#a9e26b4d92937189b7905fe6d5890586b">bsfm::Feature</a>
 , <a class="el" href="structbsfm_1_1FeatureMatch.html#a2277b16cea7ddf745fdb15b491391c5d">bsfm::FeatureMatch</a>
 , <a class="el" href="classbsfm_1_1Image.html#a0cc0f347a13bf5df7f3d371fe8cb14ec">bsfm::Image</a>
+, <a class="el" href="classbsfm_1_1Landmark.html#a977f030668aba16a2638addc1b83ef4f">bsfm::Landmark</a>
 , <a class="el" href="structbsfm_1_1LightFeatureMatch.html#a5cda65a06fccff758ccc2e6d52c2ab4b">bsfm::LightFeatureMatch</a>
-, <a class="el" href="structbsfm_1_1Observation.html#af1c4dcb82e6dc3d4bfbc149b7687ad30">bsfm::Observation</a>
+, <a class="el" href="classbsfm_1_1Observation.html#af1c4dcb82e6dc3d4bfbc149b7687ad30">bsfm::Observation</a>
 , <a class="el" href="structbsfm_1_1PairwiseImageMatch.html#a0da3a1f1376f048ca6cc3a9715ed9e20">bsfm::PairwiseImageMatch</a>
 , <a class="el" href="classbsfm_1_1Point3D.html#ae5dbaedb83925424d37c96efe85455db">bsfm::Point3D</a>
+, <a class="el" href="classbsfm_1_1View.html#a780acdd153151f12fef638e198ba2e0e">bsfm::View</a>
+</li>
+<li>ConvertOptionsToCeresOptions()
+: <a class="el" href="classbsfm_1_1BundleAdjuster.html#a433edaa31de4f3a871d7c8f3d088186a">bsfm::BundleAdjuster</a>
 </li>
 <li>ConvertToGrayscale()
 : <a class="el" href="classbsfm_1_1Image.html#a3fff3156074d3a16e9989a80d917fb37">bsfm::Image</a>
@@ -202,17 +221,21 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>ConvertToRGB()
 : <a class="el" href="classbsfm_1_1Image.html#ac7c9477627770c79b86c50e15b055491">bsfm::Image</a>
 </li>
-<li>Covariance()
-: <a class="el" href="classbsfm_1_1Landmark.html#a972e78e4174513a7bfcb567031a8b8b1">bsfm::Landmark&lt; Descriptor &gt;</a>
-</li>
 <li>Covariance3D()
-: <a class="el" href="classbsfm_1_1Covariance3D.html#a76212fd4ef565604e350a317326d2059">bsfm::Covariance3D</a>
+: <a class="el" href="classbsfm_1_1Covariance3D.html#a7caa0084513c39502bcdc5340fca0f4c">bsfm::Covariance3D</a>
 </li>
-<li>covariance_
-: <a class="el" href="classbsfm_1_1Landmark.html#a5d1fbf6059f0dba458cc5d932efa2e49">bsfm::Landmark&lt; Descriptor &gt;</a>
+<li>Create()
+: <a class="el" href="structbsfm_1_1BundleAdjustmentError.html#a35018820d2b1c7aa71e2ea4ee29214d1">bsfm::BundleAdjustmentError</a>
+, <a class="el" href="structbsfm_1_1GeometricError.html#aba502c3df7bd234f9fff161fc3f6e1ed">bsfm::GeometricError</a>
+, <a class="el" href="classbsfm_1_1Landmark.html#a20ee5612fc3cd569c6b07ee97717dc7d">bsfm::Landmark</a>
+, <a class="el" href="classbsfm_1_1Observation.html#abcfe592e7979c99ba450b711854e0b66">bsfm::Observation</a>
+, <a class="el" href="classbsfm_1_1View.html#aadf81271bf1591cf1c041b4a8ef4a11e">bsfm::View</a>
 </li>
-<li>Cross()
-: <a class="el" href="classbsfm_1_1Point3D.html#a6c68a15f200cc4e9b7e1386c78f36d76">bsfm::Point3D</a>
+<li>current_landmark_index_
+: <a class="el" href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">bsfm::Landmark</a>
+</li>
+<li>current_view_index_
+: <a class="el" href="classbsfm_1_1View.html#ac8af1f132bc4e33438fd8f3127b1b757">bsfm::View</a>
 </li>
 </ul>
 </div><!-- contents -->

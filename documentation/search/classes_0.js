@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['camera',['Camera',['../classbsfm_1_1Camera.html',1,'bsfm']]],
-  ['cameraextrinsics',['CameraExtrinsics',['../classbsfm_1_1CameraExtrinsics.html',1,'bsfm']]],
-  ['cameraintrinsics',['CameraIntrinsics',['../classbsfm_1_1CameraIntrinsics.html',1,'bsfm']]],
-  ['covariance3d',['Covariance3D',['../classbsfm_1_1Covariance3D.html',1,'bsfm']]]
+  ['bundleadjuster',['BundleAdjuster',['../classbsfm_1_1BundleAdjuster.html',1,'bsfm']]],
+  ['bundleadjustmenterror',['BundleAdjustmentError',['../structbsfm_1_1BundleAdjustmentError.html',1,'bsfm']]],
+  ['bundleadjustmentoptions',['BundleAdjustmentOptions',['../structbsfm_1_1BundleAdjustmentOptions.html',1,'bsfm']]]
 ];

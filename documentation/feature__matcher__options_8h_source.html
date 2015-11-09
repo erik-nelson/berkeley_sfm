@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.10"/>
-<title>Berkeley SfM: /Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/matching/feature_matcher_options.h Source File</title>
+<title>Berkeley SfM: /Users/eanelson/Git/berkeley_sfm/src/cpp/matching/feature_matcher_options.h Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -162,17 +162,29 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="comment">// keep. Otherwise this option will not do anything.</span></div>
 <div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="structbsfm_1_1FeatureMatcherOptions.html#a71f9beb03aaa935264423eacd5fe7119">   72</a></span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> <a class="code" href="structbsfm_1_1FeatureMatcherOptions.html#a71f9beb03aaa935264423eacd5fe7119">num_best_matches</a> = 100;</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;};  <span class="comment">//\struct FeatureMatcherOptions</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;}  <span class="comment">//\namespace bsfm</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <span class="comment">// Decide whether or not to enforce a maximum distance between descriptors.</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="comment">// This is not usually necessary, as the lowes ratio test is generally</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="comment">// sufficient.</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno"><a class="line" href="structbsfm_1_1FeatureMatcherOptions.html#a34d8cac32f04110b5f3af4347d58cd1f">   77</a></span>&#160;  <span class="keywordtype">bool</span> <a class="code" href="structbsfm_1_1FeatureMatcherOptions.html#a34d8cac32f04110b5f3af4347d58cd1f">enforce_maximum_descriptor_distance</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="comment">// The maximum tolerable distance between two descriptors to classify them as</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="comment">// a match. This value will only be used if</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="comment">// &#39;enforce_maximum_descriptor_distance&#39; is true.</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno"><a class="line" href="structbsfm_1_1FeatureMatcherOptions.html#adb3720020e11be74a87ecc13dc781cd8">   82</a></span>&#160;  <span class="keywordtype">double</span> <a class="code" href="structbsfm_1_1FeatureMatcherOptions.html#adb3720020e11be74a87ecc13dc781cd8">maximum_descriptor_distance</a> = 1.0;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;};  <span class="comment">//\struct FeatureMatcherOptions</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;}  <span class="comment">//\namespace bsfm</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html_a2f1b38e8587dffda9f575a2ad04d4f83"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html#a2f1b38e8587dffda9f575a2ad04d4f83">bsfm::FeatureMatcherOptions::lowes_ratio</a></div><div class="ttdeci">double lowes_ratio</div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00058">feature_matcher_options.h:58</a></div></div>
+<div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html_a34d8cac32f04110b5f3af4347d58cd1f"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html#a34d8cac32f04110b5f3af4347d58cd1f">bsfm::FeatureMatcherOptions::enforce_maximum_descriptor_distance</a></div><div class="ttdeci">bool enforce_maximum_descriptor_distance</div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00077">feature_matcher_options.h:77</a></div></div>
 <div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html">bsfm::FeatureMatcherOptions</a></div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00049">feature_matcher_options.h:49</a></div></div>
 <div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html_a71f9beb03aaa935264423eacd5fe7119"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html#a71f9beb03aaa935264423eacd5fe7119">bsfm::FeatureMatcherOptions::num_best_matches</a></div><div class="ttdeci">unsigned int num_best_matches</div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00072">feature_matcher_options.h:72</a></div></div>
 <div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html_a150c5a4585d255fe196ec9e711c13b92"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html#a150c5a4585d255fe196ec9e711c13b92">bsfm::FeatureMatcherOptions::use_lowes_ratio</a></div><div class="ttdeci">bool use_lowes_ratio</div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00057">feature_matcher_options.h:57</a></div></div>
 <div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html_a01e51e92c30077c2d5b11db6fd43e2c1"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html#a01e51e92c30077c2d5b11db6fd43e2c1">bsfm::FeatureMatcherOptions::min_num_feature_matches</a></div><div class="ttdeci">unsigned int min_num_feature_matches</div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00062">feature_matcher_options.h:62</a></div></div>
-<div class="ttc" id="namespacebsfm_html"><div class="ttname"><a href="namespacebsfm.html">bsfm</a></div><div class="ttdef"><b>Definition:</b> <a href="camera_8cpp_source.html#l00048">camera.cpp:48</a></div></div>
+<div class="ttc" id="namespacebsfm_html"><div class="ttname"><a href="namespacebsfm.html">bsfm</a></div><div class="ttdef"><b>Definition:</b> <a href="camera_8cpp_source.html#l00050">camera.cpp:50</a></div></div>
+<div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html_adb3720020e11be74a87ecc13dc781cd8"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html#adb3720020e11be74a87ecc13dc781cd8">bsfm::FeatureMatcherOptions::maximum_descriptor_distance</a></div><div class="ttdeci">double maximum_descriptor_distance</div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00082">feature_matcher_options.h:82</a></div></div>
 <div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html_a5d45381de976480f91dc860ee0498a4d"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html#a5d45381de976480f91dc860ee0498a4d">bsfm::FeatureMatcherOptions::only_keep_best_matches</a></div><div class="ttdeci">bool only_keep_best_matches</div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00068">feature_matcher_options.h:68</a></div></div>
 <div class="ttc" id="structbsfm_1_1FeatureMatcherOptions_html_a53f890e065b2359527e0ec2af96ac90a"><div class="ttname"><a href="structbsfm_1_1FeatureMatcherOptions.html#a53f890e065b2359527e0ec2af96ac90a">bsfm::FeatureMatcherOptions::require_symmetric_matches</a></div><div class="ttdeci">bool require_symmetric_matches</div><div class="ttdef"><b>Definition:</b> <a href="feature__matcher__options_8h_source.html#l00065">feature_matcher_options.h:65</a></div></div>
 </div><!-- fragment --></div><!-- contents -->

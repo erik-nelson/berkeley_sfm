@@ -103,14 +103,14 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aff2fbfdd212606c4526b9af20595ee74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b9c9935297486b6b445584e26d9b413"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#a9b9c9935297486b6b445584e26d9b413">~EssentialMatrixSolver</a> ()</td></tr>
 <tr class="separator:a9b9c9935297486b6b445584e26d9b413"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd86cdd599ec849864a613724919e6a4"><td class="memItemLeft" align="right" valign="top">Eigen::Matrix3d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#abd86cdd599ec849864a613724919e6a4">ComputeEssentialMatrix</a> (Eigen::Matrix3d F, <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> K1, <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> K2)</td></tr>
-<tr class="separator:abd86cdd599ec849864a613724919e6a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04d1d768bbbd4420e7604e05f50ac72d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#a04d1d768bbbd4420e7604e05f50ac72d">ComputeExtrinsics</a> (<a class="el" href="classbsfm_1_1CameraExtrinsics.html">CameraExtrinsics</a> &amp;extrinsics, Eigen::Matrix3d E, <a class="el" href="namespacebsfm.html#a120ba410191f9c6f3ad1fa7faf1811d6">PairwiseImageMatchList</a> matches)</td></tr>
-<tr class="separator:a04d1d768bbbd4420e7604e05f50ac72d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6580eb60760ad7c71f163aee7b141be5"><td class="memItemLeft" align="right" valign="top">Matrix3d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#a6580eb60760ad7c71f163aee7b141be5">ComputeEssentialMatrix</a> (const Matrix3d &amp;F, const <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> &amp;intrinsics1, const <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> &amp;intrinsics2)</td></tr>
+<tr class="separator:a6580eb60760ad7c71f163aee7b141be5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8a85395671ae1fd50b5e98827c98855"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsfm_1_1EssentialMatrixSolver.html#ae8a85395671ae1fd50b5e98827c98855">ComputeExtrinsics</a> (const Matrix3d &amp;E, const <a class="el" href="namespacebsfm.html#a18de207d2c4e71753bcd18f32aaf2d4a">FeatureMatchList</a> &amp;matches, const <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> &amp;intrinsics1, const <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> &amp;intrinsics2, <a class="el" href="classbsfm_1_1Pose.html">Pose</a> &amp;relative_pose)</td></tr>
+<tr class="separator:ae8a85395671ae1fd50b5e98827c98855"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="essential__matrix__solver_8h_source.html#l00058">58</a> of file <a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a>.</p>
+<p>Definition at line <a class="el" href="essential__matrix__solver_8h_source.html#l00062">62</a> of file <a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="aff2fbfdd212606c4526b9af20595ee74"></a>
 <div class="memitem">
@@ -133,8 +133,8 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="essential__matrix__solver_8h_source.html#l00061">61</a> of file <a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;{}</div>
+<p>Definition at line <a class="el" href="essential__matrix__solver_8h_source.html#l00066">66</a> of file <a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;{}</div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -159,33 +159,33 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="essential__matrix__solver_8h_source.html#l00062">62</a> of file <a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;{}</div>
+<p>Definition at line <a class="el" href="essential__matrix__solver_8h_source.html#l00067">67</a> of file <a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a>.</p>
+<div class="fragment"><div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;{}</div>
 </div><!-- fragment -->
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="abd86cdd599ec849864a613724919e6a4"></a>
+<a class="anchor" id="a6580eb60760ad7c71f163aee7b141be5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Eigen::Matrix3d bsfm::EssentialMatrixSolver::ComputeEssentialMatrix </td>
+          <td class="memname">Matrix3d bsfm::EssentialMatrixSolver::ComputeEssentialMatrix </td>
           <td>(</td>
-          <td class="paramtype">Eigen::Matrix3d&#160;</td>
+          <td class="paramtype">const Matrix3d &amp;&#160;</td>
           <td class="paramname"><em>F</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a>&#160;</td>
-          <td class="paramname"><em>K1</em>, </td>
+          <td class="paramtype">const <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> &amp;&#160;</td>
+          <td class="paramname"><em>intrinsics1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a>&#160;</td>
-          <td class="paramname"><em>K2</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> &amp;&#160;</td>
+          <td class="paramname"><em>intrinsics2</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -195,41 +195,51 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="essential__matrix__solver_8h_source.html#l00083">83</a> of file <a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                                                         {</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="comment">// Extract intrinsics matrices.</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  Eigen::Matrix3d K1, K2;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  K1 = cam1.IntrinsicsMatrix();</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  K2 = cam2.IntrinsicsMatrix();</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="comment">// Calculate the essential matrix.</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  Eigen::Matrix3d E = K2.transpose() * F * K1;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="keywordflow">return</span> E;</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;}</div>
+<p>Definition at line <a class="el" href="essential__matrix__solver_8cpp_source.html#l00066">66</a> of file <a class="el" href="essential__matrix__solver_8cpp_source.html">essential_matrix_solver.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;                                         {</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <span class="comment">// Extract intrinsics matrices.</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  Matrix3d K1(intrinsics1.K());</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  Matrix3d K2(intrinsics2.K());</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="comment">// Calculate the essential matrix.</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <span class="keywordflow">return</span> K2.transpose() * F * K1;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;}</div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="a04d1d768bbbd4420e7604e05f50ac72d"></a>
+<a class="anchor" id="ae8a85395671ae1fd50b5e98827c98855"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">bool bsfm::EssentialMatrixSolver::ComputeExtrinsics </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classbsfm_1_1CameraExtrinsics.html">CameraExtrinsics</a> &amp;&#160;</td>
-          <td class="paramname"><em>extrinsics</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Eigen::Matrix3d&#160;</td>
+          <td class="paramtype">const Matrix3d &amp;&#160;</td>
           <td class="paramname"><em>E</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacebsfm.html#a120ba410191f9c6f3ad1fa7faf1811d6">PairwiseImageMatchList</a>&#160;</td>
-          <td class="paramname"><em>matches</em>&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespacebsfm.html#a18de207d2c4e71753bcd18f32aaf2d4a">FeatureMatchList</a> &amp;&#160;</td>
+          <td class="paramname"><em>matches</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> &amp;&#160;</td>
+          <td class="paramname"><em>intrinsics1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbsfm_1_1CameraIntrinsics.html">CameraIntrinsics</a> &amp;&#160;</td>
+          <td class="paramname"><em>intrinsics2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbsfm_1_1Pose.html">Pose</a> &amp;&#160;</td>
+          <td class="paramname"><em>relative_pose</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -239,32 +249,116 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="essential__matrix__solver_8h_source.html#l00098">98</a> of file <a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a>.</p>
-<div class="fragment"><div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                                                          {</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="comment">// Initialize the W matrix.</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  Eigen::Matrix3d W;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  W &lt;&lt;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    0.0, -1.0, 0.0,</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    1.0, 0.0, 0.0,</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    0.0, 0.0, 1.0;</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="comment">// Perform an SVD on the essential matrix.</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  Eigen::JacobiSVD&lt;Eigen::Matrix3d&gt; svd;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  svd.compute(E, Eigen::ComputeFullU | Eigen::ComputeFullV);</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <span class="keywordflow">if</span> (!svd.computeV()) {</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    VLOG(1) &lt;&lt; <span class="stringliteral">&quot;Failed to compute a singular value decomposition of the essential matrix.&quot;</span>;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  }</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="comment">// TODO: finish this!! Refer to SimpleSFM/BasicFunctions.E2Rt().</span></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;}</div>
+<p>Definition at line <a class="el" href="essential__matrix__solver_8cpp_source.html#l00081">81</a> of file <a class="el" href="essential__matrix__solver_8cpp_source.html">essential_matrix_solver.cpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                         {</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="comment">// Initialize the W matrix.</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  Matrix3d W;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  W &lt;&lt; 0.0, -1.0, 0.0,</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;       1.0,  0.0, 0.0,</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;       0.0,  0.0, 1.0;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="comment">// Perform an SVD on the essential matrix.</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  Eigen::JacobiSVD&lt;Matrix3d&gt; svd;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  svd.compute(E, Eigen::ComputeFullU | Eigen::ComputeFullV);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <span class="keywordflow">if</span> (!svd.computeU() || !svd.computeV()) {</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    VLOG(1) &lt;&lt; <span class="stringliteral">&quot;Failed to compute a singular value decomposition of &quot;</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;            &lt;&lt; <span class="stringliteral">&quot;the essential matrix.&quot;</span>;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  }</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="comment">// The essential matrix must satisfy E = U * diag(1, 1, 0) * V^T. Use U and V</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="comment">// to get a new E, run another SVD, and get the normalized U and V.</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  Matrix3d sigma(Matrix3d::Identity());</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  sigma(2, 2) = 0;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  Matrix3d E_augmented = svd.matrixU() * sigma * svd.matrixV().transpose();</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  svd.compute(E_augmented, Eigen::ComputeFullU | Eigen::ComputeFullV);</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="keywordflow">if</span> (!svd.computeU() || !svd.computeV()) {</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    VLOG(1) &lt;&lt; <span class="stringliteral">&quot;Failed to compute a singular value decomposition of &quot;</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            &lt;&lt; <span class="stringliteral">&quot;the essential matrix.&quot;</span>;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  }</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="comment">// Compute two possibilities for rotation.</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  Matrix3d R1 = svd.matrixU() * W * svd.matrixV().transpose();</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  Matrix3d R2 = svd.matrixU() * W.transpose() * svd.matrixV().transpose();</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="comment">// Ensure positive determinants.</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="keywordflow">if</span> (R1.determinant() &lt; 0)</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    R1 = -R1;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="keywordflow">if</span> (R2.determinant() &lt; 0)</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    R2 = -R2;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  <span class="comment">// Compute two possibilities for translation</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  Vector3d t1, t2;</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  t1 = svd.matrixU().col(2);</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  t2 = -t1;</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  <span class="comment">// Build four possible Poses.</span></div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  std::vector&lt;Pose&gt; poses;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  poses.push_back(Pose(R1, t1));</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  poses.push_back(Pose(R1, t2));</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  poses.push_back(Pose(R2, t1));</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  poses.push_back(Pose(R2, t2));</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="comment">// Set the first camera&#39;s position to identity in rotation and translation.</span></div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  CameraExtrinsics extrinsics1;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  extrinsics1.SetWorldToCamera(Pose());</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  Camera camera1;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;  camera1.SetExtrinsics(extrinsics1);</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  camera1.SetIntrinsics(intrinsics1);</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  <span class="comment">// Test how many points are in front of each pose and the identity pose.</span></div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  Pose best_pose;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">int</span> best_num_points = -1;</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keywordtype">double</span> u = 0.0, v = 0.0;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> ii = 0; ii &lt; poses.size(); ii++) {</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordtype">int</span> num_points = 0;</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    CameraExtrinsics extrinsics2;</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    extrinsics2.SetWorldToCamera(poses[ii]);</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    Camera camera2;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    camera2.SetExtrinsics(extrinsics2);</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    camera2.SetIntrinsics(intrinsics2);</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> jj = 0; jj &lt; matches.size(); jj++) {</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;      <span class="comment">// Triangulate points and test if the 3D estimate is in front of both</span></div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;      <span class="comment">// cameras.</span></div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;      Point3D point;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;      <span class="keywordflow">if</span> (!<a class="code" href="namespacebsfm.html#a6aa7298f9043609851456ded3ae4a312">Triangulate</a>(matches[jj], camera1, camera2, point)) {</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;        <span class="keywordflow">continue</span>;</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;      }</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;      num_points++;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    }</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="comment">// Update best_cnt and best_pose.</span></div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keywordflow">if</span> (num_points &gt; best_num_points) {</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;      best_num_points = num_points;</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;      best_pose = poses[ii];</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    }</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;  }</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;  <span class="comment">// Return with false if not enough points found in front of the cameras.</span></div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  <span class="keywordflow">if</span> (best_num_points &lt; FLAGS_min_points_visible_ratio * matches.size()) {</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    VLOG(1) &lt;&lt; <span class="stringliteral">&quot;Did not find enough points in front of both cameras.&quot;</span>;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;  }</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;  relative_pose = best_pose;</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;  <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;}</div>
+<div class="ttc" id="namespacebsfm_html_a6aa7298f9043609851456ded3ae4a312"><div class="ttname"><a href="namespacebsfm.html#a6aa7298f9043609851456ded3ae4a312">bsfm::Triangulate</a></div><div class="ttdeci">bool Triangulate(const FeatureList &amp;features, const std::vector&lt; Camera &gt; &amp;cameras, Point3D &amp;point)</div><div class="ttdef"><b>Definition:</b> <a href="triangulation_8cpp_source.html#l00052">triangulation.cpp:52</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
-<li>/Users/eanelson/Desktop/test/berkeley_sfm/src/cpp/geometry/<a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a></li>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/geometry/<a class="el" href="essential__matrix__solver_8h_source.html">essential_matrix_solver.h</a></li>
+<li>/Users/eanelson/Git/berkeley_sfm/src/cpp/geometry/<a class="el" href="essential__matrix__solver_8cpp_source.html">essential_matrix_solver.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

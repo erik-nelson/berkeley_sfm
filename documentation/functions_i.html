@@ -73,6 +73,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func.html"><span>Functions</span></a></li>
       <li><a href="functions_vars.html"><span>Variables</span></a></li>
       <li><a href="functions_type.html"><span>Typedefs</span></a></li>
+      <li><a href="functions_enum.html"><span>Enumerations</span></a></li>
+      <li><a href="functions_eval.html"><span>Enumerator</span></a></li>
+      <li><a href="functions_rela.html"><span>Related&#160;Functions</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -129,20 +132,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>Image()
 : <a class="el" href="classbsfm_1_1Image.html#ade63a623ff6413b99859bacc4141b736">bsfm::Image</a>
 </li>
-<li>image1_index_
-: <a class="el" href="structbsfm_1_1PairwiseImageMatch.html#acf7fe860957d5804ae09387bad1f4f38">bsfm::PairwiseImageMatch</a>
-</li>
-<li>image2_index_
-: <a class="el" href="structbsfm_1_1PairwiseImageMatch.html#ae6d723f4be8d6bf1132218fa4424e1f0">bsfm::PairwiseImageMatch</a>
-</li>
 <li>image_
 : <a class="el" href="classbsfm_1_1Image.html#ad7747e13db4396a51e8307eb47b212e7">bsfm::Image</a>
 </li>
 <li>image_descriptors_
-: <a class="el" href="classbsfm_1_1FeatureMatcher.html#a96c762f29d114715665ca3b7bb7d8ee6">bsfm::FeatureMatcher&lt; DistanceMetric &gt;</a>
+: <a class="el" href="classbsfm_1_1FeatureMatcher.html#adc85ae4b6c3c17fe92e4a7f1696a5563">bsfm::FeatureMatcher</a>
 </li>
 <li>image_features_
-: <a class="el" href="classbsfm_1_1FeatureMatcher.html#ae767cda3d1ce32ea54755d304d5101d6">bsfm::FeatureMatcher&lt; DistanceMetric &gt;</a>
+: <a class="el" href="classbsfm_1_1FeatureMatcher.html#af398673f4ba782f421f174ceb171bc48">bsfm::FeatureMatcher</a>
 </li>
 <li>image_height_
 : <a class="el" href="classbsfm_1_1CameraIntrinsics.html#ab1d3b4b5e4e7a7b3368f634170865478">bsfm::CameraIntrinsics</a>
@@ -176,13 +173,26 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classbsfm_1_1Image.html#abf0a7f9297d3dd7cb739b392243aa368">bsfm::Image</a>
 </li>
 <li>IncorporateObservation()
-: <a class="el" href="classbsfm_1_1Landmark.html#abd4117be2a66ba440f97e319feff7184">bsfm::Landmark&lt; Descriptor &gt;</a>
+: <a class="el" href="classbsfm_1_1Landmark.html#a834a80812136d8edf2cce8351a17bb94">bsfm::Landmark</a>
+</li>
+<li>Index()
+: <a class="el" href="classbsfm_1_1Landmark.html#aee65b730570f8ad046b6b9888a058724">bsfm::Landmark</a>
+, <a class="el" href="classbsfm_1_1View.html#a75eb7bdc67f4b83179b63e3a5681126b">bsfm::View</a>
+</li>
+<li>index_
+: <a class="el" href="classbsfm_1_1FlannDescriptorKDTree.html#aa6dbc8d028fc8892c59844f960c90ac0">bsfm::FlannDescriptorKDTree</a>
+</li>
+<li>Initialize()
+: <a class="el" href="classbsfm_1_1PoseEstimator2D3D.html#a73c00c27d4d07d4ae13d8eedc1e0558d">bsfm::PoseEstimator2D3D</a>
 </li>
 <li>Inliers()
 : <a class="el" href="classbsfm_1_1RansacProblem.html#a4a70f4831fa12b144e82c1a5340c21f5">bsfm::RansacProblem&lt; DataType, ModelType &gt;</a>
 </li>
 <li>inliers_
 : <a class="el" href="classbsfm_1_1RansacProblem.html#a84edb4fc9264348a6cdab8db31b8815d">bsfm::RansacProblem&lt; DataType, ModelType &gt;</a>
+</li>
+<li>Instance()
+: <a class="el" href="classbsfm_1_1DistanceMetric.html#a8344cbe912f8c373c135e8ec52f06321">bsfm::DistanceMetric</a>
 </li>
 <li>Integer()
 : <a class="el" href="classbsfm_1_1math_1_1RandomGenerator.html#a5bef3ef4b5a6ce586023bff91622c3b5">bsfm::math::RandomGenerator</a>
@@ -194,22 +204,24 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="classbsfm_1_1math_1_1RandomGenerator.html#a319e0d00944f1a0ed227516a8a226380">bsfm::math::RandomGenerator</a>
 </li>
 <li>IntegerUniform()
-: <a class="el" href="classbsfm_1_1math_1_1RandomGenerator.html#a0d93e6cec63d17e1f93eda6c508d5f14">bsfm::math::RandomGenerator</a>
+: <a class="el" href="classbsfm_1_1math_1_1RandomGenerator.html#a94e4818622f213f0310cacd95c5bc34a">bsfm::math::RandomGenerator</a>
 </li>
 <li>Intrinsics()
 : <a class="el" href="classbsfm_1_1Camera.html#a4d87377337256547d8619a949dfce06e">bsfm::Camera</a>
 </li>
 <li>intrinsics_
 : <a class="el" href="classbsfm_1_1Camera.html#acd94e306df88fa7597a681a288f09df3">bsfm::Camera</a>
-</li>
-<li>IntrinsicsMatrix()
-: <a class="el" href="classbsfm_1_1CameraIntrinsics.html#a229d538b4a89156b4267c2ad86a8190a">bsfm::CameraIntrinsics</a>
+, <a class="el" href="classbsfm_1_1PnPRansacProblem.html#aa07e2e87fad8afc9e9e3baec72283f0f">bsfm::PnPRansacProblem</a>
+, <a class="el" href="classbsfm_1_1PoseEstimator2D3D.html#a0bf16cb22dc6275ffdefdc8e924b8c11">bsfm::PoseEstimator2D3D</a>
 </li>
 <li>Inverse()
-: <a class="el" href="classbsfm_1_1Pose.html#a7fbbd2a3430132159a84c9d983b565a6">bsfm::Pose</a>
+: <a class="el" href="classbsfm_1_1Pose.html#a3d304c7d2433727555d3a5fd786ccfb1">bsfm::Pose</a>
 </li>
-<li>InverseIntrinsicsMatrix()
-: <a class="el" href="classbsfm_1_1CameraIntrinsics.html#a42e9936e125aa07bbd119264cd201492">bsfm::CameraIntrinsics</a>
+<li>is_incorporated_
+: <a class="el" href="classbsfm_1_1Observation.html#a3f5ee8b417284599b8cbc8983b04788f">bsfm::Observation</a>
+</li>
+<li>is_matched_
+: <a class="el" href="classbsfm_1_1Observation.html#a7d93e683b7381c09d4c13cf5893672da">bsfm::Observation</a>
 </li>
 <li>IsApprox()
 : <a class="el" href="classbsfm_1_1Pose.html#a6c8f685df571a82c4e207ebbf45ec4b8">bsfm::Pose</a>
@@ -219,7 +231,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </li>
 <li>IsGoodFit()
 : <a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#ae97316c303cf7c945c329d90e9b55dd4">bsfm::FundamentalMatrixRansacModel</a>
+, <a class="el" href="structbsfm_1_1PnPRansacModel.html#abcc80e52d000acb02b140773c19b0ef9">bsfm::PnPRansacModel</a>
 , <a class="el" href="structbsfm_1_1RansacModel.html#ad99f37f8c432482498cdd1f7ab1ecd54">bsfm::RansacModel&lt; DataType &gt;</a>
+</li>
+<li>IsIncorporated()
+: <a class="el" href="classbsfm_1_1Observation.html#a9cc3ee7dd3961ff0ba580c4a5eba51e1">bsfm::Observation</a>
+</li>
+<li>IsMatched()
+: <a class="el" href="classbsfm_1_1Observation.html#aac9ff808d165f9869e6c9db611b4d9ab">bsfm::Observation</a>
+</li>
+<li>IsValidLandmark()
+: <a class="el" href="classbsfm_1_1Landmark.html#a9236b124d1b56ff5190d63c1c854add1">bsfm::Landmark</a>
+</li>
+<li>IsValidView()
+: <a class="el" href="classbsfm_1_1View.html#ad261481bad599ecd9392635d49c344b0">bsfm::View</a>
 </li>
 <li>iterations
 : <a class="el" href="structbsfm_1_1RansacOptions.html#a16b4f669d05bd6dce313609b20b9ae1c">bsfm::RansacOptions</a>

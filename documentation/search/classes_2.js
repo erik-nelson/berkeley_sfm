@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['eightpointalgorithmsolver',['EightPointAlgorithmSolver',['../classbsfm_1_1EightPointAlgorithmSolver.html',1,'bsfm']]],
-  ['essentialmatrixsolver',['EssentialMatrixSolver',['../classbsfm_1_1EssentialMatrixSolver.html',1,'bsfm']]]
+  ['descriptorextractor',['DescriptorExtractor',['../classbsfm_1_1DescriptorExtractor.html',1,'bsfm']]],
+  ['distancemetric',['DistanceMetric',['../classbsfm_1_1DistanceMetric.html',1,'bsfm']]]
 ];

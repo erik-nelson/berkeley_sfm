@@ -73,6 +73,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func.html"><span>Functions</span></a></li>
       <li class="current"><a href="functions_vars.html"><span>Variables</span></a></li>
       <li><a href="functions_type.html"><span>Typedefs</span></a></li>
+      <li><a href="functions_enum.html"><span>Enumerations</span></a></li>
+      <li><a href="functions_eval.html"><span>Enumerator</span></a></li>
+      <li><a href="functions_rela.html"><span>Related&#160;Functions</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -94,9 +97,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="#index_p"><span>p</span></a></li>
       <li><a href="#index_r"><span>r</span></a></li>
       <li><a href="#index_s"><span>s</span></a></li>
+      <li><a href="#index_t"><span>t</span></a></li>
       <li><a href="#index_u"><span>u</span></a></li>
       <li><a href="#index_v"><span>v</span></a></li>
-      <li class="current"><a href="#index_w"><span>w</span></a></li>
+      <li><a href="#index_w"><span>w</span></a></li>
+      <li class="current"><a href="#index_x"><span>x</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -137,8 +142,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_b"></a>- b -</h3><ul>
-<li>body_to_camera_
-: <a class="el" href="classbsfm_1_1CameraExtrinsics.html#ae1b4d247efd9adaa49c770dc3b73c702">bsfm::CameraExtrinsics</a>
+<li>bar_length_
+: <a class="el" href="classbsfm_1_1util_1_1ProgressBar.html#aa618e59c0ab8d1e41adc4450b77cb2f2">bsfm::util::ProgressBar</a>
 </li>
 </ul>
 
@@ -150,23 +155,37 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>c_v_
 : <a class="el" href="classbsfm_1_1CameraIntrinsics.html#a7d08a200a1351115fa4a30ee86256ca0">bsfm::CameraIntrinsics</a>
 </li>
-<li>covariance_
-: <a class="el" href="classbsfm_1_1Landmark.html#a5d1fbf6059f0dba458cc5d932efa2e49">bsfm::Landmark&lt; Descriptor &gt;</a>
+<li>camera_
+: <a class="el" href="structbsfm_1_1PnPRansacModel.html#a8d9d202b7fec4197f3b725fea753a088">bsfm::PnPRansacModel</a>
+, <a class="el" href="classbsfm_1_1View.html#a9536558db77e054488b30b03837ecc46">bsfm::View</a>
+</li>
+<li>current_landmark_index_
+: <a class="el" href="classbsfm_1_1Landmark.html#a7290258e8f1f6702f8ea5e678383d387">bsfm::Landmark</a>
+</li>
+<li>current_view_index_
+: <a class="el" href="classbsfm_1_1View.html#ac8af1f132bc4e33438fd8f3127b1b757">bsfm::View</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_d"></a>- d -</h3><ul>
 <li>data_
-: <a class="el" href="classbsfm_1_1Covariance3D.html#a45755f3310a9b3c3cfefd63c7650d1a0">bsfm::Covariance3D</a>
-, <a class="el" href="classbsfm_1_1Point3D.html#ac99a3babb402c6626888465c6aedff4e">bsfm::Point3D</a>
+: <a class="el" href="classbsfm_1_1Covariance3D.html#a035c2bb54d6dc09a15ddbf99712d3516">bsfm::Covariance3D</a>
+, <a class="el" href="classbsfm_1_1Point3D.html#a55c55298d85f68f44f9d1d7c51360920">bsfm::Point3D</a>
 , <a class="el" href="classbsfm_1_1RansacProblem.html#a5e9614f32a8702a6bf620e6ff34f50c2">bsfm::RansacProblem&lt; DataType, ModelType &gt;</a>
 </li>
-<li>descriptor_ptr_
-: <a class="el" href="classbsfm_1_1Landmark.html#a7926ff2170f2ea3f32fde65053d651f9">bsfm::Landmark&lt; Descriptor &gt;</a>
+<li>descriptor_
+: <a class="el" href="classbsfm_1_1Landmark.html#a7465632320473bba9c91322e580f1d52">bsfm::Landmark</a>
+, <a class="el" href="classbsfm_1_1Observation.html#aa1a60c85bc60451f11c841fa8da61c76">bsfm::Observation</a>
+</li>
+<li>descriptor_indices1_
+: <a class="el" href="structbsfm_1_1PairwiseImageMatch.html#a1a384566048ae23dfe170290e4cb6c42">bsfm::PairwiseImageMatch</a>
+</li>
+<li>descriptor_indices2_
+: <a class="el" href="structbsfm_1_1PairwiseImageMatch.html#ac8414279ae7ef0c244e434960e3646ba">bsfm::PairwiseImageMatch</a>
 </li>
 <li>descriptor_type_
-: <a class="el" href="classbsfm_1_1DescriptorExtractor.html#a4e3cb650cdf897726866218fd8c03ca3">bsfm::DescriptorExtractor&lt; DescriptorType &gt;</a>
+: <a class="el" href="classbsfm_1_1DescriptorExtractor.html#a54d17d36a705b78f63fcee06153f486a">bsfm::DescriptorExtractor</a>
 </li>
 <li>detector_
 : <a class="el" href="classbsfm_1_1KeypointDetector.html#a6d4a5c5747ebb1e447d1985684357c32">bsfm::KeypointDetector</a>
@@ -184,11 +203,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>enforce_fundamental_matrix_rank_deficiency
 : <a class="el" href="structbsfm_1_1FundamentalMatrixSolverOptions.html#a006b8e9b31d9b89b41e482fd6fd7ccd7">bsfm::FundamentalMatrixSolverOptions</a>
 </li>
+<li>enforce_maximum_descriptor_distance
+: <a class="el" href="structbsfm_1_1FeatureMatcherOptions.html#a34d8cac32f04110b5f3af4347d58cd1f">bsfm::FeatureMatcherOptions</a>
+</li>
 <li>error_
 : <a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a3febab16167348b6c74396ba143831ed">bsfm::FundamentalMatrixRansacModel</a>
+, <a class="el" href="structbsfm_1_1PnPRansacModel.html#a100b7b7e162556497119bde44855710f">bsfm::PnPRansacModel</a>
 </li>
 <li>extractor_
-: <a class="el" href="classbsfm_1_1DescriptorExtractor.html#ad323223de049b378853680d430478ebf">bsfm::DescriptorExtractor&lt; DescriptorType &gt;</a>
+: <a class="el" href="classbsfm_1_1DescriptorExtractor.html#af208063569d96ff805e83ae0aab21457">bsfm::DescriptorExtractor</a>
 </li>
 <li>extrinsics_
 : <a class="el" href="classbsfm_1_1Camera.html#ae0ab104489f616349492a38272b25acd">bsfm::Camera</a>
@@ -198,7 +221,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <h3><a class="anchor" id="index_f"></a>- f -</h3><ul>
 <li>F_
-: <a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#aac1e8ede1c7886fd9ca381d21c18e586">bsfm::FundamentalMatrixRansacModel</a>
+: <a class="el" href="structbsfm_1_1FundamentalMatrixRansacModel.html#a1ea6d5271a415f658fb8ba36139d6de8">bsfm::FundamentalMatrixRansacModel</a>
 </li>
 <li>f_u_
 : <a class="el" href="classbsfm_1_1CameraIntrinsics.html#a636a16e9e9d649b2d6789e73d361d12b">bsfm::CameraIntrinsics</a>
@@ -213,7 +236,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="structbsfm_1_1FeatureMatch.html#a97ca4e1afde1cdad18fc68781173e66a">bsfm::FeatureMatch</a>
 </li>
 <li>feature_
-: <a class="el" href="structbsfm_1_1Observation.html#a966526f95c7d2be77e457ef336f69fae">bsfm::Observation</a>
+: <a class="el" href="classbsfm_1_1Observation.html#a8269dc2c958f06af59ccb92aa843e4c9">bsfm::Observation</a>
 </li>
 <li>feature_index1_
 : <a class="el" href="structbsfm_1_1LightFeatureMatch.html#a4825142b05c54ff643d08f0d290e208f">bsfm::LightFeatureMatch</a>
@@ -224,13 +247,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>feature_matches_
 : <a class="el" href="structbsfm_1_1PairwiseImageMatch.html#aabd94a3b9246a62dcd565cb7c4ea26c6">bsfm::PairwiseImageMatch</a>
 </li>
-<li>frame_index_
-: <a class="el" href="structbsfm_1_1Observation.html#a44ba6a49415ab904d22d5ea68b07b308">bsfm::Observation</a>
+<li>function_tolerance
+: <a class="el" href="structbsfm_1_1BundleAdjustmentOptions.html#a8e78c2ef9016f5c9932d9c93007f5f50">bsfm::BundleAdjustmentOptions</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_g"></a>- g -</h3><ul>
+<li>gradient_tolerance
+: <a class="el" href="structbsfm_1_1BundleAdjustmentOptions.html#a54f5f089d8710cb47e24a01b3440ec21">bsfm::BundleAdjustmentOptions</a>
+</li>
 <li>grayscale_
 : <a class="el" href="classbsfm_1_1Image.html#a3c55465ee3c1672492bb1d4fd8e755df">bsfm::Image</a>
 </li>
@@ -245,20 +271,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_i"></a>- i -</h3><ul>
-<li>image1_index_
-: <a class="el" href="structbsfm_1_1PairwiseImageMatch.html#acf7fe860957d5804ae09387bad1f4f38">bsfm::PairwiseImageMatch</a>
-</li>
-<li>image2_index_
-: <a class="el" href="structbsfm_1_1PairwiseImageMatch.html#ae6d723f4be8d6bf1132218fa4424e1f0">bsfm::PairwiseImageMatch</a>
-</li>
 <li>image_
 : <a class="el" href="classbsfm_1_1Image.html#ad7747e13db4396a51e8307eb47b212e7">bsfm::Image</a>
 </li>
 <li>image_descriptors_
-: <a class="el" href="classbsfm_1_1FeatureMatcher.html#a96c762f29d114715665ca3b7bb7d8ee6">bsfm::FeatureMatcher&lt; DistanceMetric &gt;</a>
+: <a class="el" href="classbsfm_1_1FeatureMatcher.html#adc85ae4b6c3c17fe92e4a7f1696a5563">bsfm::FeatureMatcher</a>
 </li>
 <li>image_features_
-: <a class="el" href="classbsfm_1_1FeatureMatcher.html#ae767cda3d1ce32ea54755d304d5101d6">bsfm::FeatureMatcher&lt; DistanceMetric &gt;</a>
+: <a class="el" href="classbsfm_1_1FeatureMatcher.html#af398673f4ba782f421f174ceb171bc48">bsfm::FeatureMatcher</a>
 </li>
 <li>image_height_
 : <a class="el" href="classbsfm_1_1CameraIntrinsics.html#ab1d3b4b5e4e7a7b3368f634170865478">bsfm::CameraIntrinsics</a>
@@ -272,11 +292,22 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>image_width_
 : <a class="el" href="classbsfm_1_1CameraIntrinsics.html#a9c86978f1f02eada715609786040a653">bsfm::CameraIntrinsics</a>
 </li>
+<li>index_
+: <a class="el" href="classbsfm_1_1FlannDescriptorKDTree.html#aa6dbc8d028fc8892c59844f960c90ac0">bsfm::FlannDescriptorKDTree</a>
+</li>
 <li>inliers_
 : <a class="el" href="classbsfm_1_1RansacProblem.html#a84edb4fc9264348a6cdab8db31b8815d">bsfm::RansacProblem&lt; DataType, ModelType &gt;</a>
 </li>
 <li>intrinsics_
 : <a class="el" href="classbsfm_1_1Camera.html#acd94e306df88fa7597a681a288f09df3">bsfm::Camera</a>
+, <a class="el" href="classbsfm_1_1PnPRansacProblem.html#aa07e2e87fad8afc9e9e3baec72283f0f">bsfm::PnPRansacProblem</a>
+, <a class="el" href="classbsfm_1_1PoseEstimator2D3D.html#a0bf16cb22dc6275ffdefdc8e924b8c11">bsfm::PoseEstimator2D3D</a>
+</li>
+<li>is_incorporated_
+: <a class="el" href="classbsfm_1_1Observation.html#a3f5ee8b417284599b8cbc8983b04788f">bsfm::Observation</a>
+</li>
+<li>is_matched_
+: <a class="el" href="classbsfm_1_1Observation.html#a7d93e683b7381c09d4c13cf5893672da">bsfm::Observation</a>
 </li>
 <li>iterations
 : <a class="el" href="structbsfm_1_1RansacOptions.html#a16b4f669d05bd6dce313609b20b9ae1c">bsfm::RansacOptions</a>
@@ -300,10 +331,26 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>k5_
 : <a class="el" href="classbsfm_1_1CameraIntrinsics.html#a8e1c44cda1592e5ab98bc73a8e3f56e9">bsfm::CameraIntrinsics</a>
 </li>
+<li>K_
+: <a class="el" href="structbsfm_1_1BundleAdjustmentError.html#a8bf3e29e9e25bb044b3b949c8116f1c9">bsfm::BundleAdjustmentError</a>
+</li>
 </ul>
 
 
 <h3><a class="anchor" id="index_l"></a>- l -</h3><ul>
+<li>landmark_index_
+: <a class="el" href="classbsfm_1_1Landmark.html#aba98b4351f3025829ba1dd39e233f12c">bsfm::Landmark</a>
+, <a class="el" href="classbsfm_1_1Observation.html#a6ae60f0edc29b1b4f997e4ce7c78a932">bsfm::Observation</a>
+</li>
+<li>landmark_registry_
+: <a class="el" href="classbsfm_1_1Landmark.html#ad9eca4cb14ee187585451be30c68c6eb">bsfm::Landmark</a>
+</li>
+<li>landmarks_
+: <a class="el" href="classbsfm_1_1View.html#a11040d8ca143c7228bee4d235f2c8804">bsfm::View</a>
+</li>
+<li>last_message_length_
+: <a class="el" href="classbsfm_1_1util_1_1ProgressBar.html#a0402be818c039adeec7e8d2de8fbc187">bsfm::util::ProgressBar</a>
+</li>
 <li>lowes_ratio
 : <a class="el" href="structbsfm_1_1FeatureMatcherOptions.html#a2f1b38e8587dffda9f575a2ad04d4f83">bsfm::FeatureMatcherOptions</a>
 </li>
@@ -313,6 +360,27 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h3><a class="anchor" id="index_m"></a>- m -</h3><ul>
 <li>matched_image_data_
 : <a class="el" href="classbsfm_1_1FundamentalMatrixSolver.html#afa25c4cc215fca6fb672d6af751d6e5d">bsfm::FundamentalMatrixSolver</a>
+</li>
+<li>matches_
+: <a class="el" href="structbsfm_1_1PnPRansacModel.html#a10d362f393e41ff950c4fd17c2eb113a">bsfm::PnPRansacModel</a>
+</li>
+<li>max_
+: <a class="el" href="classbsfm_1_1util_1_1ProgressBar.html#a1379c26c9fd810a0344014e273ab7efc">bsfm::util::ProgressBar</a>
+</li>
+<li>max_num_iterations
+: <a class="el" href="structbsfm_1_1BundleAdjustmentOptions.html#a2663b745f9085afd07ed5dfcee17602c">bsfm::BundleAdjustmentOptions</a>
+</li>
+<li>maximum_descriptor_distance
+: <a class="el" href="structbsfm_1_1FeatureMatcherOptions.html#adb3720020e11be74a87ecc13dc781cd8">bsfm::FeatureMatcherOptions</a>
+</li>
+<li>maximum_distance_
+: <a class="el" href="classbsfm_1_1DistanceMetric.html#aa0e9fd15c5b7713467fddd4e3c822402">bsfm::DistanceMetric</a>
+</li>
+<li>message_
+: <a class="el" href="classbsfm_1_1util_1_1ProgressBar.html#acc619670541cc231d796ca930c5eb667">bsfm::util::ProgressBar</a>
+</li>
+<li>metric_
+: <a class="el" href="classbsfm_1_1DistanceMetric.html#ad7130d2c34377c6bcf0bd3e91d3968f3">bsfm::DistanceMetric</a>
 </li>
 <li>min_num_feature_matches
 : <a class="el" href="structbsfm_1_1FeatureMatcherOptions.html#a01e51e92c30077c2d5b11db6fd43e2c1">bsfm::FeatureMatcherOptions</a>
@@ -341,22 +409,39 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <h3><a class="anchor" id="index_o"></a>- o -</h3><ul>
 <li>observations_
-: <a class="el" href="classbsfm_1_1Landmark.html#a673f2ad05e0800602d1dc6c25bd36268">bsfm::Landmark&lt; Descriptor &gt;</a>
+: <a class="el" href="classbsfm_1_1Landmark.html#a52c328631e566ef6f441bc825a520a4a">bsfm::Landmark</a>
+, <a class="el" href="classbsfm_1_1View.html#acedbcacda4cf8554ad089f9e9cd8fc63">bsfm::View</a>
 </li>
 <li>only_keep_best_matches
 : <a class="el" href="structbsfm_1_1FeatureMatcherOptions.html#a5d45381de976480f91dc860ee0498a4d">bsfm::FeatureMatcherOptions</a>
 </li>
 <li>options_
-: <a class="el" href="classbsfm_1_1FeatureMatcher.html#a66c3895e8012151c665b62e15f77b411">bsfm::FeatureMatcher&lt; DistanceMetric &gt;</a>
+: <a class="el" href="classbsfm_1_1FeatureMatcher.html#af935c2c0f87cf2cc441866f59281c187">bsfm::FeatureMatcher</a>
 , <a class="el" href="classbsfm_1_1FundamentalMatrixSolver.html#ac97382e9663adae3a7498585cb567e01">bsfm::FundamentalMatrixSolver</a>
+, <a class="el" href="classbsfm_1_1NaiveMatcher2D3D.html#ae1b8f9b78f7fd0edb25be5d520c2708e">bsfm::NaiveMatcher2D3D</a>
 , <a class="el" href="classbsfm_1_1Ransac.html#a9a9bc3a8c57a47bcd3a3436f6920638f">bsfm::Ransac&lt; DataType, ModelType &gt;</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_p"></a>- p -</h3><ul>
+<li>points_2d_
+: <a class="el" href="classbsfm_1_1PoseEstimator2D3D.html#aea5e7a25ac9f88bef70f924d1e0a1e6b">bsfm::PoseEstimator2D3D</a>
+</li>
+<li>points_3d_
+: <a class="el" href="classbsfm_1_1PoseEstimator2D3D.html#a96d565ae6e87017f1207953d3531d088">bsfm::PoseEstimator2D3D</a>
+</li>
 <li>position_
-: <a class="el" href="classbsfm_1_1Landmark.html#a5c97ead1cc0f4ff8b33898ab456f3206">bsfm::Landmark&lt; Descriptor &gt;</a>
+: <a class="el" href="classbsfm_1_1Landmark.html#a070827a954614fedc6ecec8d7f00db86">bsfm::Landmark</a>
+</li>
+<li>print_progress
+: <a class="el" href="structbsfm_1_1BundleAdjustmentOptions.html#ab63eaa29d13bc28d58ea4082370c81cc">bsfm::BundleAdjustmentOptions</a>
+</li>
+<li>print_summary
+: <a class="el" href="structbsfm_1_1BundleAdjustmentOptions.html#ab708eae5414beac404d22fad0343910d">bsfm::BundleAdjustmentOptions</a>
+</li>
+<li>progress_
+: <a class="el" href="classbsfm_1_1util_1_1ProgressBar.html#a720440666fc394a5e57e8b03ee8c82b2">bsfm::util::ProgressBar</a>
 </li>
 </ul>
 
@@ -366,7 +451,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 : <a class="el" href="structbsfm_1_1FeatureMatcherOptions.html#a53f890e065b2359527e0ec2af96ac90a">bsfm::FeatureMatcherOptions</a>
 </li>
 <li>Rt_
-: <a class="el" href="classbsfm_1_1Pose.html#a796a09d07ae3cf174a9612e45fbe89aa">bsfm::Pose</a>
+: <a class="el" href="classbsfm_1_1Pose.html#a88e72d2746e1fbb42d61f5e421f85a7e">bsfm::Pose</a>
 </li>
 </ul>
 
@@ -375,12 +460,31 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>solution_found_
 : <a class="el" href="classbsfm_1_1RansacProblem.html#ae818fd19f1de00bfd6ef02c5719c2586">bsfm::RansacProblem&lt; DataType, ModelType &gt;</a>
 </li>
+<li>solver_type
+: <a class="el" href="structbsfm_1_1BundleAdjustmentOptions.html#a4c941608ddb2f59b51aafab771d5cb2b">bsfm::BundleAdjustmentOptions</a>
+</li>
+<li>start_
+: <a class="el" href="classbsfm_1_1util_1_1Timer.html#a07c946e02410819cf2735f9c69ac1288">bsfm::util::Timer</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_t"></a>- t -</h3><ul>
+<li>T_
+: <a class="el" href="classbsfm_1_1PoseEstimator2D3D.html#ab78c44d9f2a2415bd44595d57633185d">bsfm::PoseEstimator2D3D</a>
+</li>
+<li>timer_
+: <a class="el" href="classbsfm_1_1util_1_1ProgressBar.html#a769c129aff5213756e0986407570c138">bsfm::util::ProgressBar</a>
+</li>
 </ul>
 
 
 <h3><a class="anchor" id="index_u"></a>- u -</h3><ul>
 <li>u_
-: <a class="el" href="structbsfm_1_1Feature.html#a523049ec481cc0b42a8e67c5614788cb">bsfm::Feature</a>
+: <a class="el" href="structbsfm_1_1Feature.html#a6cb9cfad63d65ca8dd0b4509f92487a4">bsfm::Feature</a>
+</li>
+<li>U_
+: <a class="el" href="classbsfm_1_1PoseEstimator2D3D.html#a9bac3173cbc7b8fda8dd8b48e3aeebc2">bsfm::PoseEstimator2D3D</a>
 </li>
 <li>use_lowes_ratio
 : <a class="el" href="structbsfm_1_1FeatureMatcherOptions.html#a150c5a4585d255fe196ec9e711c13b92">bsfm::FeatureMatcherOptions</a>
@@ -390,17 +494,35 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <h3><a class="anchor" id="index_v"></a>- v -</h3><ul>
 <li>v_
-: <a class="el" href="structbsfm_1_1Feature.html#ac2eda5734b46191a4a358306f8cc1af6">bsfm::Feature</a>
+: <a class="el" href="structbsfm_1_1Feature.html#a3aab155cc8654aaeb80c19c2105e69c1">bsfm::Feature</a>
 </li>
 <li>vertical_fov_
 : <a class="el" href="classbsfm_1_1CameraIntrinsics.html#a802ec68f910a1583e09a39a1665108fe">bsfm::CameraIntrinsics</a>
+</li>
+<li>view_index_
+: <a class="el" href="classbsfm_1_1Observation.html#ab442b4e339d276c140e80e008b6a7681">bsfm::Observation</a>
+, <a class="el" href="classbsfm_1_1View.html#aca341ac63e01e52d4b4112efd3105b23">bsfm::View</a>
+</li>
+<li>view_registry_
+: <a class="el" href="classbsfm_1_1View.html#a46d23dae3da952d289fb4cc0d6d07f7e">bsfm::View</a>
 </li>
 </ul>
 
 
 <h3><a class="anchor" id="index_w"></a>- w -</h3><ul>
-<li>world_to_body_
-: <a class="el" href="classbsfm_1_1CameraExtrinsics.html#a1cec9a3db600ccdcc26e15760c152c36">bsfm::CameraExtrinsics</a>
+<li>world_to_camera_
+: <a class="el" href="classbsfm_1_1CameraExtrinsics.html#a382e05b90dc75a2da68adb72a1588a8b">bsfm::CameraExtrinsics</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_x"></a>- x -</h3><ul>
+<li>x_
+: <a class="el" href="structbsfm_1_1BundleAdjustmentError.html#ae42961ee9b8bf7275b743428e7dfb85d">bsfm::BundleAdjustmentError</a>
+, <a class="el" href="structbsfm_1_1GeometricError.html#a2352ae6d368f044c51ed197029df8cdf">bsfm::GeometricError</a>
+</li>
+<li>X_
+: <a class="el" href="structbsfm_1_1GeometricError.html#a0643b70b3bbaef1c9ee98acbea805973">bsfm::GeometricError</a>
 </li>
 </ul>
 </div><!-- contents -->

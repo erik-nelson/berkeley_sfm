@@ -1,6 +1,10 @@
 var searchData=
 [
-  ['eight_5fpoint_5falgorithm_5fsolver_2eh',['eight_point_algorithm_solver.h',['../eight__point__algorithm__solver_8h.html',1,'']]],
-  ['essential_5fmatrix_5fsolver_2eh',['essential_matrix_solver.h',['../essential__matrix__solver_8h.html',1,'']]],
-  ['extensions_5fequivalent_2eh',['extensions_equivalent.h',['../extensions__equivalent_8h.html',1,'']]]
+  ['descriptor_5fextractor_2ecpp',['descriptor_extractor.cpp',['../descriptor__extractor_8cpp.html',1,'']]],
+  ['descriptor_5fextractor_2eh',['descriptor_extractor.h',['../descriptor__extractor_8h.html',1,'']]],
+  ['disallow_5fcopy_5fand_5fassign_2eh',['disallow_copy_and_assign.h',['../disallow__copy__and__assign_8h.html',1,'']]],
+  ['distance_5fmetric_2ecpp',['distance_metric.cpp',['../distance__metric_8cpp.html',1,'']]],
+  ['distance_5fmetric_2eh',['distance_metric.h',['../distance__metric_8h.html',1,'']]],
+  ['drawing_5futils_2ecpp',['drawing_utils.cpp',['../drawing__utils_8cpp.html',1,'']]],
+  ['drawing_5futils_2eh',['drawing_utils.h',['../drawing__utils_8h.html',1,'']]]
 ];

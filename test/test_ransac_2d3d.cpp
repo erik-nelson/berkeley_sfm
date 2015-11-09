@@ -51,6 +51,10 @@
 #include <ransac/ransac.h>
 
 #include <gtest/gtest.h>
+#include <gflags/gflags.h>
+
+DEFINE_double(noise_stddev, 0.0,
+	      "Additive Gaussian noise on feature coordinates.");
 
 namespace bsfm {
 
@@ -107,14 +111,17 @@ Point3D RandomPoint() {
 // view. Also creates 'num_bad_matches' bad observations (of random 3D points).
 // Returns indices of landmarks that were successfully projected.
 std::vector<LandmarkIndex> CreateObservations(
-    const std::vector<LandmarkIndex>& landmark_indices, ViewIndex view_index,
-    unsigned int num_bad_matches) {
+    const std::vector<LandmarkIndex>& landmark_indices,
+    ViewIndex view_index,
+    unsigned int num_bad_matches,
+    double noise_stddev = 0.0) {
   View::Ptr view = View::GetView(view_index);
   CHECK_NOTNULL(view.get());
 
   // For each landmark that projects into the view, create an observation and
   // add it to the view.
   std::vector<LandmarkIndex> projected_landmarks;
+  static math::RandomGenerator rng(0);
   for (const auto& landmark_index : landmark_indices) {
     Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index);
     CHECK_NOTNULL(landmark.get());
@@ -126,13 +133,14 @@ std::vector<LandmarkIndex> CreateObservations(
 
     // Creating the observation automatically adds it to the view.
     Observation::Ptr observation =
-        Observation::Create(view, Feature(u, v), landmark->Descriptor());
+      Observation::Create(view, Feature(u + rng.DoubleGaussian(0.0, noise_stddev),
+					v + rng.DoubleGaussian(0.0, noise_stddev)),
+			  landmark->Descriptor());
     observation->SetMatchedLandmark(landmark_index);
     projected_landmarks.push_back(landmark_index);
   }
 
   // Make some bad observations also.
-  static math::RandomGenerator rng(0);
   for (unsigned int ii = 0; ii < num_bad_matches; ++ii) {
     double u = 0.0, v = 0.0;
     Point3D point = RandomPoint();
@@ -140,8 +148,11 @@ std::vector<LandmarkIndex> CreateObservations(
       continue;
 
     // Creating the observation automatically adds it to the view.
-    Observation::Ptr observation = Observation::Create(
-        view, Feature(u, v), Descriptor::Random(kDescriptorLength));
+    Observation::Ptr observation =
+      Observation::Create(view,
+			  Feature(u + rng.DoubleGaussian(0.0, noise_stddev),
+				  v + rng.DoubleGaussian(0.0, noise_stddev)),
+			  Descriptor::Random(kDescriptorLength));
 
     // Match to a random landmark.
     size_t random_index = static_cast<size_t>(rng.IntegerUniform(landmark_indices.size()));
@@ -151,7 +162,8 @@ std::vector<LandmarkIndex> CreateObservations(
   return projected_landmarks;
 }
 
-void TestRansac2D3D(unsigned int num_bad_matches) {
+void TestRansac2D3D(unsigned int num_bad_matches,
+      double noise_stddev) {
   // Clean up from other tests.
   Landmark::ResetLandmarks();
   View::ResetViews();
@@ -181,7 +193,7 @@ void TestRansac2D3D(unsigned int num_bad_matches) {
 
   // Create observations of the landmarks (no bad observations).
   std::vector<LandmarkIndex> projected_landmarks =
-      CreateObservations(landmark_indices, view->Index(), 0);
+    CreateObservations(landmark_indices, view->Index(), 0, noise_stddev);
   ASSERT_LT(0, projected_landmarks.size());
 
   // Make sure the distance metric (which is global across tests) is set up

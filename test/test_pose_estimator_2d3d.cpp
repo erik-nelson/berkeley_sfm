@@ -39,7 +39,7 @@
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
 #include <geometry/point_3d.h>
-#include <geometry/pose_estimator_2d_3d.h>
+#include <geometry/pose_estimator_2d3d.h>
 #include <geometry/rotation.h>
 #include <matching/feature.h>
 #include <math/random_generator.h>

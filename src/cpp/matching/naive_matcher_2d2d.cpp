@@ -35,11 +35,11 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#include "naive_feature_matcher.h"
+#include "naive_matcher_2d2d.h"
 
 namespace bsfm {
 
-bool NaiveFeatureMatcher::MatchImagePair(
+bool NaiveMatcher2D2D::MatchImagePair(
     int image_index1, int image_index2,
     PairwiseImageMatch& image_match) {
   image_match.feature_matches_.clear();
@@ -111,7 +111,7 @@ bool NaiveFeatureMatcher::MatchImagePair(
   return true;
 }
 
-void NaiveFeatureMatcher::ComputePutativeMatches(
+void NaiveMatcher2D2D::ComputePutativeMatches(
     const std::vector<Descriptor>& descriptors1,
     const std::vector<Descriptor>& descriptors2,
     std::vector<LightFeatureMatch>& putative_matches) {

@@ -35,7 +35,7 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-#include "pose_estimator_2d_3d.h"
+#include "pose_estimator_2d3d.h"
 
 #include <ceres/ceres.h>
 #include <Eigen/SVD>
@@ -105,19 +105,17 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
   // Refine P with non-linear optimization.
   Matrix34d P_opt = P;
 
-#if 0
   if (!OptimizeSolution(P_opt)) {
     VLOG(1) << "Failed to optimize P. Continuing using the initial solution.";
     P_opt = P;
   }
-#endif
-  
+
   // Get the camera pose from the computed projection matrix.
   if (!ExtractPose(P_opt, camera_pose)) {
     VLOG(1) << "Computed rotation is non-invertible.";
     return false;
   }
-  
+
   return true;
 }
 

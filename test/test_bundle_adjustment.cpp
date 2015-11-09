@@ -246,7 +246,7 @@ TEST(BundleAdjuster, TestManyViewsTranslationNoise) {
     // scale factor.
     const Vector3d p1 = Landmark::GetLandmark(0)->Position().Get();
     const Vector3d p0 = View::GetView(0)->Camera().Translation();
-    double distance_scale = distances[0] / (p1 - p0).norm();
+    const double distance_scale = distances[0] / (p1 - p0).norm();
 
     int iter = 0;
     for (LandmarkIndex ii = 0; ii < Landmark::NumExistingLandmarks(); ++ii) {

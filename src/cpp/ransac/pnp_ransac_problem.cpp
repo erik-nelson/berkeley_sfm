@@ -36,7 +36,7 @@
  */
 
 #include "pnp_ransac_problem.h"
-#include <geometry/pose_estimator_2d_3d.h>
+#include <geometry/pose_estimator_2d3d.h>
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
 #include <camera/camera.h>

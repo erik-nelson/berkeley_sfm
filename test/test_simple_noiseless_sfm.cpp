@@ -40,13 +40,13 @@
 #include <camera/camera_intrinsics.h>
 #include <geometry/eight_point_algorithm_solver.h>
 #include <geometry/essential_matrix_solver.h>
-#include <geometry/pose_estimator_2d_3d.h>
+#include <geometry/pose_estimator_2d3d.h>
 #include <geometry/rotation.h>
 #include <matching/distance_metric.h>
 #include <matching/feature_matcher_options.h>
 #include <matching/pairwise_image_match.h>
-#include <matching/naive_feature_matcher.h>
-#include <matching/naive_matcher_2d_3d.h>
+#include <matching/naive_matcher_2d2d.h>
+#include <matching/naive_matcher_2d3d.h>
 #include <math/random_generator.h>
 #include <pose/pose.h>
 #include <sfm/view.h>
@@ -217,14 +217,14 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
   SimulateFeatureExtraction(1, features2, descriptors2);
 
   // Match features between first 2 cameras.
-  NaiveFeatureMatcher feature_matcher;
+  NaiveMatcher2D2D feature_matcher_2d2d;
   FeatureMatcherOptions matcher_options;
   matcher_options.min_num_feature_matches = 8;
-  feature_matcher.AddImageFeatures(features1, descriptors1);
-  feature_matcher.AddImageFeatures(features2, descriptors2);
+  feature_matcher_2d2d.AddImageFeatures(features1, descriptors1);
+  feature_matcher_2d2d.AddImageFeatures(features2, descriptors2);
   PairwiseImageMatchList image_matches;
   DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
-  ASSERT_TRUE(feature_matcher.MatchImages(matcher_options, image_matches));
+  ASSERT_TRUE(feature_matcher_2d2d.MatchImages(matcher_options, image_matches));
   PairwiseImageMatch image_match = image_matches[0];
   FeatureMatchList feature_matches = image_match.feature_matches_;
 

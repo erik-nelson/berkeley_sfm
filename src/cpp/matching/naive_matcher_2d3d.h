@@ -44,8 +44,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_MATCHING_NAIVE_MATCHER_2D_3D_H
-#define BSFM_MATCHING_NAIVE_MATCHER_2D_3D_H
+#ifndef BSFM_MATCHING_NAIVE_MATCHER_2D3D_H
+#define BSFM_MATCHING_NAIVE_MATCHER_2D3D_H
 
 #include <algorithm>
 #include <memory>

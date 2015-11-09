@@ -46,7 +46,7 @@
 #include <matching/distance_metric.h>
 #include <matching/feature_match.h>
 #include <matching/keypoint_detector.h>
-#include <matching/naive_feature_matcher.h>
+#include <matching/naive_matcher_2d2d.h>
 #include <matching/pairwise_image_match.h>
 #include <math/random_generator.h>
 #include <ransac/fundamental_matrix_ransac_problem.h>
@@ -388,7 +388,7 @@ TEST_F(TestRansac, TestDrawInliers) {
   extractor.DescribeFeatures(image2, keypoints2, features2, descriptors2);
 
   FeatureMatcherOptions matcher_options;
-  NaiveFeatureMatcher feature_matcher;
+  NaiveMatcher2D2D feature_matcher;
   feature_matcher.AddImageFeatures(features1, descriptors1);
   feature_matcher.AddImageFeatures(features2, descriptors2);
   PairwiseImageMatchList image_matches;

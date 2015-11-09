@@ -43,8 +43,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_MATCHING_NAIVE_FEATURE_MATCHER_H
-#define BSFM_MATCHING_NAIVE_FEATURE_MATCHER_H
+#ifndef BSFM_MATCHING_NAIVE_MATCHER_2D2D_H
+#define BSFM_MATCHING_NAIVE_MATCHER_2D2D_H
 
 #include <algorithm>
 #include <memory>
@@ -62,13 +62,13 @@
 
 namespace bsfm {
 
-class NaiveFeatureMatcher : public FeatureMatcher {
+class NaiveMatcher2D2D : public FeatureMatcher {
  public:
-  NaiveFeatureMatcher() { }
-  virtual ~NaiveFeatureMatcher() { }
+  NaiveMatcher2D2D() { }
+  virtual ~NaiveMatcher2D2D() { }
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(NaiveFeatureMatcher)
+  DISALLOW_COPY_AND_ASSIGN(NaiveMatcher2D2D)
 
   // Match two images together by doing a pairwise comparison of all of their
   // individual feature descriptors.
@@ -80,7 +80,7 @@ class NaiveFeatureMatcher : public FeatureMatcher {
   void ComputePutativeMatches(const std::vector<Descriptor>& descriptors1,
                               const std::vector<Descriptor>& descriptors2,
                               std::vector<LightFeatureMatch>& putative_matches);
-};  //\class NaiveFeatureMatcher
+};  //\class NaiveMatcher2D2D
 
 }  //\namespace bsfm
 

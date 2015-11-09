@@ -44,7 +44,6 @@
 #include <geometry/rotation.h>
 #include <matching/feature_match.h>
 #include <matching/distance_metric.h>
-#include <matching/naive_feature_matcher.h>
 #include <matching/pairwise_image_match.h>
 #include <math/random_generator.h>
 #include <ransac/fundamental_matrix_ransac_problem.h>

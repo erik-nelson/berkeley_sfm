@@ -35,7 +35,7 @@
  *          Erik Nelson            ( eanelson@eecs.berkeley.edu )
  */
 
-#include "naive_matcher_2d_3d.h"
+#include "naive_matcher_2d3d.h"
 
 namespace bsfm {
 

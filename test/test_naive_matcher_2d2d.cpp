@@ -40,7 +40,7 @@
 #include <matching/descriptor_extractor.h>
 #include <matching/distance_metric.h>
 #include <matching/keypoint_detector.h>
-#include <matching/naive_feature_matcher.h>
+#include <matching/naive_matcher_2d2d.h>
 #include <strings/join_filepath.h>
 #include <util/types.h>
 
@@ -56,7 +56,7 @@ DEFINE_bool(draw_feature_matches, false,
 
 namespace bsfm {
 
-class TestNaiveFeatureMatcher : public ::testing::Test {
+class TestNaiveMatcher2D2D : public ::testing::Test {
  protected:
   const std::string test_image1 = strings::JoinFilepath(
       BSFM_TEST_DATA_DIR, FLAGS_matched_image1.c_str());
@@ -69,7 +69,7 @@ class TestNaiveFeatureMatcher : public ::testing::Test {
   const unsigned int expected_matched_features_asymmetric_binary = 2351;
 };  //\class TestNaiveFeatureMatcher
 
-TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherSiftSift) {
+TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherSiftSift) {
 
   // What happens when we provide no options?
 
@@ -83,7 +83,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherSiftSift) {
   image2.RotateClockwise();
 
   FeatureMatcherOptions options;
-  NaiveFeatureMatcher feature_matcher;
+  NaiveMatcher2D2D feature_matcher;
 
   KeypointDetector detector;
   detector.SetDetector("SIFT");
@@ -145,7 +145,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherSiftSift) {
   }
 }
 
-TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherFastOrb) {
+TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherFastOrb) {
   // Load two images.
   Image image1(test_image1.c_str());
   Image image2(test_image2.c_str());
@@ -156,7 +156,7 @@ TEST_F(TestNaiveFeatureMatcher, TestNaiveMatcherFastOrb) {
   image2.RotateClockwise();
 
   FeatureMatcherOptions options;
-  NaiveFeatureMatcher feature_matcher;
+  NaiveMatcher2D2D feature_matcher;
 
   KeypointDetector detector;
   detector.SetDetector("FAST");

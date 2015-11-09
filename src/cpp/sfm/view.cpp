@@ -110,6 +110,40 @@ const std::vector<Observation::Ptr>& View::Observations() const {
   return observations_;
 }
 
+bool View::CreateAndAddObservations(
+    const std::vector<Feature>& features,
+    const std::vector<Descriptor>& descriptors) {
+  if (features.size() != descriptors.size()) {
+    LOG(WARNING) << "Number of features and descriptors does not match.";
+    return false;
+  }
+
+  // Get a shared pointer to this view.
+  View::Ptr this_view = GetView(this->Index());
+
+  // Add observations to this view.
+  for (size_t ii = 0; ii < features.size(); ++ii)
+    Observation::Create(this_view, features[ii], descriptors[ii]);
+
+  return true;
+}
+
+void View::GetFeaturesAndDescriptors(
+    std::vector<Feature>* features,
+    std::vector<Descriptor>* descriptors) const {
+  CHECK_NOTNULL(features);
+  CHECK_NOTNULL(descriptors);
+  features->clear();
+  descriptors->clear();
+
+  // Iterate over observations and return a list of features and descriptors
+  // owned by them.
+  for (const auto& observation : Observations()) {
+    features->emplace_back(observation->Feature());
+    descriptors->emplace_back(observation->Descriptor());
+  }
+}
+
 bool View::HasObservedLandmark(LandmarkIndex landmark_index) const {
   return landmarks_.count(landmark_index);
 }

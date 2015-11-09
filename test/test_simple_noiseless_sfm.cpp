@@ -219,11 +219,12 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
   // Match features between first 2 cameras.
   NaiveMatcher2D2D feature_matcher_2d2d;
   FeatureMatcherOptions matcher_options;
+  matcher_options.distance_metric = "SCALED_L2";
   matcher_options.min_num_feature_matches = 8;
   feature_matcher_2d2d.AddImageFeatures(features1, descriptors1);
   feature_matcher_2d2d.AddImageFeatures(features2, descriptors2);
   PairwiseImageMatchList image_matches;
-  DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
+  // DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
   ASSERT_TRUE(feature_matcher_2d2d.MatchImages(matcher_options, image_matches));
   PairwiseImageMatch image_match = image_matches[0];
   FeatureMatchList feature_matches = image_match.feature_matches_;

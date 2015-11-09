@@ -37,57 +37,63 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This struct defines a set of options that are used during feature matching.
+// This struct defines options for visual odometry.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
-#define BSFM_MATCHING_FEATURE_MATCHER_OPTIONS_H
+#ifndef BSFM_SLAM_VISUAL_ODOMETRY_OPTIONS_H
+#define BSFM_SLAM_VISUAL_ODOMETRY_OPTIONS_H
 
-#include <string>
+#include "../geometry/fundamental_matrix_solver_options.h"
+#include "../matching/feature_matcher_options.h"
 
 namespace bsfm {
 
-struct FeatureMatcherOptions {
+struct VisualOdometryOptions {
+  // The type of feature that will be extracted on each image. Options are:
+  // - SURF
+  // - FAST
+  // - STAR
+  // - SIFT
+  // - ORB
+  // - BRISK
+  // - MSER
+  // - GFTT
+  // - HARRIS
+  // - DENSE
+  // - SIMPLEBLOB
+  std::string feature_type = "FAST";
 
-  // Use the lowes ratio test for feature matching. Given n potential matches
-  // between a feature from this image and features in another image, we will
-  // only consider this feature matched if the best 2 matches differ by at most
-  // the lowes ratio.
-  // i.e. store the match if:
-  //   distance(best_match) < lowes_ratio^2 * distance(second_best_match)
-  bool use_lowes_ratio = true;
-  double lowes_ratio = 0.75;
+  // Turn on or off adaptive features. Adaptive features only work when using
+  // SURF, FAST, or STAR features. By default this feature is disabled. If it is
+  // enabled, the minimum and maximum amount of features must be specified
+  // manually, as must the number of iterations to adapt over per call to the
+  // feature detector.
+  bool adaptive_features = false;
+  unsigned int adaptive_min = 0;
+  unsigned int adaptive_max = 0;
+  unsigned int adaptive_iters = 0;
 
-  // The minimum number of feature matches between two images required to
-  // consider the image pair a match.
-  unsigned int min_num_feature_matches = 20;
+  // The type of descriptor used to describe features in each image. Options
+  // are:
+  // - SIFT
+  // - SURF
+  // - BRIEF
+  // - BRISK
+  // - FREAK
+  // - ORB
+  std::string descriptor_type = "ORB";
 
-  // Only store matches that are the best feature match in both directions.
-  bool require_symmetric_matches = true;
+  // A set of options used for feature matching. Default values are specified in
+  // the matching/feature_matcher_options.h header.
+  FeatureMatcherOptions matcher_options;
 
-  // Only return the best matches.
-  bool only_keep_best_matches = false;
+  // A set of options used for computing the fundamental matrix between two
+  // cameras. Default values are specified in the
+  // geometry/fundamental_matrix_solver_options.h header.
+  FundamentalMatrixSolverOptions f_solver_options;
 
-  // If 'only_keep_best_matches' is true, this is the number of best matches to
-  // keep. Otherwise this option will not do anything.
-  unsigned int num_best_matches = 100;
-
-  // Decide whether or not to enforce a maximum distance between descriptors.
-  // This is not usually necessary, as the lowes ratio test is generally
-  // sufficient.
-  bool enforce_maximum_descriptor_distance = false;
-
-  // The maximum tolerable distance between two descriptors to classify them as
-  // a match. This value will only be used if
-  // 'enforce_maximum_descriptor_distance' is true.
-  double maximum_descriptor_distance = 1.0;
-
-  // The distance metric to be used for matching. Options can be found under
-  // matching/distance_metric.h.
-  std::string distance_metric = "SCALED_L2";
-
-};  //\struct FeatureMatcherOptions
+};  //\struct VisualOdometryOptions
 
 }  //\namespace bsfm
 

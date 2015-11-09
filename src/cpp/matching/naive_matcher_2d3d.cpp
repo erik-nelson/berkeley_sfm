@@ -78,6 +78,7 @@ bool NaiveMatcher2D3D::Match(
   }
 
   // Normalize descriptors if required by the distance metric.
+  DistanceMetric::Instance().SetMetric(options_.distance_metric);
   DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors_2d);
   DistanceMetric::Instance().MaybeNormalizeDescriptors(descriptors_3d);
 
@@ -214,6 +215,5 @@ void NaiveMatcher2D3D::ComputeSymmetricMatches(
     feature_matches_rhs.erase(rhs_iter);
   }
 }
-
 
 }  //\namespace bsfm

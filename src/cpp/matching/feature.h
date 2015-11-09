@@ -60,6 +60,12 @@ struct Feature {
   // Each feature contains the (u, v) image space coordinates of the center of
   // the feature.
   double u_, v_;
+
+  // Equality operator compares image-space positions.
+  bool operator==(const Feature& rhs) const {
+    return u_ == rhs.u_ && v_ == rhs.v_;
+  }
+
 };  //\struct Feature
 
 typedef std::vector<Feature> FeatureList;

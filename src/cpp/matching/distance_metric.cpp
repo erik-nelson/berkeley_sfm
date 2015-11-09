@@ -48,6 +48,17 @@ void DistanceMetric::SetMetric(const Metric& metric) {
   metric_ = metric;
 }
 
+void DistanceMetric::SetMetric(const std::string& metric) {
+  if (metric.compare("SCALED_L2") == 0) {
+    SetMetric(Metric::SCALED_L2);
+  } else if (metric.compare("HAMMING") == 0) {
+    SetMetric(Metric::HAMMING);
+  } else {
+    LOG(WARNING) << "Invalid distance metric. Setting to SCALED_L2.";
+    SetMetric(Metric::SCALED_L2);
+  }
+}
+
 void DistanceMetric::SetMaximumDistance(double maximum_distance) {
   maximum_distance_ = maximum_distance;
 }
@@ -90,8 +101,7 @@ bool DistanceMetric::MaybeNormalizeDescriptors(
 // Hidden constructor.
 DistanceMetric::DistanceMetric()
     : maximum_distance_(std::numeric_limits<double>::max()) {
-  // Set metric to the default argument of SetMetric(), defined in the header.
-  SetMetric();
+  SetMetric(Metric::SCALED_L2);
 }
 
 double DistanceMetric::GetScaledL2Distance(

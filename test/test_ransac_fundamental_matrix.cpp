@@ -376,7 +376,7 @@ TEST_F(TestRansac, TestDrawInliers) {
   detector.DetectKeypoints(image1, keypoints1);
   detector.DetectKeypoints(image2, keypoints2);
 
-  DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
+  // DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
   DescriptorExtractor extractor;
   extractor.SetDescriptor("SIFT");
 
@@ -388,6 +388,7 @@ TEST_F(TestRansac, TestDrawInliers) {
   extractor.DescribeFeatures(image2, keypoints2, features2, descriptors2);
 
   FeatureMatcherOptions matcher_options;
+  matcher_options.distance_metric = "SCALED_L2";
   NaiveMatcher2D2D feature_matcher;
   feature_matcher.AddImageFeatures(features1, descriptors1);
   feature_matcher.AddImageFeatures(features2, descriptors2);

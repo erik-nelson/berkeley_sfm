@@ -38,394 +38,215 @@
 #include <camera/camera.h>
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
-#include <geometry/eight_point_algorithm_solver.h>
-#include <geometry/essential_matrix_solver.h>
-#include <geometry/pose_estimator_2d3d.h>
-#include <geometry/rotation.h>
-#include <matching/distance_metric.h>
 #include <matching/feature_matcher_options.h>
-#include <matching/pairwise_image_match.h>
-#include <matching/naive_matcher_2d2d.h>
 #include <matching/naive_matcher_2d3d.h>
+#include <geometry/point_3d.h>
+#include <geometry/rotation.h>
+#include <matching/feature.h>
 #include <math/random_generator.h>
-#include <pose/pose.h>
-#include <ransac/pnp_ransac_problem.h>
-#include <ransac/ransac.h>
 #include <sfm/view.h>
 #include <slam/landmark.h>
 #include <slam/observation.h>
-#include <util/types.h>
+#include <ransac/pnp_ransac_problem.h>
+#include <ransac/ransac.h>
 
-#include <Eigen/Core>
 #include <gtest/gtest.h>
-#include <gflags/gflags.h>
-#include <glog/logging.h>
-
-DEFINE_int32(min_features_in_camera, 10,
-	     "Minimum number of landmarks that project into any given camera.");
 
 namespace bsfm {
 
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
+;
 
-class TestSimpleNoiselessSfmRansac : public ::testing::Test {
- public:
-  // Clean up before and after running tests.
-  TestSimpleNoiselessSfmRansac() {
-    Landmark::ResetLandmarks();
-    View::ResetViews();
-  }
+namespace {
+// Minimum number of points to constrain the problem. See H&Z pg. 179.
+const int kNumLandmarks = 100;
+const int kImageWidth = 1920;
+const int kImageHeight = 1080;
+const double kVerticalFov = D2R(90.0);
 
-  ~TestSimpleNoiselessSfmRansac() {
-    Landmark::ResetLandmarks();
-    View::ResetViews();
-  }
+// Bounding volume for 3D points.
+const double kMinX = -2.0;
+const double kMinY = -2.0;
+const double kMinZ = -2.0;
+const double kMaxX = 2.0;
+const double kMaxY = 2.0;
+const double kMaxZ = 2.0;
 
- protected:
+const unsigned int kDescriptorLength = 64;
 
-  // Create a bunch of 3D points, and cameras that are able to see at least one of
-  // those points. Also generate a random descriptor for each point.
-  void GenerateGroundTruthPointsAndCameras() {
-    points_.clear();
-    descriptors_.clear();
-    cameras_.clear();
-    math::RandomGenerator rng(0);
+// Makes a default set of camera intrinsic parameters.
+CameraIntrinsics DefaultIntrinsics() {
+  CameraIntrinsics intrinsics;
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(kImageWidth);
+  intrinsics.SetImageHeight(kImageHeight);
+  intrinsics.SetVerticalFOV(kVerticalFov);
+  intrinsics.SetFU(intrinsics.f_v());
+  intrinsics.SetCU(0.5 * kImageWidth);
+  intrinsics.SetCV(0.5 * kImageHeight);
 
-    // Generate random points in 3D, and give them each a unique descriptor.
-    std::vector<Descriptor> descriptors;
-    for (int ii = 0; ii < kNumPoints_; ++ii) {
-      const double x = rng.DoubleUniform(-2.0, 2.0);
-      const double y = rng.DoubleUniform(-2.0, 2.0);
-      const double z = rng.DoubleUniform(-2.0, 2.0);
-      points_.emplace_back(x, y, z);
-      descriptors_.push_back(Descriptor::Random(64));
-    }
-
-    // Generate cameras such that each camera sees at least 8 points.
-    CameraIntrinsics intrinsics = DefaultIntrinsics();
-    while (cameras_.size() < kNumCameras_) {
-      Camera camera;
-      CameraExtrinsics extrinsics;
-      const double x = rng.DoubleUniform(-10.0, 10.0);
-      const double y = rng.DoubleUniform(-10.0, 10.0);
-      const double z = rng.DoubleUniform(-10.0, 10.0);
-
-      // Don't get too close to the 3D points.
-      if ((x > -3.0 && x < 3.0) || (y > -3.0 && y < 3.0) || (z > -3.0 && z < 3.0))
-        continue;
-
-      extrinsics.SetTranslation(x, y, z);
-      Vector3d euler_angles(Vector3d::Random()*D2R(20.0));
-      extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));
-      camera.SetExtrinsics(extrinsics);
-      camera.SetIntrinsics(intrinsics);
-
-      // Make sure this camera can see at least eight 3D points.
-      bool sees_at_least_eight = false;
-      unsigned int count = 0;
-      for (const auto& point : points_) {
-        double u = 0.0, v = 0.0;
-        if (camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v)) {
-          count++;
-        }
-
-        if (count == 8) {
-          sees_at_least_eight = true;
-          break;
-        }
-      }
-
-      if (sees_at_least_eight)
-        cameras_.push_back(camera);
-    }
-  }
-
-  // Simulate feature extraction from the camera at a specified index.
-  void SimulateFeatureExtraction(unsigned int camera_index,
-                                 std::vector<Feature>& features,
-                                 std::vector<Descriptor>& descriptors) {
-    features.clear();
-    descriptors.clear();
-
-    // Get this camera.
-    Camera camera = cameras_[camera_index];
-
-    // Try to project each point into the camera.
-    for (size_t ii = 0; ii < points_.size(); ++ii) {
-      Point3D p = points_[ii];
-      double u = 0.0, v = 0.0;
-
-      // If any points project successfully, store the projected point and its
-      // corresponding descriptor as output.
-      if (camera.WorldToImage(p.X(), p.Y(), p.Z(), &u, &v)) {
-        features.push_back(Feature(u, v));
-        descriptors.push_back(descriptors_[ii]);
-      }
-    }
-  }
-
-  CameraIntrinsics DefaultIntrinsics() const {
-    CameraIntrinsics intrinsics;
-    intrinsics.SetImageLeft(0);
-    intrinsics.SetImageTop(0);
-    intrinsics.SetImageWidth(kImageWidth_);
-    intrinsics.SetImageHeight(kImageHeight_);
-    intrinsics.SetVerticalFOV(kVerticalFov_);
-    intrinsics.SetFV(1.0);
-    intrinsics.SetFU(intrinsics.f_v());
-    intrinsics.SetCU(0.5 * kImageWidth_);
-    intrinsics.SetCV(0.5 * kImageHeight_);
-    intrinsics.SetK(0.0, 0.0, 0.0, 0.0, 0.0);
-    return intrinsics;
-  }
-
-  int kImageWidth_ = 1920;
-  int kImageHeight_ = 1080;
-  int kVerticalFov_ = D2R(90.0);
-
-  int kNumPoints_ = 1000;
-  int kNumCameras_ = 3;
-
-  std::vector<Point3D> points_;
-  std::vector<Descriptor> descriptors_;
-  std::vector<Camera> cameras_;
-};
-
-TEST_F(TestSimpleNoiselessSfmRansac, TestMatching2D3D) {
-
-  // Make some fake 3D points, a random descriptor for each point, and cameras
-  // that are able to observe at least 1 point.
-  GenerateGroundTruthPointsAndCameras();
-
-  // Initialize using the first two cameras.
-  std::vector<Feature> features1;
-  std::vector<Feature> features2;
-  std::vector<Descriptor> descriptors1;
-  std::vector<Descriptor> descriptors2;
-  SimulateFeatureExtraction(0, features1, descriptors1);
-  SimulateFeatureExtraction(1, features2, descriptors2);
-
-  // Match features between first 2 cameras.
-  NaiveMatcher2D2D feature_matcher_2d2d;
-  FeatureMatcherOptions matcher_options;
-  matcher_options.min_num_feature_matches = 8;
-  feature_matcher_2d2d.AddImageFeatures(features1, descriptors1);
-  feature_matcher_2d2d.AddImageFeatures(features2, descriptors2);
-  PairwiseImageMatchList image_matches;
-  DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
-  ASSERT_TRUE(feature_matcher_2d2d.MatchImages(matcher_options, image_matches));
-  PairwiseImageMatch image_match = image_matches[0];
-  FeatureMatchList feature_matches = image_match.feature_matches_;
-
-  // Get fundamental matrix of first 2 cameras.
-  Matrix3d E, F;
-  EightPointAlgorithmSolver f_solver;
-  FundamentalMatrixSolverOptions solver_options;
-  f_solver.SetOptions(solver_options);
-  ASSERT_TRUE(f_solver.ComputeFundamentalMatrix(feature_matches, F));
-
-  // Get essential matrix of first 2 cameras.
-  CameraIntrinsics intrinsics = DefaultIntrinsics();
-  EssentialMatrixSolver e_solver;
-  E = e_solver.ComputeEssentialMatrix(F, intrinsics, intrinsics);
-
-  // Get extrinsics from essential matrix.
-  Pose relative_pose;
-  ASSERT_TRUE(e_solver.ComputeExtrinsics(E, feature_matches, intrinsics,
-                                         intrinsics, relative_pose));
-
-  // Now we know the transformation between the first two cameras up to scale.
-  Camera camera1, camera2;
-  CameraExtrinsics extrinsics1, extrinsics2;
-  extrinsics1.SetWorldToCamera(Pose());
-  extrinsics2.SetWorldToCamera(relative_pose);
-  camera1.SetExtrinsics(extrinsics1);
-  camera2.SetExtrinsics(extrinsics2);
-  camera1.SetIntrinsics(intrinsics);
-  camera2.SetIntrinsics(intrinsics);
-
-  // Triangulate features in 3D.
-  Point3DList initial_points;
-  ASSERT_TRUE(Triangulate(feature_matches, camera1, camera2, initial_points));
-  ASSERT_EQ(initial_points.size(), feature_matches.size());
-
-  // Initialize views and landmarks.
-  View::Ptr view1 = View::Create(camera1);
-  View::Ptr view2 = View::Create(camera2);
-  for (size_t ii = 0; ii < initial_points.size(); ++ii) {
-    Landmark::Ptr landmark = Landmark::Create();
-
-    Descriptor d1 = descriptors1[image_match.descriptor_indices1_[ii]];
-    Descriptor d2 = descriptors2[image_match.descriptor_indices2_[ii]];
-    ASSERT_TRUE(d1.isApprox(d2));
-
-    Observation::Ptr observation1 =
-        Observation::Create(view1, feature_matches[ii].feature1_, d1);
-    Observation::Ptr observation2 =
-        Observation::Create(view2, feature_matches[ii].feature2_, d2);
-
-    landmark->IncorporateObservation(observation1);
-    landmark->IncorporateObservation(observation2);
-
-    // The landmark's 3D position should automatically be triangulated from the
-    // observations.
-    EXPECT_NEAR(initial_points[ii].X(), landmark->Position().X(), 1e-8);
-    EXPECT_NEAR(initial_points[ii].Y(), landmark->Position().Y(), 1e-8);
-    EXPECT_NEAR(initial_points[ii].Z(), landmark->Position().Z(), 1e-8);
-  }
-
-  // Loop over remaining cameras as if we are receiving their images
-  // incrementally.
-  for (int ii = 2; ii < kNumCameras_; ++ii) {
-    // Get features and descriptors for the new frame.
-    std::vector<Feature> features;
-    std::vector<Descriptor> descriptors;
-    SimulateFeatureExtraction(ii, features, descriptors);
-
-    // Skip if not enough points project into this camera.
-    if (descriptors.size() < FLAGS_min_features_in_camera) {
-      std::cout << "Insufficient features project into this camera. "
-		<< "Skipping." << std::endl;
-      continue;
-    }
-
-    // Create a camera and view.
-    Camera new_camera;
-    new_camera.SetIntrinsics(intrinsics);
-    View::Ptr new_view = View::Create(new_camera);
-
-    // Obtain a list of all landmarks in the registry.
-    LandmarkIndex max_landmark_index = Landmark::NumExistingLandmarks();
-    std::vector<LandmarkIndex> landmark_indices;
-    for (LandmarkIndex jj = 0; jj < max_landmark_index; jj++)
-      landmark_indices.push_back(jj);
-
-#if 0
-    // Match with existing landmarks.
-    matcher_options.min_num_feature_matches = FLAGS_min_features_in_camera;
-    std::vector<Observation::Ptr> matches_2d_3d;
-    NaiveMatcher2D3D matcher_2d_3d(matcher_options, new_view);
-    ASSERT_TRUE(matcher_2d_3d.Match(landmark_indices, features, descriptors,
-                                    matches_2d_3d));
-
-    // Check that we get good matches.
-    ASSERT_TRUE(matches_2d_3d.size() == descriptors.size());
-    DistanceMetric& distance = DistanceMetric::Instance();
-    for (const auto& observation : matches_2d_3d) {
-      CHECK_NOTNULL(observation.get());
-
-      // Check that the descriptor matches one of the descriptors in the list
-      // and that the corresponding feature is the one in this observation.
-      Feature matched_feature = observation->Feature();
-      Descriptor matched_descriptor = observation->Descriptor();
-
-      bool found_match = false;
-      for (size_t jj = 0; jj < descriptors.size(); jj++) {
-        Descriptor descriptor = descriptors[jj];
-        if (distance(matched_descriptor, descriptor) < 1e-8) {
-          found_match = true;
-          ASSERT_NEAR(matched_feature.u_, features[jj].u_, 1e-8);
-          ASSERT_NEAR(matched_feature.v_, features[jj].v_, 1e-8);
-          break;
-        }
-      }
-      ASSERT_TRUE(found_match);
-
-      // Also check that the landmark associated to this observation matches.
-      Landmark::Ptr landmark = observation->GetLandmark();
-      CHECK_NOTNULL(landmark.get());
-
-      ASSERT_TRUE(distance(matched_descriptor, landmark->Descriptor()) < 1e-8);
-    }
-#endif
-
-#if 0
-
-    // Extract a FeatureList and a Point3DList from input_data.
-    FeatureList points_2d;
-    Point3DList points_3d;
-
-    for (const auto& observation : matches_2d_3d) {
-      CHECK_NOTNULL(observation.get());
-
-      // Extract feature and append.
-      points_2d.push_back(observation->Feature());
-
-      // Extract landmark position and append.
-      Landmark::Ptr landmark = observation->GetLandmark();
-      CHECK_NOTNULL(landmark.get());
-      points_3d.push_back(landmark->Position());
-    }
-
-    // Set up solver.
-    PoseEstimator2D3D solver;
-    solver.Initialize(points_2d, points_3d, intrinsics);
-
-    // Solve.
-    Pose calculated_pose;
-    if (!solver.Solve(calculated_pose)) {
-      VLOG(1) << "Could not estimate a pose using the PnP solver. "
-              << "Assuming identity pose.";
-    }
-
-    // Generate a model from this pose.
-    CameraExtrinsics calculated_extrinsics(calculated_pose);
-    Camera calculated_camera(calculated_extrinsics, intrinsics);
-#endif
-
-#if 0
-    // 2D<-->3D pose estimation.
-    // Initialize the PnP ransac problem.
-    PnPRansacProblem pnp_ransac_problem;
-    pnp_ransac_problem.SetIntrinsics(intrinsics);
-    pnp_ransac_problem.SetData(matches_2d_3d);
-
-    // Set up ransac solver. Should take 1 iteration with no error.
-    Ransac<Observation::Ptr, PnPRansacModel> pnp_ransac_solver;
-    RansacOptions ransac_options;
-
-    ransac_options.iterations = 1;
-    ransac_options.acceptable_error = 100.0;
-    ransac_options.minimum_num_inliers = 6;
-    ransac_options.num_samples = 6;
-
-    pnp_ransac_solver.SetOptions(ransac_options);
-    pnp_ransac_solver.Run(pnp_ransac_problem);
-
-    // Get the solution from the problem object.
-    ASSERT_TRUE(pnp_ransac_problem.SolutionFound());
-#endif
-
-#if 0
-    // Add all inlier landmarks to the view as observations.
-    for (const auto& observation : pnp_ransac_problem.Inliers()) {
-       CHECK_NOTNULL(observation.get());
-       Landmark::Ptr landmark = observation->GetLandmark();
-       CHECK_NOTNULL(landmark.get());
-       landmark->IncorporateObservation(observation);
-    }
-#endif
-
-#if 0
-
-    // Extract calculated camera and update view.
-    //    Camera calculated_camera = pnp_ransac_problem.Model().camera_;
-    new_view->SetCamera(calculated_camera);
-
-    // Check that the calculated extrinsics match the actual extrinsics.
-    std::cout << "Calculated pose: " << std::endl;
-    std::cout << calculated_camera.Extrinsics().Rt() << std::endl;
-    std::cout << "Actual pose: " << std::endl;
-    std::cout << cameras_[ii].Extrinsics().Rt() << std::endl;
-    EXPECT_TRUE(
-        calculated_camera.Rotation().isApprox(cameras_[ii].Rotation(), 1e-8));
-
-#endif
-    // Try to find new landmarks by matching descriptors against descriptors
-    // from other images that have not been used yet.
-    // TODO!!!
-  }
+  return intrinsics;
 }
+
+// Makes a random 3D point.
+Point3D RandomPoint() {
+  CHECK(kMinX <= kMaxX);
+  CHECK(kMinY <= kMaxY);
+  CHECK(kMinZ <= kMaxZ);
+
+  static math::RandomGenerator rng(0);
+  const double x = rng.DoubleUniform(kMinX, kMaxX);
+  const double y = rng.DoubleUniform(kMinY, kMaxY);
+  const double z = rng.DoubleUniform(kMinZ, kMaxZ);
+  return Point3D(x, y, z);
+}
+
+// Creates one observation for each landmark in the scene, and adds them to the
+// view. Also creates 'num_bad_matches' bad observations (of random 3D points).
+// Returns indices of landmarks that were successfully projected.
+std::vector<LandmarkIndex> CreateObservations(
+    const std::vector<LandmarkIndex>& landmark_indices, ViewIndex view_index,
+    unsigned int num_bad_matches) {
+  View::Ptr view = View::GetView(view_index);
+  CHECK_NOTNULL(view.get());
+
+  // For each landmark that projects into the view, create an observation and
+  // add it to the view.
+  std::vector<LandmarkIndex> projected_landmarks;
+  for (const auto& landmark_index : landmark_indices) {
+    Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index);
+    CHECK_NOTNULL(landmark.get());
+
+    double u = 0.0, v = 0.0;
+    const Point3D point = landmark->Position();
+    if (!view->Camera().WorldToImage(point.X(), point.Y(), point.Z(), &u, &v))
+      continue;
+
+    // Creating the observation automatically adds it to the view.
+    Observation::Ptr observation =
+        Observation::Create(view, Feature(u, v), landmark->Descriptor());
+    observation->SetMatchedLandmark(landmark_index);
+    projected_landmarks.push_back(landmark_index);
+  }
+
+  // Make some bad observations also.
+  static math::RandomGenerator rng(0);
+  for (unsigned int ii = 0; ii < num_bad_matches; ++ii) {
+    double u = 0.0, v = 0.0;
+    Point3D point = RandomPoint();
+    if (!view->Camera().WorldToImage(point.X(), point.Y(), point.Z(), &u, &v))
+      continue;
+
+    // Creating the observation automatically adds it to the view.
+    Observation::Ptr observation = Observation::Create(
+        view, Feature(u, v), Descriptor::Random(kDescriptorLength));
+
+    // Match to a random landmark.
+    size_t random_index = static_cast<size_t>(rng.IntegerUniform(landmark_indices.size()));
+    observation->SetMatchedLandmark(landmark_indices[random_index]);
+  }
+
+  return projected_landmarks;
+}
+
+void TestRansac2D3D(unsigned int num_bad_matches) {
+  // Clean up from other tests.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+
+  // Make a camera with a random translation and rotation.
+  Camera camera;
+  CameraExtrinsics extrinsics;
+  const Point3D camera_pose = RandomPoint();
+  const Vector3d euler_angles(Vector3d::Random() * D2R(180.0));
+  extrinsics.Translate(camera_pose.X(), camera_pose.Y(), camera_pose.Z());
+  extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));
+  camera.SetExtrinsics(extrinsics);
+  camera.SetIntrinsics(DefaultIntrinsics());
+
+  // Initialize a view for this camera.
+  View::Ptr view = View::Create(camera);
+
+  // Make a bunch of randomly positioned landmarks.
+  for (unsigned int ii = 0; ii < kNumLandmarks; ++ii) {
+    Point3D point = RandomPoint();
+    Landmark::Ptr landmark = Landmark::Create();
+    landmark->SetPosition(point);
+    landmark->SetDescriptor(Descriptor::Random(kDescriptorLength));
+  }
+  std::vector<LandmarkIndex> landmark_indices =
+      Landmark::ExistingLandmarkIndices();
+
+  // Create observations of the landmarks (no bad observations).
+  std::vector<LandmarkIndex> projected_landmarks =
+      CreateObservations(landmark_indices, view->Index(), 0);
+  ASSERT_LT(0, projected_landmarks.size());
+
+  // Make sure the distance metric (which is global across tests) is set up
+  // correctly.
+  DistanceMetric& distance = DistanceMetric::Instance();
+  distance.SetMetric(DistanceMetric::Metric::SCALED_L2);
+  distance.SetMaximumDistance(std::numeric_limits<double>::max());
+
+  // Set up RANSAC.
+  PnPRansacProblem problem;
+  CameraIntrinsics intrinsics = DefaultIntrinsics();
+  problem.SetIntrinsics(intrinsics);
+  problem.SetData(view->Observations());
+
+  // Run RANSAC for a bunch of iterations. It is very likely that in at least 1
+  // iteration, all samples will be from the set of good matches and will
+  // therefore result in an error of < 1e-8.
+  Ransac<Observation::Ptr, PnPRansacModel> solver;
+  RansacOptions options;
+  options.iterations = 10000;
+  options.acceptable_error = 1e-8;
+  options.num_samples = 6;
+  options.minimum_num_inliers = projected_landmarks.size();
+
+  solver.SetOptions(options);
+  solver.Run(problem);
+  
+  // Get the solution from the problem object.
+  ASSERT_TRUE(problem.SolutionFound());
+
+  // Iterate over all observations in the view and check that they are correctly
+  // matched.
+  std::vector<Observation::Ptr> observations = view->Observations();
+  for (size_t ii = 0; ii < observations.size(); ++ii) {
+    if (!observations[ii]->IsMatched())
+      continue;
+
+    EXPECT_FALSE(observations[ii]->IsIncorporated());
+    EXPECT_EQ(projected_landmarks[ii], observations[ii]->GetLandmark()->Index());
+  }
+
+  // Clean up.
+  Landmark::ResetLandmarks();
+  View::ResetViews();
+}
+
+}  //\namespace
+
+// Test with 1 to 1 correspondence between observations in the view and existing
+// landmarks.
+TEST(PnPRansac2D3D, TestPnPRansac2D3DNoiseless) {
+  TestRansac2D3D(0);
+}
+
+// Test with many to 1 correspondence between observations in the view and existing
+// landmarks.
+TEST(PnPRansac2D3D, TestPnPRansac2D3DNoisy) {
+  TestRansac2D3D(0.5 * kNumLandmarks);
+}
+
+// Test with MANY to 1 correspondence between observations in the view and existing
+// landmarks.
+TEST(PnPRansac2D3D, TestPnPRansac2D3DVeryNoisy) {
+  TestRansac2D3D(100.0 * kNumLandmarks);
+}
+
 
 }  //\namespace bsfm

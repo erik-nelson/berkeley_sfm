@@ -224,15 +224,32 @@ void TestRansac2D3D(unsigned int num_bad_matches,
   // Get the solution from the problem object.
   ASSERT_TRUE(problem.SolutionFound());
 
-  // Iterate over all observations in the view and check that they are correctly
-  // matched.
-  std::vector<Observation::Ptr> observations = view->Observations();
-  for (size_t ii = 0; ii < observations.size(); ++ii) {
-    if (!observations[ii]->IsMatched())
-      continue;
+  // Iterate over all inliers and make sure we have low enough reprojection error.
+  Camera estimated_camera = problem.Model().camera_;
+  for (auto& observation : problem.Inliers()) {
 
-    EXPECT_FALSE(observations[ii]->IsIncorporated());
-    EXPECT_EQ(projected_landmarks[ii], observations[ii]->GetLandmark()->Index());
+    // Unpack this observation (extract Feature and Landmark).
+    Feature feature = observation->Feature();
+    Landmark::Ptr landmark = observation->GetLandmark();
+    CHECK_NOTNULL(landmark.get());
+
+    // Extract position of this landmark.
+    Point3D point = landmark->Position();
+
+    // Project into this camera.
+    double u = 0.0, v = 0.0;
+      const bool in_camera =
+	estimated_camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
+
+      // Check that the landmark projects into the image.
+      ASSERT_TRUE(in_camera);
+
+      // Compute error and return.
+      double delta_u = u - feature.u_;
+      double delta_v = v - feature.v_;
+      double error = delta_u*delta_u + delta_v*delta_v;
+      
+      EXPECT_TRUE(error < 1e-8 + 100.0 * noise_stddev);
   }
 
   // Clean up.

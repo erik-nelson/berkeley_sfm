@@ -101,6 +101,15 @@ class View {
   // Get observations.
   const std::vector<Observation::Ptr>& Observations() const;
 
+  // Create and add an observation to this view for each feature descriptor
+  // pair.
+  bool CreateAndAddObservations(const std::vector<Feature>& features,
+                                const std::vector<Descriptor>& descriptors);
+
+  // Populate a list of features and descriptors from observations in this view.
+  void GetFeaturesAndDescriptors(std::vector<Feature>* features,
+                                 std::vector<Descriptor>* descriptors) const;
+
   // Report whether one of the observations in this view has been matched with a
   // specific landmark.
   bool HasObservedLandmark(LandmarkIndex landmark_index) const;

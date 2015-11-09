@@ -51,7 +51,13 @@
 #ifndef BSFM_SLAM_VISUAL_ODOMETRY_H
 #define BSFM_SLAM_VISUAL_ODOMETRY_H
 
+#include "visual_odometry_options.h"
+
+#include "../camera/camera.h"
+#include "../camera/camera_intrinsics.h"
 #include "../image/image.h"
+#include "../matching/keypoint_detector.h"
+#include "../matching/descriptor_extractor.h"
 #include "../util/disallow_copy_and_assign.h"
 #include "../util/status.h"
 #include "../util/types.h"
@@ -60,7 +66,7 @@ namespace bsfm {
 
 class VisualOdometry {
  public:
-  VisualOdometry();
+  VisualOdometry(const VisualOdometryOptions& options, const Camera& camera);
   ~VisualOdometry();
 
   // Update the estimate of the camera's position and all landmark positions.
@@ -69,13 +75,42 @@ class VisualOdometry {
  private:
   DISALLOW_COPY_AND_ASSIGN(VisualOdometry)
 
-  // Specifies whether visual odometry is initialized. This happens the
-  // first time that two images are matched and 3D points are triangulated.
-  bool is_initialized_;
+  // The first two images added are handled separately from all others in order
+  // to initialize an estimate of the camera pose. The first image will simply
+  // have descriptors extracted. The second image will be matched against the
+  // first, and matched features will be triangulated. If the second image is
+  // successfully matched with the first, future calls to Update() will not call
+  // these functions.
+  Status InitializeFirstView(const Image& image);
+  Status InitializeSecondView(const Image& image);
+
+  // Called for every image after initialization. This function extracts
+  // descriptors from the image, matches them against 3D landmarks, computes the
+  // new view's pose, and then triangulates new landmarks from the image's
+  // observed features.
+  Status ProcessImage(const Image& image);
+
+  // Detect features and extract descriptors from the input image. Returns false
+  // with an error status if either part fails.
+  Status GetFeaturesAndDescriptors(const Image& image,
+                                   std::vector<Feature>* features,
+                                   std::vector<Descriptor>* descriptors);
+
+  // A copy of the set of options passed into the constructor.
+  VisualOdometryOptions options_;
 
   // A list of all views that have been added via visual odometry. Iterating
   // through these will generate the camera's trajectory.
   std::vector<ViewIndex> view_indices_;
+
+  // Camera intrinsics. These are specified using the camera passed into the
+  // constructor.
+  CameraIntrinsics intrinsics_;
+
+  // Keypoint detector and descriptor extractor for getting features and
+  // descriptors from input images.
+  KeypointDetector keypoint_detector_;
+  DescriptorExtractor descriptor_extractor_;
 
 };  //\class VisualOdometry
 

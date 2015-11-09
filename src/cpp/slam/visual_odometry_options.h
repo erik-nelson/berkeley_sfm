@@ -37,38 +37,63 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// This class defines a feature, which includes the (u, v) image space
-// coordinates of the feature as well as a descriptor for that feature.
+// This struct defines options for visual odometry.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_MATCHING_FEATURE_H
-#define BSFM_MATCHING_FEATURE_H
+#ifndef BSFM_SLAM_VISUAL_ODOMETRY_OPTIONS_H
+#define BSFM_SLAM_VISUAL_ODOMETRY_OPTIONS_H
 
-#include <memory>
-#include <vector>
+#include "../geometry/fundamental_matrix_solver_options.h"
+#include "../matching/feature_matcher_options.h"
 
 namespace bsfm {
 
-struct Feature {
-  typedef std::shared_ptr<Feature> Ptr;
-  typedef std::shared_ptr<const Feature> ConstPtr;
+struct VisualOdometryOptions {
+  // The type of feature that will be extracted on each image. Options are:
+  // - SURF
+  // - FAST
+  // - STAR
+  // - SIFT
+  // - ORB
+  // - BRISK
+  // - MSER
+  // - GFTT
+  // - HARRIS
+  // - DENSE
+  // - SIMPLEBLOB
+  std::string feature_type = "FAST";
 
-  Feature() : u_(0.0), v_(0.0) {}
-  Feature(double u, double v) : u_(u), v_(v) {}
+  // Turn on or off adaptive features. Adaptive features only work when using
+  // SURF, FAST, or STAR features. By default this feature is disabled. If it is
+  // enabled, the minimum and maximum amount of features must be specified
+  // manually, as must the number of iterations to adapt over per call to the
+  // feature detector.
+  bool adaptive_features = false;
+  unsigned int adaptive_min = 0;
+  unsigned int adaptive_max = 0;
+  unsigned int adaptive_iters = 0;
 
-  // Each feature contains the (u, v) image space coordinates of the center of
-  // the feature.
-  double u_, v_;
+  // The type of descriptor used to describe features in each image. Options
+  // are:
+  // - SIFT
+  // - SURF
+  // - BRIEF
+  // - BRISK
+  // - FREAK
+  // - ORB
+  std::string descriptor_type = "ORB";
 
-  // Equality operator compares image-space positions.
-  bool operator==(const Feature& rhs) const {
-    return u_ == rhs.u_ && v_ == rhs.v_;
-  }
+  // A set of options used for feature matching. Default values are specified in
+  // the matching/feature_matcher_options.h header.
+  FeatureMatcherOptions matcher_options;
 
-};  //\struct Feature
+  // A set of options used for computing the fundamental matrix between two
+  // cameras. Default values are specified in the
+  // geometry/fundamental_matrix_solver_options.h header.
+  FundamentalMatrixSolverOptions f_solver_options;
 
-typedef std::vector<Feature> FeatureList;
+};  //\struct VisualOdometryOptions
 
 }  //\namespace bsfm
 

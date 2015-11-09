@@ -166,7 +166,7 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
       num_points++;
     }
 
-    // Update best_cnt and best_pose.
+    // Update best_num_points and best_pose.
     if (num_points > best_num_points) {
       best_num_points = num_points;
       best_pose = poses[ii];

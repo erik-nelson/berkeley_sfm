@@ -36,6 +36,9 @@
  */
 
 #include "landmark.h"
+
+#include <numeric>
+
 #include "../sfm/view.h"
 
 namespace bsfm {
@@ -70,6 +73,13 @@ Landmark::Ptr Landmark::GetLandmark(LandmarkIndex landmark_index) {
 // Returns the total number of existing landmarks.
 LandmarkIndex Landmark::NumExistingLandmarks() {
   return landmark_registry_.size();
+}
+
+// Returns a vector of all existing landmark indices.
+std::vector<LandmarkIndex> Landmark::ExistingLandmarkIndices() {
+  std::vector<LandmarkIndex> indices(NumExistingLandmarks());
+  std::iota(indices.begin(), indices.end(), 0);
+  return indices;
 }
 
 // Returns whether the landmark index corresponds to a landmark that has been

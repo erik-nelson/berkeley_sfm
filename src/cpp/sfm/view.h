@@ -98,13 +98,15 @@ class View {
   // Get this view's index.
   ViewIndex Index() const;
 
-
   // Get observations.
   const std::vector<Observation::Ptr>& Observations() const;
 
   // Report whether one of the observations in this view has been matched with a
   // specific landmark.
   bool HasObservedLandmark(LandmarkIndex landmark_index) const;
+
+  // Check if a landmark is visible to the camera in this view.
+  bool CanSeeLandmark(LandmarkIndex landmark_index) const;
 
   // Update the landmark registry by looping over all observations and seeing
   // which landmarks they have observed.

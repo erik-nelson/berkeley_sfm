@@ -114,6 +114,15 @@ bool View::HasObservedLandmark(LandmarkIndex landmark_index) const {
   return landmarks_.count(landmark_index);
 }
 
+bool View::CanSeeLandmark(LandmarkIndex landmark_index) const {
+  const Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index);
+  CHECK_NOTNULL(landmark.get());
+
+  const Point3D point = landmark->Position();
+  double u = 0.0, v = 0.0;  // unused
+  return camera_.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
+}
+
 void View::UpdateObservedLandmarks() {
   for (const auto& observation : observations_) {
     CHECK_NOTNULL(observation.get());

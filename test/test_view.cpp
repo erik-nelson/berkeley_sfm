@@ -39,11 +39,37 @@
 
 #include <gflags/gflags.h>
 #include <camera/camera.h>
+#include <camera/camera_intrinsics.h>
+#include <geometry/rotation.h>
+#include <matching/feature.h>
+#include <slam/landmark.h>
+#include <slam/observation.h>
 #include <sfm/view.h>
+#include <util/types.h>
 
 #include <gtest/gtest.h>
 
 namespace bsfm {
+
+namespace {
+const int kImageWidth = 1920;
+const int kImageHeight = 1080;
+const double kVerticalFov = D2R(90.0);
+
+CameraIntrinsics DefaultIntrinsics() {
+  CameraIntrinsics intrinsics;
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(kImageWidth);
+  intrinsics.SetImageHeight(kImageHeight);
+  intrinsics.SetVerticalFOV(kVerticalFov);
+  intrinsics.SetFU(intrinsics.f_v());
+  intrinsics.SetCU(0.5 * kImageWidth);
+  intrinsics.SetCV(0.5 * kImageHeight);
+
+  return intrinsics;
+}
+}  //\namespace
 
 TEST(View, TestUniqueViewIndices) {
   // Since all tests are run in a single process, views may have been created
@@ -113,6 +139,33 @@ TEST(View, TestPersistentViews) {
 
   // Reset so the next test doesn't have issues.
   View::ResetViews();
+}
+
+TEST(View, TestCanSeeLandmark) {
+  // Create a landmark in front of the camera (camera faces world +Z by
+  // default).
+  Landmark::Ptr landmark = Landmark::Create();
+  landmark->SetPosition(Point3D(0.0, 0.0, 10.0));
+
+  View::Ptr view = View::Create(Camera());
+  view->MutableCamera().SetIntrinsics(DefaultIntrinsics());
+
+  // Make sure the view can see the landmark, but has not yet observed it.
+  EXPECT_TRUE(view->CanSeeLandmark(landmark->Index()));
+  EXPECT_FALSE(view->HasObservedLandmark(landmark->Index()));
+
+  // Force the view to observe the landmark.
+  const Feature feature(kImageWidth / 2, kImageHeight / 2);
+  Observation::Ptr observation =
+      Observation::Create(view, feature, Descriptor::Random(64));
+  EXPECT_TRUE(landmark->IncorporateObservation(observation));
+  view->UpdateObservedLandmarks();
+
+  // Make sure the view has now observed the landmark
+  EXPECT_TRUE(view->CanSeeLandmark(landmark->Index()));
+  EXPECT_TRUE(view->HasObservedLandmark(landmark->Index()));
+  EXPECT_TRUE(observation->IsMatched());
+  EXPECT_TRUE(observation->IsIncorporated());
 }
 
 }  //\namespace bsfm

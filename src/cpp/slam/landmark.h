@@ -83,6 +83,9 @@ class Landmark {
   // Returns the number of existing landmarks.
   static LandmarkIndex NumExistingLandmarks();
 
+  // Returns a vector of all existing landmark indices.
+  static std::vector<LandmarkIndex> ExistingLandmarkIndices();
+
   // Returns whether the landmark index corresponds to a landmark that has been
   // created.
   static bool IsValidLandmark(LandmarkIndex landmark_index);

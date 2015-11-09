@@ -53,7 +53,7 @@
 #include <gtest/gtest.h>
 #include <gflags/gflags.h>
 
-DEFINE_double(noise_stddev, 0.0,
+DEFINE_double(noise_stddev, 1.0,
 	      "Additive Gaussian noise on feature coordinates.");
 
 namespace bsfm {
@@ -163,7 +163,7 @@ std::vector<LandmarkIndex> CreateObservations(
 }
 
 void TestRansac2D3D(unsigned int num_bad_matches,
-      double noise_stddev) {
+		    double noise_stddev) {
   // Clean up from other tests.
   Landmark::ResetLandmarks();
   View::ResetViews();
@@ -214,10 +214,10 @@ void TestRansac2D3D(unsigned int num_bad_matches,
   Ransac<Observation::Ptr, PnPRansacModel> solver;
   RansacOptions options;
   options.iterations = 100;
-  options.acceptable_error = 1e-8;
+  options.acceptable_error = 1e-8 + 100.0 * noise_stddev;
   options.num_samples = 6;
   options.minimum_num_inliers = projected_landmarks.size();
-
+  
   solver.SetOptions(options);
   solver.Run(problem);
 
@@ -245,19 +245,19 @@ void TestRansac2D3D(unsigned int num_bad_matches,
 // Test with 1 to 1 correspondence between observations in the view and existing
 // landmarks.
 TEST(PnPRansac2D3D, TestPnPRansac2D3DNoiseless) {
-  TestRansac2D3D(0);
+  TestRansac2D3D(0, 0.0);
 }
 
 // Test with many to 1 correspondence between observations in the view and existing
 // landmarks.
 TEST(PnPRansac2D3D, TestPnPRansac2D3DNoisy) {
-  TestRansac2D3D(0.5 * kNumLandmarks);
+  TestRansac2D3D(0.5 * kNumLandmarks, FLAGS_noise_stddev);
 }
 
 // Test with MANY to 1 correspondence between observations in the view and existing
 // landmarks.
 TEST(PnPRansac2D3D, TestPnPRansac2D3DVeryNoisy) {
-  TestRansac2D3D(100.0 * kNumLandmarks);
+  TestRansac2D3D(100.0 * kNumLandmarks, FLAGS_noise_stddev);
 }
 
 

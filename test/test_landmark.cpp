@@ -99,7 +99,7 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
   // no views.
   Landmark::Ptr landmark = Landmark::Create();
   std::vector<ViewIndex> view_indices;
-  EXPECT_FALSE(landmark->SeenByAtLeastTwoViews(view_indices));
+  EXPECT_FALSE(landmark->SeenByAtLeastNViews(view_indices, 2));
 
   // Create two views with no observations.
   View::Ptr view1 = View::Create(Camera());
@@ -109,7 +109,7 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
 
   // The landmark still should not have been observed, since neither view
   // contains observations.
-  EXPECT_FALSE(landmark->SeenByAtLeastTwoViews(view_indices));
+  EXPECT_FALSE(landmark->SeenByAtLeastNViews(view_indices, 2));
 
   // Add some observations to the views.
   Feature feature(0.0, 0.0);
@@ -122,7 +122,7 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
   // The landmark still should not have been observed, since neither view
   // contains observations that have specifically been matched with this
   // landmark.
-  EXPECT_FALSE(landmark->SeenByAtLeastTwoViews(view_indices));
+  EXPECT_FALSE(landmark->SeenByAtLeastNViews(view_indices, 2));
 
   // Match the observations in the views with the landmark. After adding both,
   // the landmark should report that it has been seen by both views. Since
@@ -130,9 +130,9 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
   // so just ask the landmark not to retriangulate its 3D position.
   const bool kRetriangulate = false;
   EXPECT_TRUE(landmark->IncorporateObservation(observation1, kRetriangulate));
-  EXPECT_FALSE(landmark->SeenByAtLeastTwoViews(view_indices));
+  EXPECT_FALSE(landmark->SeenByAtLeastNViews(view_indices, 2));
   EXPECT_TRUE(landmark->IncorporateObservation(observation2, kRetriangulate));
-  EXPECT_TRUE(landmark->SeenByAtLeastTwoViews(view_indices));
+  EXPECT_TRUE(landmark->SeenByAtLeastNViews(view_indices, 2));
 
   // Finally, make sure that incorporating additional views that observe the
   // landmark doesn't alter behavior.
@@ -143,7 +143,7 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
 
     view_indices.push_back(view->Index());
     EXPECT_TRUE(landmark->IncorporateObservation(observation, kRetriangulate));
-    EXPECT_TRUE(landmark->SeenByAtLeastTwoViews(view_indices));
+    EXPECT_TRUE(landmark->SeenByAtLeastNViews(view_indices, 2));
   }
 
   // Clean up.

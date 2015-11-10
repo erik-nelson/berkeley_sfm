@@ -125,8 +125,8 @@ class Landmark {
   std::shared_ptr<View> SourceView() const;
 
   // Given a set of views, return whether or not this landmark has been seen by
-  // at least 2 of them.
-  bool SeenByAtLeastTwoViews(const std::vector<ViewIndex>& view_indices);
+  // at least N of them.
+  bool SeenByAtLeastNViews(const std::vector<ViewIndex>& view_indices, unsigned int N);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Landmark)

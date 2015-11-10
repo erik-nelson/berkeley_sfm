@@ -46,18 +46,29 @@
 #include <gflags/gflags.h>
 #include <opencv2/opencv.hpp>
 
+#include <camera/camera.h>
+#include <camera/camera_intrinsics.h>
 #include <image/image.h>
+#include <slam/visual_odometry.h>
+#include <slam/visual_odometry_options.h>
 #include <strings/join.h>
 #include <strings/join_filepath.h>
-#include <util/progress_tracker.h>
+#include <util/progress_bar.h>
+#include <util/status.h>
 #include <util/timer.h>
 
 DEFINE_string(video_file, "visual_odometry_test.mp4",
               "Name of the video file to perform visual odometry on.");
 
+using bsfm::Camera;
+using bsfm::CameraIntrinsics;
+using bsfm::Image;
+using bsfm::Status;
+using bsfm::VisualOdometry;
+using bsfm::VisualOdometryOptions;
 using bsfm::strings::Join;
 using bsfm::strings::JoinFilepath;
-using bsfm::util::ProgressTracker;
+using bsfm::util::ProgressBar;
 using bsfm::util::Timer;
 
 int main(int argc, char** argv) {
@@ -80,14 +91,34 @@ int main(int argc, char** argv) {
 
   // Initialize a timer and progress tracker bar.
   Timer timer;
+#if 0
   unsigned int frame_number = 0;
-  ProgressTracker progress("Video playback",
-                           capture.get(CV_CAP_PROP_FRAME_COUNT));
+  ProgressBar progress("Video playback", capture.get(CV_CAP_PROP_FRAME_COUNT));
+#endif
 
-  // Draw frames of the video.
+  // Initialize visual odometry.
+  Camera initial_camera;
+  CameraIntrinsics intrinsics;
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(960);
+  intrinsics.SetImageHeight(540);
+  intrinsics.SetFU(1890.0);
+  intrinsics.SetFV(1890.0);
+  intrinsics.SetCU(480);
+  intrinsics.SetCV(270);
+  intrinsics.SetK(0.06455, -0.16778, -0.02109, 0.03352, 0.0);
+  initial_camera.SetIntrinsics(intrinsics);
+
+  VisualOdometryOptions vo_options;
+  VisualOdometry vo(vo_options, initial_camera);
+
+  // Draw and process frames of the video.
   cv::Mat cv_video_frame;
   while(true) {
+#if 0
     progress.Update(frame_number++);
+#endif
 
     // Get the next frame.
     capture.read(cv_video_frame);
@@ -98,10 +129,18 @@ int main(int argc, char** argv) {
     // Display the frame.
     cv::imshow(window_name.c_str(), cv_video_frame);
 
+    // Process the frame.
+    Image frame(cv_video_frame);
+    Status s = vo.Update(frame);
+    if (!s.ok()) {
+      std::cout << std::endl << s.Message() << std::endl;
+    }
+
     // Wait based on the framerate. Our timer is slightly more reliable than
     // using cv::waitKey() alone.
     while (timer.Toc() < wait_in_seconds) {
-      cv::waitKey(1);
+      // cv::waitKey(1);
+      cv::waitKey(0);
     }
     timer.Tic();
   }

@@ -217,7 +217,7 @@ void TestRansac2D3D(unsigned int num_bad_matches,
   options.acceptable_error = 1e-8 + 100.0 * noise_stddev;
   options.num_samples = 6;
   options.minimum_num_inliers = projected_landmarks.size();
-  
+
   solver.SetOptions(options);
   solver.Run(problem);
 
@@ -238,8 +238,8 @@ void TestRansac2D3D(unsigned int num_bad_matches,
 
     // Project into this camera.
     double u = 0.0, v = 0.0;
-      const bool in_camera =
-	estimated_camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
+    const bool in_camera =
+        estimated_camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
 
       // Check that the landmark projects into the image.
       ASSERT_TRUE(in_camera);
@@ -248,7 +248,7 @@ void TestRansac2D3D(unsigned int num_bad_matches,
       double delta_u = u - feature.u_;
       double delta_v = v - feature.v_;
       double error = delta_u*delta_u + delta_v*delta_v;
-      
+
       EXPECT_TRUE(error < 1e-8 + 100.0 * noise_stddev);
   }
 

@@ -90,6 +90,11 @@ class View {
   // resetting the program or reconstruction.
   static void ResetViews();
 
+  // Deletes the most recently created view, such that the next view that is
+  // created will have the deleted view's index. This has the potential to cause
+  // issues if the caller holds onto a pointer to the deleted view.
+  static void DeleteMostRecentView();
+
   // Get and set the camera.
   void SetCamera(const ::bsfm::Camera& camera);
   ::bsfm::Camera& MutableCamera();
@@ -120,6 +125,11 @@ class View {
   // Update the landmark registry by looping over all observations and seeing
   // which landmarks they have observed.
   void UpdateObservedLandmarks();
+
+  // Get all landmarks observed by a sliding window with the most recent views.
+  static void GetSlidingWindowLandmarks(
+      unsigned int sliding_window_length,
+      std::vector<LandmarkIndex>* landmark_indices);
 
   // Return the set of all landmarks that this view can see. The returned set
   // may not be accurate if UpdateObservedLandmarks() was not called recently.

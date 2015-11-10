@@ -204,8 +204,9 @@ View::Ptr Landmark::SourceView() const {
 }
 
 // Given a set of views, return whether or not this landmark has been seen by at
-// least 2 of them.
-bool Landmark::SeenByAtLeastTwoViews(const std::vector<ViewIndex>& view_indices) {
+// least N of them.
+bool Landmark::SeenByAtLeastNViews(const std::vector<ViewIndex>& view_indices,
+                                   unsigned int N) {
   unsigned int count = 0;
   for (const auto& view_index : view_indices) {
     // If they gave us a bad input, ignore it and continue.
@@ -219,7 +220,7 @@ bool Landmark::SeenByAtLeastTwoViews(const std::vector<ViewIndex>& view_indices)
       count++;
     }
 
-    if (count == 2) {
+    if (count == N) {
       return true;
     }
   }

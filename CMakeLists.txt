@@ -38,7 +38,7 @@ add_library(berkeley_sfm ${bsfm_srcs})
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/)
 
 # Find and build executables.
-#add_subdirectory(exec)
+add_subdirectory(exec)
 
 # Find and build tests.
 if (BUILD_TESTS)

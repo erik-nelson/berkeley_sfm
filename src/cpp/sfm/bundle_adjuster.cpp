@@ -88,7 +88,7 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
 
       // Make sure the landmark has been seen by at least two of the views we
       // are doing bundle adjustment over.
-      if (!landmark->SeenByAtLeastTwoViews(view_indices))
+      if (!landmark->SeenByAtLeastNViews(view_indices, 2))
         continue;
 
       // Add a residual block to the cost function.

@@ -44,8 +44,10 @@
 #ifndef BSFM_SLAM_VISUAL_ODOMETRY_OPTIONS_H
 #define BSFM_SLAM_VISUAL_ODOMETRY_OPTIONS_H
 
-#include "../geometry/fundamental_matrix_solver_options.h"
+#include <string>
+
 #include "../matching/feature_matcher_options.h"
+#include "../ransac/ransac_options.h"
 
 namespace bsfm {
 
@@ -84,14 +86,23 @@ struct VisualOdometryOptions {
   // - ORB
   std::string descriptor_type = "ORB";
 
+  // Length of the sliding window (number of images). The higher this value, the
+  // more accurate the localization and mapping, but the slower the process.
+  unsigned int sliding_window_length = 10;
+
   // A set of options used for feature matching. Default values are specified in
   // the matching/feature_matcher_options.h header.
   FeatureMatcherOptions matcher_options;
 
-  // A set of options used for computing the fundamental matrix between two
-  // cameras. Default values are specified in the
-  // geometry/fundamental_matrix_solver_options.h header.
-  FundamentalMatrixSolverOptions f_solver_options;
+  // A set of options used for finding the fundamental matrix between two
+  // cameras with RANSAC. Default values are specified in the
+  // ransac/ransac_options.h header.
+  RansacOptions fundamental_matrix_ransac_options;
+
+  // A set of options used for running RANSAC to find the pose of a new camera
+  // by matching it against known 3D landmarks. Default values are specified in
+  // the ransac/ransac_options.h header.
+  RansacOptions pnp_ransac_options;
 
 };  //\struct VisualOdometryOptions
 

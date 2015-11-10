@@ -85,6 +85,14 @@ void View::ResetViews() {
   view_registry_.clear();
 }
 
+// Deletes the most recently created view, such that the next view that is
+// created will have the deleted view's index. This has the potential to cause
+// issues if the caller holds onto a pointer to the deleted view.
+void View::DeleteMostRecentView() {
+  current_view_index_--;
+  view_registry_.erase(current_view_index_);
+}
+
 void View::SetCamera(const ::bsfm::Camera& camera) {
   camera_ = camera;
 }
@@ -164,6 +172,33 @@ void View::UpdateObservedLandmarks() {
 
     // Calls to std::set::insert() will overwrite old key value pairs.
     landmarks_.insert(observation->GetLandmark()->Index());
+  }
+}
+
+void View::GetSlidingWindowLandmarks(
+    unsigned int sliding_window_length,
+    std::vector<LandmarkIndex>* landmark_indices) {
+  CHECK_NOTNULL(landmark_indices);
+  landmark_indices->clear();
+
+  // Create a list of view indices in the sliding window.
+  std::vector<ViewIndex> view_indices;
+  ViewIndex end_view = current_view_index_;
+  ViewIndex start_view = end_view - sliding_window_length;
+  for (ViewIndex ii = start_view; ii < end_view; ++ii) {
+    view_indices.push_back(ii);
+  }
+
+  // Loop over landmarks, checking if they have been seen by any views.
+  for (LandmarkIndex index = 0; index < Landmark::NumExistingLandmarks();
+       ++index) {
+    Landmark::Ptr landmark = Landmark::GetLandmark(index);
+    CHECK_NOTNULL(landmark.get());
+
+    // If this landmark has been seen at least once, store it.
+    if (landmark->SeenByAtLeastNViews(view_indices, 1)) {
+      landmark_indices->push_back(index);
+    }
   }
 }
 

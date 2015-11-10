@@ -141,6 +141,21 @@ TEST(View, TestPersistentViews) {
   View::ResetViews();
 }
 
+TEST(View, TestDeleteView) {
+  // Make sure that when we delete a view, the next one is created with the same
+  // index.
+  View::Ptr view1 = View::Create(Camera());
+  EXPECT_EQ(0, view1->Index());
+  View::DeleteMostRecentView();
+  View::Ptr view2 = View::Create(Camera());
+  EXPECT_EQ(0, view1->Index());
+  EXPECT_EQ(0, view2->Index());
+
+  View::Ptr view2_also = View::GetView(0);
+  EXPECT_EQ(view2.get(), view2_also.get());
+  EXPECT_NE(view1.get(), view2_also.get());
+}
+
 TEST(View, TestCanSeeLandmark) {
   // Create a landmark in front of the camera (camera faces world +Z by
   // default).

@@ -39,11 +39,15 @@
 
 #include "../camera/camera_extrinsics.h"
 #include "../geometry/essential_matrix_solver.h"
-#include "../geometry/eight_point_algorithm_solver.h"
 #include "../matching/distance_metric.h"
 #include "../matching/feature.h"
 #include "../matching/pairwise_image_match.h"
 #include "../matching/naive_matcher_2d2d.h"
+#include "../matching/naive_matcher_2d3d.h"
+#include "../ransac/fundamental_matrix_ransac_problem.h"
+#include "../ransac/pnp_ransac_problem.h"
+#include "../ransac/ransac.h"
+#include "../ransac/ransac_options.h"
 #include "../slam/landmark.h"
 #include "../slam/observation.h"
 #include "../sfm/view.h"
@@ -139,13 +143,19 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
         "Not enough matched points to compute a fundamental matrix.");
   }
 
-  // Get the fundamental matrix between the first two cameras.
-  Matrix3d F;
-  EightPointAlgorithmSolver f_solver;
-  f_solver.SetOptions(options_.f_solver_options);
-  if (!f_solver.ComputeFundamentalMatrix(feature_matches, F)) {
-    return Status::Cancelled("Failed to compute fundamental matrix.");
+  // Get the fundamental matrix between the first two cameras using RANSAC.
+  FundamentalMatrixRansacProblem f_problem;
+  f_problem.SetData(feature_matches);
+
+  Ransac<FeatureMatch, FundamentalMatrixRansacModel> f_solver;
+  f_solver.SetOptions(options_.fundamental_matrix_ransac_options);
+  f_solver.Run(f_problem);
+
+  if (!f_problem.SolutionFound()) {
+    return Status::Cancelled(
+        "Failed to compute a fundamental matrix with RANSAC.");
   }
+  Matrix3d F = f_problem.Model().F_;
 
   // Get the essential matrix between the first two cameras.
   Matrix3d E;
@@ -208,6 +218,75 @@ Status VisualOdometry::ProcessImage(const Image& image) {
   std::vector<Descriptor> descriptors;
   Status status = GetFeaturesAndDescriptors(image, &features, &descriptors);
   if (!status.ok()) return status;
+
+  // Create a new view with identity camera extrinsics.
+  Camera new_camera(CameraExtrinsics(), intrinsics_);
+  View::Ptr new_view = View::Create(new_camera);
+
+  // Add features and descriptors as observations to the view.
+  new_view->CreateAndAddObservations(features, descriptors);
+
+  // Get a list of all landmarks seen by the views in the sliding window.
+  std::vector<LandmarkIndex> landmark_indices;
+  View::GetSlidingWindowLandmarks(options_.sliding_window_length,
+                                  &landmark_indices);
+
+  // Match features seen by this view with existing landmarks.
+  NaiveMatcher2D3D feature_matcher;
+  if (!feature_matcher.Match(options_.matcher_options,
+                             new_view->Index(),
+                             landmark_indices)) {
+    View::DeleteMostRecentView();
+    return Status::Cancelled(
+        "Failed to match 2D descriptors with existing landmarks.");
+  }
+
+  // Use PnP RANSAC to find the pose of this camera using the 2D<-->3D matches.
+  PnPRansacProblem pnp_problem;
+  pnp_problem.SetIntrinsics(intrinsics_);
+  pnp_problem.SetData(new_view->Observations());
+
+  Ransac<Observation::Ptr, PnPRansacModel> pnp_solver;
+  pnp_solver.SetOptions(options_.pnp_ransac_options);
+  pnp_solver.Run(pnp_problem);
+
+  // If RANSAC fails, delete the view and return.
+  if (!pnp_problem.SolutionFound()) {
+    View::DeleteMostRecentView();
+    return Status::Cancelled(
+        "Failed to compute new camera pose with PnP RANSAC.");
+  }
+
+  // Get the camera pose from RANSAC.
+  const CameraExtrinsics& computed_extrinsics =
+      pnp_problem.Model().camera_.Extrinsics();
+  new_view->MutableCamera().SetExtrinsics(computed_extrinsics);
+
+  // Loop over RANSAC inliers and incorporate observations into the landmarks
+  // they point to.
+  for (auto& observation : pnp_problem.Inliers()) {
+    Landmark::Ptr landmark = observation->GetLandmark();
+    CHECK_NOTNULL(landmark.get());
+
+    landmark->IncorporateObservation(observation);
+  }
+
+#if 0
+  // Get a list of all features and descriptors that have not been incorporated
+  // into landmarks.
+  std::vector<Feature> unincorporated_features;
+  std::vector<Descriptor> unincorporated_descriptors;
+  for (auto& observation : view->Observations()) {
+    if (!observation.IsIncorporated()) {
+      unincorporated_features.emplace_back(observation->Feature());
+      unincorporated_descriptors.emplace_back(observation->Descriptor());
+    }
+  }
+
+  // Try to match these against other descriptors in the sliding window.
+
+  // Add the matches as landmarks.
+#endif
 
   return Status::Ok();
 }

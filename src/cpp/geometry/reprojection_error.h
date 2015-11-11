@@ -45,10 +45,21 @@
 #ifndef BSFM_GEOMETRY_REPROJECTION_ERROR_H
 #define BSFM_GEOMETRY_REPROJECTION_ERROR_H
 
+#include "point_3d.h"
 #include "../camera/camera.h"
+#include "../matching/feature.h"
 #include "../slam/observation.h"
 
 namespace bsfm {
+
+// Evaluate reprojection error on the given Feature and Point3D pair.
+double ReprojectionError(const Feature& feature, const Point3D& point,
+                         const Camera& camera);
+
+// Repeats the ReprojectionError() function on a list of feature point pairs,
+// returning the sum of squared errors.
+double ReprojectionError(const FeatureList& features, const Point3DList& points,
+                         const Camera& camera);
 
 // Evaluate the reprojection error on the given Observation.
 double ReprojectionError(const Observation::Ptr& observation,

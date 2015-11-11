@@ -44,11 +44,42 @@
 
 #include "reprojection_error.h"
 
-#include "point_3d.h"
-#include "../matching/feature.h"
 #include "../slam/landmark.h"
 
 namespace bsfm {
+
+// Evaluate reprojection error on the given Feature and Point3D pair.
+double ReprojectionError(const Feature& feature, const Point3D& point,
+                         const Camera& camera) {
+  // Project into this camera.
+  double u = 0.0, v = 0.0;
+  if (!camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v)) {
+    return std::numeric_limits<double>::max();
+  }
+
+  // Return sum of squared error.
+  const double du = u - feature.u_;
+  const double dv = v - feature.v_;
+  return du*du + dv*dv;
+}
+
+// Repeats the ReprojectionError() function on a list of feature point pairs,
+// returning the sum of squared errors.
+double ReprojectionError(const FeatureList& features, const Point3DList& points,
+                         const Camera& camera) {
+  if (features.size() != points.size()) {
+    LOG(WARNING) << "Need the same number of input features and points.";
+    return std::numeric_limits<double>::max();
+  }
+
+  // Calculate total reprojection error.
+  double total_error = 0.0;
+  for (size_t ii = 0; ii < features.size(); ++ii)
+    total_error += ReprojectionError(features[ii], points[ii], camera);
+
+  return total_error;
+
+}
 
 // Evaluate the reprojection error on the given Observation.
 double ReprojectionError(const Observation::Ptr& observation,
@@ -63,20 +94,7 @@ double ReprojectionError(const Observation::Ptr& observation,
   // Extract position of this landmark.
   Point3D point = landmark->Position();
 
-  // Project into this camera.
-  double u = 0.0, v = 0.0;
-  const bool in_camera =
-      camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
-
-  // Check that the landmark projects into the image.
-  if (!in_camera) return std::numeric_limits<double>::infinity();
-
-  // Compute error and return.
-  double delta_u = u - feature.u_;
-  double delta_v = v - feature.v_;
-  double error = delta_u * delta_u + delta_v * delta_v;
-
-  return error;
+  return ReprojectionError(feature, point, camera);
 }
 
 // Repeats the ReprojectionError() function on a list of obserations, returning

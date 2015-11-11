@@ -106,6 +106,14 @@ class View {
   // Get observations.
   const std::vector<Observation::Ptr>& Observations() const;
 
+  // Populate a list of all matched observations.
+  void MatchedObservations(
+      std::vector<Observation::Ptr>* matched_observations) const;
+
+  // Populate a list of all incorporated observations.
+  void IncorporatedObservations(
+      std::vector<Observation::Ptr>* incorporated_observations) const;
+
   // Create and add an observation to this view for each feature descriptor
   // pair.
   bool CreateAndAddObservations(const std::vector<Feature>& features,

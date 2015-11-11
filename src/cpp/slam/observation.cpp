@@ -65,6 +65,11 @@ std::shared_ptr<View> Observation::GetView() const {
   return view;
 }
 
+// Get the index of the view that this observation was seen from.
+ViewIndex Observation::GetViewIndex() const {
+  return view_index_;
+}
+
 // Get the landmark that this observation corresponds to. Returns a null
 // pointer if the observation has not been matched with a landmark.
 Landmark::Ptr Observation::GetLandmark() const {
@@ -76,6 +81,12 @@ Landmark::Ptr Observation::GetLandmark() const {
   Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index_);
   CHECK_NOTNULL(landmark.get());
   return landmark;
+}
+
+// Get the index of the landmark that this observation corresponds to. Returns
+// kInvalidLandmark if the observation has not been matched with a landmark.
+LandmarkIndex Observation::GetLandmarkIndex() const {
+  return landmark_index_;
 }
 
 // Sets the landmark as a potential match for this observation. The observation

@@ -76,9 +76,16 @@ class Observation {
   // Get the view that this observation was seen from.
   std::shared_ptr<View> GetView() const;
 
+  // Get the index of the view that this observation was seen from.
+  ViewIndex GetViewIndex() const;
+
   // Get the landmark that this observation corresponds to. Returns a null
   // pointer if the observation has not been matched with a landmark.
   std::shared_ptr<Landmark> GetLandmark() const;
+
+  // Get the index of the landmark that this observation corresponds to. Returns
+  // kInvalidLandmark if the observation has not been matched with a landmark.
+  LandmarkIndex GetLandmarkIndex() const;
 
   // Sets a landmark as a potential match for this observation. The observation
   // has still not been incorporated into the landmark.

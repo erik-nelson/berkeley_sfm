@@ -111,6 +111,10 @@ bool KeypointDetector::SetDetector(const std::string& detector_type) {
 
     detector_ = cv::FeatureDetector::create("GFTT");
 
+  } else if (detector_type.compare("GFTT") == 0) {
+
+    detector_ = cv::FeatureDetector::create("GFTT");
+
   } else if (detector_type.compare("HARRIS") == 0) {
 
     detector_ = cv::FeatureDetector::create("HARRIS");

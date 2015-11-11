@@ -48,6 +48,7 @@
 
 #include "../matching/feature_matcher_options.h"
 #include "../ransac/ransac_options.h"
+#include "../sfm/bundle_adjustment_options.h"
 
 namespace bsfm {
 
@@ -90,6 +91,28 @@ struct VisualOdometryOptions {
   // more accurate the localization and mapping, but the slower the process.
   unsigned int sliding_window_length = 10;
 
+  // ---------------------- DRAWING OPTIONS ---------------------- //
+  // If any of the drawing features below are enabled, an OpenCV window will be
+  // displayed with the selected options overlaid on the current frame.
+
+  // Draw detected features as colored circles.
+  bool draw_features = true;
+
+  // Draw landmarks seen by at least one camera in the sliding window as
+  // squares. Also print normalized distance from the camera to each landmark.
+  bool draw_landmarks = true;
+
+  // Draw inlier matches between 2D features in the frame and 3D landmarks. If
+  // either of the above 2 options are false, this option will be overridden and
+  // matches will not be displayed.
+  bool draw_inlier_observations = true;
+
+  // Draw landmark tracks. This is done by finding each landmark in other views
+  // in the sliding window, and drawing where those views would have seen the
+  // landmark. This option gives a sense of the motion of the camera.
+  bool draw_tracks = true;
+  // ---------------------- DRAWING OPTIONS ---------------------- //
+
   // A set of options used for feature matching. Default values are specified in
   // the matching/feature_matcher_options.h header.
   FeatureMatcherOptions matcher_options;
@@ -103,6 +126,10 @@ struct VisualOdometryOptions {
   // by matching it against known 3D landmarks. Default values are specified in
   // the ransac/ransac_options.h header.
   RansacOptions pnp_ransac_options;
+
+  // Options for bundle adjustment. Default values are specified in the
+  // sfm/bundle_adjustment_options.h header.
+  BundleAdjustmentOptions bundle_adjustment_options;
 
 };  //\struct VisualOdometryOptions
 

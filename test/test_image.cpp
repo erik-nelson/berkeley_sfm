@@ -120,7 +120,6 @@ TEST(Image, TestLoadFromOpenCVMat) {
   // Load an OpenCV image and convert it to floating point RGB.
   cv::Mat image1 = cv::imread(test_image.c_str(), CV_LOAD_IMAGE_COLOR);
   image1.convertTo(image1, CV_32FC3, 1.f / 255.f);
-  cv::cvtColor(image1, image1, CV_BGR2RGB);
 
   // Load the same image in our format.
   Image image2(test_image.c_str());

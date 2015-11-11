@@ -49,11 +49,15 @@
 #include <camera/camera.h>
 #include <camera/camera_intrinsics.h>
 #include <image/image.h>
+#include <image/drawing_utils.h>
+#include <matching/feature.h>
+#include <matching/feature_match.h>
+#include <matching/naive_matcher_2d2d.h>
+#include <sfm/view.h>
 #include <slam/visual_odometry.h>
 #include <slam/visual_odometry_options.h>
 #include <strings/join.h>
 #include <strings/join_filepath.h>
-#include <util/progress_bar.h>
 #include <util/status.h>
 #include <util/timer.h>
 
@@ -62,13 +66,20 @@ DEFINE_string(video_file, "visual_odometry_test.mp4",
 
 using bsfm::Camera;
 using bsfm::CameraIntrinsics;
+using bsfm::Descriptor;
 using bsfm::Image;
+using bsfm::Feature;
+using bsfm::FeatureMatchList;
+using bsfm::NaiveMatcher2D2D;
+using bsfm::PairwiseImageMatchList;
 using bsfm::Status;
+using bsfm::View;
 using bsfm::VisualOdometry;
 using bsfm::VisualOdometryOptions;
+using bsfm::drawing::AnnotateLandmarks;
+using bsfm::drawing::DrawImageFeatureMatches;
 using bsfm::strings::Join;
 using bsfm::strings::JoinFilepath;
-using bsfm::util::ProgressBar;
 using bsfm::util::Timer;
 
 int main(int argc, char** argv) {
@@ -89,12 +100,8 @@ int main(int argc, char** argv) {
       Join("Visual Odometry: ", FLAGS_video_file.c_str());
   cv::namedWindow(window_name.c_str(), CV_WINDOW_AUTOSIZE);
 
-  // Initialize a timer and progress tracker bar.
+  // Initialize a timer.
   Timer timer;
-#if 0
-  unsigned int frame_number = 0;
-  ProgressBar progress("Video playback", capture.get(CV_CAP_PROP_FRAME_COUNT));
-#endif
 
   // Initialize visual odometry.
   Camera initial_camera;
@@ -111,38 +118,85 @@ int main(int argc, char** argv) {
   initial_camera.SetIntrinsics(intrinsics);
 
   VisualOdometryOptions vo_options;
+  vo_options.feature_type = "FAST";
+  vo_options.descriptor_type = "ORB";
+  vo_options.sliding_window_length = 10;
+  vo_options.adaptive_features = true;
+  vo_options.adaptive_min = 400;
+  vo_options.adaptive_max = 500;
+  vo_options.adaptive_iters = 5;
+
+  vo_options.draw_features = true;
+  vo_options.draw_landmarks = true;
+  vo_options.draw_inlier_observations = true;
+  vo_options.draw_tracks = true;
+
+  vo_options.matcher_options.use_lowes_ratio = true;
+  vo_options.matcher_options.lowes_ratio = 0.75;
+  vo_options.matcher_options.min_num_feature_matches = 8;
+  vo_options.matcher_options.require_symmetric_matches = true;
+  vo_options.matcher_options.only_keep_best_matches = false;
+  vo_options.matcher_options.num_best_matches = 0;
+  vo_options.matcher_options.enforce_maximum_descriptor_distance = false;
+  vo_options.matcher_options.maximum_descriptor_distance = 0.0;
+  vo_options.matcher_options.distance_metric = "HAMMING";
+
+  // RANSAC iterations chosen using ~30% outliers @ 99% chance to sample from
+  // Table 4.3 of H&Z.
+  // Number of inliers ~= (1-0.3) * 50. Assumes 50 features observed on a frame.
+  vo_options.fundamental_matrix_ransac_options.iterations = 78;
+  vo_options.fundamental_matrix_ransac_options.acceptable_error = 1e-3;
+  vo_options.fundamental_matrix_ransac_options.minimum_num_inliers = 35;
+  vo_options.fundamental_matrix_ransac_options.num_samples = 8;
+
+  // Number of inliers ~= (1-0.3) * 30. Assumes ~30 landmarks observed on a frame.
+  // Error is squared reprojection. Allow for a 20 pixel error tolerance.
+  vo_options.pnp_ransac_options.iterations = 50;
+  vo_options.pnp_ransac_options.acceptable_error = 400.0;
+  vo_options.pnp_ransac_options.minimum_num_inliers = 20;
+  vo_options.pnp_ransac_options.num_samples = 6;
+
+  vo_options.bundle_adjustment_options.solver_type = "SPARSE_SCHUR";
+  vo_options.bundle_adjustment_options.print_summary = false;
+  vo_options.bundle_adjustment_options.print_progress = false;
+  vo_options.bundle_adjustment_options.max_num_iterations = 50;
+  vo_options.bundle_adjustment_options.function_tolerance = 1e-16;
+  vo_options.bundle_adjustment_options.gradient_tolerance = 1e-16;
+
   VisualOdometry vo(vo_options, initial_camera);
 
   // Draw and process frames of the video.
   cv::Mat cv_video_frame;
-  while(true) {
-#if 0
-    progress.Update(frame_number++);
-#endif
+  capture.read(cv_video_frame);  // HACK: throw away first frame to draw matches.
+  Image last_frame(cv_video_frame);
+  vo.Update(last_frame);
 
+  while(true) {
     // Get the next frame.
     capture.read(cv_video_frame);
     if (cv_video_frame.empty()) {
       break;
     }
 
-    // Display the frame.
-    cv::imshow(window_name.c_str(), cv_video_frame);
-
     // Process the frame.
     Image frame(cv_video_frame);
     Status s = vo.Update(frame);
-    if (!s.ok()) {
-      std::cout << std::endl << s.Message() << std::endl;
-    }
+
+    if (!s.ok()) std::cout << s.Message() << std::endl;
+
+    // Store this frame for next time.
+    last_frame = frame;
+
+#if 0
+    // cv::imshow(window_name.c_str(), cv_video_frame);
 
     // Wait based on the framerate. Our timer is slightly more reliable than
     // using cv::waitKey() alone.
     while (timer.Toc() < wait_in_seconds) {
-      // cv::waitKey(1);
-      cv::waitKey(0);
+      cv::waitKey(1);
     }
     timer.Tic();
+#endif
   }
 
   return EXIT_SUCCESS;

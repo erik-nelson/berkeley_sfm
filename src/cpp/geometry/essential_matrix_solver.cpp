@@ -55,7 +55,7 @@
 #include "triangulation.h"
 #include "../camera/camera.h"
 
-DEFINE_double(min_points_visible_ratio, 0.8,
+DEFINE_double(min_points_visible_ratio, 0.3,
               "Fraction of keypoint matches whose triangulation must be "
               "visible from both cameras. This value should be lowered if you "
               "expect lots of noisy matches.");

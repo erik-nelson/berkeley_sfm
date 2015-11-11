@@ -47,20 +47,22 @@
 
 #include "image.h"
 #include "../matching/feature_match.h"
+#include "../slam/observation.h"
+#include "../util/types.h"
 
 namespace bsfm {
 namespace drawing {
 
 // Annotate an image by drawing features on it.
-void AnnotateFeatures(const FeatureList& features, Image& image,
+void AnnotateFeatures(const FeatureList& features, Image* image,
                       unsigned int radius = 3,
-                      unsigned int line_thickness = 2);
+                      unsigned int line_thickness = 1);
 
 // Draw features as circles in an image.
 void DrawImageFeatures(const FeatureList& features, const Image& image,
                        const std::string& window_name = std::string(),
                        unsigned int radius = 3,
-                       unsigned int line_thickness = 2);
+                       unsigned int line_thickness = 1);
 
 // Given two images, and data containing their features and matches between
 // those features, draw the two images side by side, with matches drawn as lines
@@ -69,6 +71,38 @@ void DrawImageFeatureMatches(const Image& image1, const Image& image2,
                              const FeatureMatchList& feature_matches,
                              const std::string& window_name = std::string(),
                              unsigned int line_thickness = 1);
+
+// Project landmarks into a view and draw them as squares on the input image. If
+// 'print_text_distances' is true, draw the distance from the camera to each
+// landmark (up to scale).
+void AnnotateLandmarks(ViewIndex view_index, Image* image,
+                       unsigned int line_thickness = 2,
+                       unsigned int square_width = 10,
+                       bool print_text_distances = false);
+
+// Draw landmarks as squares in an image. If 'print_text_distances' is true,
+// draw the distance from the camera to each landmark (up to scale).
+void DrawLandmarks(ViewIndex view_index, const Image& image,
+                   const std::string& window_name = std::string(),
+                   unsigned int line_thickness = 2,
+                   unsigned int square_width = 10,
+                   bool print_text_distances = false);
+
+// Annotate 2D<-->3D matches stored in a set of observations. The view index is
+// passed in so that we only draw observations that came from the correct view
+// index. This method does not annotate the landmarks and features themselves.
+void AnnotateObservations(ViewIndex view_index,
+                          const std::vector<Observation::Ptr>& observations,
+                          Image* image,
+                          unsigned int line_thickness = 2);
+
+// Draw 2D<-->3D matches stored in the set of input observations. See
+// description for AnnotateObservations().
+void DrawObservations(ViewIndex view_index,
+                      const std::vector<Observation::Ptr>& observations,
+                      const Image& image,
+                      const std::string& window_name = std::string(),
+                      unsigned int line_thickness = 2);
 
 }  //\namespace drawing
 }  //\namespace bsfm

@@ -44,6 +44,10 @@
 #include "normalization.h"
 #include "../optimization/cost_functors.h"
 
+DEFINE_double(max_reprojection_error, 400.0,
+              "Maximum tolerable reprojection error for a single 2D<-->3D "
+              "point. This error is squared pixel distance.");
+
 namespace bsfm {
 
 PoseEstimator2D3D::PoseEstimator2D3D()
@@ -102,9 +106,14 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
     return false;
   }
 
+  // Is the initial P good? If not, we shouldn't try to optimize it.
+  if (!TolerableReprojectionError(P)) {
+    VLOG(1) << "Initial solution is too bad to optimize.";
+    return false;
+  }
+
   // Refine P with non-linear optimization.
   Matrix34d P_opt = P;
-
   if (!OptimizeSolution(P_opt)) {
     VLOG(1) << "Failed to optimize P. Continuing using the initial solution.";
     P_opt = P;
@@ -119,7 +128,8 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
   return true;
 }
 
-bool PoseEstimator2D3D::ComputeInitialSolution(Matrix34d& initial_solution) {
+bool PoseEstimator2D3D::ComputeInitialSolution(
+    Matrix34d& initial_solution) const {
   // Use Eq. 7.2 from H&Z: Multiple-View Geometry to determine an
   // over-determined solution for the camera projection matrix P.
 
@@ -192,7 +202,7 @@ bool PoseEstimator2D3D::ComputeInitialSolution(Matrix34d& initial_solution) {
   return true;
 }
 
-bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) {
+bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) const {
   // Create the non-linear least squares problem and cost function.
   ceres::Problem problem;
 
@@ -208,6 +218,9 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) {
   // Solve the non-linear least squares problem to get the projection matrix.
   ceres::Solver::Summary summary;
   ceres::Solver::Options options;
+  options.linear_solver_type = ceres::DENSE_QR;
+  options.function_tolerance = 1e-16;
+  options.gradient_tolerance = 1e-16;
   options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
   ceres::Solve(options, &problem, &summary);
 
@@ -219,7 +232,7 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) {
   return summary.IsSolutionUsable();
 }
 
-bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
+bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) const {
   // Un-normalize the projection matrix.
   const  Matrix34d P_unnormalized = T_.inverse() * P * U_;
 
@@ -231,7 +244,7 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
   // Use this property to scale our matrix.
   double det = Rt.block(0, 0, 3, 3).determinant();
   if (std::abs(det) < 1e-16) {
-    LOG(WARNING) << "Computed rotation has a determinant of 0.";
+    VLOG(1) << "Computed rotation has a determinant of 0.";
     return false;
   }
 
@@ -247,6 +260,25 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) {
   // Initialize the output pose from the rotation and translation blocks.
   pose = Pose(Rt);
   return true;
+}
+
+bool PoseEstimator2D3D::TolerableReprojectionError(const Matrix34d& P) const {
+
+  // Compute reprojection error for each 2D<-->3D match.
+  double error = 0.0;
+  for (size_t ii = 0; ii < points_3d_.size(); ++ii) {
+    Vector3d x;
+    Vector4d X;
+    x << points_2d_[ii].u_, points_2d_[ii].v_, 1.0;
+    X << points_3d_[ii].X(), points_3d_[ii].Y(), points_3d_[ii].Z(), 1.0;
+
+    const Vector3d reprojected_x = P*X;
+    const double error_u = x(0) - reprojected_x(0) / reprojected_x(2);
+    const double error_v = x(1) - reprojected_x(1) / reprojected_x(2);
+    error += error_u*error_u + error_v*error_v;
+  }
+
+  return error <= FLAGS_max_reprojection_error / points_3d_.size();
 }
 
 }  //\namespace bsfm

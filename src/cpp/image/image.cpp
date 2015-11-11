@@ -63,9 +63,10 @@ Image::Image(const std::string& filename, bool grayscale) : grayscale_(false) {
   Read(filename, grayscale);
 }
 
-// Construct form OpenCV mat.
+// Construct from OpenCV mat.
 Image::Image(const cv::Mat& other) {
-  image_ = std::shared_ptr<cv::Mat>(new cv::Mat(other));
+  image_ = std::shared_ptr<cv::Mat>(new cv::Mat());
+  FromCV(other);
   grayscale_ = (this->Channels() == 1);
 }
 

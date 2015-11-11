@@ -118,6 +118,30 @@ const std::vector<Observation::Ptr>& View::Observations() const {
   return observations_;
 }
 
+void View::MatchedObservations(
+    std::vector<Observation::Ptr>* matched_observations) const {
+  CHECK_NOTNULL(matched_observations)->clear();
+
+  for (const auto& observation : observations_) {
+    CHECK_NOTNULL(observation.get());
+    if (observation->IsMatched()) {
+      matched_observations->push_back(observation);
+    }
+  }
+}
+
+void View::IncorporatedObservations(
+    std::vector<Observation::Ptr>* incorporated_observations) const {
+  CHECK_NOTNULL(incorporated_observations)->clear();
+
+  for (const auto& observation : observations_) {
+    CHECK_NOTNULL(observation.get());
+    if (observation->IsIncorporated()) {
+      incorporated_observations->push_back(observation);
+    }
+  }
+}
+
 bool View::CreateAndAddObservations(
     const std::vector<Feature>& features,
     const std::vector<Descriptor>& descriptors) {
@@ -146,7 +170,7 @@ void View::GetFeaturesAndDescriptors(
 
   // Iterate over observations and return a list of features and descriptors
   // owned by them.
-  for (const auto& observation : Observations()) {
+  for (const auto& observation : observations_) {
     features->emplace_back(observation->Feature());
     descriptors->emplace_back(observation->Descriptor());
   }
@@ -178,28 +202,35 @@ void View::UpdateObservedLandmarks() {
 void View::GetSlidingWindowLandmarks(
     unsigned int sliding_window_length,
     std::vector<LandmarkIndex>* landmark_indices) {
-  CHECK_NOTNULL(landmark_indices);
-  landmark_indices->clear();
+  CHECK_NOTNULL(landmark_indices)->clear();
 
   // Create a list of view indices in the sliding window.
   std::vector<ViewIndex> view_indices;
   ViewIndex end_view = current_view_index_;
-  ViewIndex start_view = end_view - sliding_window_length;
+
+  ViewIndex start_view = 0;
+  if (sliding_window_length <= end_view) {
+    start_view = end_view - sliding_window_length;
+  }
+
   for (ViewIndex ii = start_view; ii < end_view; ++ii) {
     view_indices.push_back(ii);
   }
 
-  // Loop over landmarks, checking if they have been seen by any views.
-  for (LandmarkIndex index = 0; index < Landmark::NumExistingLandmarks();
-       ++index) {
-    Landmark::Ptr landmark = Landmark::GetLandmark(index);
-    CHECK_NOTNULL(landmark.get());
+  // Get a set of all landmarks seen by all of these views.
+  std::unordered_set<LandmarkIndex> landmark_set;
+  for (const auto& view_index : view_indices) {
+    View::Ptr view = View::GetView(view_index);
+    CHECK_NOTNULL(view.get());
 
-    // If this landmark has been seen at least once, store it.
-    if (landmark->SeenByAtLeastNViews(view_indices, 1)) {
-      landmark_indices->push_back(index);
-    }
+    view->UpdateObservedLandmarks();
+    landmark_set.insert(view->ObservedLandmarks().begin(),
+                        view->ObservedLandmarks().end());
   }
+
+  // Copy the set of unique landmark indices into the output vector.
+  landmark_indices->reserve(landmark_set.size());
+  landmark_indices->assign(landmark_set.begin(), landmark_set.end());
 }
 
 const std::unordered_set<LandmarkIndex>& View::ObservedLandmarks() const {

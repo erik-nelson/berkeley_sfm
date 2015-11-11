@@ -137,8 +137,13 @@ void NaiveMatcher2D2D::ComputePutativeMatches(
       }
     }
 
+    if (one_way_matches.empty()) {
+      continue;
+    }
+
     // Store the best match for this element of features2.
     if (options_.use_lowes_ratio) {
+
       // Sort by distance. We only care about the distances between the best 2
       // matches for the Lowes ratio test.
       std::partial_sort(one_way_matches.begin(),

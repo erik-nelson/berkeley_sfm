@@ -60,7 +60,6 @@ namespace bsfm {
 
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
-;
 
 namespace {
 // Minimum number of points to constrain the problem. See H&Z pg. 179.

@@ -35,10 +35,14 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
+#include <string>
+
 #include "visual_odometry.h"
 
 #include "../camera/camera_extrinsics.h"
 #include "../geometry/essential_matrix_solver.h"
+#include "../geometry/reprojection_error.h"
+#include "../geometry/triangulation.h"
 #include "../matching/distance_metric.h"
 #include "../matching/feature.h"
 #include "../matching/pairwise_image_match.h"
@@ -50,13 +54,13 @@
 #include "../ransac/ransac_options.h"
 #include "../slam/landmark.h"
 #include "../slam/observation.h"
-#include "../sfm/view.h"
+#include "../sfm/bundle_adjuster.h"
 
 namespace bsfm {
 
 VisualOdometry::VisualOdometry(const VisualOdometryOptions& options,
                                const Camera& camera)
-    : options_(options) {
+    : has_first_view_(false), options_(options) {
   // Use input options to specify member variable settings.
   keypoint_detector_.SetDetector(options_.feature_type);
   if (options_.adaptive_features) {
@@ -84,14 +88,37 @@ VisualOdometry::~VisualOdometry() {}
 
 Status VisualOdometry::Update(const Image& image) {
 
+  // Update the annotator's image.
+  if (options_.draw_features ||
+      options_.draw_landmarks ||
+      options_.draw_inlier_observations ||
+      options_.draw_tracks) {
+    annotator_.SetImage(image);
+  }
+
   // Handle the first two images separately for initializiation.
-  if (view_indices_.empty()) {
+  if (!has_first_view_) {
     return InitializeFirstView(image);
   } else if (view_indices_.size() == 1) {
     return InitializeSecondView(image);
   }
 
-  return ProcessImage(image);
+  Status s = ProcessImage(image);
+  if (!s.ok())
+    return s;
+
+#if 0
+  // Bundle adjust views in the sliding window.
+  BundleAdjuster bundle_adjuster;
+  if (!bundle_adjuster.Solve(options_.bundle_adjustment_options, view_indices_))
+    return Status::Cancelled("Failed to perform bundle adjustment.");
+#endif
+
+  return Status::Ok();
+}
+
+const std::vector<ViewIndex>& VisualOdometry::ViewIndices() const {
+  return view_indices_;
 }
 
 Status VisualOdometry::InitializeFirstView(const Image& image) {
@@ -104,8 +131,16 @@ Status VisualOdometry::InitializeFirstView(const Image& image) {
   // We created the first view in the constructor. Add observations to it.
   View::Ptr first_view = View::GetView(view_indices_.front());
   CHECK_NOTNULL(first_view.get());
+  has_first_view_ = true;
 
   first_view->CreateAndAddObservations(features, descriptors);
+
+  // Annotate features only in the first frame.
+  if (options_.draw_features) {
+    annotator_.AnnotateFeatures(features);
+    annotator_.Draw();
+  }
+
   return Status::Ok();
 }
 
@@ -158,9 +193,8 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
   Matrix3d F = f_problem.Model().F_;
 
   // Get the essential matrix between the first two cameras.
-  Matrix3d E;
   EssentialMatrixSolver e_solver;
-  E = e_solver.ComputeEssentialMatrix(E, intrinsics_, intrinsics_);
+  Matrix3d E = e_solver.ComputeEssentialMatrix(F, intrinsics_, intrinsics_);
 
   // Extract a relative pose from the essential matrix.
   Pose relative_pose;
@@ -184,13 +218,16 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
 
   second_view->CreateAndAddObservations(features2, descriptors2);
 
-  // Use all matched features to triangulate an initial set of landmarks.
-  for (size_t ii = 0; ii < feature_matches.size(); ++ii) {
+  // Use all RANSAC inlier features to triangulate an initial set of landmarks.
+ const FeatureMatchList ransac_inliers = f_problem.Inliers();
+  for (size_t ii = 0; ii < ransac_inliers.size(); ++ii) {
     Landmark::Ptr landmark = Landmark::Create();
 
     // Find the observation corresponding to this match in each view. Add those
     // 2 observations to the landmark.
-    Feature feature1 = feature_matches[ii].feature1_;
+    const Feature& feature1 = ransac_inliers[ii].feature1_;
+    const Feature& feature2 = ransac_inliers[ii].feature2_;
+
     for (const auto& observation1 : first_view->Observations()) {
       if (feature1 == observation1->Feature()) {
         landmark->IncorporateObservation(observation1);
@@ -198,7 +235,6 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
       }
     }
 
-    Feature feature2 = feature_matches[ii].feature2_;
     for (const auto& observation2 : second_view->Observations()) {
       if (feature2 == observation2->Feature()) {
         landmark->IncorporateObservation(observation2);
@@ -206,6 +242,14 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
       }
     }
   }
+
+  // Annotate features and landmarks in the second frame.
+  if (options_.draw_features)
+    annotator_.AnnotateFeatures(features2);
+  if (options_.draw_landmarks)
+    annotator_.AnnotateLandmarks(second_view->Index());
+  if (options_.draw_features || options_.draw_landmarks)
+    annotator_.Draw();
 
   // We now have 2 views, a bunch of triangulated landmarks, and observations of
   // those landmarks in each view!
@@ -244,7 +288,10 @@ Status VisualOdometry::ProcessImage(const Image& image) {
   // Use PnP RANSAC to find the pose of this camera using the 2D<-->3D matches.
   PnPRansacProblem pnp_problem;
   pnp_problem.SetIntrinsics(intrinsics_);
-  pnp_problem.SetData(new_view->Observations());
+
+  std::vector<Observation::Ptr> matched_observations;
+  new_view->MatchedObservations(&matched_observations);
+  pnp_problem.SetData(matched_observations);
 
   Ransac<Observation::Ptr, PnPRansacModel> pnp_solver;
   pnp_solver.SetOptions(options_.pnp_ransac_options);
@@ -269,35 +316,116 @@ Status VisualOdometry::ProcessImage(const Image& image) {
     CHECK_NOTNULL(landmark.get());
 
     landmark->IncorporateObservation(observation);
+
+    // Update the landmark's descriptor using this new observation. This makes
+    // it easier to find the landmark as we change angles, etc.
+    landmark->SetDescriptor(observation->Descriptor());
   }
 
-#if 0
+  // Go through all unincorporated observations and try to match them against
+  // previous images in the sliding window to generate new landmarks.
+  InitializeNewLandmarks(new_view);
+
+  // Annotate everything in the N'th frame.
+  if (options_.draw_features)
+    annotator_.AnnotateFeatures(features);
+  if (options_.draw_landmarks)
+    annotator_.AnnotateLandmarks(new_view->Index());
+  if (options_.draw_inlier_observations)
+    annotator_.AnnotateObservations(new_view->Index(), pnp_problem.Inliers());
+  if (options_.draw_tracks)
+    annotator_.AnnotateTracks();
+  if (options_.draw_features || options_.draw_landmarks ||
+      options_.draw_inlier_observations || options_.draw_tracks) {
+    annotator_.Draw();
+  }
+
+  // Add the new view to the trajectory.
+  view_indices_.push_back(new_view->Index());
+  return Status::Ok();
+}
+
+void VisualOdometry::InitializeNewLandmarks(const View::Ptr& new_view) {
+  CHECK_NOTNULL(new_view.get());
+
   // Get a list of all features and descriptors that have not been incorporated
   // into landmarks.
-  std::vector<Feature> unincorporated_features;
-  std::vector<Descriptor> unincorporated_descriptors;
-  for (auto& observation : view->Observations()) {
-    if (!observation.IsIncorporated()) {
-      unincorporated_features.emplace_back(observation->Feature());
-      unincorporated_descriptors.emplace_back(observation->Descriptor());
+  std::vector<Feature> unused_features1;
+  std::vector<Descriptor> unused_descriptors1;
+  GetUnusedFeatures(new_view->Index(), &unused_features1, &unused_descriptors1);
+
+  // Loop over other images in the sliding window. Try to match against their
+  // unused features and triangulate new landmarks.
+  const Camera new_camera = new_view->Camera();
+  size_t start = std::max(0, static_cast<int>(view_indices_.size() -
+                                              options_.sliding_window_length + 1));
+  for (size_t ii = start; ii < view_indices_.size(); ++ii) {
+    ViewIndex view_index = view_indices_[ii];
+    std::vector<Feature> unused_features2;
+    std::vector<Descriptor> unused_descriptors2;
+    GetUnusedFeatures(view_index, &unused_features2, &unused_descriptors2);
+
+    // Match features.
+    NaiveMatcher2D2D feature_matcher;
+    feature_matcher.AddImageFeatures(unused_features1, unused_descriptors1);
+    feature_matcher.AddImageFeatures(unused_features2, unused_descriptors2);
+
+    PairwiseImageMatchList image_matches;
+    if (!feature_matcher.MatchImages(options_.matcher_options, image_matches))
+      continue;
+
+    CHECK(image_matches.size() == 1);
+    PairwiseImageMatch image_match = image_matches[0];
+    FeatureMatchList feature_matches = image_match.feature_matches_;
+
+    // Attempt to triangulate matches between these two images. Evaluate the
+    // reprojection error of the resulting points.
+    View::Ptr old_view = View::GetView(view_index);
+    CHECK_NOTNULL(old_view.get());
+    const Camera old_camera = old_view->Camera();
+    for (const auto& feature_match : feature_matches) {
+      // Triangulate the match.
+      Point3D point;
+      if (!Triangulate(feature_match, new_camera, old_camera, point)) continue;
+
+      // Check reprojection error of the match.
+      const Feature& feature1 = feature_match.feature1_;
+      const Feature& feature2 = feature_match.feature2_;
+      const double max_error = options_.pnp_ransac_options.acceptable_error;
+      if (ReprojectionError(feature1, point, new_camera) > max_error) {
+        continue;
+      }
+      if (ReprojectionError(feature2, point, old_camera) > max_error) {
+        continue;
+      }
+
+      // Initialize a new landmark.
+      Landmark::Ptr landmark = Landmark::Create();
+
+      // Find the observation corresponding to this match in each view. Add
+      // those 2 observations to the landmark.
+      for (const auto& new_observation : new_view->Observations()) {
+        if (feature1 == new_observation->Feature()) {
+          landmark->IncorporateObservation(new_observation);
+          break;
+        }
+      }
+
+      for (const auto& old_observation : old_view->Observations()) {
+        if (feature2 == old_observation->Feature()) {
+          landmark->IncorporateObservation(old_observation);
+          break;
+        }
+      }
     }
   }
-
-  // Try to match these against other descriptors in the sliding window.
-
-  // Add the matches as landmarks.
-#endif
-
-  return Status::Ok();
 }
 
 Status VisualOdometry::GetFeaturesAndDescriptors(
     const Image& image, std::vector<Feature>* features,
     std::vector<Descriptor>* descriptors) {
-  CHECK_NOTNULL(features);
-  CHECK_NOTNULL(descriptors);
-  features->clear();
-  descriptors->clear();
+  CHECK_NOTNULL(features)->clear();
+  CHECK_NOTNULL(descriptors)->clear();
 
   // Detect keypoints in the image.
   KeypointList keypoints;
@@ -306,14 +434,29 @@ Status VisualOdometry::GetFeaturesAndDescriptors(
   }
 
   // Get descriptors for each keypoint.
-  if (!descriptor_extractor_.DescribeFeatures(image,
-                                              keypoints,
-                                              *features,
+  if (!descriptor_extractor_.DescribeFeatures(image, keypoints, *features,
                                               *descriptors)) {
     return Status::Cancelled("Failed to describe features.");
   }
 
   return Status::Ok();
+}
+
+void VisualOdometry::GetUnusedFeatures(ViewIndex view_index,
+                                       std::vector<Feature>* features,
+                                       std::vector<Descriptor>* descriptors) {
+  CHECK_NOTNULL(features)->clear();
+  CHECK_NOTNULL(descriptors)->clear();
+
+  View::Ptr view = View::GetView(view_index);
+  CHECK_NOTNULL(view.get());
+
+  for (auto& observation : view->Observations()) {
+    if (!observation->IsIncorporated()) {
+      features->emplace_back(observation->Feature());
+      descriptors->emplace_back(observation->Descriptor());
+    }
+  }
 }
 
 }  //\namespace bsfm

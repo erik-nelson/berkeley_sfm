@@ -51,6 +51,7 @@
 #ifndef BSFM_SLAM_VISUAL_ODOMETRY_H
 #define BSFM_SLAM_VISUAL_ODOMETRY_H
 
+#include "visual_odometry_annotator.h"
 #include "visual_odometry_options.h"
 
 #include "../camera/camera.h"
@@ -58,6 +59,7 @@
 #include "../image/image.h"
 #include "../matching/keypoint_detector.h"
 #include "../matching/descriptor_extractor.h"
+#include "../sfm/view.h"
 #include "../util/disallow_copy_and_assign.h"
 #include "../util/status.h"
 #include "../util/types.h"
@@ -71,6 +73,9 @@ class VisualOdometry {
 
   // Update the estimate of the camera's position and all landmark positions.
   Status Update(const Image& image);
+
+  // Get indices of all views created by this visual odometry object.
+  const std::vector<ViewIndex>& ViewIndices() const;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(VisualOdometry)
@@ -90,14 +95,28 @@ class VisualOdometry {
   // observed features.
   Status ProcessImage(const Image& image);
 
+  // Match unincorporated observations from 'new_view' with other unincorporated
+  // observations in the sliding window of views. Triangulate the 3D position of
+  // new matches, check reprojection error, and initialize new landmarks.
+  void InitializeNewLandmarks(const View::Ptr& new_view);
+
   // Detect features and extract descriptors from the input image. Returns false
   // with an error status if either part fails.
   Status GetFeaturesAndDescriptors(const Image& image,
                                    std::vector<Feature>* features,
                                    std::vector<Descriptor>* descriptors);
 
+  // Get all unincorporated features and descriptors from a view. This is used
+  // to triangulate new features that were not previously matched.
+  void GetUnusedFeatures(ViewIndex view_index,
+                         std::vector<Feature>* features,
+                         std::vector<Descriptor>* descriptors);
+
   // A copy of the set of options passed into the constructor.
   VisualOdometryOptions options_;
+
+  // An annotator object used for drawing what is going on.
+  VisualOdometryAnnotator annotator_;
 
   // A list of all views that have been added via visual odometry. Iterating
   // through these will generate the camera's trajectory.
@@ -111,6 +130,14 @@ class VisualOdometry {
   // descriptors from input images.
   KeypointDetector keypoint_detector_;
   DescriptorExtractor descriptor_extractor_;
+
+  // Flag that is set to true after the first call to Update(). This is needed
+  // to determine whether to call InitializeFirstview(), InitializeSecondView(),
+  // or ProcessImage().
+  bool has_first_view_;
+
+  // The name of the OpenCV window for drawing.
+  const std::string window_name = "Visual Odometry";
 
 };  //\class VisualOdometry
 

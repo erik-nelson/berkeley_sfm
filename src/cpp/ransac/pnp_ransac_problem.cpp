@@ -36,13 +36,11 @@
  */
 
 #include "pnp_ransac_problem.h"
-#include <geometry/pose_estimator_2d3d.h>
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
 #include <camera/camera.h>
+#include <geometry/pose_estimator_2d3d.h>
 #include <geometry/reprojection_error.h>
-
-#include <iostream>
 
 namespace bsfm {
 
@@ -68,23 +66,14 @@ PnPRansacModel::~PnPRansacModel() {}
 
 // Return model error.
 double PnPRansacModel::Error() const {
-  return error_;
+  // Evaluate reprojection error over all observations.
+  return ReprojectionError(matches_, camera_);
 }
 
 // Evaluate model on a single data element and update error.
 bool PnPRansacModel::IsGoodFit(const Observation::Ptr& observation,
 			       double error_tolerance) {
-  // Get error.
-  double error = ReprojectionError(observation, camera_);
-
-  // Did not project into the image.
-  if (error < 0.0)
-    return false;
-
-  // Check tolerance.
-  if (error <= error_tolerance)
-    return true;
-  return false;
+  return ReprojectionError(observation, camera_) <= error_tolerance;
 }
 
 // ------------ PnPRansacProblem methods ------------ //

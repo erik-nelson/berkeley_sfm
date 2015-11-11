@@ -45,24 +45,19 @@
 #ifndef BSFM_GEOMETRY_REPROJECTION_ERROR_H
 #define BSFM_GEOMETRY_REPROJECTION_ERROR_H
 
-#include "point_3d.h"
-#include "../matching/feature.h"
-#include <camera/camera_extrinsics.h>
-#include <camera/camera_intrinsics.h>
-#include <camera/camera.h>
-#include <slam/observation.h>
-#include <slam/landmark.h>
+#include "../camera/camera.h"
+#include "../slam/observation.h"
 
 namespace bsfm {
 
 // Evaluate the reprojection error on the given Observation.
 double ReprojectionError(const Observation::Ptr& observation,
-			 const Camera& camera);
-			 
+                         const Camera& camera);
+
 // Repeats the ReprojectionError() function on a list of obserations, returning
 // the sum of squared errors.
 double ReprojectionError(const std::vector<Observation::Ptr>& observations,
-			 const Camera& camera);
+                         const Camera& camera);
 
 }  //\namespace bsfm
 

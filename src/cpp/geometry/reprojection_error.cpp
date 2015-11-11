@@ -44,11 +44,15 @@
 
 #include "reprojection_error.h"
 
+#include "point_3d.h"
+#include "../matching/feature.h"
+#include "../slam/landmark.h"
+
 namespace bsfm {
 
 // Evaluate the reprojection error on the given Observation.
 double ReprojectionError(const Observation::Ptr& observation,
-			 const Camera& camera) {
+                         const Camera& camera) {
   CHECK_NOTNULL(observation.get());
 
   // Unpack this observation (extract Feature and Landmark).
@@ -62,29 +66,28 @@ double ReprojectionError(const Observation::Ptr& observation,
   // Project into this camera.
   double u = 0.0, v = 0.0;
   const bool in_camera =
-    camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
+      camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
 
   // Check that the landmark projects into the image.
-  if (!in_camera)
-    return std::numeric_limits<double>::infinity();
+  if (!in_camera) return std::numeric_limits<double>::infinity();
 
   // Compute error and return.
   double delta_u = u - feature.u_;
   double delta_v = v - feature.v_;
-  double error = delta_u*delta_u + delta_v*delta_v;
+  double error = delta_u * delta_u + delta_v * delta_v;
 
   return error;
 }
-			 
+
 // Repeats the ReprojectionError() function on a list of obserations, returning
 // the sum of squared errors.
 double ReprojectionError(const std::vector<Observation::Ptr>& observations,
-			 const Camera& camera) {
+                         const Camera& camera) {
   double total_error = 0.0;
   for (const auto& observation : observations)
     total_error += ReprojectionError(observation, camera);
 
   return total_error;
 }
- 
+
 }  //\namespace bsfm

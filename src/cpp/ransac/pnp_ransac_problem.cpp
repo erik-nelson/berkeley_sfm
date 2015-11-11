@@ -40,6 +40,7 @@
 #include <camera/camera_extrinsics.h>
 #include <camera/camera_intrinsics.h>
 #include <camera/camera.h>
+#include <geometry/reprojection_error.h>
 
 #include <iostream>
 
@@ -74,7 +75,7 @@ double PnPRansacModel::Error() const {
 bool PnPRansacModel::IsGoodFit(const Observation::Ptr& observation,
 			       double error_tolerance) {
   // Get error.
-  double error = PnPRansacModel::EvaluateReprojectionError(observation);
+  double error = ReprojectionError(observation, camera_);
 
   // Did not project into the image.
   if (error < 0.0)
@@ -84,37 +85,6 @@ bool PnPRansacModel::IsGoodFit(const Observation::Ptr& observation,
   if (error <= error_tolerance)
     return true;
   return false;
-}
-
-// Compute reprojection error of this landmark. Return infinity if point
-// does not project into the image.
-double PnPRansacModel::EvaluateReprojectionError(
-   const Observation::Ptr& observation) const {
-  CHECK_NOTNULL(observation.get());
-
-  // Unpack this observation (extract Feature and Landmark).
-  Feature feature = observation->Feature();
-  Landmark::Ptr landmark = observation->GetLandmark();
-  CHECK_NOTNULL(landmark.get());
-
-  // Extract position of this landmark.
-  Point3D point = landmark->Position();
-
-  // Project into this camera.
-  double u = 0.0, v = 0.0;
-  const bool in_camera =
-    camera_.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
-
-  // Check that the landmark projects into the image.
-  if (!in_camera)
-    return std::numeric_limits<double>::infinity();
-
-  // Compute error and return.
-  double delta_u = u - feature.u_;
-  double delta_v = v - feature.v_;
-  double error = delta_u*delta_u + delta_v*delta_v;
-
-  return error;
 }
 
 // ------------ PnPRansacProblem methods ------------ //

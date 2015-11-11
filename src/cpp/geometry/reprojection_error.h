@@ -37,82 +37,33 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// These classes define the PnPRansacProblem API, and derive from the base
-// RansacProblem and RansacModel class/struct.
+// This file defines methods that can be used to compute the reprojection error
+// from multiple keypoint matches.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_RANSAC_2D_3D_RANSAC_PROBLEM_H
-#define BSFM_RANSAC_2D_3D_RANSAC_PROBLEM_H
+#ifndef BSFM_GEOMETRY_REPROJECTION_ERROR_H
+#define BSFM_GEOMETRY_REPROJECTION_ERROR_H
 
-#include <Eigen/Dense>
-#include <vector>
-
-#include "ransac_problem.h"
-#include "../camera/camera.h"
-#include "../camera/camera_intrinsics.h"
-#include "../geometry/point_3d.h"
-#include "../slam/landmark.h"
-#include "../slam/observation.h"
+#include "point_3d.h"
 #include "../matching/feature.h"
-#include "../util/disallow_copy_and_assign.h"
+#include <camera/camera_extrinsics.h>
+#include <camera/camera_intrinsics.h>
+#include <camera/camera.h>
+#include <slam/observation.h>
+#include <slam/landmark.h>
 
 namespace bsfm {
 
-using Eigen::Matrix3d;
-using Eigen::Vector3d;
+// Evaluate the reprojection error on the given Observation.
+double ReprojectionError(const Observation::Ptr& observation,
+			 const Camera& camera);
+			 
+// Repeats the ReprojectionError() function on a list of obserations, returning
+// the sum of squared errors.
+double ReprojectionError(const std::vector<Observation::Ptr>& observations,
+			 const Camera& camera);
 
-// ------------ PnPRansacModel derived ------------ //
-
-struct PnPRansacModel : public RansacModel<Observation::Ptr> {
-  PnPRansacModel();
-  virtual ~PnPRansacModel();
-
-  // Define an additional constructor specifically for this model.
-  PnPRansacModel(const Camera& camera,
-		 const std::vector<Observation::Ptr>& matches);
-
-  // Return model error.
-  virtual double Error() const;
-
-  // Evaluate model on a single data element and update error.
-  virtual bool IsGoodFit(const Observation::Ptr& observation,
-			 double error_tolerance);
-
-  // Model-specific member variables.
-  Camera camera_;
-  std::vector<Observation::Ptr> matches_;
-  double error_;
-};  //\struct PnPRansacModel
-
-
-// ------------ PnPRansacProblem derived ------------ //
-
-class PnPRansacProblem
-    : public RansacProblem<Observation::Ptr, PnPRansacModel> {
- public:
-  PnPRansacProblem();
-  virtual ~PnPRansacProblem();
-
-  // Set intrinsics.
-  void SetIntrinsics(CameraIntrinsics& intrinsics);
-
-  // Subsample the data.
-  virtual std::vector<Observation::Ptr> SampleData(unsigned int num_samples);
-
-  // Return the data that was not sampled.
-  virtual std::vector<Observation::Ptr> RemainingData(
-      unsigned int num_sampled_previously) const;
-
-  // Fit a model to the provided data using PoseEstimatorPnP.
-  virtual PnPRansacModel FitModel(
-      const std::vector<Observation::Ptr>& input_data) const;
-
- private:
-  CameraIntrinsics intrinsics_;
-  DISALLOW_COPY_AND_ASSIGN(PnPRansacProblem)
-};  //\class PnPRansacProblem
-
-} //\namespace bsfm
+}  //\namespace bsfm
 
 #endif

@@ -75,9 +75,13 @@ double ReprojectionError(const FeatureList& features, const Point3DList& points,
   // Calculate total reprojection error. If any point does not reproject into
   // the image, return an error of infinity.
   double total_error = 0.0;
+
+  const double max = std::numeric_limits<double>::max();
+  const double epsilon = std::numeric_limits<double>::epsilon();
+
   for (size_t ii = 0; ii < features.size(); ++ii) {
     const double error = ReprojectionError(features[ii], points[ii], camera);
-    if (error == std::numeric_limits<double>::max())
+    if (fabs(max - error) < epsilon)
       return error;
 
     total_error += error;
@@ -111,9 +115,12 @@ double ReprojectionError(const std::vector<Observation::Ptr>& observations,
   // Calculate total reprojection error. If any point does not reproject into
   // the image, return an error of infinity.
   double total_error = 0.0;
+  const double max = std::numeric_limits<double>::max();
+  const double epsilon = std::numeric_limits<double>::epsilon();
+
   for (const auto& observation : observations) {
     const double error = ReprojectionError(observation, camera);
-    if (error == std::numeric_limits<double>::max())
+    if (fabs(max - error) < epsilon)
       return error;
 
     total_error += error;

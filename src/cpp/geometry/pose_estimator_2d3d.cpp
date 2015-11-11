@@ -125,6 +125,8 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
     return false;
   }
 
+  // camera_pose.Print("Camera pose after: ");
+
   return true;
 }
 
@@ -256,6 +258,15 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) const {
 
   // Normalize the rotation and translation.
   Rt *= std::pow(1.0 / det, 1.0 / 3.0);
+
+  // Make sure the rotation is valid.
+  // const Matrix3d R = Rt.block(0, 0, 3, 3);
+  // if (!Matrix3d::Identity().isApprox(R * R.transpose())) {
+    // Find the closest rotation matrix.
+    // http://people.csail.mit.edu/bkph/articles/Nearest_Orthonormal_Matrix.pdf
+    // Rt.block(0, 0, 3, 3) = R * (R.transpose() * R).inverse();
+    // std::cout << "Rt: " << Rt << std::endl;
+  // }
 
   // Initialize the output pose from the rotation and translation blocks.
   pose = Pose(Rt);

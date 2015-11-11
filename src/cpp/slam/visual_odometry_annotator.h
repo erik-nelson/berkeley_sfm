@@ -49,6 +49,7 @@
 #include <string>
 #include <vector>
 
+#include "../camera/camera.h"
 #include "../image/image.h"
 #include "../matching/feature.h"
 #include "../slam/observation.h"
@@ -67,10 +68,12 @@ class VisualOdometryAnnotator {
 
   // Annotation functions.
   void AnnotateFeatures(const FeatureList& features);
-  void AnnotateLandmarks(ViewIndex view_index);
+  void AnnotateLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
+                         const Camera& camera);
   void AnnotateObservations(ViewIndex view_index,
                             const std::vector<Observation::Ptr>& observations);
-  void AnnotateTracks();
+  void AnnotateTracks(const std::vector<LandmarkIndex>& landmark_indices,
+                      const std::vector<ViewIndex>& view_indices);
 
   // The draw function will open up an OpenCV window and display the annotated
   // image.

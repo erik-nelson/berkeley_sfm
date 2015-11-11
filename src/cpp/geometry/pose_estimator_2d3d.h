@@ -71,6 +71,8 @@ namespace bsfm {
 using Eigen::Matrix3d;
 using Eigen::Matrix4d;
 using Eigen::MatrixXd;
+using Eigen::Vector3d;
+using Eigen::Vector4d;
 using Eigen::VectorXd;
 
 class PoseEstimator2D3D {

@@ -69,12 +69,12 @@ const int kImageHeight = 1080;
 const double kVerticalFov = D2R(90.0);
 
 // Bounding volume for 3D points.
-const double kMinX = -2.0;
-const double kMinY = -2.0;
-const double kMinZ = -2.0;
-const double kMaxX = 2.0;
-const double kMaxY = 2.0;
-const double kMaxZ = 2.0;
+const double kMinX = -2000.0;
+const double kMinY = -2000.0;
+const double kMinZ = -2000.0;
+const double kMaxX = 2000.0;
+const double kMaxY = 2000.0;
+const double kMaxZ = 2000.0;
 
 const unsigned int kDescriptorLength = 64;
 
@@ -131,10 +131,10 @@ std::vector<LandmarkIndex> CreateObservations(
       continue;
 
     // Creating the observation automatically adds it to the view.
-    Observation::Ptr observation =
-      Observation::Create(view, Feature(u + rng.DoubleGaussian(0.0, noise_stddev),
-					v + rng.DoubleGaussian(0.0, noise_stddev)),
-			  landmark->Descriptor());
+    Observation::Ptr observation = Observation::Create(
+        view, Feature(u + rng.DoubleGaussian(0.0, noise_stddev),
+                      v + rng.DoubleGaussian(0.0, noise_stddev)),
+        landmark->Descriptor());
     observation->SetMatchedLandmark(landmark_index);
     projected_landmarks.push_back(landmark_index);
   }
@@ -147,22 +147,21 @@ std::vector<LandmarkIndex> CreateObservations(
       continue;
 
     // Creating the observation automatically adds it to the view.
-    Observation::Ptr observation =
-      Observation::Create(view,
-			  Feature(u + rng.DoubleGaussian(0.0, noise_stddev),
-				  v + rng.DoubleGaussian(0.0, noise_stddev)),
-			  Descriptor::Random(kDescriptorLength));
+    Observation::Ptr observation = Observation::Create(
+        view, Feature(u + rng.DoubleGaussian(0.0, noise_stddev),
+                      v + rng.DoubleGaussian(0.0, noise_stddev)),
+        Descriptor::Random(kDescriptorLength));
 
     // Match to a random landmark.
-    size_t random_index = static_cast<size_t>(rng.IntegerUniform(landmark_indices.size()));
+    size_t random_index =
+        static_cast<size_t>(rng.IntegerUniform(0, landmark_indices.size()-1));
     observation->SetMatchedLandmark(landmark_indices[random_index]);
   }
 
   return projected_landmarks;
 }
 
-void TestRansac2D3D(unsigned int num_bad_matches,
-		    double noise_stddev) {
+void TestRansac2D3D(unsigned int num_bad_matches, double noise_stddev) {
   // Clean up from other tests.
   Landmark::ResetLandmarks();
   View::ResetViews();
@@ -172,7 +171,9 @@ void TestRansac2D3D(unsigned int num_bad_matches,
   CameraExtrinsics extrinsics;
   const Point3D camera_pose = RandomPoint();
   const Vector3d euler_angles(Vector3d::Random() * D2R(180.0));
-  extrinsics.Translate(camera_pose.X(), camera_pose.Y(), camera_pose.Z());
+  extrinsics.Translate(0.1 * camera_pose.X(),
+                       0.1 * camera_pose.Y(),
+                       0.1 * camera_pose.Z());
   extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));
   camera.SetExtrinsics(extrinsics);
   camera.SetIntrinsics(DefaultIntrinsics());
@@ -191,8 +192,8 @@ void TestRansac2D3D(unsigned int num_bad_matches,
       Landmark::ExistingLandmarkIndices();
 
   // Create observations of the landmarks (no bad observations).
-  std::vector<LandmarkIndex> projected_landmarks =
-    CreateObservations(landmark_indices, view->Index(), 0, noise_stddev);
+  std::vector<LandmarkIndex> projected_landmarks = CreateObservations(
+      landmark_indices, view->Index(), num_bad_matches, noise_stddev);
   ASSERT_LT(0, projected_landmarks.size());
 
   // Make sure the distance metric (which is global across tests) is set up
@@ -212,8 +213,8 @@ void TestRansac2D3D(unsigned int num_bad_matches,
   // therefore result in an error of < 1e-8.
   Ransac<Observation::Ptr, PnPRansacModel> solver;
   RansacOptions options;
-  options.iterations = 100;
-  options.acceptable_error = 1e-8 + 100.0 * noise_stddev;
+  options.iterations = 200;
+  options.acceptable_error = 1e-8 + 10.0 * (noise_stddev * noise_stddev);
   options.num_samples = 6;
   options.minimum_num_inliers = projected_landmarks.size();
 
@@ -240,15 +241,15 @@ void TestRansac2D3D(unsigned int num_bad_matches,
     const bool in_camera =
         estimated_camera.WorldToImage(point.X(), point.Y(), point.Z(), &u, &v);
 
-      // Check that the landmark projects into the image.
-      ASSERT_TRUE(in_camera);
+    // Check that the landmark projects into the image.
+    ASSERT_TRUE(in_camera);
 
-      // Compute error and return.
-      double delta_u = u - feature.u_;
-      double delta_v = v - feature.v_;
-      double error = delta_u*delta_u + delta_v*delta_v;
+    // Compute error and return.
+    double delta_u = u - feature.u_;
+    double delta_v = v - feature.v_;
+    double error = delta_u * delta_u + delta_v * delta_v;
 
-      EXPECT_TRUE(error < 1e-8 + 100.0 * noise_stddev);
+    EXPECT_TRUE(error < 1e-8 + 10.0 * noise_stddev*noise_stddev);
   }
 
   // Clean up.
@@ -273,8 +274,7 @@ TEST(PnPRansac2D3D, TestPnPRansac2D3DNoisy) {
 // Test with MANY to 1 correspondence between observations in the view and existing
 // landmarks.
 TEST(PnPRansac2D3D, TestPnPRansac2D3DVeryNoisy) {
-  TestRansac2D3D(100.0 * kNumLandmarks, FLAGS_noise_stddev);
+  TestRansac2D3D(kNumLandmarks, FLAGS_noise_stddev);
 }
-
 
 }  //\namespace bsfm

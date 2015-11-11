@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
   VisualOdometryOptions vo_options;
   vo_options.feature_type = "FAST";
   vo_options.descriptor_type = "ORB";
-  vo_options.sliding_window_length = 10;
+  vo_options.sliding_window_length = 20;
   vo_options.adaptive_features = true;
   vo_options.adaptive_min = 400;
   vo_options.adaptive_max = 500;
@@ -151,13 +151,13 @@ int main(int argc, char** argv) {
 
   // Number of inliers ~= (1-0.3) * 30. Assumes ~30 landmarks observed on a frame.
   // Error is squared reprojection. Allow for a 20 pixel error tolerance.
-  vo_options.pnp_ransac_options.iterations = 50;
-  vo_options.pnp_ransac_options.acceptable_error = 400.0;
+  vo_options.pnp_ransac_options.iterations = 100;
+  vo_options.pnp_ransac_options.acceptable_error = 100.0;
   vo_options.pnp_ransac_options.minimum_num_inliers = 20;
   vo_options.pnp_ransac_options.num_samples = 6;
 
   vo_options.bundle_adjustment_options.solver_type = "SPARSE_SCHUR";
-  vo_options.bundle_adjustment_options.print_summary = false;
+  vo_options.bundle_adjustment_options.print_summary = true;
   vo_options.bundle_adjustment_options.print_progress = false;
   vo_options.bundle_adjustment_options.max_num_iterations = 50;
   vo_options.bundle_adjustment_options.function_tolerance = 1e-16;
@@ -171,6 +171,7 @@ int main(int argc, char** argv) {
   Image last_frame(cv_video_frame);
   vo.Update(last_frame);
 
+  int iter = 0;
   while(true) {
     // Get the next frame.
     capture.read(cv_video_frame);
@@ -181,7 +182,6 @@ int main(int argc, char** argv) {
     // Process the frame.
     Image frame(cv_video_frame);
     Status s = vo.Update(frame);
-
     if (!s.ok()) std::cout << s.Message() << std::endl;
 
     // Store this frame for next time.

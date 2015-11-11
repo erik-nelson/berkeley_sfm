@@ -112,6 +112,9 @@ class VisualOdometry {
                          std::vector<Feature>* features,
                          std::vector<Descriptor>* descriptors);
 
+  // Return view indices in the sliding window.
+  std::vector<ViewIndex> SlidingWindowViewIndices();
+
   // A copy of the set of options passed into the constructor.
   VisualOdometryOptions options_;
 

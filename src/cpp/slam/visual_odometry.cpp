@@ -110,7 +110,8 @@ Status VisualOdometry::Update(const Image& image) {
 #if 0
   // Bundle adjust views in the sliding window.
   BundleAdjuster bundle_adjuster;
-  if (!bundle_adjuster.Solve(options_.bundle_adjustment_options, view_indices_))
+  if (!bundle_adjuster.Solve(options_.bundle_adjustment_options,
+                             SlidingWindowViewIndices()))
     return Status::Cancelled("Failed to perform bundle adjustment.");
 #endif
 
@@ -220,34 +221,36 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
 
   // Use all RANSAC inlier features to triangulate an initial set of landmarks.
  const FeatureMatchList ransac_inliers = f_problem.Inliers();
-  for (size_t ii = 0; ii < ransac_inliers.size(); ++ii) {
-    Landmark::Ptr landmark = Landmark::Create();
+ std::vector<LandmarkIndex> new_landmark_indices;
+ for (size_t ii = 0; ii < ransac_inliers.size(); ++ii) {
+   Landmark::Ptr landmark = Landmark::Create();
+   new_landmark_indices.push_back(landmark->Index());
 
-    // Find the observation corresponding to this match in each view. Add those
-    // 2 observations to the landmark.
-    const Feature& feature1 = ransac_inliers[ii].feature1_;
-    const Feature& feature2 = ransac_inliers[ii].feature2_;
+   // Find the observation corresponding to this match in each view. Add those
+   // 2 observations to the landmark.
+   const Feature& feature1 = ransac_inliers[ii].feature1_;
+   const Feature& feature2 = ransac_inliers[ii].feature2_;
 
-    for (const auto& observation1 : first_view->Observations()) {
-      if (feature1 == observation1->Feature()) {
-        landmark->IncorporateObservation(observation1);
-        break;
-      }
-    }
+   for (const auto& observation1 : first_view->Observations()) {
+     if (feature1 == observation1->Feature()) {
+       landmark->IncorporateObservation(observation1);
+       break;
+     }
+   }
 
-    for (const auto& observation2 : second_view->Observations()) {
-      if (feature2 == observation2->Feature()) {
-        landmark->IncorporateObservation(observation2);
-        break;
-      }
-    }
-  }
+   for (const auto& observation2 : second_view->Observations()) {
+     if (feature2 == observation2->Feature()) {
+       landmark->IncorporateObservation(observation2);
+       break;
+     }
+   }
+ }
 
   // Annotate features and landmarks in the second frame.
   if (options_.draw_features)
     annotator_.AnnotateFeatures(features2);
   if (options_.draw_landmarks)
-    annotator_.AnnotateLandmarks(second_view->Index());
+    annotator_.AnnotateLandmarks(new_landmark_indices, second_view->Camera());
   if (options_.draw_features || options_.draw_landmarks)
     annotator_.Draw();
 
@@ -330,11 +333,11 @@ Status VisualOdometry::ProcessImage(const Image& image) {
   if (options_.draw_features)
     annotator_.AnnotateFeatures(features);
   if (options_.draw_landmarks)
-    annotator_.AnnotateLandmarks(new_view->Index());
+    annotator_.AnnotateLandmarks(landmark_indices, new_view->Camera());
   if (options_.draw_inlier_observations)
     annotator_.AnnotateObservations(new_view->Index(), pnp_problem.Inliers());
   if (options_.draw_tracks)
-    annotator_.AnnotateTracks();
+    annotator_.AnnotateTracks(landmark_indices, SlidingWindowViewIndices());
   if (options_.draw_features || options_.draw_landmarks ||
       options_.draw_inlier_observations || options_.draw_tracks) {
     annotator_.Draw();
@@ -357,10 +360,7 @@ void VisualOdometry::InitializeNewLandmarks(const View::Ptr& new_view) {
   // Loop over other images in the sliding window. Try to match against their
   // unused features and triangulate new landmarks.
   const Camera new_camera = new_view->Camera();
-  size_t start = std::max(0, static_cast<int>(view_indices_.size() -
-                                              options_.sliding_window_length + 1));
-  for (size_t ii = start; ii < view_indices_.size(); ++ii) {
-    ViewIndex view_index = view_indices_[ii];
+  for (const auto& view_index : SlidingWindowViewIndices()) {
     std::vector<Feature> unused_features2;
     std::vector<Descriptor> unused_descriptors2;
     GetUnusedFeatures(view_index, &unused_features2, &unused_descriptors2);
@@ -457,6 +457,19 @@ void VisualOdometry::GetUnusedFeatures(ViewIndex view_index,
       descriptors->emplace_back(observation->Descriptor());
     }
   }
+}
+
+// Return view indices in the sliding window.
+std::vector<ViewIndex> VisualOdometry::SlidingWindowViewIndices() {
+  std::vector<ViewIndex> sw_view_indices;
+  int start = std::max(static_cast<int>(view_indices_.size()) -
+                       static_cast<int>(options_.sliding_window_length), 0);
+
+  for (size_t ii = start; ii < view_indices_.size(); ++ii) {
+    sw_view_indices.push_back(view_indices_[ii]);
+  }
+
+  return sw_view_indices;
 }
 
 }  //\namespace bsfm

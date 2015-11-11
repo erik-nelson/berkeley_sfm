@@ -46,6 +46,7 @@
 #define BSFM_IMAGE_DRAWING_UTILS_H
 
 #include "image.h"
+#include "../camera/camera.h"
 #include "../matching/feature_match.h"
 #include "../slam/observation.h"
 #include "../util/types.h"
@@ -72,17 +73,21 @@ void DrawImageFeatureMatches(const Image& image1, const Image& image2,
                              const std::string& window_name = std::string(),
                              unsigned int line_thickness = 1);
 
-// Project landmarks into a view and draw them as squares on the input image. If
-// 'print_text_distances' is true, draw the distance from the camera to each
+// Project landmarks into a camera and draw them as squares on the input image.
+// If 'print_text_distances' is true, draw the distance from the camera to each
 // landmark (up to scale).
-void AnnotateLandmarks(ViewIndex view_index, Image* image,
+void AnnotateLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
+                       const Camera& camera,
+                       Image* image,
                        unsigned int line_thickness = 2,
                        unsigned int square_width = 10,
                        bool print_text_distances = false);
 
 // Draw landmarks as squares in an image. If 'print_text_distances' is true,
 // draw the distance from the camera to each landmark (up to scale).
-void DrawLandmarks(ViewIndex view_index, const Image& image,
+void DrawLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
+                   const Camera& camera,
+                   const Image& image,
                    const std::string& window_name = std::string(),
                    unsigned int line_thickness = 2,
                    unsigned int square_width = 10,
@@ -103,6 +108,15 @@ void DrawObservations(ViewIndex view_index,
                       const Image& image,
                       const std::string& window_name = std::string(),
                       unsigned int line_thickness = 2);
+
+// Annotate landmark tracks across the specified views. This will iterate over
+// all landmarks, attempt to find each landmark in each one of the views,
+// annotates a line segment connecting the features corresponding to the
+// landmark in each view.
+void AnnotateTracks(const std::vector<LandmarkIndex>& landmark_indices,
+                    const std::vector<ViewIndex>& view_indices,
+                    Image* image,
+                    unsigned int line_thickness = 2);
 
 }  //\namespace drawing
 }  //\namespace bsfm

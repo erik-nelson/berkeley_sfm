@@ -71,12 +71,8 @@ CameraIntrinsics DefaultIntrinsics() {
 
   return intrinsics;
 }
-}  //\namespace
 
-// Test if the pose estimator can correctly predict camera position when a set
-// of 3D points are perfectly projected into the image.
-TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
-
+void TestPoseEstimator(double pixel_noise_stddev = 0.0) {
   // Create a random number generator.
   math::RandomGenerator rng(0);
 
@@ -88,10 +84,11 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
 
     // Wobble it around.
     const Vector3d euler_angles(Vector3d::Random()*D2R(180.0));
+    const Matrix3d expected_rotation = EulerAnglesToMatrix(euler_angles);
 
     Camera camera;
     CameraExtrinsics extrinsics;
-    extrinsics.Rotate(EulerAnglesToMatrix(euler_angles));
+    extrinsics.Rotate(expected_rotation);
     extrinsics.Translate(cx, cy, cz);
     camera.SetExtrinsics(extrinsics);
     camera.SetIntrinsics(DefaultIntrinsics());
@@ -109,6 +106,9 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
       Feature point_2d;
       double u = 0.0, v = 0.0;
       if (camera.WorldToImage(x, y, z, &u, &v)) {
+        // Add some noise.
+        u += rng.DoubleGaussian(0.0, pixel_noise_stddev);
+        v += rng.DoubleGaussian(0.0, pixel_noise_stddev);
         points_2d.emplace_back(u, v);
         points_3d.emplace_back(x, y, z);
       }
@@ -130,8 +130,23 @@ TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
     EXPECT_NEAR(cx, c(0), 1e-4);
     EXPECT_NEAR(cy, c(1), 1e-4);
     EXPECT_NEAR(cz, c(2), 1e-4);
-    EXPECT_TRUE(extrinsics.Rt().block(0, 0, 3, 3).isApprox(R_out, 1e-4));
+    EXPECT_TRUE(expected_rotation.isApprox(R_out, 1e-4));
   }
 }
+
+}  //\namespace
+
+// Test if the pose estimator can correctly predict camera position when a set
+// of 3D points are perfectly projected into the image.
+TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
+  TestPoseEstimator(0.0 /* pixel noise */);
+}
+
+// Test if the pose estimator can correctly predict camera position when a set
+// of 3D points are noisuly projected into the image.
+TEST(PoseEstimator2D3D, TestPoseEstimatorNoisy) {
+  TestPoseEstimator(10.0 /* pixel noise */);
+}
+
 
 }  //\namespace bsfm

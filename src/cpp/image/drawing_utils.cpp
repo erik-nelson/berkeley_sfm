@@ -141,16 +141,13 @@ void DrawImageFeatureMatches(const Image& image1, const Image& image2,
   cv::waitKey(0);
 }
 
-void AnnotateLandmarks(ViewIndex view_index, Image* image,
+void AnnotateLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
+                       const Camera& camera,
+                       Image* image,
                        unsigned int line_thickness,
                        unsigned int square_width,
                        bool print_text_distances) {
   CHECK_NOTNULL(image);
-
-  // Get the view.
-  View::Ptr view = View::GetView(view_index);
-  CHECK_NOTNULL(view.get());
-  view->UpdateObservedLandmarks();
 
   // Create a random number generator for random colors.
   math::RandomGenerator rng(math::RandomGenerator::Seed());
@@ -163,11 +160,11 @@ void AnnotateLandmarks(ViewIndex view_index, Image* image,
   // distance first for normalization.
   double max_distance = 0.0;
   std::vector<double> distances;
-  for (const auto& landmark_index : view->ObservedLandmarks()) {
+  for (const auto& landmark_index : landmark_indices) {
     Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index);
     CHECK_NOTNULL(landmark.get());
     const Vector3d p = landmark->Position().Get();
-    const Vector3d c = view->Camera().Translation();
+    const Vector3d c = camera.Translation();
     const double d = (p - c).norm();
     if (d > max_distance)
       max_distance = d;
@@ -192,13 +189,13 @@ void AnnotateLandmarks(ViewIndex view_index, Image* image,
   unsigned int color_iter = 0;
   std::vector<cv::Point> text_positions;
   std::vector<double> text_distances;
-  for (const auto& landmark_index : view->ObservedLandmarks()) {
+  for (const auto& landmark_index : landmark_indices) {
     // Already checked nullity.
     Point3D p = Landmark::GetLandmark(landmark_index)->Position();
 
     // Project the landmark into the view.
     double u = 0.0, v = 0.0;
-    if (!view->Camera().WorldToImage(p.X(), p.Y(), p.Z(), &u, &v)) {
+    if (!camera.WorldToImage(p.X(), p.Y(), p.Z(), &u, &v)) {
       color_iter++;
       continue;
     }
@@ -236,14 +233,19 @@ void AnnotateLandmarks(ViewIndex view_index, Image* image,
   image->FromCV(cv_image);
 }
 
-void DrawLandmarks(ViewIndex view_index,
+void DrawLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
+                   const Camera& camera,
                    const Image& image,
                    const std::string& window_name,
                    unsigned int line_thickness,
                    unsigned int square_width) {
   // Annotate landmarks on a copy of the image.
   Image copy(image);
-  AnnotateLandmarks(view_index, &copy, line_thickness, square_width);
+  AnnotateLandmarks(landmark_indices,
+                    camera,
+                    &copy,
+                    line_thickness,
+                    square_width);
 
   // Convert the copied image to OpenCV format.
   cv::Mat cv_copy;
@@ -327,6 +329,57 @@ void DrawObservations(ViewIndex view_index,
   cv::namedWindow(window_name.c_str(), CV_WINDOW_AUTOSIZE);
   cv::imshow(window_name.c_str(), cv_copy);
   cv::waitKey(0);
+}
+
+// Annotate landmark tracks across the specified views. This will iterate over
+// all landmarks, attempt to find each landmark in each one of the views,
+// annotates a line segment connecting the features corresponding to the
+// landmark in each view.
+void AnnotateTracks(const std::vector<LandmarkIndex>& landmark_indices,
+                    const std::vector<ViewIndex>& view_indices,
+                    Image* image,
+                    unsigned int line_thickness) {
+  CHECK_NOTNULL(image);
+
+  // Get OpenCV mat from the input image.
+  cv::Mat cv_image;
+  image->ToCV(cv_image);
+
+  for (const auto& landmark_index : landmark_indices) {
+
+    // Track the landmark across the provided view indices.
+    std::vector<cv::Point> landmark_track;
+    for (const auto& view_index : view_indices) {
+      View::Ptr view = View::GetView(view_index);
+      CHECK_NOTNULL(view.get());
+
+      for (const auto& observation : view->Observations()) {
+        CHECK_NOTNULL(observation.get());
+
+        // If this observation sees our landmark, store the feature position.
+        if (observation->IsIncorporated() &&
+            observation->GetLandmarkIndex() == landmark_index) {
+          cv::Point feature;
+          feature.x = observation->Feature().u_;
+          feature.y = observation->Feature().v_;
+          landmark_track.push_back(feature);
+        }
+      }
+    }
+
+    // Draw the landmark track in the image in purple (BGR).
+    cv::Scalar color(255, 51, 153);
+    for (size_t ii = 0; ii < landmark_track.size() - 1; ++ii) {
+      cv::line(cv_image,
+               landmark_track[ii + 0],
+               landmark_track[ii + 1],
+               color,
+               line_thickness);
+    }
+  }
+
+  // Store the OpenCV mat in the image.
+  image->FromCV(cv_image);
 }
 
 } //\namespace drawing

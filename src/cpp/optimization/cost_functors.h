@@ -62,6 +62,43 @@
 
 namespace bsfm {
 
+// SO3Error is the Frohbenius distance between the given 3x3 matrix R and
+// a true rotation matrix (i.e. a member of the SO(3) group).
+struct SO3Error {
+  // We want to adjust the input matrix R (estimated camera rotation) such
+  // that it is in fact a valid rotation matrix, i.e. it satisfies
+  //                           R^T R - I = 0
+  // We measure error in the Frohbenius norm.
+
+  // Empty constructor.
+  SO3Error() {}
+
+  // Residual is 9-dimensional. Each residual is the absolute distance between
+  // the corresponding elements in R^T R and I.
+  template <typename T>
+  bool operator()(const T* const R, T* geometric_error) const {
+
+    // Matrix multiplication: R^T R - I.
+    T scale = P[2] * X_.X() + P[5] * X_.Y() + P[8] * X_.Z() + P[11];
+    geometric_error[0] =
+       x_.u_ - (P[0] * X_.X() + P[3] * X_.Y() + P[6] * X_.Z() + P[9]) / scale;
+    geometric_error[1] =
+       x_.v_ - (P[1] * X_.X() + P[4] * X_.Y() + P[7] * X_.Z() + P[10]) / scale;
+
+    return true;
+  }
+
+  // Factory method.
+  static ceres::CostFunction* Create(const Feature& x, const Point3D& X) {
+    static const int kNumResiduals = 2;
+    static const int kNumCameraParameters = 12;
+    return new ceres::AutoDiffCostFunction<GeometricError,
+           kNumResiduals,
+           kNumCameraParameters>(new GeometricError(x, X));
+  }
+};  //\struct SO3Error
+
+
 // Geometric error is the distance in image space between a point x, and a
 // projected point PX, where X is a 3D homogeneous point (4x1), P is a camera
 // projection matrix (3x4), and x is the corresponding image-space point

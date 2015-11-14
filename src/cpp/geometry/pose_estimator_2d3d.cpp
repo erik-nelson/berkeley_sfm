@@ -71,7 +71,8 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
   T_ = ComputeNormalization(points_2d);
   U_ = ComputeNormalization(points_3d);
 
-  points_2d_.clear();
+  points_2d_ = points_2d;
+  normalized_points_2d_.clear();
   for (size_t ii = 0; ii < points_2d.size(); ++ii) {
     // Get (u, v) image-space point and normalize.
     double u = points_2d[ii].u_;
@@ -79,10 +80,11 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
     u = T_(0, 0) * u + T_(0, 2);
     v = T_(1, 1) * v + T_(1, 2);
 
-    points_2d_.push_back(Feature(u, v));
+    normalized_points_2d_.push_back(Feature(u, v));
   }
 
-  points_3d_.clear();
+  points_3d_ = points_3d;
+  normalized_points_3d_.clear();
   for (size_t ii = 0; ii < points_3d.size(); ++ii) {
     // Get (x, y, z) world-space point and normalize.
     double x = points_3d[ii].X();
@@ -92,7 +94,7 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
     y = U_(1, 1) * y + U_(1, 3);
     z = U_(2, 2) * z + U_(2, 3);
 
-    points_3d_.push_back(Point3D(x, y, z));
+    normalized_points_3d_.push_back(Point3D(x, y, z));
   }
 
   return true;
@@ -106,25 +108,28 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
     return false;
   }
 
-  // Is the initial P good? If not, we shouldn't try to optimize it.
-  if (!TolerableReprojectionError(P)) {
-    VLOG(1) << "Initial solution is too bad to optimize.";
-    return false;
-  }
-
-  // Refine P with non-linear optimization.
-  Matrix34d P_opt = P;
-  if (!OptimizeSolution(P_opt)) {
-    VLOG(1) << "Failed to optimize P. Continuing using the initial solution.";
-    P_opt = P;
-  }
-
   // Get the camera pose from the computed projection matrix.
-  if (!ExtractPose(P_opt, camera_pose)) {
+  if (!ExtractPose(P, camera_pose)) {
     VLOG(1) << "Computed rotation is non-invertible.";
     return false;
   }
+  
+  // Is the initial P good? If not, we shouldn't try to optimize it.
+  if (!TolerableReprojectionError(camera_pose.Dehomogenize())) {
+    VLOG(1) << "Initial solution is too bad to optimize.";
+    return false;
+  }
+  
+  // Refine P with non-linear optimization.
+  Matrix34d P_opt = camera_pose.Dehomogenize();
+  if (!OptimizeSolution(P_opt)) {
+    VLOG(1) << "Failed to optimize P. Continuing using the initial solution.";
+    P_opt = camera_pose.Dehomogenize();
+  }
 
+  // Set camera_pose to optimized solution.
+  camera_pose.Set(P_opt);
+  
   // camera_pose.Print("Camera pose after: ");
 
   return true;
@@ -137,16 +142,16 @@ bool PoseEstimator2D3D::ComputeInitialSolution(
 
   // First build the A matrix, which is 2n x 12.
   MatrixXd A;
-  A.resize(points_2d_.size() * 2, 12);
+  A.resize(normalized_points_2d_.size() * 2, 12);
   for (size_t ii = 0; ii < points_2d_.size(); ii++) {
     // Get (u, v) image-space point.
-    const double u = points_2d_[ii].u_;
-    const double v = points_2d_[ii].v_;
+    const double u = normalized_points_2d_[ii].u_;
+    const double v = normalized_points_2d_[ii].v_;
 
     // Get (x, y, z) world-space point.
-    const double x = points_3d_[ii].X();
-    const double y = points_3d_[ii].Y();
-    const double z = points_3d_[ii].Z();
+    const double x = normalized_points_3d_[ii].X();
+    const double y = normalized_points_3d_[ii].Y();
+    const double z = normalized_points_3d_[ii].Z();
 
     // First 4 columns, top row of block.
     A(2*ii+0, 0) = 0;
@@ -208,13 +213,29 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) const {
   // Create the non-linear least squares problem and cost function.
   ceres::Problem problem;
 
+  // Create storage containers for optimization variables.
+  // Need to convert camera projection matrix P into intrinsics
+  // and axis-angle + translation.
+  Vector3d rotation, translation;
+
+  // Get static camera intrinsics for evaluating cost function.
+  Matrix3d K = intrinsics_.K();
+
+  // Get camera extrinsics matrix for optimization.
+  const  Matrix34d P_unnormalized = T_.inverse() * solution * U_;
+  Matrix34d initial_extrinsics = K.inverse() * P_unnormalized;
+  Pose Rt(initial_extrinsics);
+  rotation = Rt.AxisAngle();
+  translation = -Rt.Rotation().transpose() * Rt.Translation();
+  
   // Add a term to the cost function for each 2D<-->3D correspondence.
-  Matrix34d optimized_solution = solution;
+  // Do all computations in un-normalized coordinates.
   for (size_t ii = 0; ii < points_2d_.size(); ++ii) {
     problem.AddResidualBlock(
-        GeometricError::Create(points_2d_[ii], points_3d_[ii]),
+	GeometricError::Create(points_2d_[ii], points_3d_[ii], K),
         NULL, /* squared loss */
-        optimized_solution.data());
+        rotation.data(),
+	translation.data());
   }
 
   // Solve the non-linear least squares problem to get the projection matrix.
@@ -228,7 +249,12 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) const {
 
   // Store the solved variable back in 'solution'.
   if (summary.IsSolutionUsable()) {
-    solution = optimized_solution.normalized();
+    Pose pose;
+    pose.FromAxisAngle(rotation);
+    pose.TranslateX(translation(0));
+    pose.TranslateY(translation(1));
+    pose.TranslateZ(translation(2));
+    solution = pose.Dehomogenize();
   }
 
   return summary.IsSolutionUsable();
@@ -236,7 +262,7 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) const {
 
 bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) const {
   // Un-normalize the projection matrix.
-  const  Matrix34d P_unnormalized = T_.inverse() * P * U_;
+  Matrix34d P_unnormalized = T_.inverse() * P * U_;
 
   // Extract camera extrinsics matrix.
   Matrix34d Rt = intrinsics_.Kinv() * P_unnormalized;
@@ -260,8 +286,28 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) const {
   Rt *= std::pow(1.0 / det, 1.0 / 3.0);
 
   // Make sure the rotation is valid.
-  // const Matrix3d R = Rt.block(0, 0, 3, 3);
-  // if (!Matrix3d::Identity().isApprox(R * R.transpose())) {
+  const Matrix3d R = Rt.block(0, 0, 3, 3);
+
+  // Perform an SVD on R.
+  Eigen::JacobiSVD<Matrix3d> svd;
+  svd.compute(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
+  if (!svd.computeU() || !svd.computeV()) {
+    VLOG(1) << "Failed to compute a singular value decomposition of "
+	    << "the rotation matrix.";
+    return false;
+  }
+
+  // Set largest singular value to 1.0 and other two to -1.0.
+  Matrix3d sigma(Matrix3d::Zero());
+  sigma(0, 0) = 1.0;
+  sigma(1, 1) = -1.0;
+  sigma(2, 2) = -1.0;
+
+  // Multiply back to get a valid rotation matrix.
+  Matrix3d R_valid = svd.matrixU() * sigma * svd.matrixV().transpose();
+  Rt.block(0, 0, 3, 3) = R_valid;
+  
+  //if (!Matrix3d::Identity().isApprox(R * R.transpose())) {
     // Find the closest rotation matrix.
     // http://people.csail.mit.edu/bkph/articles/Nearest_Orthonormal_Matrix.pdf
     // Rt.block(0, 0, 3, 3) = R * (R.transpose() * R).inverse();

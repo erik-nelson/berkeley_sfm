@@ -92,6 +92,9 @@ class Pose {
   // Set the homogeneous transformation matrix.
   void Set(const Matrix4d& transformation);
 
+  // Set the Rt matrix.
+  void Set(const Matrix34d& Rt);
+
   // Set rotation and translation directly.
   void SetRotation(const Matrix3d& rotation);
   void SetTranslation(const Vector3d& translation);

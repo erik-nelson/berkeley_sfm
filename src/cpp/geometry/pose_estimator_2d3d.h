@@ -112,9 +112,9 @@ class PoseEstimator2D3D {
   // defined as a flag in the source file.
   bool TolerableReprojectionError(const Matrix34d& P) const;
 
-  // Normalized versions of the inputs to the algorithm.
-  FeatureList points_2d_;
-  Point3DList points_3d_;
+  // (Un-)normalized versions of the inputs to the algorithm.
+  FeatureList points_2d_, normalized_points_2d_;
+  Point3DList points_3d_, normalized_points_3d_;
 
   // Input camera intrinsics matrix.
   CameraIntrinsics intrinsics_;

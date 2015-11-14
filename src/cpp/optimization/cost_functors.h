@@ -80,17 +80,17 @@ struct SO3Error {
   bool operator()(const T* const R, T* frohbenius_error) const {
 
     // Matrix multiplication: R^T R - I.
-    frohbenius_error[0] = R[0]*R[0] + R[3]*R[3] + R[6]*R[6] - 1;
+    frohbenius_error[0] = R[0]*R[0] + R[3]*R[3] + R[6]*R[6] - 1.0;
     frohbenius_error[1] = R[0]*R[1] + R[3]*R[4] + R[6]*R[7];
     frohbenius_error[2] = R[0]*R[2] + R[3]*R[5] + R[6]*R[8];
 
     frohbenius_error[3] = frohbenius_error[1];
-    frohbenius_error[4] = R[1]*R[1] + R[4]*R[4] + R[7]*R[7] - 1;
+    frohbenius_error[4] = R[1]*R[1] + R[4]*R[4] + R[7]*R[7] - 1.0;
     frohbenius_error[5] = R[1]*R[2] + R[4]*R[5] + R[7]*R[8];
 
     frohbenius_error[6] = frohbenius_error[2];
     frohbenius_error[7] = frohbenius_error[5];
-    frohbenius_error[8] = R[2]*R[2] + R[5]*R[5] + R[8]*R[8] - 1;
+    frohbenius_error[8] = R[2]*R[2] + R[5]*R[5] + R[8]*R[8] - 1.0;
     
     return true;
   }
@@ -99,7 +99,7 @@ struct SO3Error {
   static ceres::CostFunction* Create() {
     static const int kNumResiduals = 9;
     static const int kNumCameraParameters = 9;
-    return new ceres::AutoDiffCostFunction<GeometricError,
+    return new ceres::AutoDiffCostFunction<SO3Error,
            kNumResiduals,
            kNumCameraParameters>(new SO3Error());
   }
@@ -218,7 +218,7 @@ struct GeometricError {
     // 3 parameters for camera translation.
     static const int kNumTranslationParameters = 3;
 
-    return new ceres::AutoDiffCostFunction<BundleAdjustmentError,
+    return new ceres::AutoDiffCostFunction<GeometricError,
            kNumResiduals,
            kNumRotationParameters,
 	   kNumTranslationParameters>(new GeometricError(x, X, K));

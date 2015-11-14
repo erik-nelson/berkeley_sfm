@@ -62,6 +62,7 @@
 
 namespace bsfm {
 
+// UNTESTED!!!
 // SO3Error is the Frohbenius distance between the given 3x3 matrix R and
 // a true rotation matrix (i.e. a member of the SO(3) group).
 struct SO3Error {
@@ -76,25 +77,31 @@ struct SO3Error {
   // Residual is 9-dimensional. Each residual is the absolute distance between
   // the corresponding elements in R^T R and I.
   template <typename T>
-  bool operator()(const T* const R, T* geometric_error) const {
+  bool operator()(const T* const R, T* frohbenius_error) const {
 
     // Matrix multiplication: R^T R - I.
-    T scale = P[2] * X_.X() + P[5] * X_.Y() + P[8] * X_.Z() + P[11];
-    geometric_error[0] =
-       x_.u_ - (P[0] * X_.X() + P[3] * X_.Y() + P[6] * X_.Z() + P[9]) / scale;
-    geometric_error[1] =
-       x_.v_ - (P[1] * X_.X() + P[4] * X_.Y() + P[7] * X_.Z() + P[10]) / scale;
+    frohbenius_error[0] = R[0]*R[0] + R[3]*R[3] + R[6]*R[6] - 1;
+    frohbenius_error[1] = R[0]*R[1] + R[3]*R[4] + R[6]*R[7];
+    frohbenius_error[2] = R[0]*R[2] + R[3]*R[5] + R[6]*R[8];
 
+    frohbenius_error[3] = frohbenius_error[1];
+    frohbenius_error[4] = R[1]*R[1] + R[4]*R[4] + R[7]*R[7] - 1;
+    frohbenius_error[5] = R[1]*R[2] + R[4]*R[5] + R[7]*R[8];
+
+    frohbenius_error[6] = frohbenius_error[2];
+    frohbenius_error[7] = frohbenius_error[5];
+    frohbenius_error[8] = R[2]*R[2] + R[5]*R[5] + R[8]*R[8] - 1;
+    
     return true;
   }
 
   // Factory method.
-  static ceres::CostFunction* Create(const Feature& x, const Point3D& X) {
-    static const int kNumResiduals = 2;
-    static const int kNumCameraParameters = 12;
+  static ceres::CostFunction* Create() {
+    static const int kNumResiduals = 9;
+    static const int kNumCameraParameters = 9;
     return new ceres::AutoDiffCostFunction<GeometricError,
            kNumResiduals,
-           kNumCameraParameters>(new GeometricError(x, X));
+           kNumCameraParameters>(new SO3Error());
   }
 };  //\struct SO3Error
 

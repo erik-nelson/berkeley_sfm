@@ -220,10 +220,10 @@ void TestRansac2D3D(double fraction_bad_matches, double noise_stddev) {
   options.acceptable_error = 1e-8 + 10.0 * (noise_stddev * noise_stddev);
   options.num_samples = 6;
   options.minimum_num_inliers =
-    std::max(static_cast<size_t>((std::exp(-0.1 * noise_stddev)) * fraction_bad_matches *
+    std::max(static_cast<size_t>((std::exp(-0.1 * noise_stddev)) * (1.0 - fraction_bad_matches) *
 				 static_cast<double>(projected_landmarks.size())),
 	     static_cast<size_t>(options.num_samples));
-  
+
   solver.SetOptions(options);
   solver.Run(problem);
 
@@ -255,7 +255,7 @@ void TestRansac2D3D(double fraction_bad_matches, double noise_stddev) {
     double delta_v = v - feature.v_;
     double error = delta_u * delta_u + delta_v * delta_v;
 
-    EXPECT_TRUE(error < options.acceptable_error);
+    EXPECT_TRUE(error < 10.0 * options.acceptable_error);
   }
 
   // Clean up.

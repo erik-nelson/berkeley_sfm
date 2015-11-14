@@ -106,6 +106,7 @@ struct SO3Error {
 };  //\struct SO3Error
 
 
+#if 0
 // Geometric error is the distance in image space between a point x, and a
 // projected point PX, where X is a 3D homogeneous point (4x1), P is a camera
 // projection matrix (3x4), and x is the corresponding image-space point
@@ -145,6 +146,84 @@ struct GeometricError {
            kNumCameraParameters>(new GeometricError(x, X));
   }
 };  //\struct GeometricError
+
+#endif
+  
+
+// Geometric error is defined as the image-space  geometric distance between 
+// an image point x, and a projected 3D landmark X projected according to
+// x = K [R | t] X, where K and [R | t] are camera intrinsic and extrinsic 
+// parameter matrices, respectively. K is held constant during the optimization, 
+// and only the camera pose matrix [R | t] is optimized over.
+//
+// For speed and accuracy, we optimize over an axis-angle parameterization of R
+// rather than the 9 variables in a rotation matrix, in addition,
+// for readability/cleanliness, we optimize over c, the camera center in world
+// space, rather than t. These are related by c = -R'*t.
+struct GeometricError {
+  // Inputs are the image space point x and the intrinsics matrix K.
+  // Optimization variables are just the camera extrinsics matrix [R | t], 
+  // expressed as an axis-angle rotation and a 3D translation vector, and 
+  // as the camera origin expressed in world frame coordinates, c.
+  Feature x_;
+  Point3D X_;
+  Matrix3d K_;
+  GeometricError(const Feature& x, const Point3D& X, const Matrix3d& K)
+    : x_(x), X_(X), K_(K) {}
+
+  template <typename T>
+  bool operator()(const T* const rotation, const T* const translation,
+                  T* geometric_error) const {
+    // Normally one would compute x = K * [R | t] X. Instead we have an
+    // axis-angle version of R, and the camera position c. To put the
+    // point X in camera frame, we need to compute R*X+t. Note that t = -R'*c,
+    // so R*X+t = R*(X+R'*t) = R*(X-c). Hence we can first subtract out the given
+    // camera position, and then perform the axis-angle rotation.
+
+    // Remove camera translation.
+    T origin_point[3];
+    origin_point[0] = X_.X() - translation[0];
+    origin_point[1] = X_.Y() - translation[1];
+    origin_point[2] = X_.Z() - translation[2];
+
+    // Rotate point to camera frame.
+    T cam_point[3];
+    ceres::AngleAxisRotatePoint(rotation, origin_point, cam_point);
+
+    // Get normalized pixel projection.
+    const T& depth = cam_point[2];
+    const T normalized_point[2] = {cam_point[0] / depth, cam_point[1] / depth};
+
+    // Project normalized point into image using intrinsic parameters.
+    const T u = K_(0, 0) * normalized_point[0] +
+                K_(0, 1) * normalized_point[1] + K_(0, 2);
+    const T v = K_(1, 1) * normalized_point[1] + K_(1, 2);
+
+    // Error is computed in image space.
+    geometric_error[0] = x_.u_ - u;
+    geometric_error[1] = x_.v_ - v;
+
+    return true;
+  }
+
+  // Factory method.
+  static ceres::CostFunction* Create(const Feature& x, const Point3D& X,
+				     const Matrix3d& K) {
+    // 2 residuals: image space u and v coordinates.
+    static const int kNumResiduals = 2;
+
+    // 3 parameters, axis-angle representation.
+    static const int kNumRotationParameters = 3;
+
+    // 3 parameters for camera translation.
+    static const int kNumTranslationParameters = 3;
+
+    return new ceres::AutoDiffCostFunction<BundleAdjustmentError,
+           kNumResiduals,
+           kNumRotationParameters,
+	   kNumTranslationParameters>(new GeometricError(x, X, K));
+  }
+};  //\GeometricError
 
 
 // Bundle adjustment error is similar to geometric error, but the position of

@@ -39,10 +39,14 @@
 
 #include <ceres/ceres.h>
 #include <Eigen/SVD>
+#include <Eigen/QR>
 #include <glog/logging.h>
 
 #include "normalization.h"
 #include "../optimization/cost_functors.h"
+
+// Signum macro.
+#define SIGN(a) (((a) < 0) ? -1.0 : 1.0)
 
 DEFINE_double(max_reprojection_error, 400.0,
               "Maximum tolerable reprojection error for a single 2D<-->3D "
@@ -71,7 +75,7 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
   T_ = ComputeNormalization(points_2d);
   U_ = ComputeNormalization(points_3d);
 
-  points_2d_ = points_2d;
+  points_2d_.clear();
   normalized_points_2d_.clear();
   for (size_t ii = 0; ii < points_2d.size(); ++ii) {
     // Get (u, v) image-space point and normalize.
@@ -80,10 +84,11 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
     u = T_(0, 0) * u + T_(0, 2);
     v = T_(1, 1) * v + T_(1, 2);
 
+    points_2d_.push_back(points_2d[ii]);
     normalized_points_2d_.push_back(Feature(u, v));
   }
 
-  points_3d_ = points_3d;
+  points_3d_.clear();
   normalized_points_3d_.clear();
   for (size_t ii = 0; ii < points_3d.size(); ++ii) {
     // Get (x, y, z) world-space point and normalize.
@@ -94,6 +99,7 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
     y = U_(1, 1) * y + U_(1, 3);
     z = U_(2, 2) * z + U_(2, 3);
 
+    points_3d_.push_back(points_3d[ii]);
     normalized_points_3d_.push_back(Point3D(x, y, z));
   }
 
@@ -108,18 +114,18 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
     return false;
   }
 
+  // Is the initial P good? If not, we shouldn't try to optimize it.
+  if (!TolerableReprojectionError(P)) {
+    VLOG(1) << "Initial solution is too bad to optimize.";
+    return false;
+  }
+
   // Get the camera pose from the computed projection matrix.
   if (!ExtractPose(P, camera_pose)) {
     VLOG(1) << "Computed rotation is non-invertible.";
     return false;
   }
-  
-  // Is the initial P good? If not, we shouldn't try to optimize it.
-  if (!TolerableReprojectionError(camera_pose.Dehomogenize())) {
-    VLOG(1) << "Initial solution is too bad to optimize.";
-    return false;
-  }
-  
+
   // Refine P with non-linear optimization.
   Matrix34d P_opt = camera_pose.Dehomogenize();
   if (!OptimizeSolution(P_opt)) {
@@ -129,7 +135,7 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
 
   // Set camera_pose to optimized solution.
   camera_pose.Set(P_opt);
-  
+
   // camera_pose.Print("Camera pose after: ");
 
   return true;
@@ -143,7 +149,7 @@ bool PoseEstimator2D3D::ComputeInitialSolution(
   // First build the A matrix, which is 2n x 12.
   MatrixXd A;
   A.resize(normalized_points_2d_.size() * 2, 12);
-  for (size_t ii = 0; ii < points_2d_.size(); ii++) {
+  for (size_t ii = 0; ii < normalized_points_2d_.size(); ii++) {
     // Get (u, v) image-space point.
     const double u = normalized_points_2d_[ii].u_;
     const double v = normalized_points_2d_[ii].v_;
@@ -222,9 +228,7 @@ bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) const {
   Matrix3d K = intrinsics_.K();
 
   // Get camera extrinsics matrix for optimization.
-  const  Matrix34d P_unnormalized = T_.inverse() * solution * U_;
-  Matrix34d initial_extrinsics = K.inverse() * P_unnormalized;
-  Pose Rt(initial_extrinsics);
+  Pose Rt(solution);
   rotation = Rt.AxisAngle();
   translation = -Rt.Rotation().transpose() * Rt.Translation();
   
@@ -266,7 +270,7 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) const {
 
   // Extract camera extrinsics matrix.
   Matrix34d Rt = intrinsics_.Kinv() * P_unnormalized;
-
+  
   // [R|t] is only determined up to scale. To get this scale, note that det(R)
   // must equal 1. Also note that for an nxn matrix, c^n*det(R) = det(cR).
   // Use this property to scale our matrix.
@@ -285,28 +289,21 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) const {
   // Normalize the rotation and translation.
   Rt *= std::pow(1.0 / det, 1.0 / 3.0);
 
-  // Make sure the rotation is valid.
+  // Make sure the rotation is valid. Compute a QR decomposition of R
+  // and set R back to the orthogonal 'Q' matrix. Make sure the signs of
+  // all the columns in the projection match the original.
   const Matrix3d R = Rt.block(0, 0, 3, 3);
+  Eigen::HouseholderQR<Matrix3d> qr;
+  qr.compute(R);
 
-  // Perform an SVD on R.
-  Eigen::JacobiSVD<Matrix3d> svd;
-  svd.compute(R, Eigen::ComputeFullU | Eigen::ComputeFullV);
-  if (!svd.computeU() || !svd.computeV()) {
-    VLOG(1) << "Failed to compute a singular value decomposition of "
-	    << "the rotation matrix.";
-    return false;
-  }
+  Matrix3d upper_triangle = qr.matrixQR().triangularView<Eigen::Upper>();
+  Matrix3d signs(Matrix3d::Zero());
+  signs(0, 0) = SIGN(upper_triangle(0, 0));
+  signs(1, 1) = SIGN(upper_triangle(1, 1));
+  signs(2, 2) = SIGN(upper_triangle(2, 2));
 
-  // Set largest singular value to 1.0 and other two to -1.0.
-  Matrix3d sigma(Matrix3d::Zero());
-  sigma(0, 0) = 1.0;
-  sigma(1, 1) = -1.0;
-  sigma(2, 2) = -1.0;
+  Rt.block(0, 0, 3, 3) = qr.householderQ() * signs;
 
-  // Multiply back to get a valid rotation matrix.
-  Matrix3d R_valid = svd.matrixU() * sigma * svd.matrixV().transpose();
-  Rt.block(0, 0, 3, 3) = R_valid;
-  
   //if (!Matrix3d::Identity().isApprox(R * R.transpose())) {
     // Find the closest rotation matrix.
     // http://people.csail.mit.edu/bkph/articles/Nearest_Orthonormal_Matrix.pdf
@@ -323,11 +320,16 @@ bool PoseEstimator2D3D::TolerableReprojectionError(const Matrix34d& P) const {
 
   // Compute reprojection error for each 2D<-->3D match.
   double error = 0.0;
-  for (size_t ii = 0; ii < points_3d_.size(); ++ii) {
+  for (size_t ii = 0; ii < normalized_points_3d_.size(); ++ii) {
     Vector3d x;
     Vector4d X;
-    x << points_2d_[ii].u_, points_2d_[ii].v_, 1.0;
-    X << points_3d_[ii].X(), points_3d_[ii].Y(), points_3d_[ii].Z(), 1.0;
+    x << normalized_points_2d_[ii].u_,
+         normalized_points_2d_[ii].v_,
+         1.0;
+    X << normalized_points_3d_[ii].X(),
+         normalized_points_3d_[ii].Y(),
+         normalized_points_3d_[ii].Z(),
+         1.0;
 
     const Vector3d reprojected_x = P*X;
     const double error_u = x(0) - reprojected_x(0) / reprojected_x(2);
@@ -335,7 +337,7 @@ bool PoseEstimator2D3D::TolerableReprojectionError(const Matrix34d& P) const {
     error += error_u*error_u + error_v*error_v;
   }
 
-  return error <= FLAGS_max_reprojection_error / points_3d_.size();
+  return error <= FLAGS_max_reprojection_error / normalized_points_3d_.size();
 }
 
 }  //\namespace bsfm

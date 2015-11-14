@@ -72,7 +72,8 @@ CameraIntrinsics DefaultIntrinsics() {
   return intrinsics;
 }
 
-void TestPoseEstimator(double pixel_noise_stddev = 0.0) {
+  void TestPoseEstimator(double pixel_noise_stddev = 0.0,
+			 double error_threshold = 1e-8) {
   // Create a random number generator.
   math::RandomGenerator rng(0);
 
@@ -127,10 +128,10 @@ void TestPoseEstimator(double pixel_noise_stddev = 0.0) {
     const Vector3d c =
         -R_out.transpose() * calculated_pose.Translation();
 
-    EXPECT_NEAR(cx, c(0), 1e-4);
-    EXPECT_NEAR(cy, c(1), 1e-4);
-    EXPECT_NEAR(cz, c(2), 1e-4);
-    EXPECT_TRUE(expected_rotation.isApprox(R_out, 1e-4));
+    EXPECT_NEAR(cx, c(0), error_threshold);
+    EXPECT_NEAR(cy, c(1), error_threshold);
+    EXPECT_NEAR(cz, c(2), error_threshold);
+    EXPECT_TRUE(expected_rotation.isApprox(R_out, error_threshold));
   }
 }
 
@@ -139,13 +140,15 @@ void TestPoseEstimator(double pixel_noise_stddev = 0.0) {
 // Test if the pose estimator can correctly predict camera position when a set
 // of 3D points are perfectly projected into the image.
 TEST(PoseEstimator2D3D, TestPoseEstimatorNoiseless) {
-  TestPoseEstimator(0.0 /* pixel noise */);
+  TestPoseEstimator(0.0 /* pixel noise */,
+		    1e-8 /* error threshold */);
 }
 
 // Test if the pose estimator can correctly predict camera position when a set
 // of 3D points are noisuly projected into the image.
 TEST(PoseEstimator2D3D, TestPoseEstimatorNoisy) {
-  TestPoseEstimator(10.0 /* pixel noise */);
+  TestPoseEstimator(1.0 /* pixel noise */,
+		    5.0 /* error threshold */);
 }
 
 

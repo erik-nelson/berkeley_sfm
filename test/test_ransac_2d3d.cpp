@@ -63,7 +63,7 @@ using Eigen::Vector3d;
 
 namespace {
 // Minimum number of points to constrain the problem. See H&Z pg. 179.
-const int kNumLandmarks = 100;
+const int kNumLandmarks = 1000;
 const int kImageWidth = 1920;
 const int kImageHeight = 1080;
 const double kVerticalFov = D2R(90.0);
@@ -161,7 +161,7 @@ std::vector<LandmarkIndex> CreateObservations(
   return projected_landmarks;
 }
 
-void TestRansac2D3D(unsigned int num_bad_matches, double noise_stddev) {
+void TestRansac2D3D(double fraction_bad_matches, double noise_stddev) {
   // Clean up from other tests.
   Landmark::ResetLandmarks();
   View::ResetViews();
@@ -191,7 +191,9 @@ void TestRansac2D3D(unsigned int num_bad_matches, double noise_stddev) {
   std::vector<LandmarkIndex> landmark_indices =
       Landmark::ExistingLandmarkIndices();
 
-  // Create observations of the landmarks (no bad observations).
+  // Create observations of the landmarks.
+  unsigned int num_bad_matches = static_cast<unsigned int>(fraction_bad_matches *
+							   kNumLandmarks);
   std::vector<LandmarkIndex> projected_landmarks = CreateObservations(
       landmark_indices, view->Index(), num_bad_matches, noise_stddev);
   ASSERT_LT(0, projected_landmarks.size());
@@ -210,14 +212,18 @@ void TestRansac2D3D(unsigned int num_bad_matches, double noise_stddev) {
 
   // Run RANSAC for a bunch of iterations. It is very likely that in at least 1
   // iteration, all samples will be from the set of good matches and will
-  // therefore result in an error of < 1e-8.
+  // therefore result in an error of < 1e-8 + 10*noise_variance. We also allow
+  // RANSAC to miss some inliers as noise increases.
   Ransac<Observation::Ptr, PnPRansacModel> solver;
   RansacOptions options;
   options.iterations = 200;
   options.acceptable_error = 1e-8 + 10.0 * (noise_stddev * noise_stddev);
   options.num_samples = 6;
-  options.minimum_num_inliers = projected_landmarks.size();
-
+  options.minimum_num_inliers =
+    std::max(static_cast<size_t>((std::exp(-0.1 * noise_stddev)) * fraction_bad_matches *
+				 static_cast<double>(projected_landmarks.size())),
+	     static_cast<size_t>(options.num_samples));
+  
   solver.SetOptions(options);
   solver.Run(problem);
 
@@ -249,7 +255,7 @@ void TestRansac2D3D(unsigned int num_bad_matches, double noise_stddev) {
     double delta_v = v - feature.v_;
     double error = delta_u * delta_u + delta_v * delta_v;
 
-    EXPECT_TRUE(error < 1e-8 + 10.0 * noise_stddev*noise_stddev);
+    EXPECT_TRUE(error < options.acceptable_error);
   }
 
   // Clean up.
@@ -262,19 +268,19 @@ void TestRansac2D3D(unsigned int num_bad_matches, double noise_stddev) {
 // Test with 1 to 1 correspondence between observations in the view and existing
 // landmarks.
 TEST(PnPRansac2D3D, TestPnPRansac2D3DNoiseless) {
-  TestRansac2D3D(0, 0.0);
+  TestRansac2D3D(0.0, 0.0);
 }
 
 // Test with many to 1 correspondence between observations in the view and existing
 // landmarks.
 TEST(PnPRansac2D3D, TestPnPRansac2D3DNoisy) {
-  TestRansac2D3D(0.5 * kNumLandmarks, FLAGS_noise_stddev);
+  TestRansac2D3D(0.25, FLAGS_noise_stddev);
 }
 
 // Test with MANY to 1 correspondence between observations in the view and existing
 // landmarks.
 TEST(PnPRansac2D3D, TestPnPRansac2D3DVeryNoisy) {
-  TestRansac2D3D(kNumLandmarks, FLAGS_noise_stddev);
+  TestRansac2D3D(0.33, FLAGS_noise_stddev);
 }
 
 }  //\namespace bsfm

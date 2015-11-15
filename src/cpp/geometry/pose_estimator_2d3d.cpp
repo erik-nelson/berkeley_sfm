@@ -45,10 +45,7 @@
 #include "normalization.h"
 #include "../optimization/cost_functors.h"
 
-// Signum macro.
-#define SIGN(a) (((a) < 0) ? -1.0 : 1.0)
-
-DEFINE_double(max_reprojection_error, 400.0,
+DEFINE_double(max_reprojection_error, 100.0,
               "Maximum tolerable reprojection error for a single 2D<-->3D "
               "point. This error is squared pixel distance.");
 
@@ -75,7 +72,8 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
   T_ = ComputeNormalization(points_2d);
   U_ = ComputeNormalization(points_3d);
 
-  points_2d_.clear();
+  // Store the input set of points and a normalized copy.
+  points_2d_ = points_2d;
   normalized_points_2d_.clear();
   for (size_t ii = 0; ii < points_2d.size(); ++ii) {
     // Get (u, v) image-space point and normalize.
@@ -84,11 +82,10 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
     u = T_(0, 0) * u + T_(0, 2);
     v = T_(1, 1) * v + T_(1, 2);
 
-    points_2d_.push_back(points_2d[ii]);
     normalized_points_2d_.push_back(Feature(u, v));
   }
 
-  points_3d_.clear();
+  points_3d_ = points_3d;
   normalized_points_3d_.clear();
   for (size_t ii = 0; ii < points_3d.size(); ++ii) {
     // Get (x, y, z) world-space point and normalize.
@@ -99,7 +96,6 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
     y = U_(1, 1) * y + U_(1, 3);
     z = U_(2, 2) * z + U_(2, 3);
 
-    points_3d_.push_back(points_3d[ii]);
     normalized_points_3d_.push_back(Point3D(x, y, z));
   }
 
@@ -107,14 +103,14 @@ bool PoseEstimator2D3D::Initialize(const FeatureList& points_2d,
 }
 
 bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
-  // Get an initial P.
+  // Get an initial projection matrix.
   Matrix34d P;
   if (!ComputeInitialSolution(P)) {
     VLOG(1) << "Failed to compute an initial solution for P.";
     return false;
   }
 
-  // Is the initial P good? If not, we shouldn't try to optimize it.
+  // Is the initial projection good? If not, we shouldn't try to optimize it.
   if (!TolerableReprojectionError(P)) {
     VLOG(1) << "Initial solution is too bad to optimize.";
     return false;
@@ -127,16 +123,9 @@ bool PoseEstimator2D3D::Solve(Pose& camera_pose) {
   }
 
   // Refine P with non-linear optimization.
-  Matrix34d P_opt = camera_pose.Dehomogenize();
-  if (!OptimizeSolution(P_opt)) {
-    VLOG(1) << "Failed to optimize P. Continuing using the initial solution.";
-    P_opt = camera_pose.Dehomogenize();
+  if (!OptimizePose(camera_pose)) {
+    VLOG(1) << "Failed to optimize camera pose. Continuing using the initial solution.";
   }
-
-  // Set camera_pose to optimized solution.
-  camera_pose.Set(P_opt);
-
-  // camera_pose.Print("Camera pose after: ");
 
   return true;
 }
@@ -215,62 +204,13 @@ bool PoseEstimator2D3D::ComputeInitialSolution(
   return true;
 }
 
-bool PoseEstimator2D3D::OptimizeSolution(Matrix34d& solution) const {
-  // Create the non-linear least squares problem and cost function.
-  ceres::Problem problem;
-
-  // Create storage containers for optimization variables.
-  // Need to convert camera projection matrix P into intrinsics
-  // and axis-angle + translation.
-  Vector3d rotation, translation;
-
-  // Get static camera intrinsics for evaluating cost function.
-  Matrix3d K = intrinsics_.K();
-
-  // Get camera extrinsics matrix for optimization.
-  Pose Rt(solution);
-  rotation = Rt.AxisAngle();
-  translation = -Rt.Rotation().transpose() * Rt.Translation();
-  
-  // Add a term to the cost function for each 2D<-->3D correspondence.
-  // Do all computations in un-normalized coordinates.
-  for (size_t ii = 0; ii < points_2d_.size(); ++ii) {
-    problem.AddResidualBlock(
-	GeometricError::Create(points_2d_[ii], points_3d_[ii], K),
-        NULL, /* squared loss */
-        rotation.data(),
-	translation.data());
-  }
-
-  // Solve the non-linear least squares problem to get the projection matrix.
-  ceres::Solver::Summary summary;
-  ceres::Solver::Options options;
-  options.linear_solver_type = ceres::DENSE_QR;
-  options.function_tolerance = 1e-16;
-  options.gradient_tolerance = 1e-16;
-  options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
-  ceres::Solve(options, &problem, &summary);
-
-  // Store the solved variable back in 'solution'.
-  if (summary.IsSolutionUsable()) {
-    Pose pose;
-    pose.FromAxisAngle(rotation);
-    pose.TranslateX(translation(0));
-    pose.TranslateY(translation(1));
-    pose.TranslateZ(translation(2));
-    solution = pose.Dehomogenize();
-  }
-
-  return summary.IsSolutionUsable();
-}
-
 bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) const {
   // Un-normalize the projection matrix.
   Matrix34d P_unnormalized = T_.inverse() * P * U_;
 
   // Extract camera extrinsics matrix.
   Matrix34d Rt = intrinsics_.Kinv() * P_unnormalized;
-  
+
   // [R|t] is only determined up to scale. To get this scale, note that det(R)
   // must equal 1. Also note that for an nxn matrix, c^n*det(R) = det(cR).
   // Use this property to scale our matrix.
@@ -289,31 +229,64 @@ bool PoseEstimator2D3D::ExtractPose(const Matrix34d& P, Pose& pose) const {
   // Normalize the rotation and translation.
   Rt *= std::pow(1.0 / det, 1.0 / 3.0);
 
-  // Make sure the rotation is valid. Compute a QR decomposition of R
-  // and set R back to the orthogonal 'Q' matrix. Make sure the signs of
-  // all the columns in the projection match the original.
+  // Make sure the rotation is valid by projecting onto SO3. Compute a QR
+  // decomposition of R and set R back to the orthogonal 'Q' matrix. Make sure
+  // the signs of all the columns in the projection match the original.
   const Matrix3d R = Rt.block(0, 0, 3, 3);
   Eigen::HouseholderQR<Matrix3d> qr;
   qr.compute(R);
 
-  Matrix3d upper_triangle = qr.matrixQR().triangularView<Eigen::Upper>();
+  const Matrix3d upper_triangle = qr.matrixQR().triangularView<Eigen::Upper>();
   Matrix3d signs(Matrix3d::Zero());
-  signs(0, 0) = SIGN(upper_triangle(0, 0));
-  signs(1, 1) = SIGN(upper_triangle(1, 1));
-  signs(2, 2) = SIGN(upper_triangle(2, 2));
-
+  signs(0, 0) = upper_triangle(0, 0) > 0.0 ? 1.0 : -1.0;
+  signs(1, 1) = upper_triangle(1, 1) > 0.0 ? 1.0 : -1.0;
+  signs(2, 2) = upper_triangle(2, 2) > 0.0 ? 1.0 : -1.0;
   Rt.block(0, 0, 3, 3) = qr.householderQ() * signs;
-
-  //if (!Matrix3d::Identity().isApprox(R * R.transpose())) {
-    // Find the closest rotation matrix.
-    // http://people.csail.mit.edu/bkph/articles/Nearest_Orthonormal_Matrix.pdf
-    // Rt.block(0, 0, 3, 3) = R * (R.transpose() * R).inverse();
-    // std::cout << "Rt: " << Rt << std::endl;
-  // }
 
   // Initialize the output pose from the rotation and translation blocks.
   pose = Pose(Rt);
   return true;
+}
+
+bool PoseEstimator2D3D::OptimizePose(Pose& pose) const {
+  // Create the non-linear least squares problem and cost function.
+  ceres::Problem problem;
+
+  // Create storage containers for optimization variables.
+  // Need to convert camera projection matrix P into intrinsics
+  // and axis-angle + translation.
+  Vector3d rotation = pose.AxisAngle();
+  Vector3d translation = -pose.Rotation().transpose() * pose.Translation();
+
+  // Get static camera intrinsics for evaluating cost function.
+  Matrix3d K = intrinsics_.K();
+
+  // Add a term to the cost function for each 2D<-->3D correspondence.
+  // Do all computations in un-normalized coordinates.
+  for (size_t ii = 0; ii < points_2d_.size(); ++ii) {
+    problem.AddResidualBlock(
+        GeometricError::Create(points_2d_[ii], points_3d_[ii], K),
+        NULL, /* squared loss */
+        rotation.data(),
+        translation.data());
+  }
+
+  // Solve the non-linear least squares problem to get the projection matrix.
+  ceres::Solver::Summary summary;
+  ceres::Solver::Options options;
+  options.linear_solver_type = ceres::DENSE_QR;
+  options.function_tolerance = 1e-16;
+  options.gradient_tolerance = 1e-16;
+  options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
+  ceres::Solve(options, &problem, &summary);
+
+  // Store the solved variable back in 'pose'.
+  if (summary.IsSolutionUsable()) {
+    pose.FromAxisAngle(rotation);
+    pose.SetTranslation(-pose.Rotation() * translation);
+  }
+
+  return summary.IsSolutionUsable();
 }
 
 bool PoseEstimator2D3D::TolerableReprojectionError(const Matrix34d& P) const {

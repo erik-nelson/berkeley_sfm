@@ -151,9 +151,9 @@ int main(int argc, char** argv) {
 
   // Number of inliers ~= (1-0.3) * 30. Assumes ~30 landmarks observed on a frame.
   // Error is squared reprojection. Allow for a 20 pixel error tolerance.
-  vo_options.pnp_ransac_options.iterations = 100;
-  vo_options.pnp_ransac_options.acceptable_error = 100.0;
-  vo_options.pnp_ransac_options.minimum_num_inliers = 20;
+  vo_options.pnp_ransac_options.iterations = 50;
+  vo_options.pnp_ransac_options.acceptable_error = 0.5;
+  vo_options.pnp_ransac_options.minimum_num_inliers = 7;
   vo_options.pnp_ransac_options.num_samples = 6;
 
   vo_options.bundle_adjustment_options.solver_type = "SPARSE_SCHUR";

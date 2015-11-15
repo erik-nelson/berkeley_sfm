@@ -63,13 +63,13 @@
 namespace bsfm {
 
 // UNTESTED!!!
-// SO3Error is the Frohbenius distance between the given 3x3 matrix R and
+// SO3Error is the frobenius distance between the given 3x3 matrix R and
 // a true rotation matrix (i.e. a member of the SO(3) group).
 struct SO3Error {
   // We want to adjust the input matrix R (estimated camera rotation) such
   // that it is in fact a valid rotation matrix, i.e. it satisfies
   //                           R^T R - I = 0
-  // We measure error in the Frohbenius norm.
+  // We measure error in the frobenius norm.
 
   // Empty constructor.
   SO3Error() {}
@@ -77,31 +77,33 @@ struct SO3Error {
   // Residual is 9-dimensional. Each residual is the absolute distance between
   // the corresponding elements in R^T R and I.
   template <typename T>
-  bool operator()(const T* const R, T* frohbenius_error) const {
+  bool operator()(const T* const R, T* frobenius_error) const {
 
     // Matrix multiplication: R^T R - I.
-    frohbenius_error[0] = R[0]*R[0] + R[3]*R[3] + R[6]*R[6] - 1.0;
-    frohbenius_error[1] = R[0]*R[1] + R[3]*R[4] + R[6]*R[7];
-    frohbenius_error[2] = R[0]*R[2] + R[3]*R[5] + R[6]*R[8];
+    frobenius_error[0] = R[0]*R[0] + R[3]*R[3] + R[6]*R[6] - T(1.0);
+    frobenius_error[1] = R[0]*R[1] + R[3]*R[4] + R[6]*R[7];
+    frobenius_error[2] = R[0]*R[2] + R[3]*R[5] + R[6]*R[8];
 
-    frohbenius_error[3] = frohbenius_error[1];
-    frohbenius_error[4] = R[1]*R[1] + R[4]*R[4] + R[7]*R[7] - 1.0;
-    frohbenius_error[5] = R[1]*R[2] + R[4]*R[5] + R[7]*R[8];
+    frobenius_error[3] = frobenius_error[1];
+    frobenius_error[4] = R[1]*R[1] + R[4]*R[4] + R[7]*R[7] - T(1.0);
+    frobenius_error[5] = R[1]*R[2] + R[4]*R[5] + R[7]*R[8];
 
-    frohbenius_error[6] = frohbenius_error[2];
-    frohbenius_error[7] = frohbenius_error[5];
-    frohbenius_error[8] = R[2]*R[2] + R[5]*R[5] + R[8]*R[8] - 1.0;
-    
+    frobenius_error[6] = frobenius_error[2];
+    frobenius_error[7] = frobenius_error[5];
+    frobenius_error[8] = R[2]*R[2] + R[5]*R[5] + R[8]*R[8] - T(1.0);
+
     return true;
   }
 
   // Factory method.
   static ceres::CostFunction* Create() {
     static const int kNumResiduals = 9;
-    static const int kNumCameraParameters = 9;
-    return new ceres::AutoDiffCostFunction<SO3Error,
-           kNumResiduals,
-           kNumCameraParameters>(new SO3Error());
+    static const int kNumRotationParameters = 9;
+    return new ceres::AutoDiffCostFunction<
+        SO3Error,
+        kNumResiduals,
+        kNumRotationParameters>(
+            new SO3Error());
   }
 };  //\struct SO3Error
 
@@ -148,12 +150,12 @@ struct GeometricError {
 };  //\struct GeometricError
 
 #endif
-  
 
-// Geometric error is defined as the image-space  geometric distance between 
+
+// Geometric error is defined as the image-space  geometric distance between
 // an image point x, and a projected 3D landmark X projected according to
-// x = K [R | t] X, where K and [R | t] are camera intrinsic and extrinsic 
-// parameter matrices, respectively. K is held constant during the optimization, 
+// x = K [R | t] X, where K and [R | t] are camera intrinsic and extrinsic
+// parameter matrices, respectively. K is held constant during the optimization,
 // and only the camera pose matrix [R | t] is optimized over.
 //
 // For speed and accuracy, we optimize over an axis-angle parameterization of R
@@ -162,8 +164,8 @@ struct GeometricError {
 // space, rather than t. These are related by c = -R'*t.
 struct GeometricError {
   // Inputs are the image space point x and the intrinsics matrix K.
-  // Optimization variables are just the camera extrinsics matrix [R | t], 
-  // expressed as an axis-angle rotation and a 3D translation vector, and 
+  // Optimization variables are just the camera extrinsics matrix [R | t],
+  // expressed as an axis-angle rotation and a 3D translation vector, and
   // as the camera origin expressed in world frame coordinates, c.
   Feature x_;
   Point3D X_;

@@ -96,15 +96,15 @@ class PoseEstimator2D3D {
   // using Eq. 7.2 from H&Z: Multiple-View Geometry.
   bool ComputeInitialSolution(Matrix34d& initial_solution) const;
 
-  // Refines the solution using the Levenberg-Marquardt iterative algorithm for
-  // non-linear least-squares.
-  bool OptimizeSolution(Matrix34d& solution) const;
-
   // Uses the camera intrinsics (stored locally) to extract the camera pose from
   // the projection matrix P. This amounts to solving [R|t] = K^{-1} * P.
   // Returns false if for some reason the computed pose has a rotation matrix
   // with a determinant of 0, which is not a valid rotation matrix.
   bool ExtractPose(const Matrix34d& P, Pose& pose) const;
+
+  // Refines the pose estimate using the Levenberg-Marquardt iterative algorithm
+  // for non-linear least-squares.
+  bool OptimizePose(Pose& pose) const;
 
   // Check if a projection matrix is a good enough initialization to optimize.
   // This check is performed by evaluating the reprojection error (squared pixel

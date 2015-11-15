@@ -104,7 +104,7 @@ void Pose::Set(const Matrix4d& transformation) {
 
 // Set the Rt matrix.
 void Pose::Set(const Matrix34d& Rt) {
-  Rt_.block(0, 0, 3, 3) = Rt;
+  Rt_.block(0, 0, 3, 4) = Rt;
 }
 
 // Set rotation and translation directly.

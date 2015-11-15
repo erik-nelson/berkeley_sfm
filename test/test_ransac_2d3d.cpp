@@ -265,6 +265,19 @@ void TestRansac2D3D(double fraction_bad_matches, double noise_stddev) {
 
 }  //\namespace
 
+//////////////////////////////////////////////////////////////////////////////////
+//
+//  TESTS. Note that here we specify (in essennce) ratio of good matches to bad 
+//  matches. The way that bad matches are constructed (i.e. by introducing a new 
+//  feature and _spuriously_ matching it to an existing and pre-matched landmark) 
+//  means that we cannot reasonably expect RANSAC to find _all_ the correct 
+//  matches. When we introduce noise, we expect still fewer (and with a maximum 
+//  error level somewhat higher than the minimum average model error). We build 
+//  this into the test by accordingly decreasing the expected number of inliers 
+//  and incerasing the acceptable error threshold for confirming inliers.
+//
+//////////////////////////////////////////////////////////////////////////////////
+
 // Test with 1 to 1 correspondence between observations in the view and existing
 // landmarks.
 TEST(PnPRansac2D3D, TestPnPRansac2D3DNoiseless) {

@@ -83,11 +83,14 @@ bool DescriptorExtractor::DescribeFeatures(
   CHECK(extractor_) << "The descriptor extractor is null.";
   features_out.clear();
 
-  // Convert the input image to OpenCV's format. Note that descriptors must be
-  // extracted on the grayscale image, and that the image format must be CV_8U.
+  // Convert the input image to OpenCV's format.
   cv::Mat cv_image;
   image.ToCV(cv_image);
-  cv_image.convertTo(cv_image, CV_8U, 255);
+
+  // Convert to grayscale if the image was in color.
+  if (image.IsColor()) {
+    cv::cvtColor(cv_image, cv_image, CV_BGR2GRAY);
+  }
 
   // Extract descriptors from the provided keypoints in the image.
   cv::Mat cv_descriptors;

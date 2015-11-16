@@ -64,11 +64,16 @@ double ReprojectionError(const Feature& feature, const Point3D& point,
 }
 
 // Repeats the ReprojectionError() function on a list of feature point pairs,
-// returning the sum of squared errors.
+// returning the mean reprojection error.
 double ReprojectionError(const FeatureList& features, const Point3DList& points,
                          const Camera& camera) {
   if (features.size() != points.size()) {
     LOG(WARNING) << "Need the same number of input features and points.";
+    return std::numeric_limits<double>::max();
+  }
+
+  if (points.empty()) {
+    LOG(WARNING) << "No points were input into reprojection error.";
     return std::numeric_limits<double>::max();
   }
 
@@ -87,8 +92,7 @@ double ReprojectionError(const FeatureList& features, const Point3DList& points,
     total_error += error;
   }
 
-  return total_error;
-
+  return total_error / points.size();
 }
 
 // Evaluate the reprojection error on the given Observation.
@@ -108,9 +112,13 @@ double ReprojectionError(const Observation::Ptr& observation,
 }
 
 // Repeats the ReprojectionError() function on a list of obserations, returning
-// the sum of squared errors.
+// the mean reprojection error.
 double ReprojectionError(const std::vector<Observation::Ptr>& observations,
                          const Camera& camera) {
+  if (observations.empty()) {
+    LOG(WARNING) << "No observations were input into reprojection error.";
+    return std::numeric_limits<double>::max();
+  }
 
   // Calculate total reprojection error. If any point does not reproject into
   // the image, return an error of infinity.
@@ -126,7 +134,7 @@ double ReprojectionError(const std::vector<Observation::Ptr>& observations,
     total_error += error;
   }
 
-  return total_error;
+  return total_error / observations.size();
 }
 
 }  //\namespace bsfm

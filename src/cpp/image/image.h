@@ -74,7 +74,7 @@ class Image {
   Image(size_t width, size_t height, size_t channels);
 
   // Ctor to load from file.
-  explicit Image(const std::string& filename, bool grayscale = false);
+  Image(const std::string& filename, bool grayscale = false);
 
   // Construct from OpenCV mat.
   explicit Image(const cv::Mat& other);

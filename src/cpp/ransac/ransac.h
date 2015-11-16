@@ -86,7 +86,7 @@ bool Ransac<DataType, ModelType>::Run(
   problem.SetSolutionFound(false);
 
   // Set the initial error to something very large.
-  double best_error = std::numeric_limits<double>::infinity();
+  double best_error = std::numeric_limits<double>::max();
 
   // Proceed for options_.iterations iterations of RANSAC.
   for (unsigned int iter = 0; iter < options_.iterations; ++iter) {
@@ -96,9 +96,16 @@ bool Ransac<DataType, ModelType>::Run(
     // Fit a model to the sampled data points.
     ModelType initial_model = problem.FitModel(sampled);
 
+    // Get an initial set of inliers from the sampled points.
+    std::vector<DataType> inliers;
+    for (const auto& data_point : sampled) {
+      if (initial_model.IsGoodFit(data_point, options_.acceptable_error)) {
+        inliers.push_back(data_point);
+      }
+    }
+
     // Which of the remaining points are also inliers under this model?
     std::vector<DataType> unsampled = problem.RemainingData(options_.num_samples);
-    std::vector<DataType> inliers(sampled);
     for (const auto& not_sampled_data_point : unsampled) {
       if (initial_model.IsGoodFit(not_sampled_data_point,
                                   options_.acceptable_error)) {
@@ -112,12 +119,18 @@ bool Ransac<DataType, ModelType>::Run(
       // Test how good this model is.
       ModelType better_model = problem.FitModel(inliers);
 
+      // Only keep the inliers that are still a good fit under the new model.
+      std::vector<DataType> refined_inliers;
+      for (const auto& inlier : inliers)
+        if (better_model.IsGoodFit(inlier, options_.acceptable_error))
+          refined_inliers.push_back(inlier);
+
       // Is this the best model yet?
-      double this_error = better_model.Error();
-      if (this_error < best_error) {
+      const double this_error = better_model.Error();
+      if (this_error < best_error && !refined_inliers.empty()) {
         best_error = this_error;
         problem.SetModel(better_model);
-        problem.SetInliers(inliers);
+        problem.SetInliers(refined_inliers);
         problem.SetSolutionFound(true);
       }
     }

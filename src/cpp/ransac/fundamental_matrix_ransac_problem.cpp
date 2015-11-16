@@ -78,7 +78,7 @@ double FundamentalMatrixRansacModel::Error() const {
 // Evaluate model on a single data element and update error.
 bool FundamentalMatrixRansacModel::IsGoodFit(
     const FeatureMatch& data_point,
-    double error_tolerance) {
+    double error_tolerance) const {
   const double error = EvaluateEpipolarCondition(data_point);
 
   // Test squared error against the provided tolerance.

@@ -63,7 +63,7 @@ struct RansacModel {
   // ----- Define these remaining methods in a derived struct! ----- //
   virtual double Error() const = 0;
   virtual bool IsGoodFit(const DataType& data_point,
-                         double error_tolerance) = 0;
+                         double error_tolerance) const = 0;
 };  //\struct RansacModel
 
 // Derive from this class when defining a specific RANSAC problem!

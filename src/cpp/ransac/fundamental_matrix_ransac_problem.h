@@ -71,7 +71,7 @@ struct FundamentalMatrixRansacModel : public RansacModel<FeatureMatch> {
 
   // Evaluate model on a single data element and update error.
   virtual bool IsGoodFit(const FeatureMatch& data_point,
-                         double error_tolerance);
+                         double error_tolerance) const;
 
   // Compute x1' * F_ * x2 for the input match.
   double EvaluateEpipolarCondition(const FeatureMatch& match) const;

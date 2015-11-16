@@ -69,8 +69,7 @@ bool NaiveMatcher2D2D::MatchImagePair(
     LightFeatureMatchList reverse_light_feature_matches;
     ComputePutativeMatches(descriptors2, descriptors1,
                            reverse_light_feature_matches);
-    SymmetricMatches(reverse_light_feature_matches,
-                           light_feature_matches);
+    SymmetricMatches(reverse_light_feature_matches, light_feature_matches);
   }
 
   if (light_feature_matches.size() < options_.min_num_feature_matches) {
@@ -152,9 +151,8 @@ void NaiveMatcher2D2D::ComputePutativeMatches(
                         LightFeatureMatch::SortByDistance);
 
       // The second best match must be within the lowes ratio of the best match.
-      double lowes_ratio_squared = options_.lowes_ratio * options_.lowes_ratio;
       if (one_way_matches[0].distance_ <
-          lowes_ratio_squared * one_way_matches[1].distance_) {
+          options_.lowes_ratio * one_way_matches[1].distance_) {
         putative_matches.emplace_back(one_way_matches[0]);
       }
     } else {

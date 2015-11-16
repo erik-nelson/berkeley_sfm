@@ -165,11 +165,16 @@ Matrix34d Pose::Dehomogenize() {
 
 // Convert to axis-angle representation.
 Vector3d Pose::AxisAngle() {
-  // From https://en.wikipedia.org/wiki/Axis-angle-representation.
+  // From https://en.wikipedia.org/wiki/Axis-angle_representation.
   const double angle = acos(0.5 * (Rt_.trace() - 2.0));
   Vector3d axis = Vector3d(Rt_(2, 1) - Rt_(1, 2),
 					                 Rt_(0, 2) - Rt_(2, 0),
-					                 Rt_(1, 0) - Rt_(0, 1)) * 0.5 / sin(angle);
+					                 Rt_(1, 0) - Rt_(0, 1));
+
+  // Handle identity rotation separately.
+  if (axis.isApprox(Vector3d::Zero(), 1e-16)) {
+    return axis;
+  }
 
   axis /= axis.norm();
   return axis * angle;

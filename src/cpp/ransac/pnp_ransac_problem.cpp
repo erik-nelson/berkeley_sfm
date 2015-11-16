@@ -72,7 +72,7 @@ double PnPRansacModel::Error() const {
 
 // Evaluate model on a single data element and update error.
 bool PnPRansacModel::IsGoodFit(const Observation::Ptr& observation,
-			       double error_tolerance) {
+                               double error_tolerance) const {
   return ReprojectionError(observation, camera_) <= error_tolerance;
 }
 

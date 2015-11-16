@@ -115,6 +115,7 @@ int main(int argc, char** argv) {
   intrinsics.SetCU(480);
   intrinsics.SetCV(270);
   intrinsics.SetK(0.06455, -0.16778, -0.02109, 0.03352, 0.0);
+
   initial_camera.SetIntrinsics(intrinsics);
 
   VisualOdometryOptions vo_options;
@@ -122,9 +123,9 @@ int main(int argc, char** argv) {
   vo_options.descriptor_type = "ORB";
   vo_options.sliding_window_length = 20;
   vo_options.adaptive_features = true;
-  vo_options.adaptive_min = 400;
-  vo_options.adaptive_max = 500;
-  vo_options.adaptive_iters = 5;
+  vo_options.adaptive_min = 200;
+  vo_options.adaptive_max = 200;
+  vo_options.adaptive_iters = 1000;
 
   vo_options.draw_features = true;
   vo_options.draw_landmarks = true;
@@ -132,7 +133,7 @@ int main(int argc, char** argv) {
   vo_options.draw_tracks = true;
 
   vo_options.matcher_options.use_lowes_ratio = true;
-  vo_options.matcher_options.lowes_ratio = 0.75;
+  vo_options.matcher_options.lowes_ratio = 0.8;
   vo_options.matcher_options.min_num_feature_matches = 8;
   vo_options.matcher_options.require_symmetric_matches = true;
   vo_options.matcher_options.only_keep_best_matches = false;
@@ -141,19 +142,16 @@ int main(int argc, char** argv) {
   vo_options.matcher_options.maximum_descriptor_distance = 0.0;
   vo_options.matcher_options.distance_metric = "HAMMING";
 
-  // RANSAC iterations chosen using ~30% outliers @ 99% chance to sample from
+  // RANSAC iterations chosen using ~10% outliers @ 99% chance to sample from
   // Table 4.3 of H&Z.
-  // Number of inliers ~= (1-0.3) * 50. Assumes 50 features observed on a frame.
   vo_options.fundamental_matrix_ransac_options.iterations = 78;
   vo_options.fundamental_matrix_ransac_options.acceptable_error = 1e-3;
   vo_options.fundamental_matrix_ransac_options.minimum_num_inliers = 35;
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
-  // Number of inliers ~= (1-0.3) * 30. Assumes ~30 landmarks observed on a frame.
-  // Error is squared reprojection. Allow for a 20 pixel error tolerance.
-  vo_options.pnp_ransac_options.iterations = 50;
-  vo_options.pnp_ransac_options.acceptable_error = 0.5;
-  vo_options.pnp_ransac_options.minimum_num_inliers = 7;
+  vo_options.pnp_ransac_options.iterations = 9;
+  vo_options.pnp_ransac_options.acceptable_error = 9.0;
+  vo_options.pnp_ransac_options.minimum_num_inliers = 3;
   vo_options.pnp_ransac_options.num_samples = 6;
 
   vo_options.bundle_adjustment_options.solver_type = "SPARSE_SCHUR";
@@ -167,12 +165,15 @@ int main(int argc, char** argv) {
 
   // Draw and process frames of the video.
   cv::Mat cv_video_frame;
-  capture.read(cv_video_frame);  // HACK: throw away first frame to draw matches.
+  capture.read(cv_video_frame);
   Image last_frame(cv_video_frame);
   vo.Update(last_frame);
 
-  int iter = 0;
-  while(true) {
+  // Skip the first several frames to get a good initial baseline.
+  capture.set(CV_CAP_PROP_POS_FRAMES, 20);
+
+  while (true) {
+
     // Get the next frame.
     capture.read(cv_video_frame);
     if (cv_video_frame.empty()) {
@@ -182,21 +183,14 @@ int main(int argc, char** argv) {
     // Process the frame.
     Image frame(cv_video_frame);
     Status s = vo.Update(frame);
-    if (!s.ok()) std::cout << s.Message() << std::endl;
+    if (!s.ok()) {
+      std::cout << s.Message() << std::endl;
+      cv::imshow("Visual Odometry", cv_video_frame);
+      cv::waitKey(0);
+    }
 
     // Store this frame for next time.
     last_frame = frame;
-
-#if 0
-    // cv::imshow(window_name.c_str(), cv_video_frame);
-
-    // Wait based on the framerate. Our timer is slightly more reliable than
-    // using cv::waitKey() alone.
-    while (timer.Toc() < wait_in_seconds) {
-      cv::waitKey(1);
-    }
-    timer.Tic();
-#endif
   }
 
   return EXIT_SUCCESS;

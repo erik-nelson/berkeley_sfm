@@ -87,7 +87,7 @@ bool FeatureMatcher::MatchImages(const FeatureMatcherOptions& options,
     }
   }
 
-  // Return whether or not we found matches between any of the images.
+  // Return whether or not any of the image pairs were matched.
   return image_matches.size() > 0;
 }
 

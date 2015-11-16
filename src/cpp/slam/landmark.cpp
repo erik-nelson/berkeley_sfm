@@ -153,15 +153,17 @@ bool Landmark::IncorporateObservation(const Observation::Ptr& observation,
   }
 
   // Does our own descriptor match with the observation's descriptor?
-  std::vector<::bsfm::Descriptor> descriptors;
-  descriptors.push_back(descriptor_);
-  descriptors.push_back(observation->Descriptor());
   DistanceMetric& distance = DistanceMetric::Instance();
-  distance.MaybeNormalizeDescriptors(descriptors);
+  if (distance.Max() != std::numeric_limits<double>::max()) {
+    std::vector<::bsfm::Descriptor> descriptors;
+    descriptors.push_back(descriptor_);
+    descriptors.push_back(observation->Descriptor());
+    distance.MaybeNormalizeDescriptors(descriptors);
 
-  if (distance(descriptors[0], descriptors[1]) > distance.Max()) {
-    VLOG(1) << "Observation was not matched to landmark " << this->Index();
-    return false;
+    if (distance(descriptors[0], descriptors[1]) > distance.Max()) {
+      VLOG(1) << "Observation was not matched to landmark " << this->Index();
+      return false;
+    }
   }
 
   // Triangulate the landmark's putative position if we were to incorporate the

@@ -382,6 +382,7 @@ void VisualOdometry::InitializeNewLandmarks(const View::Ptr& new_view) {
     // reprojection error of the resulting points.
     View::Ptr old_view = View::GetView(view_index);
     CHECK_NOTNULL(old_view.get());
+
     const Camera old_camera = old_view->Camera();
     for (const auto& feature_match : feature_matches) {
       // Triangulate the match.

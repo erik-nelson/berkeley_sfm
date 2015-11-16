@@ -45,7 +45,7 @@
 #include "normalization.h"
 #include "../optimization/cost_functors.h"
 
-DEFINE_double(max_reprojection_error, 100.0,
+DEFINE_double(max_reprojection_error, 25.0,
               "Maximum tolerable reprojection error for a single 2D<-->3D "
               "point. This error is squared pixel distance.");
 

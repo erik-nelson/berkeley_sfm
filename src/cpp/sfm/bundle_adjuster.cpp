@@ -70,7 +70,7 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
     translations[ii] = view->Camera().Translation();
 
     // Get static camera intrinsics for evaluating cost function.
-    Matrix3d K = view->Camera().K();
+    const Matrix3d K = view->Camera().K();
 
     // Make a new residual block on the problem for every 3D point that this
     // view sees.
@@ -115,15 +115,19 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
     std::cout << summary.FullReport() << std::endl;
   }
 
-  // Assign optimized camera parameters back into views.
-  for (size_t ii = 0; ii < view_indices.size(); ++ii) {
-    Pose pose;
-    pose.FromAxisAngle(rotations[ii]);
+  // If the bundle adjustment was successful, assign optimized camera parameters
+  // back into views.
+  if (summary.IsSolutionUsable()) {
+    for (size_t ii = 0; ii < view_indices.size(); ++ii) {
+      Pose pose;
+      pose.FromAxisAngle(rotations[ii]);
 
-    // We already know this view is not null.
-    View::Ptr view = View::GetView(view_indices[ii]);
-    view->MutableCamera().MutableExtrinsics().SetWorldToCamera(pose);
-    view->MutableCamera().MutableExtrinsics().SetTranslation(translations[ii]);
+      // We already know this view is not null.
+      View::Ptr view = View::GetView(view_indices[ii]);
+      view->MutableCamera().MutableExtrinsics().SetWorldToCamera(pose);
+      view->MutableCamera().MutableExtrinsics().SetTranslation(
+          translations[ii]);
+    }
   }
 
   return summary.IsSolutionUsable();

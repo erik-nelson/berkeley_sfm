@@ -162,11 +162,14 @@ bool KeypointDetector::DetectKeypoints(const Image& image,
   // Clear the output.
   keypoints_out.clear();
 
-  // Convert the input image to OpenCV's format. Note that features must be
-  // detected on the grayscale image, and that the image format must be CV_8U.
+  // Convert the input image to OpenCV's format.
   cv::Mat cv_image;
   image.ToCV(cv_image);
-  cv_image.convertTo(cv_image, CV_8U, 255);
+
+  // Convert to grayscale if the image was in color.
+  if (image.IsColor()) {
+    cv::cvtColor(cv_image, cv_image, CV_BGR2GRAY);
+  }
 
   // Detect keypoints in the image.
   try {

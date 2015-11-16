@@ -77,7 +77,7 @@ struct PnPRansacModel : public RansacModel<Observation::Ptr> {
 
   // Evaluate model on a single data element and update error.
   virtual bool IsGoodFit(const Observation::Ptr& observation,
-			 double error_tolerance);
+                         double error_tolerance) const;
 
   // Model-specific member variables.
   Camera camera_;

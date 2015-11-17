@@ -26,3 +26,6 @@ bin
 *.dylib
 *.la
 *.a
+
+# Video files
+*.mp4

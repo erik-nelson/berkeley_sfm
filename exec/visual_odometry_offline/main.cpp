@@ -152,11 +152,11 @@ int main(int argc, char** argv) {
   VisualOdometryOptions vo_options;
   vo_options.feature_type = "FAST";
   vo_options.descriptor_type = "ORB";
-  vo_options.sliding_window_length = 20;
+  vo_options.sliding_window_length = 5;
   vo_options.adaptive_features = true;
-  vo_options.adaptive_min = 200;
-  vo_options.adaptive_max = 200;
-  vo_options.adaptive_iters = 1000;
+  vo_options.adaptive_min = 50;
+  vo_options.adaptive_max = 100;
+  vo_options.adaptive_iters = 100;
 
   vo_options.draw_features = true;
   vo_options.draw_landmarks = true;
@@ -167,8 +167,8 @@ int main(int argc, char** argv) {
   vo_options.matcher_options.lowes_ratio = 0.8;
   vo_options.matcher_options.min_num_feature_matches = 8;
   vo_options.matcher_options.require_symmetric_matches = true;
-  vo_options.matcher_options.only_keep_best_matches = false;
-  vo_options.matcher_options.num_best_matches = 0;
+  vo_options.matcher_options.only_keep_best_matches = true;
+  vo_options.matcher_options.num_best_matches = 50;
   vo_options.matcher_options.enforce_maximum_descriptor_distance = false;
   vo_options.matcher_options.maximum_descriptor_distance = 0.0;
   vo_options.matcher_options.distance_metric = "HAMMING";
@@ -176,17 +176,18 @@ int main(int argc, char** argv) {
   // RANSAC iterations chosen using ~10% outliers @ 99% chance to sample from
   // Table 4.3 of H&Z.
   vo_options.fundamental_matrix_ransac_options.iterations = 50;
-  vo_options.fundamental_matrix_ransac_options.acceptable_error = 1e-3;
+  vo_options.fundamental_matrix_ransac_options.acceptable_error = 1e-1;
   vo_options.fundamental_matrix_ransac_options.minimum_num_inliers = 35;
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
-  vo_options.pnp_ransac_options.iterations = 9;
+  vo_options.pnp_ransac_options.iterations = 40;
   vo_options.pnp_ransac_options.acceptable_error = 1.0;
-  vo_options.pnp_ransac_options.minimum_num_inliers = 3;
+  vo_options.pnp_ransac_options.minimum_num_inliers = 10;
   vo_options.pnp_ransac_options.num_samples = 6;
 
+  vo_options.perform_bundle_adjustment = false;
   vo_options.bundle_adjustment_options.solver_type = "SPARSE_SCHUR";
-  vo_options.bundle_adjustment_options.print_summary = true;
+  vo_options.bundle_adjustment_options.print_summary = false;
   vo_options.bundle_adjustment_options.print_progress = false;
   vo_options.bundle_adjustment_options.max_num_iterations = 50;
   vo_options.bundle_adjustment_options.function_tolerance = 1e-16;
@@ -217,10 +218,10 @@ int main(int argc, char** argv) {
   }
 
   // Skip several frames at the beginning to get a nice baseline.
-  const int start = 20;
+  const int start = 10;
   capture.set(CV_CAP_PROP_POS_FRAMES, start);
 
-  const int skip = 2;
+  const int skip = 3;
   for (int frame_iterator = start + skip; ; frame_iterator += skip) {
     capture.set(CV_CAP_PROP_POS_FRAMES, frame_iterator);
 

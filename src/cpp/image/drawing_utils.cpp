@@ -303,7 +303,7 @@ void AnnotateObservations(ViewIndex view_index,
     p1.y = vl;
     p2.x = uf;
     p2.y = vf;
-    cv::line(cv_image, p1, p2, cv::Scalar(0, 255, 0), line_thickness);
+    cv::line(cv_image, p1, p2, cv::Scalar(0, 0, 255), line_thickness);
   }
 
   // Store the OpenCV mat in the image.
@@ -367,9 +367,11 @@ void AnnotateTracks(const std::vector<LandmarkIndex>& landmark_indices,
       }
     }
 
-    // Draw the landmark track in the image in purple (BGR).
-    cv::Scalar color(255, 51, 153);
+    // Draw the landmark track in the image in green (BGR). Color is based on
+    // how long ago the landmark was seen.
     for (size_t ii = 0; ii < landmark_track.size() - 1; ++ii) {
+      const int intensity = (((ii+1) * 255) / (landmark_track.size()-1));
+      cv::Scalar color(0, 0, intensity);
       cv::line(cv_image,
                landmark_track[ii + 0],
                landmark_track[ii + 1],

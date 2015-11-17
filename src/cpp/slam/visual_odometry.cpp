@@ -107,13 +107,13 @@ Status VisualOdometry::Update(const Image& image) {
   if (!s.ok())
     return s;
 
-#if 0
   // Bundle adjust views in the sliding window.
-  BundleAdjuster bundle_adjuster;
-  if (!bundle_adjuster.Solve(options_.bundle_adjustment_options,
-                             SlidingWindowViewIndices()))
-    return Status::Cancelled("Failed to perform bundle adjustment.");
-#endif
+  if (options_.perform_bundle_adjustment) {
+    BundleAdjuster bundle_adjuster;
+    if (!bundle_adjuster.Solve(options_.bundle_adjustment_options,
+                               SlidingWindowViewIndices()))
+      return Status::Cancelled("Failed to perform bundle adjustment.");
+  }
 
   return Status::Ok();
 }

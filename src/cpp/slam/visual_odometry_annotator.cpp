@@ -84,7 +84,7 @@ void VisualOdometryAnnotator::AnnotateObservations(
 void VisualOdometryAnnotator::AnnotateTracks(
     const std::vector<LandmarkIndex>& landmark_indices,
     const std::vector<ViewIndex>& view_indices) {
-  const int kLineThickness = 2;
+  const int kLineThickness = 1;
   drawing::AnnotateTracks(landmark_indices,
                           view_indices,
                           image_.get(),

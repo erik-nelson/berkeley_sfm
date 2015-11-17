@@ -91,6 +91,9 @@ struct VisualOdometryOptions {
   // more accurate the localization and mapping, but the slower the process.
   unsigned int sliding_window_length = 10;
 
+  // Turn on or off bundle adjustment over the sliding window.
+  bool perform_bundle_adjustment = true;
+
   // ---------------------- DRAWING OPTIONS ---------------------- //
   // If any of the drawing features below are enabled, an OpenCV window will be
   // displayed with the selected options overlaid on the current frame.

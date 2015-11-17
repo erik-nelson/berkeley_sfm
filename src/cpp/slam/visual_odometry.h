@@ -74,6 +74,10 @@ class VisualOdometry {
   // Update the estimate of the camera's position and all landmark positions.
   Status Update(const Image& image);
 
+  // Get the last image used to call Update(), annotated with landmarks, feature
+  // tracks, etc.
+  void GetAnnotatedImage(Image* image) const;
+
   // Get indices of all views created by this visual odometry object.
   const std::vector<ViewIndex>& ViewIndices() const;
 

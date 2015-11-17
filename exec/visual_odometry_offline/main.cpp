@@ -62,7 +62,11 @@
 #include <util/timer.h>
 
 DEFINE_string(video_file, "visual_odometry_test.mp4",
+// DEFINE_string(video_file, "../../../../Desktop/KITTI_datasets/KITTI2.mp4",
               "Name of the video file to perform visual odometry on.");
+DEFINE_string(video_output_file, "annotated_video.mp4",
+              "Name of the annotated output. If this string is empty, an "
+              "output video will not be created.");
 
 using bsfm::Camera;
 using bsfm::CameraIntrinsics;
@@ -106,15 +110,42 @@ int main(int argc, char** argv) {
   // Initialize visual odometry.
   Camera initial_camera;
   CameraIntrinsics intrinsics;
+
+  // HTC one.
   intrinsics.SetImageLeft(0);
   intrinsics.SetImageTop(0);
-  intrinsics.SetImageWidth(960);
-  intrinsics.SetImageHeight(540);
+  intrinsics.SetImageWidth(540);
+  intrinsics.SetImageHeight(960);
   intrinsics.SetFU(1890.0);
   intrinsics.SetFV(1890.0);
-  intrinsics.SetCU(480);
-  intrinsics.SetCV(270);
+  intrinsics.SetCU(270);
+  intrinsics.SetCV(480);
   intrinsics.SetK(0.06455, -0.16778, -0.02109, 0.03352, 0.0);
+
+#if 0
+  // KITTI 2011_09_26
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(1392);
+  intrinsics.SetImageHeight(512);
+  intrinsics.SetFU(959.7910);
+  intrinsics.SetFV(956.9251);
+  intrinsics.SetCU(696.0217);
+  intrinsics.SetCV(224.1806);
+  intrinsics.SetK(-0.3691481, 0.1968681, 0.001353473, 0.0005677587, -0.06770705);
+#endif
+
+#if 0
+  // KITTI 2011_09_30
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(1242);
+  intrinsics.SetImageHeight(375);
+  intrinsics.SetFU(721.5377);
+  intrinsics.SetFV(721.5377);
+  intrinsics.SetCU(609.5593);
+  intrinsics.SetCV(172.8540);
+#endif
 
   initial_camera.SetIntrinsics(intrinsics);
 
@@ -144,13 +175,13 @@ int main(int argc, char** argv) {
 
   // RANSAC iterations chosen using ~10% outliers @ 99% chance to sample from
   // Table 4.3 of H&Z.
-  vo_options.fundamental_matrix_ransac_options.iterations = 78;
+  vo_options.fundamental_matrix_ransac_options.iterations = 50;
   vo_options.fundamental_matrix_ransac_options.acceptable_error = 1e-3;
   vo_options.fundamental_matrix_ransac_options.minimum_num_inliers = 35;
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
   vo_options.pnp_ransac_options.iterations = 9;
-  vo_options.pnp_ransac_options.acceptable_error = 9.0;
+  vo_options.pnp_ransac_options.acceptable_error = 1.0;
   vo_options.pnp_ransac_options.minimum_num_inliers = 3;
   vo_options.pnp_ransac_options.num_samples = 6;
 
@@ -169,10 +200,29 @@ int main(int argc, char** argv) {
   Image last_frame(cv_video_frame);
   vo.Update(last_frame);
 
-  // Skip the first several frames to get a good initial baseline.
-  capture.set(CV_CAP_PROP_POS_FRAMES, 20);
+  // If we are writing any output, initialize a video writer.
+  cv::VideoWriter writer;
+  if (!FLAGS_video_output_file.empty()) {
+    const std::string video_output_file = JoinFilepath(
+      BSFM_EXEC_DIR, "visual_odometry_offline", FLAGS_video_output_file.c_str());
 
-  while (true) {
+    const int w = capture.get(CV_CAP_PROP_FRAME_WIDTH);
+    const int h = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
+    const int codec = CV_FOURCC('m', 'p', '4', 'v');
+    writer.open(video_output_file.c_str(),
+                codec,
+                frame_rate,
+                cv::Size(w, h),
+                false /*no grayscale*/);
+  }
+
+  // Skip several frames at the beginning to get a nice baseline.
+  const int start = 20;
+  capture.set(CV_CAP_PROP_POS_FRAMES, start);
+
+  const int skip = 2;
+  for (int frame_iterator = start + skip; ; frame_iterator += skip) {
+    capture.set(CV_CAP_PROP_POS_FRAMES, frame_iterator);
 
     // Get the next frame.
     capture.read(cv_video_frame);
@@ -189,9 +239,19 @@ int main(int argc, char** argv) {
       cv::waitKey(0);
     }
 
+    // Write the annotated frame into the output video.
+    if (writer.isOpened()) {
+      Image annotated_image;
+      vo.GetAnnotatedImage(&annotated_image);
+      cv::Mat cv_annotated_image;
+      annotated_image.ToCV(cv_annotated_image);
+      writer << cv_annotated_image;
+    }
+
     // Store this frame for next time.
     last_frame = frame;
   }
+  writer.release();
 
   return EXIT_SUCCESS;
 }

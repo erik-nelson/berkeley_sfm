@@ -115,7 +115,7 @@ bool NaiveMatcher2D3D::Match(
 
   // Update Observations in the provided view based on their matches with
   // landmarks. Also set all observations as matched.
-  for (size_t ii = 0; ii < forward_matches.size(); ii++) {
+  for (size_t ii = 0; ii < num_features_out; ii++) {
     const size_t observation_index =
         observation_indices[forward_matches[ii].feature_index1_];
     const LandmarkIndex landmark_index =

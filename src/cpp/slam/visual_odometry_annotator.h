@@ -79,6 +79,9 @@ class VisualOdometryAnnotator {
   // image.
   void Draw(unsigned int wait_time = 0);
 
+  // Get a copy of the image.
+  void GetImageCopy(Image* image) const;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(VisualOdometryAnnotator)
 

@@ -118,6 +118,10 @@ Status VisualOdometry::Update(const Image& image) {
   return Status::Ok();
 }
 
+void VisualOdometry::GetAnnotatedImage(Image* image) const {
+  annotator_.GetImageCopy(image);
+}
+
 const std::vector<ViewIndex>& VisualOdometry::ViewIndices() const {
   return view_indices_;
 }
@@ -165,10 +169,17 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
   feature_matcher.AddImageFeatures(features1, descriptors1);
   feature_matcher.AddImageFeatures(features2, descriptors2);
 
+  // Use all matches for 2D to 2D feature matching (not just the best n).
+  const bool kTempOption = options_.matcher_options.only_keep_best_matches;
+  options_.matcher_options.only_keep_best_matches = false;
+
   PairwiseImageMatchList image_matches;
   if (!feature_matcher.MatchImages(options_.matcher_options, image_matches)) {
+    options_.matcher_options.only_keep_best_matches = kTempOption;
     return Status::Cancelled("Failed to match first and second images.");
   }
+  options_.matcher_options.only_keep_best_matches = kTempOption;
+
   CHECK(image_matches.size() == 1);
   PairwiseImageMatch image_match = image_matches[0];
   FeatureMatchList feature_matches = image_match.feature_matches_;
@@ -329,22 +340,31 @@ Status VisualOdometry::ProcessImage(const Image& image) {
   // previous images in the sliding window to generate new landmarks.
   InitializeNewLandmarks(new_view);
 
+  // Add the new view to the trajectory.
+  view_indices_.push_back(new_view->Index());
+
   // Annotate everything in the N'th frame.
+  std::vector<LandmarkIndex> new_view_landmarks;
+  if (options_.draw_landmarks || options_.draw_tracks) {
+    View::GetSlidingWindowLandmarks(1, &new_view_landmarks);
+    landmark_indices.insert(landmark_indices.end(),
+                            new_view_landmarks.begin(),
+                            new_view_landmarks.end());
+  }
+
   if (options_.draw_features)
     annotator_.AnnotateFeatures(features);
   if (options_.draw_landmarks)
     annotator_.AnnotateLandmarks(landmark_indices, new_view->Camera());
   if (options_.draw_inlier_observations)
-    annotator_.AnnotateObservations(new_view->Index(), pnp_problem.Inliers());
+    annotator_.AnnotateObservations(new_view->Index(), new_view->Observations());
   if (options_.draw_tracks)
-    annotator_.AnnotateTracks(landmark_indices, SlidingWindowViewIndices());
+    annotator_.AnnotateTracks(new_view_landmarks, SlidingWindowViewIndices());
   if (options_.draw_features || options_.draw_landmarks ||
       options_.draw_inlier_observations || options_.draw_tracks) {
     annotator_.Draw();
   }
 
-  // Add the new view to the trajectory.
-  view_indices_.push_back(new_view->Index());
   return Status::Ok();
 }
 
@@ -356,6 +376,10 @@ void VisualOdometry::InitializeNewLandmarks(const View::Ptr& new_view) {
   std::vector<Feature> unused_features1;
   std::vector<Descriptor> unused_descriptors1;
   GetUnusedFeatures(new_view->Index(), &unused_features1, &unused_descriptors1);
+
+  // Use all matches for 2D to 2D feature matching (not just the best n).
+  const bool kTempOption = options_.matcher_options.only_keep_best_matches;
+  options_.matcher_options.only_keep_best_matches = false;
 
   // Loop over other images in the sliding window. Try to match against their
   // unused features and triangulate new landmarks.
@@ -420,6 +444,9 @@ void VisualOdometry::InitializeNewLandmarks(const View::Ptr& new_view) {
       }
     }
   }
+
+  // Put back matcher options for next round of 2D<-->3D matching.
+  options_.matcher_options.only_keep_best_matches = kTempOption;
 }
 
 Status VisualOdometry::GetFeaturesAndDescriptors(

@@ -61,9 +61,9 @@ void VisualOdometryAnnotator::AnnotateFeatures(const FeatureList& features) {
 
 void VisualOdometryAnnotator::AnnotateLandmarks(
     const std::vector<LandmarkIndex>& landmark_indices, const Camera& camera) {
-  const int kLineThickness = 2;
-  const int kSquareWidth = 10;
-  const bool kPrintDistances = true;
+  const int kLineThickness = 1;
+  const int kSquareWidth = 8;
+  const bool kPrintDistances = false;
   drawing::AnnotateLandmarks(landmark_indices,
                              camera,
                              image_.get(),
@@ -93,6 +93,11 @@ void VisualOdometryAnnotator::AnnotateTracks(
 
 void VisualOdometryAnnotator::Draw(unsigned int wait_time) {
   image_->ImShow(window_name_, wait_time);
+}
+
+void VisualOdometryAnnotator::GetImageCopy(Image* image) const {
+  CHECK_NOTNULL(image);
+  *image = *image_;
 }
 
 }  //\namespace bsfm

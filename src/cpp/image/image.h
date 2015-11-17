@@ -166,12 +166,9 @@ void OpenCVToEigenMat(
   if (cv_mat.channels() != 1) {
     cv::Mat grayscale_mat;
     cv::cvtColor(cv_mat, grayscale_mat, CV_RGB2GRAY);
-    grayscale_mat.convertTo(grayscale_mat, CV_32F, 1.f / 255.f);
     cv::cv2eigen(grayscale_mat, eigen_mat);
   } else {
-    cv::Mat cv_matf;
-    cv_mat.convertTo(cv_matf, CV_32F, 1.f / 255.f);
-    cv::cv2eigen(cv_matf, eigen_mat);
+    cv::cv2eigen(cv_mat, eigen_mat);
   }
 }
 

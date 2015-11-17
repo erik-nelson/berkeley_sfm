@@ -144,21 +144,23 @@ TEST(Image, TestEigen) {
   image.ToCV(cv_image);
 
   // Convert to floating point.
-  cv_image.convertTo(cv_image, CV_32F, 1.f / 255.f);
+  // cv_image.convertTo(cv_image, CV_32F, 1.f / 255.f);
 
   // Make sure that the two matrices are equivalent.
   for (size_t c = 0; c < image.Width(); ++c)
     for (size_t r = 0; r < image.Width(); ++r)
-      EXPECT_EQ(cv_image.at<float>(r, c), eigen_mat(r, c));
+      EXPECT_EQ(static_cast<int>(cv_image.at<unsigned char>(r, c)),
+                eigen_mat(r, c));
 
   // Convert back from Eigen to OpenCV.
   cv::Mat cv_image2;
-  EigenMatToOpenCV<float>(eigen_mat, cv_image2);
+  EigenMatToOpenCV(eigen_mat, cv_image2);
 
   // Make sure that the two matrices are equivalent.
   for (size_t c = 0; c < image.Width(); ++c)
     for (size_t r = 0; r < image.Width(); ++r)
-      EXPECT_EQ(cv_image.at<float>(r, c), cv_image2.at<float>(r, c));
+      EXPECT_EQ(static_cast<int>(cv_image.at<unsigned char>(r, c)),
+                cv_image2.at<float>(r, c));
 }
 
 } //\namespace bsfm

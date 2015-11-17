@@ -65,8 +65,8 @@ class TestNaiveMatcher2D2D : public ::testing::Test {
 
   const unsigned int expected_matched_features_symmetric_floating = 199;
   const unsigned int expected_matched_features_asymmetric_floating = 480;
-  const unsigned int expected_matched_features_symmetric_binary = 40;
-  const unsigned int expected_matched_features_asymmetric_binary = 259;
+  const unsigned int expected_matched_features_symmetric_binary = 806;
+  const unsigned int expected_matched_features_asymmetric_binary = 2501;
 };  //\class TestNaiveFeatureMatcher
 
 TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherSiftSift) {

@@ -140,16 +140,21 @@ void NaiveMatcher2D2D::ComputePutativeMatches(
       continue;
     }
 
+    if (one_way_matches.size() == 1) {
+      putative_matches.emplace_back(one_way_matches[0]);
+      continue;
+    }
+
+    // Sort by distance. We only care about the distances between the best 2
+    // matches for the Lowes ratio test, and about the best match if we are not
+    // using Lowes ratio.
+    std::partial_sort(one_way_matches.begin(),
+                      one_way_matches.begin() + 1,
+                      one_way_matches.end(),
+                      LightFeatureMatch::SortByDistance);
+
     // Store the best match for this element of features2.
-    if (options_.use_lowes_ratio) {
-
-      // Sort by distance. We only care about the distances between the best 2
-      // matches for the Lowes ratio test.
-      std::partial_sort(one_way_matches.begin(),
-                        one_way_matches.begin() + 1,
-                        one_way_matches.end(),
-                        LightFeatureMatch::SortByDistance);
-
+    if (options_.use_lowes_ratio && one_way_matches.size() > 1) {
       // The second best match must be within the lowes ratio of the best match.
       if (one_way_matches[0].distance_ <
           options_.lowes_ratio * one_way_matches[1].distance_) {

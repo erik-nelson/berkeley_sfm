@@ -45,7 +45,7 @@
 #include "normalization.h"
 #include "../optimization/cost_functors.h"
 
-DEFINE_double(max_reprojection_error, 25.0,
+DEFINE_double(max_reprojection_error, 16.0,
               "Maximum tolerable reprojection error for a single 2D<-->3D "
               "point. This error is squared pixel distance.");
 
@@ -310,7 +310,8 @@ bool PoseEstimator2D3D::TolerableReprojectionError(const Matrix34d& P) const {
     error += error_u*error_u + error_v*error_v;
   }
 
-  return error <= FLAGS_max_reprojection_error / normalized_points_3d_.size();
+  // Return whether the average error is below the threshold.
+  return error / normalized_points_3d_.size() <= FLAGS_max_reprojection_error;
 }
 
 }  //\namespace bsfm

@@ -73,15 +73,17 @@ Image::Image(const cv::Mat& other) {
 void Image::ToCV(cv::Mat& out) const {
   CHECK(image_.get()) << "Image data is not allocated.";
 
-  // OpenCV uses BGR by default for color images..
-  cv::cvtColor(*image_, out, CV_RGB2BGR);
+  if (grayscale_) {
+    out = *image_;
+  } else {
+    cv::cvtColor(*image_, out, CV_RGB2BGR);
+  }
 }
 
 void Image::FromCV(const cv::Mat& in) {
   CHECK(image_.get()) << "Image data is not allocated.";
 
   if (in.channels() == 1) {
-    printf("in... %d, %d\n", in.cols, in.rows);
     cv::cvtColor(in, *image_, CV_GRAY2RGB);
   } else {
     // OpenCV uses BGR by default for color images..
@@ -97,15 +99,9 @@ void Image::ToEigen(MatrixXf& eigen_out) {
 void Image::Read(const std::string& filename, bool grayscale) {
   if (grayscale) {
     *image_ = cv::imread(filename.c_str(), CV_LOAD_IMAGE_GRAYSCALE);
-
-    // Convert from unsigned to floating point.
-    image_->convertTo(*image_, CV_32F, 1.f / 255.f);
     cv::cvtColor(*image_, *image_, CV_GRAY2RGB);
   } else {
     *image_ = cv::imread(filename.c_str(), CV_LOAD_IMAGE_COLOR);
-
-    // Convert from unsigned to floating point.
-    image_->convertTo(*image_, CV_32FC3, 1.f / 255.f);
     cv::cvtColor(*image_, *image_, CV_BGR2RGB);
   }
   CHECK(image_->data) << "Unable to read image file.";

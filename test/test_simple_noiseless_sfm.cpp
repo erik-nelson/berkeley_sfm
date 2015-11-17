@@ -224,7 +224,6 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
   feature_matcher_2d2d.AddImageFeatures(features1, descriptors1);
   feature_matcher_2d2d.AddImageFeatures(features2, descriptors2);
   PairwiseImageMatchList image_matches;
-  // DistanceMetric::Instance().SetMetric(DistanceMetric::Metric::SCALED_L2);
   ASSERT_TRUE(feature_matcher_2d2d.MatchImages(matcher_options, image_matches));
   PairwiseImageMatch image_match = image_matches[0];
   FeatureMatchList feature_matches = image_match.feature_matches_;

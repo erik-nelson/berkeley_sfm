@@ -160,13 +160,18 @@ template <typename T>
 void OpenCVToEigenMat(
     const cv::Mat& cv_mat,
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& eigen_mat) {
-  // Make sure the data is grayscale before converting to an eigen matrix.
+
+  // Make sure the data is grayscale and floating point before converting to an
+  // eigen matrix.
   if (cv_mat.channels() != 1) {
     cv::Mat grayscale_mat;
     cv::cvtColor(cv_mat, grayscale_mat, CV_RGB2GRAY);
+    grayscale_mat.convertTo(grayscale_mat, CV_32F, 1.f / 255.f);
     cv::cv2eigen(grayscale_mat, eigen_mat);
   } else {
-    cv::cv2eigen(cv_mat, eigen_mat);
+    cv::Mat cv_matf;
+    cv_mat.convertTo(cv_matf, CV_32F, 1.f / 255.f);
+    cv::cv2eigen(cv_matf, eigen_mat);
   }
 }
 

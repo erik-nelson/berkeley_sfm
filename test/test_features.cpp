@@ -66,7 +66,7 @@ class TestFeatures : public ::testing::Test {
   };
 
   const std::vector<int> expected_keypoint_counts = {
-      1098, 1462, 3603, 180, 500, 163, 230, 1000, 635, 7396, 1
+      1098, 1462, 3603, 180, 500, 163, 172, 1000, 635, 7396, 1
   };
 
   const std::vector<int> expected_descriptor_counts = {

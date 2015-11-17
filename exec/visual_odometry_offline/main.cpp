@@ -154,8 +154,8 @@ int main(int argc, char** argv) {
   vo_options.descriptor_type = "ORB";
   vo_options.sliding_window_length = 5;
   vo_options.adaptive_features = true;
-  vo_options.adaptive_min = 50;
-  vo_options.adaptive_max = 100;
+  vo_options.adaptive_min = 120;
+  vo_options.adaptive_max = 200;
   vo_options.adaptive_iters = 100;
 
   vo_options.draw_features = true;
@@ -164,11 +164,11 @@ int main(int argc, char** argv) {
   vo_options.draw_tracks = true;
 
   vo_options.matcher_options.use_lowes_ratio = true;
-  vo_options.matcher_options.lowes_ratio = 0.8;
+  vo_options.matcher_options.lowes_ratio = 0.85;
   vo_options.matcher_options.min_num_feature_matches = 8;
   vo_options.matcher_options.require_symmetric_matches = true;
-  vo_options.matcher_options.only_keep_best_matches = true;
-  vo_options.matcher_options.num_best_matches = 50;
+  vo_options.matcher_options.only_keep_best_matches = false;
+  vo_options.matcher_options.num_best_matches = 0;
   vo_options.matcher_options.enforce_maximum_descriptor_distance = false;
   vo_options.matcher_options.maximum_descriptor_distance = 0.0;
   vo_options.matcher_options.distance_metric = "HAMMING";
@@ -180,9 +180,9 @@ int main(int argc, char** argv) {
   vo_options.fundamental_matrix_ransac_options.minimum_num_inliers = 35;
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
-  vo_options.pnp_ransac_options.iterations = 40;
+  vo_options.pnp_ransac_options.iterations = 10;
   vo_options.pnp_ransac_options.acceptable_error = 1.0;
-  vo_options.pnp_ransac_options.minimum_num_inliers = 10;
+  vo_options.pnp_ransac_options.minimum_num_inliers = 5;
   vo_options.pnp_ransac_options.num_samples = 6;
 
   vo_options.perform_bundle_adjustment = false;

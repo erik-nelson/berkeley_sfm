@@ -63,7 +63,7 @@ void VisualOdometryAnnotator::AnnotateLandmarks(
     const std::vector<LandmarkIndex>& landmark_indices, const Camera& camera) {
   const int kLineThickness = 1;
   const int kSquareWidth = 8;
-  const bool kPrintDistances = false;
+  const bool kPrintDistances = true;
   drawing::AnnotateLandmarks(landmark_indices,
                              camera,
                              image_.get(),

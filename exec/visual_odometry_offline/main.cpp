@@ -62,8 +62,8 @@
 #include <util/status.h>
 #include <util/timer.h>
 
-// DEFINE_string(video_file, "visual_odometry_test.mp4",
-DEFINE_string(video_file, "../../../../Desktop/KITTI_datasets/KITTI2.mp4",
+DEFINE_string(video_file, "visual_odometry_test.mp4",
+// DEFINE_string(video_file, "../../../../Desktop/KITTI_datasets/KITTI2.mp4",
               "Name of the video file to perform visual odometry on.");
 DEFINE_string(video_output_file, "annotated_video.mp4",
               "Name of the annotated output. If this string is empty, an "
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
   Camera initial_camera;
   CameraIntrinsics intrinsics;
 
-#if 0
+// #if 0
   // HTC one.
   intrinsics.SetImageLeft(0);
   intrinsics.SetImageTop(0);
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
   intrinsics.SetCU(270);
   intrinsics.SetCV(480);
   intrinsics.SetK(0.06455, -0.16778, -0.02109, 0.03352, 0.0);
-#endif
+// #endif
 
 #if 0
   // KITTI 2011_09_26
@@ -138,6 +138,7 @@ int main(int argc, char** argv) {
   intrinsics.SetK(-0.3691481, 0.1968681, 0.001353473, 0.0005677587, -0.06770705);
 #endif
 
+#if 0
   // KITTI 2011_09_30
   intrinsics.SetImageLeft(0);
   intrinsics.SetImageTop(0);
@@ -147,16 +148,17 @@ int main(int argc, char** argv) {
   intrinsics.SetFV(721.5377);
   intrinsics.SetCU(609.5593);
   intrinsics.SetCV(172.8540);
+#endif
 
   initial_camera.SetIntrinsics(intrinsics);
 
   VisualOdometryOptions vo_options;
   vo_options.feature_type = "FAST";
-  vo_options.descriptor_type = "ORB";
-  vo_options.sliding_window_length = 3;
+  vo_options.descriptor_type = "SIFT";
+  vo_options.sliding_window_length = 5;
   vo_options.adaptive_features = true;
-  vo_options.adaptive_min = 1000;
-  vo_options.adaptive_max = 1000;
+  vo_options.adaptive_min = 200;
+  vo_options.adaptive_max = 200;
   vo_options.adaptive_iters = 100;
 
   vo_options.draw_features = true;
@@ -172,7 +174,7 @@ int main(int argc, char** argv) {
   vo_options.matcher_options.num_best_matches = 100;
   vo_options.matcher_options.enforce_maximum_descriptor_distance = false;
   vo_options.matcher_options.maximum_descriptor_distance = 0.0;
-  vo_options.matcher_options.distance_metric = "HAMMING";
+  vo_options.matcher_options.distance_metric = "SCALED_L2";
 
   // RANSAC iterations chosen using ~10% outliers @ 99% chance to sample from
   // Table 4.3 of H&Z.
@@ -181,12 +183,12 @@ int main(int argc, char** argv) {
   vo_options.fundamental_matrix_ransac_options.minimum_num_inliers = 35;
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
-  vo_options.pnp_ransac_options.iterations = 100;
+  vo_options.pnp_ransac_options.iterations = 50;
   vo_options.pnp_ransac_options.acceptable_error = 1.0;
   vo_options.pnp_ransac_options.minimum_num_inliers = 5;
   vo_options.pnp_ransac_options.num_samples = 6;
 
-  vo_options.perform_bundle_adjustment = true;
+  vo_options.perform_bundle_adjustment = false;
   vo_options.bundle_adjustment_options.solver_type = "SPARSE_SCHUR";
   vo_options.bundle_adjustment_options.print_summary = false;
   vo_options.bundle_adjustment_options.print_progress = false;
@@ -219,10 +221,10 @@ int main(int argc, char** argv) {
   }
 
   // Skip several frames at the beginning to get a nice baseline.
-  const int start = 5;
+  const int start = 20;
   capture.set(CV_CAP_PROP_POS_FRAMES, start);
 
-  const int skip = 1;
+  const int skip = 5;
   for (int frame_iterator = start + skip; ; frame_iterator += skip) {
     capture.set(CV_CAP_PROP_POS_FRAMES, frame_iterator);
 
@@ -254,6 +256,9 @@ int main(int argc, char** argv) {
     last_frame = frame;
   }
   writer.release();
+
+  vo.WriteTrajectoryToFile("vo_trajectory.csv");
+  vo.WriteMapToFile("vo_map.csv");
 
   return EXIT_SUCCESS;
 }

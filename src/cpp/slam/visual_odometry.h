@@ -81,6 +81,12 @@ class VisualOdometry {
   // Get indices of all views created by this visual odometry object.
   const std::vector<ViewIndex>& ViewIndices() const;
 
+  // Write the camera trajectory to a .csv file.
+  Status WriteTrajectoryToFile(const std::string& filename) const;
+
+  // Write all landmarks observed by all cameras to a .csv file.
+  Status WriteMapToFile(const std::string& filename) const;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(VisualOdometry)
 

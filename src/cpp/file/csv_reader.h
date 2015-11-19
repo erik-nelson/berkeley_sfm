@@ -76,7 +76,7 @@ class CsvReader {
   bool HasMoreLines() const;
 
   // Read the next line, splitting all delimited values into tokens.
-  bool  ReadLine(Line* line, char delimiter = ',') const;
+  bool ReadLine(Line* line, char delimiter = ',') const;
 
   // Read an entire file, splitting all delimited values into tokens.
   bool ReadFile(File* file, char delimiter = ',') const;

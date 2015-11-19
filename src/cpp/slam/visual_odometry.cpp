@@ -43,6 +43,7 @@
 #include "../geometry/essential_matrix_solver.h"
 #include "../geometry/reprojection_error.h"
 #include "../geometry/triangulation.h"
+#include "../file/csv_writer.h"
 #include "../matching/distance_metric.h"
 #include "../matching/feature.h"
 #include "../matching/pairwise_image_match.h"
@@ -124,6 +125,87 @@ void VisualOdometry::GetAnnotatedImage(Image* image) const {
 
 const std::vector<ViewIndex>& VisualOdometry::ViewIndices() const {
   return view_indices_;
+}
+
+Status VisualOdometry::WriteTrajectoryToFile(const std::string& filename) const {
+  file::CsvWriter csv_writer(filename);
+  if (!csv_writer.IsOpen())
+    return Status::FailedPrecondition("Invalid filename.");
+
+  // Iterate over all views, storing camera poses to the file. Output format
+  // on each line will be:
+  // view index, t.x, t.y, t.z, r.x, r.y, r.z
+  // where rotations are expressed in axis-angle format.
+  for (const auto& view_index : view_indices_) {
+    const View::Ptr view = View::GetView(view_index);
+    CHECK_NOTNULL(view.get());
+    const Vector3d t = view->Camera().Translation();
+    const Vector3d r = view->Camera().AxisAngleRotation();
+
+    std::vector<double> camera_info = {static_cast<double>(view_index)};
+    camera_info.push_back(t(0));
+    camera_info.push_back(t(1));
+    camera_info.push_back(t(2));
+    camera_info.push_back(r(0));
+    camera_info.push_back(r(1));
+    camera_info.push_back(r(2));
+    csv_writer.WriteLine(camera_info);
+  }
+
+  if (!csv_writer.Close()) {
+    return Status::Unknown("Failed to close csv file.");
+  }
+
+  return Status::Ok();
+}
+
+Status VisualOdometry::WriteMapToFile(const std::string& filename) const {
+  file::CsvWriter csv_writer(filename);
+  if (!csv_writer.IsOpen())
+    return Status::FailedPrecondition("Invalid filename.");
+
+  // Iterate over all landmarks, storing:
+  // p.x, p.y, p.z, view index 1, view index 2, ...
+  // where p is the 3D point, and the remaining tokens describe the view indices
+  // that the 3D point was seen from.
+
+  // First get a set of all landmarks seen.
+  std::unordered_set<LandmarkIndex> landmark_indices;
+  for (const auto& view_index : view_indices_) {
+    View::Ptr view = View::GetView(view_index);
+    CHECK_NOTNULL(view.get());
+
+    view->UpdateObservedLandmarks();
+    landmark_indices.insert(view->ObservedLandmarks().begin(),
+                            view->ObservedLandmarks().end());
+  }
+
+  // Iterate back over the unique set of landmarks.
+  for (const auto& landmark_index : landmark_indices) {
+    // Store the 3D position of this landmark.
+    const Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index);
+    CHECK_NOTNULL(landmark.get());
+    std::vector<double> point_info = {landmark->Position().X(),
+                                      landmark->Position().Y(),
+                                      landmark->Position().Z()};
+
+    // Iterate over views, also pushing back the indices of all views that
+    // observed this landmark.
+    for (const auto& view_index : view_indices_) {
+      const View::Ptr view = View::GetView(view_index);
+      if (view->HasObservedLandmark(landmark_index)) {
+        point_info.push_back(view_index);
+      }
+    }
+
+    csv_writer.WriteLine(point_info);
+  }
+
+  if (!csv_writer.Close()) {
+    return Status::Unknown("Failed to close csv file.");
+  }
+
+  return Status::Ok();
 }
 
 Status VisualOdometry::InitializeFirstView(const Image& image) {

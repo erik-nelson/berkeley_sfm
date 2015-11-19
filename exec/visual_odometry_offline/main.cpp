@@ -64,10 +64,13 @@
 
 DEFINE_string(video_file, "visual_odometry_test.mp4",
 // DEFINE_string(video_file, "../../../../Desktop/KITTI_datasets/KITTI2.mp4",
+// DEFINE_string(video_file, "KITTI2.mp4",
               "Name of the video file to perform visual odometry on.");
 DEFINE_string(video_output_file, "annotated_video.mp4",
               "Name of the annotated output. If this string is empty, an "
               "output video will not be created.");
+DEFINE_bool(rotate_images, true,
+	    "Rotate the images clockwise by 90 degrees.");
 
 using bsfm::Camera;
 using bsfm::CameraIntrinsics;
@@ -112,7 +115,7 @@ int main(int argc, char** argv) {
   Camera initial_camera;
   CameraIntrinsics intrinsics;
 
-// #if 0
+  //#if 0
   // HTC one.
   intrinsics.SetImageLeft(0);
   intrinsics.SetImageTop(0);
@@ -123,7 +126,7 @@ int main(int argc, char** argv) {
   intrinsics.SetCU(270);
   intrinsics.SetCV(480);
   intrinsics.SetK(0.06455, -0.16778, -0.02109, 0.03352, 0.0);
-// #endif
+  //#endif
 
 #if 0
   // KITTI 2011_09_26
@@ -202,6 +205,9 @@ int main(int argc, char** argv) {
   cv::Mat cv_video_frame;
   capture.read(cv_video_frame);
   Image last_frame(cv_video_frame);
+  if (FLAGS_rotate_images)
+    last_frame.RotateClockwise();
+
   vo.Update(last_frame);
 
   // If we are writing any output, initialize a video writer.
@@ -213,11 +219,20 @@ int main(int argc, char** argv) {
     const int w = capture.get(CV_CAP_PROP_FRAME_WIDTH);
     const int h = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
     const int codec = CV_FOURCC('m', 'p', '4', 'v');
-    writer.open(video_output_file.c_str(),
-                codec,
-                frame_rate,
-                cv::Size(w, h),
-                false /*no grayscale*/);
+
+    if (FLAGS_rotate_images) {
+      writer.open(video_output_file.c_str(),
+		  codec,
+		  frame_rate,
+		  cv::Size(h, w),
+		  false /*no grayscale*/);
+    } else {
+      writer.open(video_output_file.c_str(),
+		  codec,
+		  frame_rate,
+		  cv::Size(w, h),
+		  false /*no grayscale*/);
+    } 
   }
 
   // Skip several frames at the beginning to get a nice baseline.
@@ -236,6 +251,9 @@ int main(int argc, char** argv) {
 
     // Process the frame.
     Image frame(cv_video_frame);
+    if (FLAGS_rotate_images)
+      frame.RotateClockwise();
+
     Status s = vo.Update(frame);
     if (!s.ok()) {
       std::cout << s.Message() << std::endl;

@@ -159,7 +159,8 @@ bool EssentialMatrixSolver::ComputeExtrinsics(
       // Triangulate points and test if the 3D estimate is in front of both
       // cameras.
       Point3D point;
-      if (!Triangulate(matches[jj], camera1, camera2, point)) {
+      double unused = 0.0;
+      if (!Triangulate(matches[jj], camera1, camera2, point, unused)) {
         continue;
       }
 

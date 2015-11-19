@@ -187,8 +187,9 @@ bool Landmark::IncorporateObservation(const Observation::Ptr& observation,
     features.push_back(observation->Feature());
 
     // If triangulation fails, we don't have a match and won't update position.
+    double uncertainty = 0.0;
     Point3D new_position;
-    if (!Triangulate(features, cameras, new_position)) {
+    if (!Triangulate(features, cameras, new_position, uncertainty)) {
       return false;
     }
     position_ = new_position;

@@ -263,7 +263,12 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
   // are doing it so that we can check if landmarks automatically triangulate
   // points.
   Point3DList initial_points;
-  ASSERT_TRUE(Triangulate(feature_matches, camera1, camera2, initial_points));
+  double uncertainty = 0.0;
+  ASSERT_TRUE(Triangulate(feature_matches,
+                          camera1,
+                          camera2,
+                          initial_points,
+                          uncertainty));
   ASSERT_EQ(initial_points.size(), feature_matches.size());
 
   // Initialize views and landmarks.

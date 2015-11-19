@@ -494,7 +494,13 @@ void VisualOdometry::InitializeNewLandmarks(const View::Ptr& new_view) {
     for (const auto& feature_match : feature_matches) {
       // Triangulate the match.
       Point3D point;
-      if (!Triangulate(feature_match, new_camera, old_camera, point)) continue;
+      double uncertainty = 0.0;
+      if (!Triangulate(feature_match,
+                       new_camera,
+                       old_camera,
+                       point,
+                       uncertainty))
+        continue;
 
       // Check reprojection error of the match.
       const Feature& feature1 = feature_match.feature1_;

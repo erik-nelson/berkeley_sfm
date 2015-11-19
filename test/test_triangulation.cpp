@@ -134,4 +134,19 @@ TEST(Triangulation, TestTriangulateNoiseless) {
   }  // increment number of cameras.
 }
 
+TEST(Triangulation, TestMaximumAngle) {
+  Point3D point(0.0, 0.0, 1.0);
+  Camera c1, c2;
+  c1.MutableExtrinsics().SetTranslation(1.0, 0.0, 0.0);
+  c2.MutableExtrinsics().SetTranslation(-1.0, 0.0, 0.0);
+
+  std::vector<Camera> cameras = {c1, c2};
+  EXPECT_NEAR(D2R(90.0), MaximumAngle(cameras, point), 1e-8);
+
+  c1.MutableExtrinsics().SetTranslation(0.0, 0.0, 0.0);
+  for (int ii = 0; ii < 20; ++ii)
+    cameras.push_back(c1);
+  EXPECT_NEAR(D2R(90.0), MaximumAngle(cameras, point), 1e-8);
+}
+
 }  //\namespace bsfm

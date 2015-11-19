@@ -98,6 +98,12 @@ class Landmark {
   // called, except when completely resetting the program or reconstruction.
   static void ResetLandmarks();
 
+  // Deletes the most recently created landmark, such that the next landmark
+  // that is created will have the deleted landmark's index. This has the
+  // potential to cause issues if the caller holds onto a pointer to the deleted
+  // landmark.
+  static void DeleteMostRecentLandmark();
+
   // Setters.
   void SetPosition(const Point3D& position);
   void SetDescriptor(const ::bsfm::Descriptor& descriptor);

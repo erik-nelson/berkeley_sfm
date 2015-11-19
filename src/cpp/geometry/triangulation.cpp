@@ -47,10 +47,34 @@ namespace bsfm {
 
 using Eigen::MatrixXd;
 
+// Compute the maximum angle between each pair of observation angles.
+double MaximumAngle(const std::vector<Camera>& cameras, const Point3D& point) {
+  std::vector<Vector3d> vecs;
+  for (const auto& camera : cameras)
+    vecs.push_back((point.Get() - camera.Translation()).normalized());
+
+  double largest_angle = 0.0;
+  for (size_t ii = 0; ii < cameras.size() - 1; ++ii) {
+    for (size_t jj = ii + 1; jj < cameras.size(); ++jj) {
+      const double angle = std::acos(vecs[ii].dot(vecs[jj]));
+      if (std::isnan(angle) || std::isinf(angle)) {
+        LOG(WARNING) << "Observation angle is NaN.";
+        return false;
+      }
+      if (angle > largest_angle) {
+        largest_angle = angle;
+      }
+    }
+  }
+  return largest_angle;
+}
+
 // Triangulates a single 3D point from > 2 views using the inhomogeneous DLT
 // method from H&Z: Multi-View Geometry, Ch 2.2.
 bool Triangulate(const FeatureList& features,
-                 const std::vector<Camera>& cameras, Point3D& point) {
+                 const std::vector<Camera>& cameras,
+                 Point3D& point,
+                 double min_angle) {
   if (features.size() != cameras.size()) {
     LOG(WARNING)
         << "Number of features does not match number of cameras.";
@@ -93,13 +117,15 @@ bool Triangulate(const FeatureList& features,
     }
   }
 
-  return true;
+  // Return false if the maximum angle between the observations of the point is
+  // less than the provided minimum angle.
+  return MaximumAngle(cameras, point) > min_angle;
 }
 
 // Triangulate the 3D position of a point from a 2D correspondence and two sets
 // of camera extrinsics and intrinsics.
 bool Triangulate(const FeatureMatch& feature_match, const Camera& camera1,
-                 const Camera& camera2, Point3D& point) {
+                 const Camera& camera2, Point3D& point, double min_angle) {
   FeatureList features;
   features.push_back(feature_match.feature1_);
   features.push_back(feature_match.feature2_);
@@ -108,14 +134,14 @@ bool Triangulate(const FeatureMatch& feature_match, const Camera& camera1,
   cameras.push_back(camera1);
   cameras.push_back(camera2);
 
-  return Triangulate(features, cameras, point);
+  return Triangulate(features, cameras, point, min_angle);
 }
 
 // Repeats the above function on a list of feature matches, returning a list of
 // triangulated 3D points, where each point is computed from a single 2D <--> 2D
 // correspondence.
 bool Triangulate(const FeatureMatchList& feature_matches, const Camera& camera1,
-                 const Camera& camera2, Point3DList& points) {
+                 const Camera& camera2, Point3DList& points, double min_angle) {
   // Clear output.
   points.clear();
 
@@ -124,7 +150,7 @@ bool Triangulate(const FeatureMatchList& feature_matches, const Camera& camera1,
     Point3D point;
 
     // Continue on failure, but store (0, 0, 0).
-    if (!Triangulate(feature_matches[ii], camera1, camera2, point)) {
+    if (!Triangulate(feature_matches[ii], camera1, camera2, point, min_angle)) {
       triangulated_all_points = false;
       point = Point3D();
     }

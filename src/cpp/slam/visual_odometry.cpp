@@ -308,36 +308,37 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
   camera2.SetExtrinsics(extrinsics);
   camera2.SetIntrinsics(intrinsics_);
   View::Ptr second_view = View::Create(camera2);
-  view_indices_.push_back(second_view->Index());
-
   second_view->CreateAndAddObservations(features2, descriptors2);
 
   // Use all RANSAC inlier features to triangulate an initial set of landmarks.
- const FeatureMatchList ransac_inliers = f_problem.Inliers();
- std::vector<LandmarkIndex> new_landmark_indices;
- for (size_t ii = 0; ii < ransac_inliers.size(); ++ii) {
-   Landmark::Ptr landmark = Landmark::Create();
-   new_landmark_indices.push_back(landmark->Index());
+  const FeatureMatchList ransac_inliers = f_problem.Inliers();
+  std::vector<LandmarkIndex> new_landmark_indices;
+  for (size_t ii = 0; ii < ransac_inliers.size(); ++ii) {
+    Landmark::Ptr landmark = Landmark::Create();
+    new_landmark_indices.push_back(landmark->Index());
 
-   // Find the observation corresponding to this match in each view. Add those
-   // 2 observations to the landmark.
-   const Feature& feature1 = ransac_inliers[ii].feature1_;
-   const Feature& feature2 = ransac_inliers[ii].feature2_;
+    // Find the observation corresponding to this match in each view. Add those
+    // 2 observations to the landmark.
+    const Feature& feature1 = ransac_inliers[ii].feature1_;
+    const Feature& feature2 = ransac_inliers[ii].feature2_;
 
-   for (const auto& observation1 : first_view->Observations()) {
-     if (feature1 == observation1->Feature()) {
-       landmark->IncorporateObservation(observation1);
-       break;
-     }
-   }
+    for (const auto& observation1 : first_view->Observations()) {
+      if (feature1 == observation1->Feature()) {
+        landmark->IncorporateObservation(observation1);
+        break;
+      }
+    }
 
-   for (const auto& observation2 : second_view->Observations()) {
-     if (feature2 == observation2->Feature()) {
-       landmark->IncorporateObservation(observation2);
-       break;
-     }
-   }
- }
+    for (const auto& observation2 : second_view->Observations()) {
+      if (feature2 == observation2->Feature()) {
+        landmark->IncorporateObservation(observation2);
+        break;
+      }
+    }
+  }
+
+  // We successfully initialized! Store the new view.
+  view_indices_.push_back(second_view->Index());
 
   // Annotate features and landmarks in the second frame.
   if (options_.draw_features)
@@ -348,7 +349,7 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
     annotator_.Draw();
 
   // We now have 2 views, a bunch of triangulated landmarks, and observations of
-  // those landmarks in each view!
+  // those landmarks in each view.
   return Status::Ok();
 }
 

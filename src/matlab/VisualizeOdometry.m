@@ -11,7 +11,7 @@ map = LoadMap(map_file);
 figure(1); clf;
 
 % Draw the camera's trajectory.
-axis_scale = 5;
+axis_scale = 1;
 DrawPoses(trajectory, axis_scale);
 
 % Draw all 3D landmark positions.

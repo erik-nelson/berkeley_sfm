@@ -95,6 +95,14 @@ void Landmark::ResetLandmarks() {
   landmark_registry_.clear();
 }
 
+// Deletes the most recently created landmark, such that the next landmark that
+// is created will have the deleted landmark's index. This has the potential to
+// cause issues if the caller holds onto a pointer to the deleted landmark.
+void Landmark::DeleteMostRecentLandmark() {
+  current_landmark_index_--;
+  landmark_registry_.erase(current_landmark_index_);
+}
+
 // Returns the unique index of this landmark.
 LandmarkIndex Landmark::Index() const {
   return landmark_index_;

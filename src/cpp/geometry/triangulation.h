@@ -59,23 +59,35 @@ namespace bsfm {
 // 2) A point cannot be uniquely determined.
 // 3) The triangulated point does not reproject into all cameras.
 // This uses the inhomogeneous DLT method from H&Z: Multi-View Geometry, Ch 2.2.
+// Returns false if the maximum angle used to triangulate the point is less than
+// 'min_angle'.
 bool Triangulate(const FeatureList& features,
-                 const std::vector<Camera>& cameras, Point3D& point);
+                 const std::vector<Camera>& cameras, Point3D& point,
+                 double min_angle = -1.0);
 
 // Triangulate the 3D position of a point from a 2D correspondence and two
 // sets of camera extrinsics and intrinsics. Returns false if:
 // 1) A point cannot be uniquely determined.
 // 2) The triangulated point does not reproject into both cameras.
 // This uses the homogeneous DLT method from H&Z: Multi-View Geometry, Ch 2.2.
+// Returns false if the maximum angle used to triangulate the point is less than
+// 'min_angle'.
 bool Triangulate(const FeatureMatch& feature_match, const Camera& camera1,
-                 const Camera& camera2, Point3D& point);
+                 const Camera& camera2, Point3D& point, double min_angle = -1.0);
 
 // Repeats the Triangulate() function on a list of feature matches, returning a
 // list of triangulated 3D points. Returns all triangulated points, even if one
 // point fails. If triangulating a point fails, that point will be stored as (0,
 // 0, 0) in 'points'.
+// Returns false if the maximum angle used to triangulate the point is less than
+// 'min_angle'.
 bool Triangulate(const FeatureMatchList& feature_matches, const Camera& camera1,
-                 const Camera& camera2, Point3DList& points);
+                 const Camera& camera2, Point3DList& points,
+                 double min_angle = -1.0);
+
+// Compute the maximum angle between each angle formed from a pair of
+// point-to-camera vectors.
+double MaximumAngle(const std::vector<Camera>& cameras, const Point3D& point);
 
 }  //\namespace bsfm
 

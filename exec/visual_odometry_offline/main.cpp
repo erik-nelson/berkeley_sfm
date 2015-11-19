@@ -69,8 +69,7 @@ DEFINE_string(video_file, "visual_odometry_test.mp4",
 DEFINE_string(video_output_file, "annotated_video.mp4",
               "Name of the annotated output. If this string is empty, an "
               "output video will not be created.");
-DEFINE_bool(rotate_images, true,
-	    "Rotate the images clockwise by 90 degrees.");
+DEFINE_bool(rotate_images, false, "Rotate the images clockwise by 90 degrees.");
 
 using bsfm::Camera;
 using bsfm::CameraIntrinsics;
@@ -220,19 +219,15 @@ int main(int argc, char** argv) {
     const int h = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
     const int codec = CV_FOURCC('m', 'p', '4', 'v');
 
+    cv::Size frame_size;
     if (FLAGS_rotate_images) {
-      writer.open(video_output_file.c_str(),
-		  codec,
-		  frame_rate,
-		  cv::Size(h, w),
-		  false /*no grayscale*/);
+      frame_size = cv::Size(h, w);
     } else {
-      writer.open(video_output_file.c_str(),
-		  codec,
-		  frame_rate,
-		  cv::Size(w, h),
-		  false /*no grayscale*/);
-    } 
+      frame_size = cv::Size(w, h);
+    }
+
+    writer.open(video_output_file.c_str(), codec, frame_rate,
+                frame_size, false /*no grayscale*/);
   }
 
   // Skip several frames at the beginning to get a nice baseline.

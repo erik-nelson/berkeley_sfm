@@ -40,7 +40,6 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 #include <glog/logging.h>
-#include <iostream>
 
 #include "../util/types.h"
 
@@ -98,7 +97,7 @@ bool Triangulate(const FeatureList& features,
 
   // Store the uncertainty as the inverse of the triangulation angle.
   const double angle = MaximumAngle(cameras, point);
-  if (angle == 0.0) {
+  if (angle == 0.0) {  // we actually do want floating point comparison.
     uncertainty = std::numeric_limits<double>::max();
   } else {
     uncertainty = 1.0 / MaximumAngle(cameras, point);

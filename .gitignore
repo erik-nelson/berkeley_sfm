@@ -29,3 +29,6 @@ bin
 
 # Video files
 *.mp4
+
+# CSV files
+*.csv

@@ -57,7 +57,7 @@ CsvReader::~CsvReader() {}
 
 bool CsvReader::Open(const std::string& filename) {
   file_->open(filename.c_str(), std::ifstream::in);
-  return file_->is_open();
+  return IsOpen();
 }
 
 bool CsvReader::IsOpen() const {

@@ -35,62 +35,93 @@
  *          David Fridovich-Keil   ( dfk@eecs.berkeley.edu )
  */
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// This file defines a Comma Separated Value (CSV) writer class, which writes
-// lists of values to a file, separated by a specified delimiter.
-//
-///////////////////////////////////////////////////////////////////////////////
-
-#ifndef BSFM_FILE_CSV_WRITER_H
-#define BSFM_FILE_CSV_WRITER_H
-
-#include <Eigen/Core>
-#include <fstream>
-#include <string>
-#include <vector>
-
-#include "../util/disallow_copy_and_assign.h"
+#include "csv_writer.h"
 
 namespace bsfm {
 namespace file {
 
-class CsvWriter {
- public:
-  CsvWriter();
-  CsvWriter(const std::string& filename);
+CsvWriter::CsvWriter() {
+  file_.reset(new std::ofstream());
+}
 
-  // The ofstream automatically closes on object destruction.
-  ~CsvWriter();
+CsvWriter::CsvWriter(const std::string& filename) {
+  file_.reset(new std::ofstream());
+  file_->open(filename.c_str(), std::ios::app | std::ios::out);
+}
 
-  // Open a file for writing.
-  bool Open(const std::string& filename);
+CsvWriter::~CsvWriter() {}
 
-  // Close the file, if it is open. Returns false if either the file was not
-  // open in the first place, or if it was open and cannot be closed.
-  bool Close();
+bool CsvWriter::Open(const std::string& filename) {
+  file_->open(filename.c_str(), std::ios::app | std::ios::out);
+  return IsOpen();
+}
 
-  // Check if the file is open.
-  bool IsOpen() const;
+bool CsvWriter::Close() {
+  if (!IsOpen())
+    return false;
 
-  // Write each element in the provided list as a token.
-  bool WriteLine(const std::vector<int>& data, char delimiter = ',');
-  bool WriteLine(const std::vector<double>& data, char delimiter = ',');
-  bool WriteLine(const std::vector<std::string>& data, char delimiter = ',');
+  file_->close();
+  return !IsOpen();
+}
 
-  // Write each element of the vector as a token.
-  bool WriteLine(const Eigen::VectorXd& data, char delimiter = ',');
-  bool WriteLines(const std::vector<Eigen::VectorXd>& data,
-                  char delimiter = ',');
+bool CsvWriter::IsOpen() const {
+  return file_->is_open();
+}
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(CsvWriter)
+bool CsvWriter::WriteLine(const std::vector<int>& data, char delimiter) {
+  if (!IsOpen()) {
+    return false;
+  }
 
-  std::shared_ptr<std::ofstream> file_;
+  for (size_t ii = 0; ii < data.size() - 1; ++ii) {
+    *file_ << data[ii] << delimiter;
+  }
+  *file_ << data.back() << std::endl;
+  return true;
+}
 
-};  //\class CsvWriter
+bool CsvWriter::WriteLine(const std::vector<double>& data, char delimiter) {
+  if (!IsOpen()) {
+    return false;
+  }
+
+  for (size_t ii = 0; ii < data.size() - 1; ++ii) {
+    *file_ << data[ii] << delimiter;
+  }
+  *file_ << data.back() << std::endl;
+  return true;
+}
+
+bool CsvWriter::WriteLine(const std::vector<std::string>& data, char delimiter) {
+  if (!IsOpen()) {
+    return false;
+  }
+
+  for (size_t ii = 0; ii < data.size() - 1; ++ii) {
+    *file_ << data[ii] << delimiter;
+  }
+  *file_ << data.back() << std::endl;
+  return true;
+}
+
+bool CsvWriter::WriteLine(const Eigen::VectorXd& data, char delimiter) {
+  if (!IsOpen()) {
+    return false;
+  }
+
+  for (size_t ii = 0; ii < data.size() - 1; ++ii) {
+    *file_ << data(ii) << delimiter;
+  }
+  *file_ << data(data.size() - 1) << std::endl;
+  return true;
+}
+
+bool CsvWriter::WriteLines(const std::vector<Eigen::VectorXd>& data, char delimiter) {
+  for (const auto& vector : data)
+    if (!WriteLine(vector, delimiter))
+      return false;
+  return true;
+}
 
 }  //\namespace file
 }  //\namespace bsfm
-
-#endif

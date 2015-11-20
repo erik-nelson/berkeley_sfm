@@ -112,6 +112,13 @@ void Observation::SetIncorporatedLandmark(LandmarkIndex landmark_index) {
   is_incorporated_ = true;
 }
 
+// Removes association with a landmark.
+void Observation::RemoveLandmarkAssociation() {
+  landmark_index_ = kInvalidLandmark;
+  is_matched_ = false;
+  is_incorporated_ = false;
+}
+
 // Returns whether or not the observation has been incorporated into a landmark.
 bool Observation::IsIncorporated() const {
   return is_incorporated_;

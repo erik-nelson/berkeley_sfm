@@ -125,8 +125,9 @@ TEST(Triangulation, TestTriangulateNoiseless) {
     }
 
     // Now try to triangulate the point and make sure we get the right thing.
+    double uncertainty = 0.0;
     Point3D triangulated;
-    ASSERT_TRUE(Triangulate(features, cameras, triangulated));
+    ASSERT_TRUE(Triangulate(features, cameras, triangulated, uncertainty));
     EXPECT_NEAR(point.X(), triangulated.X(), 1e-8);
     EXPECT_NEAR(point.Y(), triangulated.Y(), 1e-8);
     EXPECT_NEAR(point.Z(), triangulated.Z(), 1e-8);
@@ -135,17 +136,29 @@ TEST(Triangulation, TestTriangulateNoiseless) {
 }
 
 TEST(Triangulation, TestMaximumAngle) {
-  Point3D point(0.0, 0.0, 1.0);
+
+  // Cameras and point all lie directly along the same line.
+  Point3D point(0.0, 0.0, 0.0);
   Camera c1, c2;
   c1.MutableExtrinsics().SetTranslation(1.0, 0.0, 0.0);
   c2.MutableExtrinsics().SetTranslation(-1.0, 0.0, 0.0);
+  c1.MutableExtrinsics().Rotate(EulerAnglesToMatrix(0.0, 0.0, D2R(-90.0)));
+  c2.MutableExtrinsics().Rotate(EulerAnglesToMatrix(0.0, 0.0, D2R(90.0)));
 
   std::vector<Camera> cameras = {c1, c2};
-  EXPECT_NEAR(D2R(90.0), MaximumAngle(cameras, point), 1e-8);
+  EXPECT_NEAR(D2R(0.0), MaximumAngle(cameras, point), 1e-8);
 
-  c1.MutableExtrinsics().SetTranslation(0.0, 0.0, 0.0);
+  // Cameras and point form a triangle with wide baseline.
+  point.SetZ(1.0);
+  cameras[0].MutableExtrinsics().Rotate(
+      EulerAnglesToMatrix(0.0, 0.0, D2R(90.0)));
+  cameras[1].MutableExtrinsics().Rotate(
+      EulerAnglesToMatrix(0.0, 0.0, D2R(-90.0)));
+
+  // Add a bunch of cameras that should not affect the result.
   for (int ii = 0; ii < 20; ++ii)
-    cameras.push_back(c1);
+    cameras.push_back(Camera());
+
   EXPECT_NEAR(D2R(90.0), MaximumAngle(cameras, point), 1e-8);
 }
 

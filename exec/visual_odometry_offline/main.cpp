@@ -69,8 +69,7 @@ DEFINE_string(video_file, "visual_odometry_test.mp4",
 DEFINE_string(video_output_file, "annotated_video.mp4",
               "Name of the annotated output. If this string is empty, an "
               "output video will not be created.");
-DEFINE_bool(rotate_images, true,
-	    "Rotate the images clockwise by 90 degrees.");
+DEFINE_bool(rotate_images, false, "Rotate the images clockwise by 90 degrees.");
 
 using bsfm::Camera;
 using bsfm::CameraIntrinsics;
@@ -115,18 +114,31 @@ int main(int argc, char** argv) {
   Camera initial_camera;
   CameraIntrinsics intrinsics;
 
-  //#if 0
+// #if 0
   // HTC one.
   intrinsics.SetImageLeft(0);
   intrinsics.SetImageTop(0);
-  intrinsics.SetImageWidth(540);
-  intrinsics.SetImageHeight(960);
+  intrinsics.SetImageWidth(432);
+  intrinsics.SetImageHeight(786);
   intrinsics.SetFU(1890.0);
   intrinsics.SetFV(1890.0);
-  intrinsics.SetCU(270);
-  intrinsics.SetCV(480);
+  intrinsics.SetCU(216);
+  intrinsics.SetCV(393);
   intrinsics.SetK(0.06455, -0.16778, -0.02109, 0.03352, 0.0);
-  //#endif
+// #endif
+
+#if 0
+  // HTC one, large images.
+  intrinsics.SetImageLeft(0);
+  intrinsics.SetImageTop(0);
+  intrinsics.SetImageWidth(720);
+  intrinsics.SetImageHeight(1280);
+  intrinsics.SetFU(1890.0);
+  intrinsics.SetFV(1890.0);
+  intrinsics.SetCU(360);
+  intrinsics.SetCV(640);
+  intrinsics.SetK(0.06455, -0.16778, -0.02109, 0.03352, 0.0);
+#endif
 
 #if 0
   // KITTI 2011_09_26
@@ -157,12 +169,14 @@ int main(int argc, char** argv) {
 
   VisualOdometryOptions vo_options;
   vo_options.feature_type = "FAST";
-  vo_options.descriptor_type = "SIFT";
+  vo_options.descriptor_type = "ORB";
   vo_options.sliding_window_length = 5;
-  vo_options.adaptive_features = true;
-  vo_options.adaptive_min = 200;
-  vo_options.adaptive_max = 200;
-  vo_options.adaptive_iters = 100;
+  vo_options.use_grid_filter = true;
+  vo_options.grid_rows = 20;
+  vo_options.grid_cols = 10;
+  vo_options.grid_min_num_features = 1024;
+
+  vo_options.num_landmarks_to_initialize = 20;
 
   vo_options.draw_features = true;
   vo_options.draw_landmarks = true;
@@ -170,14 +184,14 @@ int main(int argc, char** argv) {
   vo_options.draw_tracks = true;
 
   vo_options.matcher_options.use_lowes_ratio = true;
-  vo_options.matcher_options.lowes_ratio = 0.85;
+  vo_options.matcher_options.lowes_ratio = 0.8;
   vo_options.matcher_options.min_num_feature_matches = 8;
   vo_options.matcher_options.require_symmetric_matches = true;
-  vo_options.matcher_options.only_keep_best_matches = true;
-  vo_options.matcher_options.num_best_matches = 100;
+  vo_options.matcher_options.only_keep_best_matches = false;
+  vo_options.matcher_options.num_best_matches = 0;
   vo_options.matcher_options.enforce_maximum_descriptor_distance = false;
   vo_options.matcher_options.maximum_descriptor_distance = 0.0;
-  vo_options.matcher_options.distance_metric = "SCALED_L2";
+  vo_options.matcher_options.distance_metric = "HAMMING";
 
   // RANSAC iterations chosen using ~10% outliers @ 99% chance to sample from
   // Table 4.3 of H&Z.
@@ -187,7 +201,7 @@ int main(int argc, char** argv) {
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
   vo_options.pnp_ransac_options.iterations = 50;
-  vo_options.pnp_ransac_options.acceptable_error = 1.0;
+  vo_options.pnp_ransac_options.acceptable_error = 9.0;
   vo_options.pnp_ransac_options.minimum_num_inliers = 5;
   vo_options.pnp_ransac_options.num_samples = 6;
 
@@ -220,19 +234,15 @@ int main(int argc, char** argv) {
     const int h = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
     const int codec = CV_FOURCC('m', 'p', '4', 'v');
 
+    cv::Size frame_size;
     if (FLAGS_rotate_images) {
-      writer.open(video_output_file.c_str(),
-		  codec,
-		  frame_rate,
-		  cv::Size(h, w),
-		  false /*no grayscale*/);
+      frame_size = cv::Size(h, w);
     } else {
-      writer.open(video_output_file.c_str(),
-		  codec,
-		  frame_rate,
-		  cv::Size(w, h),
-		  false /*no grayscale*/);
-    } 
+      frame_size = cv::Size(w, h);
+    }
+
+    writer.open(video_output_file.c_str(), codec, frame_rate,
+                frame_size, false /*no grayscale*/);
   }
 
   // Skip several frames at the beginning to get a nice baseline.

@@ -1,4 +1,4 @@
-function VisualizeOdometry(trajectory_file, map_file)
+function [trajectory, map] = VisualizeOdometry(trajectory_file, map_file)
 % VisualizeOdometry.m
 
 % Load the trajectory.
@@ -8,7 +8,7 @@ trajectory = LoadTrajectory(trajectory_file);
 map = LoadMap(map_file);
 
 % Initialize a new figure.
-figure(1); clf;
+figure(1); clf; grid on; box on;
 
 % Draw the camera's trajectory.
 axis_scale = 1;
@@ -22,9 +22,10 @@ end
 %% Draw the trajectory as a sequence of rotated coordinate frames.
 function DrawPoses(trajectory, scale)
 
-% Get translations and rotations.
+% Get translations and rotations. Rotations are inverted, hence the - sign.
+%                 
 t = cat(1, trajectory(:).translation);
-r = cat(1, trajectory(:).rotation);
+r = -cat(1, trajectory(:).rotation);
 
 % Convert all axis angle rotations to quaternions.
 q = AxisAngle2Quat(r);
@@ -34,11 +35,13 @@ ax = RotateVector(q, scale*[1 0 0]);
 ay = RotateVector(q, scale*[0 1 0]);
 az = RotateVector(q, scale*[0 0 1]);
 
-% Flip z and x, since the camera's forward direction is +z.
+% Need to permute our coordinates. camera's +z is forward, +x is right, and
+% +y is down. Matlab visualization's +z is up, +x is forward, and +y is
+% left.
 figure(1); hold on;
-fx = quiver3(t(:,3), t(:,1), t(:,2), ax(:,3), ax(:,1), ax(:,2), 'r');
-fy = quiver3(t(:,3), t(:,1), t(:,2), ay(:,3), ay(:,1), ay(:,2), 'g');
-fz = quiver3(t(:,3), t(:,1), t(:,2), az(:,3), az(:,1), az(:,2), 'b');
+fx = quiver3(t(:,3), -t(:,1), -t(:,2), ax(:,3), -ax(:,1), -ax(:,2), 'r');
+fy = quiver3(t(:,3), -t(:,1), -t(:,2), ay(:,3), -ay(:,1), -ay(:,2), 'g');
+fz = quiver3(t(:,3), -t(:,1), -t(:,2), az(:,3), -az(:,1), -az(:,2), 'b');
 axis equal;
 set(fx, 'showarrowhead', 'off', 'autoscale', 'off');
 set(fy, 'showarrowhead', 'off', 'autoscale', 'off');
@@ -52,6 +55,7 @@ q = zeros(size(v,1),4);
 theta = sqrt(sum(v.^2, 2));
 q(:,1) = cos(theta/2);
 q(:,2:4) = bsxfun(@times, v, sin(theta/2)./theta);
+q(isnan(q)) = 0;
 end
 
 %% Rotate an Nx3 set of vectors by an Mx4 set of quaterions.
@@ -65,6 +69,9 @@ function DrawMap(map)
 % Get the positions of all landmarks.
 p = cat(1, map(:).position);
 
-% Flip z and x, since the camera's forward direction is +z.
-showPointCloud(p(:,[3,1,2]));
+% Need to permute our coordinates. camera's +z is forward, +x is right, and
+% +y is down. Matlab visualization's +z is up, +x is forward, and +y is
+% left.
+p = ([0 0 1; -1 0 0; 0 -1 0] * p')';
+showPointCloud(p);
 end

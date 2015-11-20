@@ -100,6 +100,14 @@ void Landmark::ResetLandmarks() {
 // cause issues if the caller holds onto a pointer to the deleted landmark.
 void Landmark::DeleteMostRecentLandmark() {
   current_landmark_index_--;
+
+  Landmark::Ptr most_recent_landmark =
+      Landmark::GetLandmark(current_landmark_index_);
+
+  CHECK_NOTNULL(most_recent_landmark.get());
+  for (auto& observation : most_recent_landmark->Observations())
+    observation->RemoveLandmarkAssociation();
+
   landmark_registry_.erase(current_landmark_index_);
 }
 
@@ -134,6 +142,10 @@ const ::bsfm::Descriptor& Landmark::Descriptor() const {
 }
 
 // Get observations.
+std::vector<Observation::Ptr>& Landmark::Observations() {
+  return observations_;
+}
+
 const std::vector<Observation::Ptr>& Landmark::Observations() const {
   return observations_;
 }
@@ -192,6 +204,13 @@ bool Landmark::IncorporateObservation(const Observation::Ptr& observation,
     if (!Triangulate(features, cameras, new_position, uncertainty)) {
       return false;
     }
+
+    if (1.0 / uncertainty < 1.0 * M_PI / 180.0) {
+      observation->SetIncorporatedLandmark(this->Index());
+      observations_.push_back(observation);
+      return false;
+    }
+
     position_ = new_position;
   }
 

@@ -99,6 +99,9 @@ class Observation {
   // Landmark::IncorporateObservation();
   void SetIncorporatedLandmark(LandmarkIndex landmark_index);
 
+  // Removes association with a landmark.
+  void RemoveLandmarkAssociation();
+
   // Returns whether or not the observation has been incorporated with its
   // landmark.
   bool IsIncorporated() const;

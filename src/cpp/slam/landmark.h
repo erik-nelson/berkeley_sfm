@@ -112,6 +112,7 @@ class Landmark {
   // Accessors.
   const Point3D& Position() const;
   const ::bsfm::Descriptor& Descriptor() const;
+  std::vector<Observation::Ptr>& Observations();
   const std::vector<Observation::Ptr>& Observations() const;
 
   // Returns a raw pointer to the data elements of the position of the landmark.

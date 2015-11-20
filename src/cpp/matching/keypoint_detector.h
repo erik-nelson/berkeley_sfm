@@ -54,36 +54,29 @@ class KeypointDetector {
   ~KeypointDetector() {}
 
   // The detector must be set prior to calling DetectKeypoints().
-  bool SetDetector(const std::string& detector_type);
+  void SetDetector(const std::string& detector_type);
 
   // Detects keypoints in the input image, returning them in the output list.
   bool DetectKeypoints(const Image& image, KeypointList& keypoints_out);
 
-  // Turn on adaptive feature counts. Only works if the detector type is FAST,
-  // SURF, or STAR.
-  // - min:   minimum desired number of features.
-  // - max:   maximum desired number of features.
-  // - iters: number of iterations spend adjusting the feature detector
-  //          parameters. High numbers are fine for FAST, but time consuming
-  //          for SURF and STAR.
-  void SetAdaptiveOn(unsigned int min, unsigned int max, unsigned int iters);
-  void SetAdaptiveOff();
-
-  // Return whether or not the detector_type supports adaptive feature count
-  // adjustment.
-  bool SupportsAdaptiveAdjustment() const;
+  // Turn on grid filter counts.
+  // - rows:           number of grid rows.
+  // - cols:           number of grid columns.
+  // - min_num_points: minimum number of points to return.
+  void SetGridOn(unsigned int rows, unsigned int cols, unsigned int min_num_points);
+  void SetGridOff();
 
  private:
   DISALLOW_COPY_AND_ASSIGN(KeypointDetector)
 
   std::string detector_type_;
   cv::Ptr<cv::FeatureDetector> detector_;
-  bool adaptive_;
+  bool grid_filter_;
 
-  // Adaptive feature count parameters. See 'SetAdaptiveOn()' for descriptions.
-  unsigned int adaptive_min_;
-  unsigned int adaptive_max_;
-  unsigned int adaptive_iters_;
+  // Grid filter parameters. See 'SetGridOn()' for descriptions.
+  unsigned int grid_rows_;
+  unsigned int grid_cols_;
+  unsigned int grid_min_num_points_;
 
 };  //\class KeypointDetector
 

@@ -67,15 +67,13 @@ struct VisualOdometryOptions {
   // - SIMPLEBLOB
   std::string feature_type = "FAST";
 
-  // Turn on or off adaptive features. Adaptive features only work when using
-  // SURF, FAST, or STAR features. By default this feature is disabled. If it is
-  // enabled, the minimum and maximum amount of features must be specified
-  // manually, as must the number of iterations to adapt over per call to the
-  // feature detector.
-  bool adaptive_features = false;
-  unsigned int adaptive_min = 0;
-  unsigned int adaptive_max = 0;
-  unsigned int adaptive_iters = 0;
+  // Turn on or off feature grid filtering. By default this feature is disabled.
+  // If it is enabled, the row, column, and minimum number of points fields must
+  // be specified.
+  bool use_grid_filter = false;
+  unsigned int grid_rows = 0;
+  unsigned int grid_cols = 0;
+  unsigned int grid_min_num_features = 0;
 
   // The type of descriptor used to describe features in each image. Options
   // are:
@@ -93,6 +91,10 @@ struct VisualOdometryOptions {
 
   // Turn on or off bundle adjustment over the sliding window.
   bool perform_bundle_adjustment = true;
+
+  // We need to triangulated at least this many landmarks to begin doing 2D to
+  // 3D pose estimation.
+  unsigned int num_landmarks_to_initialize = 20;
 
   // ---------------------- DRAWING OPTIONS ---------------------- //
   // If any of the drawing features below are enabled, an OpenCV window will be

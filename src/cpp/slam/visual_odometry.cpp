@@ -64,10 +64,10 @@ VisualOdometry::VisualOdometry(const VisualOdometryOptions& options,
     : has_first_view_(false), options_(options) {
   // Use input options to specify member variable settings.
   keypoint_detector_.SetDetector(options_.feature_type);
-  if (options_.adaptive_features) {
-    keypoint_detector_.SetAdaptiveOn(options_.adaptive_min,
-                                     options_.adaptive_max,
-                                     options_.adaptive_iters);
+  if (options_.use_grid_filter) {
+    keypoint_detector_.SetGridOn(options_.grid_rows,
+                                 options_.grid_cols,
+                                 options_.grid_min_num_features);
   }
 
   descriptor_extractor_.SetDescriptor(options_.descriptor_type);
@@ -311,30 +311,47 @@ Status VisualOdometry::InitializeSecondView(const Image& image) {
   second_view->CreateAndAddObservations(features2, descriptors2);
 
   // Use all RANSAC inlier features to triangulate an initial set of landmarks.
+  int triangulated_count = 0;
   const FeatureMatchList ransac_inliers = f_problem.Inliers();
   std::vector<LandmarkIndex> new_landmark_indices;
   for (size_t ii = 0; ii < ransac_inliers.size(); ++ii) {
     Landmark::Ptr landmark = Landmark::Create();
-    new_landmark_indices.push_back(landmark->Index());
 
     // Find the observation corresponding to this match in each view. Add those
     // 2 observations to the landmark.
     const Feature& feature1 = ransac_inliers[ii].feature1_;
     const Feature& feature2 = ransac_inliers[ii].feature2_;
 
+    bool triangulated = true;
     for (const auto& observation1 : first_view->Observations()) {
       if (feature1 == observation1->Feature()) {
-        landmark->IncorporateObservation(observation1);
+        triangulated &= landmark->IncorporateObservation(observation1);
         break;
       }
     }
 
     for (const auto& observation2 : second_view->Observations()) {
       if (feature2 == observation2->Feature()) {
-        landmark->IncorporateObservation(observation2);
+        triangulated &= landmark->IncorporateObservation(observation2);
         break;
       }
     }
+
+    if (triangulated) {
+      new_landmark_indices.push_back(landmark->Index());
+      triangulated_count++;
+    } else {
+      Landmark::DeleteMostRecentLandmark();
+    }
+  }
+
+  // We need minimum number of triangulated points to continue.
+  if (triangulated_count < options_.num_landmarks_to_initialize) {
+    View::DeleteMostRecentView();
+    while (Landmark::NumExistingLandmarks() > 0)
+      Landmark::DeleteMostRecentLandmark();
+
+    return Status::Cancelled("Failed to triangulate enough points to initialize.");
   }
 
   // We successfully initialized! Store the new view.
@@ -499,7 +516,11 @@ void VisualOdometry::InitializeNewLandmarks(const View::Ptr& new_view) {
                        new_camera,
                        old_camera,
                        point,
-                       uncertainty))
+                       uncertainty)) {
+        continue;
+      }
+
+      if (1.0 / uncertainty < 1.0 * M_PI / 180.0)
         continue;
 
       // Check reprojection error of the match.
@@ -518,6 +539,7 @@ void VisualOdometry::InitializeNewLandmarks(const View::Ptr& new_view) {
 
       // Find the observation corresponding to this match in each view. Add
       // those 2 observations to the landmark.
+      bool triangulated = true;
       for (const auto& new_observation : new_view->Observations()) {
         if (feature1 == new_observation->Feature()) {
           landmark->IncorporateObservation(new_observation);

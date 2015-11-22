@@ -164,7 +164,7 @@ Matrix34d Pose::Dehomogenize() {
 }
 
 // Convert to axis-angle representation.
-Vector3d Pose::AxisAngle() {
+Vector3d Pose::AxisAngle() const {
   // From https://en.wikipedia.org/wiki/Axis-angle_representation.
   const double angle = acos(0.5 * (Rt_.trace() - 2.0));
   Vector3d axis = Vector3d(Rt_(2, 1) - Rt_(1, 2),

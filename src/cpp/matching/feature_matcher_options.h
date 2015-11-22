@@ -83,6 +83,18 @@ struct FeatureMatcherOptions {
   // 'enforce_maximum_descriptor_distance' is true.
   double maximum_descriptor_distance = 1.0;
 
+  // Decide whether or not to discard matches if they are too far away in image
+  // space. For 2D<-->3D matching, this will compare the image-space location of
+  // the feature in the most recent view that it was observed from to its
+  // current image-space position.
+  bool threshold_image_distance = true;
+
+  // The maximum tolerable image space distance (pixels) that two features can
+  // be from
+  // each other to consider them a match. This option does nothing if
+  // 'threshold_image_distance' is set to false.
+  double maximum_image_distance = 60.0;
+
   // The distance metric to be used for matching. Options can be found under
   // matching/distance_metric.h.
   std::string distance_metric = "SCALED_L2";

@@ -113,13 +113,35 @@ bool NaiveMatcher2D3D::Match(
                       LightFeatureMatch::SortByDistance);
   }
 
-  // Update Observations in the provided view based on their matches with
-  // landmarks. Also set all observations as matched.
+  // Set all matched observations as matched.
   for (size_t ii = 0; ii < num_features_out; ii++) {
     const size_t observation_index =
         observation_indices[forward_matches[ii].feature_index1_];
     const LandmarkIndex landmark_index =
         landmark_indices[forward_matches[ii].feature_index2_];
+
+    // Check that the features are close in image space by getting the location
+    // of the feature in the most recent frame that it was observed from.
+    if (options_.threshold_image_distance) {
+      const Landmark::Ptr& landmark = Landmark::GetLandmark(landmark_index);
+      CHECK_NOTNULL(landmark.get());
+      if (landmark->Observations().empty()) {
+        continue;
+      }
+
+      const Observation::Ptr& last_observation = landmark->Observations().back();
+      CHECK_NOTNULL(last_observation.get());
+      const Observation::Ptr this_observation =
+          view->Observations()[observation_index];
+
+      const Feature& old_feature = last_observation->Feature();
+      const Feature& new_feature = this_observation->Feature();
+      const double du = new_feature.u_ - old_feature.u_;
+      const double dv = new_feature.v_ - old_feature.v_;
+      if (std::sqrt(du*du + dv*dv) > options_.maximum_image_distance) {
+        continue;
+      }
+    }
 
     observations[observation_index]->SetMatchedLandmark(landmark_index);
   }

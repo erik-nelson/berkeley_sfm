@@ -56,9 +56,6 @@ void AnnotateFeatures(const FeatureList& features, Image* image,
                       unsigned int radius, unsigned int line_thickness) {
   CHECK_NOTNULL(image);
 
-  // Create a random number generator for random colors.
-  math::RandomGenerator rng(math::RandomGenerator::Seed());
-
   // Get OpenCV mat from the input image.
   cv::Mat cv_image;
   image->ToCV(cv_image);
@@ -68,10 +65,8 @@ void AnnotateFeatures(const FeatureList& features, Image* image,
     cv_feature.x = feature.u_;
     cv_feature.y = feature.v_;
 
-    const cv::Scalar color(255 * rng.Double(),
-                           255 * rng.Double(),
-                           255 * rng.Double());
-    cv::circle(cv_image, cv_feature, radius, color, line_thickness);
+    const cv::Scalar red(0, 0, 255);
+    cv::circle(cv_image, cv_feature, radius, red, line_thickness);
   }
 
   // Store the OpenCV mat in the image.
@@ -144,13 +139,10 @@ void DrawImageFeatureMatches(const Image& image1, const Image& image2,
 void AnnotateLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
                        const Camera& camera,
                        Image* image,
+                       unsigned int radius,
                        unsigned int line_thickness,
-                       unsigned int square_width,
                        bool print_text_distances) {
   CHECK_NOTNULL(image);
-
-  // Create a random number generator for random colors.
-  math::RandomGenerator rng(math::RandomGenerator::Seed());
 
   // Get OpenCV mat from the input image.
   cv::Mat cv_image;
@@ -166,23 +158,12 @@ void AnnotateLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
     const Vector3d p = landmark->Position().Get();
     const Vector3d c = camera.Translation();
     const double d = (p - c).norm();
-    if (d > max_distance)
-      max_distance = d;
+    if (d > max_distance) max_distance = d;
 
     distances.push_back(d);
   }
   if (distances.size() > 0)
     CHECK(max_distance > 1e-8);
-
-  // Generate colors for each landmark. darker = further.
-  // Use 0 distance ~= (255, 255, 0) [light blue].
-  //   max distance ~= (100, 100, 0) [dark blue].
-  std::vector<cv::Scalar> colors;
-  for (size_t ii = 0; ii < distances.size(); ++ii) {
-    double intensity = 155.0 * (1.0 - distances[ii] / max_distance) + 100.0;
-    const cv::Scalar color(intensity, intensity, 0);
-    colors.push_back(color);
-  }
 
   // Iterate over all landmarks that this view can see, annotating them as small
   // rectangles in the image.
@@ -200,20 +181,12 @@ void AnnotateLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
       continue;
     }
 
-    cv::Point cv_top_left, cv_bot_right;
-    cv_top_left.x = u - square_width / 2;
-    cv_top_left.y = v - square_width / 2;
-    cv_bot_right.x = u + square_width / 2;
-    cv_bot_right.y = v + square_width / 2;
-
-    cv::rectangle(cv_image,
-                  cv_top_left,
-                  cv_bot_right,
-                  colors[color_iter],
-                  line_thickness);
+    cv::Scalar blue(255, 0, 0);
+    cv::Point cv_feature(u, v);
+    cv::circle(cv_image, cv_feature, radius, blue, line_thickness);
 
     // Store the feature location so that we can write text distances on top.
-    text_positions.push_back(cv_top_left + cv::Point(-25, -5));
+    text_positions.push_back(cv_feature + cv::Point(-25, -10));
     text_distances.push_back(distances[color_iter]);
     color_iter++;
   }
@@ -237,15 +210,17 @@ void DrawLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
                    const Camera& camera,
                    const Image& image,
                    const std::string& window_name,
+                   unsigned int radius,
                    unsigned int line_thickness,
-                   unsigned int square_width) {
+                   bool print_text_distances) {
   // Annotate landmarks on a copy of the image.
   Image copy(image);
   AnnotateLandmarks(landmark_indices,
                     camera,
                     &copy,
+                    radius,
                     line_thickness,
-                    square_width);
+                    print_text_distances);
 
   // Convert the copied image to OpenCV format.
   cv::Mat cv_copy;
@@ -260,7 +235,7 @@ void DrawLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
 // Annotate 2D<-->3D matches stored in a set of observations. The view index is
 // passed in so that we only draw observations that came from the correct view
 // index. If 'only_draw_lines' is true, 2D features and 3D landmarks will not be
-// drawn as circles/squares, and only the connecting lines will be drawn.
+// drawn as circles, and only the connecting lines will be drawn.
 void AnnotateObservations(ViewIndex view_index,
                           const std::vector<Observation::Ptr>& observations,
                           Image* image, unsigned int line_thickness) {
@@ -335,9 +310,9 @@ void DrawObservations(ViewIndex view_index,
 // all landmarks, attempt to find each landmark in each one of the views,
 // annotates a line segment connecting the features corresponding to the
 // landmark in each view.
-void AnnotateTracks(const std::vector<LandmarkIndex>& landmark_indices,
-                    const std::vector<ViewIndex>& view_indices,
+void AnnotateTracks(const std::vector<LandmarkIndex>& tracks,
                     Image* image,
+                    unsigned int radius,
                     unsigned int line_thickness) {
   CHECK_NOTNULL(image);
 
@@ -345,38 +320,43 @@ void AnnotateTracks(const std::vector<LandmarkIndex>& landmark_indices,
   cv::Mat cv_image;
   image->ToCV(cv_image);
 
-  for (const auto& landmark_index : landmark_indices) {
+  for (const auto& track_index : tracks) {
+    // Follow the track across all of its observations.
+    Landmark::Ptr track = Landmark::GetLandmark(track_index);
+    CHECK_NOTNULL(track.get());
 
-    // Track the landmark across the provided view indices.
-    std::vector<cv::Point> landmark_track;
-    for (const auto& view_index : view_indices) {
-      View::Ptr view = View::GetView(view_index);
-      CHECK_NOTNULL(view.get());
+    // Continue if there is nothing to draw.
+    if (track->Observations().empty()) {
+      continue;
+    }
 
-      for (const auto& observation : view->Observations()) {
-        CHECK_NOTNULL(observation.get());
+    std::vector<cv::Point> cv_track;
+    for (const auto& observation : track->Observations()) {
+      CHECK_NOTNULL(observation.get());
 
-        // If this observation sees our landmark, store the feature position.
-        if (observation->IsIncorporated() &&
-            observation->GetLandmarkIndex() == landmark_index) {
-          cv::Point feature;
-          feature.x = observation->Feature().u_;
-          feature.y = observation->Feature().v_;
-          landmark_track.push_back(feature);
-        }
-      }
+      cv::Point feature;
+      feature.x = observation->Feature().u_;
+      feature.y = observation->Feature().v_;
+      cv_track.push_back(feature);
     }
 
     // Draw the landmark track in the image in green (BGR). Color is based on
     // how long ago the landmark was seen.
-    for (size_t ii = 0; ii < landmark_track.size() - 1; ++ii) {
-      const int intensity = (((ii+1) * 255) / (landmark_track.size()-1));
-      cv::Scalar color(0, 0, intensity);
-      cv::line(cv_image,
-               landmark_track[ii + 0],
-               landmark_track[ii + 1],
-               color,
+    for (size_t ii = 0; ii < cv_track.size() - 1; ++ii) {
+      const int intensity = (((ii + 1) * 255) / (cv_track.size() - 1));
+      cv::Scalar color(0, intensity, 0);
+      cv::line(cv_image, cv_track[ii + 0], cv_track[ii + 1], color,
                line_thickness);
+    }
+
+    // Also draw the feature in the most recent frame. If the feature is
+    // triangulated draw it in blue, otherwise draw in red.
+    if (track->IsEstimated()) {
+      cv::circle(cv_image, cv_track.back(), radius, cv::Scalar(255, 0, 0),
+                 line_thickness);
+    } else {
+      cv::circle(cv_image, cv_track.back(), radius, cv::Scalar(0, 0, 255),
+                 line_thickness);
     }
   }
 

@@ -98,6 +98,14 @@ bool NaiveMatcher2D2D::MatchImagePair(
     const Feature& matched_feature2 =
         image_features_[image_index2][match.feature_index2_];
 
+    // Check that the features are close in image space.
+    if (options_.threshold_image_distance) {
+      const double du = matched_feature1.u_ - matched_feature2.u_;
+      const double dv = matched_feature1.v_ - matched_feature2.v_;
+      if (std::sqrt(du*du + dv*dv) > options_.maximum_image_distance) {
+        continue;
+      }
+    }
     image_match.feature_matches_.emplace_back(matched_feature1,
                                               matched_feature2);
 

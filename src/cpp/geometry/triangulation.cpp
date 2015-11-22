@@ -100,7 +100,7 @@ bool Triangulate(const FeatureList& features,
   if (angle == 0.0) {  // we actually do want floating point comparison.
     uncertainty = std::numeric_limits<double>::max();
   } else {
-    uncertainty = 1.0 / MaximumAngle(cameras, point);
+    uncertainty = 1.0 / angle;
   }
 
   return true;;
@@ -160,11 +160,10 @@ double MaximumAngle(const std::vector<Camera>& cameras, const Point3D& point) {
   double largest_angle = 0.0;
   for (size_t ii = 0; ii < cameras.size() - 1; ++ii) {
     for (size_t jj = ii + 1; jj < cameras.size(); ++jj) {
-      double angle = std::acos(vecs[ii].dot(vecs[jj]));
-
+      double angle = std::acos(vecs[ii].dot(vecs[jj]) - 1e-8);
       if (std::isnan(angle) || std::isinf(angle)) {
         LOG(WARNING) << "Observation angle is NaN.";
-        return std::numeric_limits<double>::max();
+        continue;
       }
 
       // We want two 90 degree observations to have the maximum possible angle.

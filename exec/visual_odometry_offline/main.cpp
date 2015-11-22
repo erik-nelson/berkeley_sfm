@@ -55,15 +55,15 @@
 #include <matching/feature_match.h>
 #include <matching/naive_matcher_2d2d.h>
 #include <sfm/view.h>
-#include <slam/visual_odometry.h>
+#include <slam/keyframe_visual_odometry.h>
 #include <slam/visual_odometry_options.h>
 #include <strings/join.h>
 #include <strings/join_filepath.h>
 #include <util/status.h>
 #include <util/timer.h>
 
-DEFINE_string(video_file, "visual_odometry_test.mp4",
-// DEFINE_string(video_file, "../../../../Desktop/KITTI_datasets/KITTI2.mp4",
+// DEFINE_string(video_file, "visual_odometry_test.mp4",
+DEFINE_string(video_file, "../../../../Desktop/KITTI_datasets/KITTI2.mp4",
 // DEFINE_string(video_file, "KITTI2.mp4",
               "Name of the video file to perform visual odometry on.");
 DEFINE_string(video_output_file, "annotated_video.mp4",
@@ -74,14 +74,15 @@ DEFINE_bool(rotate_images, false, "Rotate the images clockwise by 90 degrees.");
 using bsfm::Camera;
 using bsfm::CameraIntrinsics;
 using bsfm::Descriptor;
+using bsfm::D2R;
 using bsfm::Image;
 using bsfm::Feature;
 using bsfm::FeatureMatchList;
+using bsfm::KeyframeVisualOdometry;
 using bsfm::NaiveMatcher2D2D;
 using bsfm::PairwiseImageMatchList;
 using bsfm::Status;
 using bsfm::View;
-using bsfm::VisualOdometry;
 using bsfm::VisualOdometryOptions;
 using bsfm::drawing::AnnotateLandmarks;
 using bsfm::drawing::DrawImageFeatureMatches;
@@ -114,7 +115,7 @@ int main(int argc, char** argv) {
   Camera initial_camera;
   CameraIntrinsics intrinsics;
 
-// #if 0
+#if 0
   // HTC one.
   intrinsics.SetImageLeft(0);
   intrinsics.SetImageTop(0);
@@ -125,7 +126,7 @@ int main(int argc, char** argv) {
   intrinsics.SetCU(216);
   intrinsics.SetCV(393);
   intrinsics.SetK(0.06455, -0.16778, -0.02109, 0.03352, 0.0);
-// #endif
+#endif
 
 #if 0
   // HTC one, large images.
@@ -153,7 +154,7 @@ int main(int argc, char** argv) {
   intrinsics.SetK(-0.3691481, 0.1968681, 0.001353473, 0.0005677587, -0.06770705);
 #endif
 
-#if 0
+// #if 0
   // KITTI 2011_09_30
   intrinsics.SetImageLeft(0);
   intrinsics.SetImageTop(0);
@@ -163,57 +164,60 @@ int main(int argc, char** argv) {
   intrinsics.SetFV(721.5377);
   intrinsics.SetCU(609.5593);
   intrinsics.SetCV(172.8540);
-#endif
+// #endif
 
   initial_camera.SetIntrinsics(intrinsics);
 
   VisualOdometryOptions vo_options;
   vo_options.feature_type = "FAST";
-  vo_options.descriptor_type = "ORB";
-  vo_options.sliding_window_length = 5;
+  vo_options.descriptor_type = "SIFT";
+  vo_options.sliding_window_length = 3;
   vo_options.use_grid_filter = true;
-  vo_options.grid_rows = 20;
-  vo_options.grid_cols = 10;
-  vo_options.grid_min_num_features = 1024;
+  vo_options.grid_rows = 4;
+  vo_options.grid_cols = 7;
+  vo_options.grid_min_num_features = 2048;
 
-  vo_options.num_landmarks_to_initialize = 20;
+  vo_options.min_num_feature_tracks = 400;
+  vo_options.num_observations_to_triangulate = 2;
+  vo_options.min_keyframe_translation = 0.5;
+  vo_options.min_keyframe_rotation = D2R(5.0);
+  vo_options.num_landmarks_to_initialize = 50;
 
-  vo_options.draw_features = true;
-  vo_options.draw_landmarks = true;
-  vo_options.draw_inlier_observations = true;
   vo_options.draw_tracks = true;
 
   vo_options.matcher_options.use_lowes_ratio = true;
-  vo_options.matcher_options.lowes_ratio = 0.8;
+  vo_options.matcher_options.lowes_ratio = 0.85;
   vo_options.matcher_options.min_num_feature_matches = 8;
   vo_options.matcher_options.require_symmetric_matches = true;
   vo_options.matcher_options.only_keep_best_matches = false;
   vo_options.matcher_options.num_best_matches = 0;
   vo_options.matcher_options.enforce_maximum_descriptor_distance = false;
   vo_options.matcher_options.maximum_descriptor_distance = 0.0;
-  vo_options.matcher_options.distance_metric = "HAMMING";
+  vo_options.matcher_options.distance_metric = "SCALED_L2";
+  vo_options.matcher_options.threshold_image_distance = true;
+  vo_options.matcher_options.maximum_image_distance = 30;  // pixels.
 
   // RANSAC iterations chosen using ~10% outliers @ 99% chance to sample from
   // Table 4.3 of H&Z.
-  vo_options.fundamental_matrix_ransac_options.iterations = 50;
+  vo_options.fundamental_matrix_ransac_options.iterations = 100;
   vo_options.fundamental_matrix_ransac_options.acceptable_error = 1e-1;
   vo_options.fundamental_matrix_ransac_options.minimum_num_inliers = 35;
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
-  vo_options.pnp_ransac_options.iterations = 50;
-  vo_options.pnp_ransac_options.acceptable_error = 9.0;
-  vo_options.pnp_ransac_options.minimum_num_inliers = 5;
+  vo_options.pnp_ransac_options.iterations = 100;
+  vo_options.pnp_ransac_options.acceptable_error = 1.0;
+  vo_options.pnp_ransac_options.minimum_num_inliers = 20;
   vo_options.pnp_ransac_options.num_samples = 6;
 
-  vo_options.perform_bundle_adjustment = false;
+  vo_options.perform_bundle_adjustment = true;
   vo_options.bundle_adjustment_options.solver_type = "SPARSE_SCHUR";
   vo_options.bundle_adjustment_options.print_summary = false;
   vo_options.bundle_adjustment_options.print_progress = false;
-  vo_options.bundle_adjustment_options.max_num_iterations = 50;
+  vo_options.bundle_adjustment_options.max_num_iterations = 5;
   vo_options.bundle_adjustment_options.function_tolerance = 1e-16;
   vo_options.bundle_adjustment_options.gradient_tolerance = 1e-16;
 
-  VisualOdometry vo(vo_options, initial_camera);
+  KeyframeVisualOdometry vo(vo_options, intrinsics);
 
   // Draw and process frames of the video.
   cv::Mat cv_video_frame;
@@ -246,7 +250,7 @@ int main(int argc, char** argv) {
   }
 
   // Skip several frames at the beginning to get a nice baseline.
-  const int start = 20;
+  const int start = 3;
   capture.set(CV_CAP_PROP_POS_FRAMES, start);
 
   const int skip = 5;
@@ -269,8 +273,6 @@ int main(int argc, char** argv) {
     Status s = vo.Update(frame);
     if (!s.ok()) {
       std::cout << s.Message() << std::endl;
-      cv::imshow("Visual Odometry", cv_video_frame);
-      cv::waitKey(0);
     }
 
     // Write the annotated frame into the output video.
@@ -284,6 +286,9 @@ int main(int argc, char** argv) {
 
     // Store this frame for next time.
     last_frame = frame;
+
+    if (frame_iterator > 100)
+      break;
   }
   writer.release();
 

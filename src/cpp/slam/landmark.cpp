@@ -39,13 +39,19 @@
 
 #include <numeric>
 
+#include "../geometry/rotation.h"
 #include "../sfm/view.h"
 
 namespace bsfm {
 
-// Declaration of static member variable.
+namespace {
+const double kMinTriangulationAngle = D2R(2.0);
+}  //\namespace
+
+// Declaration of static member variables.
 std::unordered_map<LandmarkIndex, Landmark::Ptr> Landmark::landmark_registry_;
 LandmarkIndex Landmark::current_landmark_index_ = 0;
+unsigned int Landmark::required_observations_ = 2;
 
 // Factory method. Registers the landmark and newly created index in the
 // landmark registry so that they can be accessed from the static GetLandmark()
@@ -150,6 +156,23 @@ const std::vector<Observation::Ptr>& Landmark::Observations() const {
   return observations_;
 }
 
+bool Landmark::IsEstimated() const {
+  return is_estimated_;
+}
+
+// Removes the observation originating from the provided view.
+void Landmark::RemoveObservationFromView(ViewIndex view_index) {
+  View::Ptr view = View::GetView(view_index);
+  CHECK_NOTNULL(view.get());
+
+  for (int ii = observations_.size() - 1; ii >= 0; --ii) {
+    CHECK_NOTNULL(observations_[ii].get());
+    if (observations_[ii]->GetViewIndex() == view_index) {
+      observations_.erase(observations_.begin() + ii);
+    }
+  }
+}
+
 // Returns a raw pointer to the data elements of the position of the landamark.
 // This is useful for optimization on landmark positions (e.g. during bundle
 // adjustment).
@@ -157,69 +180,77 @@ double* Landmark::PositionData() {
   return position_.Get().data();
 }
 
-// Add a new observation of the landmark. If 'retriangulate' is true, the
-// landmark's position will be retriangulated from all observations of it.
-bool Landmark::IncorporateObservation(const Observation::Ptr& observation,
-                                      bool retriangulate) {
+// Add a new observation of the landmark. The landmark's position will be
+// retriangulated from all observations of it.
+bool Landmark::IncorporateObservation(const Observation::Ptr& observation) {
   CHECK_NOTNULL(observation.get());
 
-  // If this is our first observation, store it, tell the observation that it
-  // has been matched with us, and return.
-  if (observations_.empty()) {
+  // Does the landmark descriptor match with the observation's descriptor?
+  if (!observations_.empty()) {
+    DistanceMetric& distance = DistanceMetric::Instance();
+    if (distance.Max() != std::numeric_limits<double>::max()) {
+      std::vector<::bsfm::Descriptor> descriptors;
+      descriptors.push_back(descriptor_);
+      descriptors.push_back(observation->Descriptor());
+      distance.MaybeNormalizeDescriptors(descriptors);
+
+      if (distance(descriptors[0], descriptors[1]) > distance.Max()) {
+        VLOG(1) << "Observation was not matched to landmark "
+            << this->Index();
+        return false;
+      }
+    }
+  }
+
+  // If we don't have enough observations to triangulate the landmark yet,
+  // continually store them until we do.
+  if (observations_.size() < RequiredObservations() - 1) {
     observation->SetIncorporatedLandmark(this->Index());
     observations_.push_back(observation);
     descriptor_ = observation->Descriptor();
     return true;
   }
 
-  // Does our own descriptor match with the observation's descriptor?
-  DistanceMetric& distance = DistanceMetric::Instance();
-  if (distance.Max() != std::numeric_limits<double>::max()) {
-    std::vector<::bsfm::Descriptor> descriptors;
-    descriptors.push_back(descriptor_);
-    descriptors.push_back(observation->Descriptor());
-    distance.MaybeNormalizeDescriptors(descriptors);
-
-    if (distance(descriptors[0], descriptors[1]) > distance.Max()) {
-      VLOG(1) << "Observation was not matched to landmark " << this->Index();
-      return false;
-    }
-  }
-
   // Triangulate the landmark's putative position if we were to incorporate the
   // new observation.
-  if (retriangulate) {
-    std::vector<Camera> cameras;
-    std::vector<Feature> features;
-    for (const auto& obs : observations_) {
-      cameras.push_back(obs->GetView()->Camera());
-      features.push_back(obs->Feature());
-    }
-    cameras.push_back(observation->GetView()->Camera());
-    features.push_back(observation->Feature());
-
-    // If triangulation fails, we don't have a match and won't update position.
-    double uncertainty = 0.0;
-    Point3D new_position;
-    if (!Triangulate(features, cameras, new_position, uncertainty)) {
-      return false;
-    }
-
-    if (1.0 / uncertainty < 1.0 * M_PI / 180.0) {
-      observation->SetIncorporatedLandmark(this->Index());
-      observations_.push_back(observation);
-      return false;
-    }
-
-    position_ = new_position;
+  std::vector<Camera> cameras;
+  std::vector<Feature> features;
+  for (const auto& obs : observations_) {
+    cameras.push_back(obs->GetView()->Camera());
+    features.push_back(obs->Feature());
   }
+  cameras.push_back(observation->GetView()->Camera());
+  features.push_back(observation->Feature());
+
+  // If triangulation fails, we don't have a match and won't update position.
+  double uncertainty = 0.0;
+  Point3D new_position;
+  if (!Triangulate(features, cameras, new_position, uncertainty)) {
+    return false;
+  }
+
+  // Make sure we aren't triangulating something collinear with our position.
+  if (1.0 / uncertainty < kMinTriangulationAngle) {
+    // This observation is still fine, it's just collinear. We can store it, but
+    // shouldn't update our position estimate.
+    observation->SetIncorporatedLandmark(this->Index());
+    observations_.push_back(observation);
+    descriptor_ = observation->Descriptor();
+
+    return false;
+  }
+
+  // We got a position, so this landmark is now estimated!
+  is_estimated_ = true;
+  position_ = new_position;
 
   // Successfully triangulated the landmark. Update its position and store this
   // observation. Also tell the observation that it has been matched with us.
   observation->SetIncorporatedLandmark(this->Index());
   observations_.push_back(observation);
+  descriptor_ = observation->Descriptor();
 
-  return true;
+  return is_estimated_;
 }
 
 // Return the first view to observe this landmark.
@@ -258,10 +289,23 @@ bool Landmark::SeenByAtLeastNViews(const std::vector<ViewIndex>& view_indices,
   return false;
 }
 
+// Return the minimum number of observations necessary to triangulate teh
+// landmark.
+unsigned int Landmark::RequiredObservations() {
+  return required_observations_;
+}
+
+// Set the minimum number of observations necessary to triangulate the landmark.
+void Landmark::SetRequiredObservations(unsigned int required_observations) {
+  required_observations_ = required_observations;
+}
+
 // Private constructor enforces creation via factory method. This will be called
 // from the factory method.
 Landmark::Landmark()
-    : position_(Point3D(0.0, 0.0, 0.0)), landmark_index_(NextLandmarkIndex()) {}
+    : position_(Point3D(0.0, 0.0, 0.0)),
+      landmark_index_(NextLandmarkIndex()),
+      is_estimated_(false) {}
 
 // Static method for determining the next index across all Landmarks constructed
 // so far. This is called in the Landmark constructor.

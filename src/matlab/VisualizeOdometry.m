@@ -23,7 +23,7 @@ end
 function DrawPoses(trajectory, scale)
 
 % Get translations and rotations. Rotations are inverted, hence the - sign.
-%                 
+%
 t = cat(1, trajectory(:).translation);
 r = -cat(1, trajectory(:).rotation);
 
@@ -42,6 +42,7 @@ figure(1); hold on;
 fx = quiver3(t(:,3), -t(:,1), -t(:,2), ax(:,3), -ax(:,1), -ax(:,2), 'r');
 fy = quiver3(t(:,3), -t(:,1), -t(:,2), ay(:,3), -ay(:,1), -ay(:,2), 'g');
 fz = quiver3(t(:,3), -t(:,1), -t(:,2), az(:,3), -az(:,1), -az(:,2), 'b');
+plot3(t(:,3), -t(:,1), -t(:,2), '--k');
 axis equal;
 set(fx, 'showarrowhead', 'off', 'autoscale', 'off');
 set(fy, 'showarrowhead', 'off', 'autoscale', 'off');
@@ -74,4 +75,11 @@ p = cat(1, map(:).position);
 % left.
 p = ([0 0 1; -1 0 0; 0 -1 0] * p')';
 showPointCloud(p);
+colormap(jet);
+
+% Get the point furthest from the origin so we can set our axis.
+d = sqrt(sum(abs(p).^2, 2));
+[~,index] = max(d);
+p_max = abs(p(index,:));
+axis([-p_max(1) p_max(1) -p_max(2) p_max(2) -p_max(3) p_max(3)]);
 end

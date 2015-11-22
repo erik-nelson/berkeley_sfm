@@ -128,11 +128,13 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
   // the landmark should report that it has been seen by both views. Since
   // observations don't have valid positions, we won't be able to triangulate,
   // so just ask the landmark not to retriangulate its 3D position.
-  const bool kRetriangulate = false;
-  EXPECT_TRUE(landmark->IncorporateObservation(observation1, kRetriangulate));
+  EXPECT_TRUE(landmark->IncorporateObservation(observation1));
   EXPECT_FALSE(landmark->SeenByAtLeastNViews(view_indices, 2));
-  EXPECT_TRUE(landmark->IncorporateObservation(observation2, kRetriangulate));
-  EXPECT_TRUE(landmark->SeenByAtLeastNViews(view_indices, 2));
+  if (landmark->IncorporateObservation(observation2)) {
+    EXPECT_TRUE(landmark->SeenByAtLeastNViews(view_indices, 2));
+  } else {
+    EXPECT_TRUE(landmark->SeenByAtLeastNViews(view_indices, 1));
+  }
 
   // Finally, make sure that incorporating additional views that observe the
   // landmark doesn't alter behavior.
@@ -142,8 +144,11 @@ TEST(Landmark, TestSeenByAtLeastTwoViews) {
         Observation::Create(view, feature, descriptor);
 
     view_indices.push_back(view->Index());
-    EXPECT_TRUE(landmark->IncorporateObservation(observation, kRetriangulate));
-    EXPECT_TRUE(landmark->SeenByAtLeastNViews(view_indices, 2));
+    if (landmark->IncorporateObservation(observation)) {
+      EXPECT_TRUE(landmark->SeenByAtLeastNViews(view_indices, 2));
+    } else {
+      EXPECT_TRUE(landmark->SeenByAtLeastNViews(view_indices, 1));
+    }
   }
 
   // Clean up.

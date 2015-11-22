@@ -225,6 +225,7 @@ TEST_F(TestSimpleNoiselessSfm, TestNoBundleAdjustment) {
   matcher_options.min_num_feature_matches = 8;
   matcher_options.enforce_maximum_descriptor_distance = true;
   matcher_options.maximum_descriptor_distance = 1e-8;
+  matcher_options.threshold_image_distance= false;
   feature_matcher_2d2d.AddImageFeatures(features1, descriptors1);
   feature_matcher_2d2d.AddImageFeatures(features2, descriptors2);
   PairwiseImageMatchList image_matches;

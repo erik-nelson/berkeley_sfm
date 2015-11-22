@@ -86,6 +86,10 @@ bool BundleAdjuster::Solve(const BundleAdjustmentOptions& options,
         return false;
       }
 
+      // Make sure the landmark's position has been estimated.
+      if (!landmark->IsEstimated())
+        continue;
+
       // Make sure the landmark has been seen by at least two of the views we
       // are doing bundle adjustment over.
       if (!landmark->SeenByAtLeastNViews(view_indices, 2))

@@ -37,24 +37,20 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// The VisualOdometry class runs visual odometry from incremental image inputs.
-// As images are input, the system extracts features and descriptors, matches
-// them against other images or against existing 3D points, and computes the 3D
-// pose of the camera. At any time, the class can be queried for the 3D pose of
-// the camera as well as the positions of all known landmarks.
-//
-// The VisualOdometry class handles initialization by itself using the first few
-// images.
+// The KeyframeVisualOdometry class runs visual odometry from incremental image
+// inputs using keyframes, which are initialized every time the camera pose has
+// moved a threshold distance or every time the number of tracked features
+// reduces below a threshold. At any time, the class can be queried for the 3D
+// pose of the camera as well as the positions of all known landmarks.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef BSFM_SLAM_VISUAL_ODOMETRY_H
-#define BSFM_SLAM_VISUAL_ODOMETRY_H
+#ifndef BSFM_SLAM_KEYFRAME_VISUAL_ODOMETRY_H
+#define BSFM_SLAM_KEYFRAME_VISUAL_ODOMETRY_H
 
 #include "visual_odometry_annotator.h"
 #include "visual_odometry_options.h"
 
-#include "../camera/camera.h"
 #include "../camera/camera_intrinsics.h"
 #include "../image/image.h"
 #include "../matching/keypoint_detector.h"
@@ -66,10 +62,10 @@
 
 namespace bsfm {
 
-class VisualOdometry {
+class KeyframeVisualOdometry {
  public:
-  VisualOdometry(const VisualOdometryOptions& options, const Camera& camera);
-  ~VisualOdometry();
+  KeyframeVisualOdometry(const VisualOdometryOptions& options, const CameraIntrinsics& camera);
+  ~KeyframeVisualOdometry();
 
   // Update the estimate of the camera's position and all landmark positions.
   Status Update(const Image& image);
@@ -88,42 +84,47 @@ class VisualOdometry {
   Status WriteMapToFile(const std::string& filename) const;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(VisualOdometry)
+  DISALLOW_COPY_AND_ASSIGN(KeyframeVisualOdometry)
 
-  // The first two images added are handled separately from all others in order
-  // to initialize an estimate of the camera pose. The first image will simply
-  // have descriptors extracted. The second image will be matched against the
-  // first, and matched features will be triangulated. If the second image is
-  // successfully matched with the first, future calls to Update() will not call
-  // these functions.
-  Status InitializeFirstView(const Image& image);
-  Status InitializeSecondView(const Image& image);
+  // Create the very first view. This will not initialize any tracks yet.
+  void InitializeFirstView(const std::vector<Feature>& features,
+                           const std::vector<Descriptor>& descriptors);
 
-  // Called for every image after initialization. This function extracts
-  // descriptors from the image, matches them against 3D landmarks, computes the
-  // new view's pose, and then triangulates new landmarks from the image's
-  // observed features.
-  Status ProcessImage(const Image& image);
+  // Use 2D<-->2D matches to initialize the position of the second camera (which
+  // will be a keyframe). If the view is successfully localized, new tracks will
+  // be initialized.
+  Status InitializeSecondView(const std::vector<Feature>& features,
+                              const std::vector<Descriptor>& descriptors);
 
-  // Match unincorporated observations from 'new_view' with other unincorporated
-  // observations in the sliding window of views. Triangulate the 3D position of
-  // new matches, check reprojection error, and initialize new landmarks.
-  void InitializeNewLandmarks(const View::Ptr& new_view);
+  Status UpdateFeatureTracks(const std::vector<Feature>& features,
+                             const std::vector<Descriptor>& descriptors,
+                             ViewIndex view_index,
+                             bool is_keyframe);
 
-  // Detect features and extract descriptors from the input image. Returns false
-  // with an error status if either part fails.
-  Status GetFeaturesAndDescriptors(const Image& image,
-                                   std::vector<Feature>* features,
-                                   std::vector<Descriptor>* descriptors);
+  // Use 2D<-->3D matching against landmarks in the filter to determine the
+  // camera's pose.
+  Status EstimatePose(ViewIndex view_index);
 
-  // Get all unincorporated features and descriptors from a view. This is used
-  // to triangulate new features that were not previously matched.
-  void GetUnusedFeatures(ViewIndex view_index,
-                         std::vector<Feature>* features,
-                         std::vector<Descriptor>* descriptors);
+  // Detect keypoints from the input image. Returns false with an error status if
+  // feature extraction fails. Non-const method because the detector is adaptive.
+  Status GetKeypoints(const Image& image, std::vector<Keypoint>* keypoints);
+
+  // Extract descriptors around the input keypoints. Non-const method because
+  // OpenCV's descriptor extractor is non-const.
+  Status GetDescriptors(const Image& image,
+                        std::vector<Keypoint>* keypoints,
+                        std::vector<Feature>* features,
+                        std::vector<Descriptor>* descriptors);
+
+  // Return the number of feature tracks that have a triangulated 3D position.
+  unsigned int NumEstimatedTracks() const;
 
   // Return view indices in the sliding window.
   std::vector<ViewIndex> SlidingWindowViewIndices();
+
+  // Boolean that is true whenever the camera pose has translated and rotated a
+  // threshold amount (determined by options).
+  bool initialize_new_keyframe_;
 
   // A copy of the set of options passed into the constructor.
   VisualOdometryOptions options_;
@@ -135,6 +136,19 @@ class VisualOdometry {
   // through these will generate the camera's trajectory.
   std::vector<ViewIndex> view_indices_;
 
+  // A set of all features currently being tracked. If a feature that is
+  // triangulated is removed from this list, it will be added to the list of
+  // frozen landmarks below.
+  std::vector<LandmarkIndex> tracks_;
+
+  // A set of all landmarks that were successfully triangulated and are no
+  // longer in the camera frame or being matched with. These are purely so that
+  // we can visualize the map after VO finishes.
+  std::vector<LandmarkIndex> frozen_landmarks_;
+
+  // The index of the current keyframe.
+  ViewIndex current_keyframe_;
+
   // Camera intrinsics. These are specified using the camera passed into the
   // constructor.
   CameraIntrinsics intrinsics_;
@@ -144,15 +158,10 @@ class VisualOdometry {
   KeypointDetector keypoint_detector_;
   DescriptorExtractor descriptor_extractor_;
 
-  // Flag that is set to true after the first call to Update(). This is needed
-  // to determine whether to call InitializeFirstview(), InitializeSecondView(),
-  // or ProcessImage().
-  bool has_first_view_;
-
   // The name of the OpenCV window for drawing.
-  const std::string window_name = "Visual Odometry";
+  const std::string window_name = "Keyframe Visual Odometry";
 
-};  //\class VisualOdometry
+};  //\class KeyframeVisualOdometry
 
 }  //\namespace bsfm
 

@@ -90,6 +90,17 @@ void View::ResetViews() {
 // issues if the caller holds onto a pointer to the deleted view.
 void View::DeleteMostRecentView() {
   current_view_index_--;
+
+  // Remove any observations from landmarks that might point back to this view.
+  View::Ptr most_recent_view = View::GetView(current_view_index_);
+  CHECK_NOTNULL(most_recent_view.get());
+  most_recent_view->UpdateObservedLandmarks();
+  for (auto& landmark_index : most_recent_view->ObservedLandmarks()) {
+    Landmark::Ptr landmark = Landmark::GetLandmark(landmark_index);
+    CHECK_NOTNULL(landmark.get());
+    landmark->RemoveObservationFromView(current_view_index_);
+  }
+
   view_registry_.erase(current_view_index_);
 }
 

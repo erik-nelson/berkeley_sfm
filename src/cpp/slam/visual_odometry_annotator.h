@@ -68,12 +68,7 @@ class VisualOdometryAnnotator {
 
   // Annotation functions.
   void AnnotateFeatures(const FeatureList& features);
-  void AnnotateLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
-                         const Camera& camera);
-  void AnnotateObservations(ViewIndex view_index,
-                            const std::vector<Observation::Ptr>& observations);
-  void AnnotateTracks(const std::vector<LandmarkIndex>& landmark_indices,
-                      const std::vector<ViewIndex>& view_indices);
+  void AnnotateTracks(const std::vector<LandmarkIndex>& tracks);
 
   // The draw function will open up an OpenCV window and display the annotated
   // image.

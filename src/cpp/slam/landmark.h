@@ -114,19 +114,22 @@ class Landmark {
   const ::bsfm::Descriptor& Descriptor() const;
   std::vector<Observation::Ptr>& Observations();
   const std::vector<Observation::Ptr>& Observations() const;
+  bool IsEstimated() const;
+
+  // Removes the observation originating from the provided view.
+  void RemoveObservationFromView(ViewIndex view_index);
 
   // Returns a raw pointer to the data elements of the position of the landmark.
   // This is useful for optimization on landmark positions (e.g. during bundle
   // adjustment.)
   double* PositionData();
 
-  // Add a new observation of the landmark. If 'retriangulate' is true, the
-  // landmark's position will be retriangulated from all observations of it.
-  // This will return false if the observation's descriptor does not match with
-  // our own descriptor, or if we fail to retriangulate the landmark after
-  // incorporating the new observation.
-  bool IncorporateObservation(const Observation::Ptr& observation,
-                              bool retriangulate = true);
+  // Add a new observation of the landmark. The landmark's position will be
+  // retriangulated from all observations of it if it has enough. This will
+  // return false if the observation's descriptor does not match with our own
+  // descriptor, or if we fail to retriangulate the landmark after incorporating
+  // the new observation.
+  bool IncorporateObservation(const Observation::Ptr& observation);
 
   // Get the view that first saw this landmark.
   std::shared_ptr<View> SourceView() const;
@@ -134,6 +137,13 @@ class Landmark {
   // Given a set of views, return whether or not this landmark has been seen by
   // at least N of them.
   bool SeenByAtLeastNViews(const std::vector<ViewIndex>& view_indices, unsigned int N);
+
+  // Return the minimum number of observations necessary to triangulate the landmark.
+  static unsigned int RequiredObservations();
+
+  // Set the minimum number of observations necessary to triangulate the
+  // landmark.
+  static void SetRequiredObservations(unsigned int required_observations);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Landmark)
@@ -165,6 +175,13 @@ class Landmark {
 
   // The maximum index assigned to any landmark created so far.
   static LandmarkIndex current_landmark_index_;
+
+  // True if the landmark has been triangulated.
+  bool is_estimated_;
+
+  // The minimum number of observations needed for a landmark's position to be
+  // triangulated. This can be changed online with 'SetRequiredObservations().
+  static unsigned int required_observations_;
 };  //\class Landmark
 
 }  //\namespace bsfm

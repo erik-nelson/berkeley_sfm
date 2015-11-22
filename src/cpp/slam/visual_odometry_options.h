@@ -96,6 +96,19 @@ struct VisualOdometryOptions {
   // 3D pose estimation.
   unsigned int num_landmarks_to_initialize = 20;
 
+  // If the number of feature tracks at any frame is below this number, a new
+  // keyframe is initialized.
+  unsigned int min_num_feature_tracks = 50;
+
+  // The minimum number of observations of a track needed to triangulate it.
+  unsigned int num_observations_to_triangulate = 3;
+
+  // The minimum translation needed to initialize a new keyframe.
+  double min_keyframe_translation = 2.0;
+
+  // The minimum rotation (on any axis) needed to initialize a new keyframe.
+  double min_keyframe_rotation = 10.0 * 3.1415926535/ 180.0;
+
   // ---------------------- DRAWING OPTIONS ---------------------- //
   // If any of the drawing features below are enabled, an OpenCV window will be
   // displayed with the selected options overlaid on the current frame.

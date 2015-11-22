@@ -54,16 +54,16 @@
 namespace bsfm {
 namespace drawing {
 
-// Annotate an image by drawing features on it.
+// Annotate an image by drawing features as red circles on it.
 void AnnotateFeatures(const FeatureList& features, Image* image,
                       unsigned int radius = 3,
-                      unsigned int line_thickness = 1);
+                      unsigned int line_thickness = 2);
 
-// Draw features as circles in an image.
+// Draw features as red circles in an image.
 void DrawImageFeatures(const FeatureList& features, const Image& image,
                        const std::string& window_name = std::string(),
                        unsigned int radius = 3,
-                       unsigned int line_thickness = 1);
+                       unsigned int line_thickness = 2);
 
 // Given two images, and data containing their features and matches between
 // those features, draw the two images side by side, with matches drawn as lines
@@ -73,24 +73,24 @@ void DrawImageFeatureMatches(const Image& image1, const Image& image2,
                              const std::string& window_name = std::string(),
                              unsigned int line_thickness = 1);
 
-// Project landmarks into a camera and draw them as squares on the input image.
-// If 'print_text_distances' is true, draw the distance from the camera to each
-// landmark (up to scale).
+// Project landmarks into a camera and draw them as blue circles on the input
+// image. If 'print_text_distances' is true, draw the distance from the camera
+// to each landmark (up to scale).
 void AnnotateLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
                        const Camera& camera,
                        Image* image,
+                       unsigned int radius = 3,
                        unsigned int line_thickness = 2,
-                       unsigned int square_width = 10,
                        bool print_text_distances = false);
 
-// Draw landmarks as squares in an image. If 'print_text_distances' is true,
-// draw the distance from the camera to each landmark (up to scale).
+// Draw landmarks as blue circles in an image. If 'print_text_distances' is
+// true, draw the distance from the camera to each landmark (up to scale).
 void DrawLandmarks(const std::vector<LandmarkIndex>& landmark_indices,
                    const Camera& camera,
                    const Image& image,
                    const std::string& window_name = std::string(),
+                   unsigned int radius = 3,
                    unsigned int line_thickness = 2,
-                   unsigned int square_width = 10,
                    bool print_text_distances = false);
 
 // Annotate 2D<-->3D matches stored in a set of observations. The view index is
@@ -109,14 +109,12 @@ void DrawObservations(ViewIndex view_index,
                       const std::string& window_name = std::string(),
                       unsigned int line_thickness = 2);
 
-// Annotate landmark tracks across the specified views. This will iterate over
-// all landmarks, attempt to find each landmark in each one of the views,
-// annotates a line segment connecting the features corresponding to the
-// landmark in each view.
-void AnnotateTracks(const std::vector<LandmarkIndex>& landmark_indices,
-                    const std::vector<ViewIndex>& view_indices,
-                    Image* image,
-                    unsigned int line_thickness = 2);
+// Annotate feature tracks. This will iterate over all tracks, drawing the
+// feature position of each track as a line sequence in the most recent view.
+// Triangulated tracks will be displayed as blue circles, and untriangulated
+// tracks will be displayed as red circles.
+void AnnotateTracks(const std::vector<LandmarkIndex>& tracks, Image* image,
+                    unsigned int radius = 3, unsigned int line_thickness = 2);
 
 }  //\namespace drawing
 }  //\namespace bsfm

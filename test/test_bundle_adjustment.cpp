@@ -137,7 +137,8 @@ TEST(BundleAdjuster, TestManyViewsNoNoise) {
 
       Observation::Ptr observation =
           Observation::Create(View::GetView(ii), feature, descriptor);
-      EXPECT_TRUE(landmark->IncorporateObservation(observation));
+      if (!landmark->IncorporateObservation(observation))
+        continue;
     }
   }
 

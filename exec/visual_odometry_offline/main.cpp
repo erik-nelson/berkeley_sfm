@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
   vo_options.draw_tracks = true;
 
   vo_options.matcher_options.use_lowes_ratio = true;
-  vo_options.matcher_options.lowes_ratio = 0.95;
+  vo_options.matcher_options.lowes_ratio = 0.85;
   vo_options.matcher_options.min_num_feature_matches = 8;
   vo_options.matcher_options.require_symmetric_matches = true;
   vo_options.matcher_options.only_keep_best_matches = false;

@@ -65,40 +65,6 @@ void VisualOdometryAnnotator::AnnotateTracks(const std::vector<LandmarkIndex>& t
   drawing::AnnotateTracks(tracks, image_.get(), kRadius, kLineThickness);
 }
 
-#if 0
-void VisualOdometryAnnotator::AnnotateLandmarks(
-    const std::vector<LandmarkIndex>& landmark_indices, const Camera& camera) {
-  const int kLineThickness = 1;
-  const int kSquareWidth = 8;
-  const bool kPrintDistances = true;
-  drawing::AnnotateLandmarks(landmark_indices,
-                             camera,
-                             image_.get(),
-                             kLineThickness,
-                             kSquareWidth,
-                             kPrintDistances);
-}
-
-void VisualOdometryAnnotator::AnnotateObservations(
-    ViewIndex view_index, const std::vector<Observation::Ptr>& observations) {
-  const int kLineThickness = 2;
-  drawing::AnnotateObservations(view_index,
-                                observations,
-                                image_.get(),
-                                kLineThickness);
-}
-
-void VisualOdometryAnnotator::AnnotateTracks(
-    const std::vector<LandmarkIndex>& landmark_indices,
-    const std::vector<ViewIndex>& view_indices) {
-  const int kLineThickness = 1;
-  drawing::AnnotateTracks(landmark_indices,
-                          view_indices,
-                          image_.get(),
-                          kLineThickness);
-}
-#endif
-
 void VisualOdometryAnnotator::Draw(unsigned int wait_time) {
   image_->ImShow(window_name_, wait_time);
 }

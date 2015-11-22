@@ -192,7 +192,7 @@ TEST(Observation, TestTriangulateObservations) {
     // Incorporate all observations from all views into the landmark.
     for (unsigned int ii = 0; ii < View::NumExistingViews(); ++ii) {
       for (const auto& observation : View::GetView(ii)->Observations()) {
-        EXPECT_TRUE(landmark->IncorporateObservation(observation));
+        landmark->IncorporateObservation(observation);
       }
     }
 

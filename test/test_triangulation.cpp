@@ -136,6 +136,8 @@ TEST(Triangulation, TestTriangulateNoiseless) {
 }
 
 TEST(Triangulation, TestMaximumAngle) {
+  // Suppress warning messages for this test.
+  FLAGS_logtostderr = false;
 
   // Cameras and point all lie directly along the same line.
   Point3D point(0.0, 0.0, 0.0);
@@ -160,6 +162,8 @@ TEST(Triangulation, TestMaximumAngle) {
     cameras.push_back(Camera());
 
   EXPECT_NEAR(D2R(90.0), MaximumAngle(cameras, point), 1e-8);
+
+  FLAGS_logtostderr = true;
 }
 
 }  //\namespace bsfm

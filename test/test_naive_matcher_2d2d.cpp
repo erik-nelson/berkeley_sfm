@@ -70,9 +70,6 @@ class TestNaiveMatcher2D2D : public ::testing::Test {
 };  //\class TestNaiveFeatureMatcher
 
 TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherSiftSift) {
-
-  // What happens when we provide no options?
-
   // Load two images.
   Image image1(test_image1.c_str());
   Image image2(test_image2.c_str());
@@ -84,6 +81,7 @@ TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherSiftSift) {
 
   FeatureMatcherOptions options;
   options.distance_metric = "SCALED_L2";
+  options.threshold_image_distance = false;
   NaiveMatcher2D2D feature_matcher;
 
   KeypointDetector detector;
@@ -179,6 +177,7 @@ TEST_F(TestNaiveMatcher2D2D, TestNaiveMatcherFastOrb) {
   LOG(INFO) << "Extracted " << features2.size() << " features from image 2.";
 
   FeatureMatcherOptions options;
+  options.threshold_image_distance = false;
   options.distance_metric = "HAMMING";
   NaiveMatcher2D2D feature_matcher;
 

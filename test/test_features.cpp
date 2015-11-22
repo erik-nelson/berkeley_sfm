@@ -58,7 +58,7 @@ class TestFeatures : public ::testing::Test {
 
   const std::vector<std::string> detector_types = {
       "SIFT",  "SURF", "FAST", "STAR",   "ORB",
-      "BRISK", "MSER", "GFTT", "HARRIS", "DENSE", "SIMPLEBLOB"
+      "BRISK", "MSER", "GFTT", "HARRIS", "Dense", "SimpleBlob"
   };
 
   const std::vector<std::string> descriptor_types = {

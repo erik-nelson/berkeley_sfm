@@ -147,7 +147,7 @@ bool NaiveMatcher2D3D::Match(
 
     observations[observation_index]->SetMatchedLandmark(landmark_index);
   }
-  // printf("found %lu matches\n", num_features_out);
+  printf("found %lu matches\n", num_features_out);
 
   return true;
 }

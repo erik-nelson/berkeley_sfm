@@ -48,7 +48,7 @@ namespace bsfm {
 std::unordered_map<LandmarkIndex, Landmark::Ptr> Landmark::landmark_registry_;
 LandmarkIndex Landmark::current_landmark_index_ = 0;
 unsigned int Landmark::required_observations_ = 2;
-double Landmark::min_triangulation_angle_ = 1e-4;
+double Landmark::min_triangulation_angle_ = D2R(1.0);
 
 // Factory method. Registers the landmark and newly created index in the
 // landmark registry so that they can be accessed from the static GetLandmark()

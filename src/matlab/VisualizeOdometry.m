@@ -74,7 +74,7 @@ p = cat(1, map(:).position);
 % +y is down. Matlab visualization's +z is up, +x is forward, and +y is
 % left.
 p = ([0 0 1; -1 0 0; 0 -1 0] * p')';
-showPointCloud(p);
+showPointCloud(p, 'markersize', 200);
 colormap(jet);
 
 % Get the point furthest from the origin so we can set our axis.

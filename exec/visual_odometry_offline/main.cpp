@@ -170,14 +170,14 @@ int main(int argc, char** argv) {
 
   VisualOdometryOptions vo_options;
   vo_options.feature_type = "FAST";
-  vo_options.descriptor_type = "SIFT";
+  vo_options.descriptor_type = "ORB";
   vo_options.sliding_window_length = 1;
   vo_options.use_grid_filter = true;
-  vo_options.grid_rows = 7;
-  vo_options.grid_cols = 4;
-  vo_options.grid_min_num_features = 1000;
+  vo_options.grid_rows = 4;
+  vo_options.grid_cols = 7;
+  vo_options.grid_min_num_features = 5000;
 
-  vo_options.min_num_feature_tracks = 500;
+  vo_options.min_num_feature_tracks = 3000;
   vo_options.num_observations_to_triangulate = 2;
   vo_options.min_keyframe_translation = 0.5;
   vo_options.min_keyframe_rotation = D2R(5.0);
@@ -186,16 +186,16 @@ int main(int argc, char** argv) {
   vo_options.draw_tracks = true;
 
   vo_options.matcher_options.use_lowes_ratio = true;
-  vo_options.matcher_options.lowes_ratio = 0.85;
+  vo_options.matcher_options.lowes_ratio = 0.75;
   vo_options.matcher_options.min_num_feature_matches = 8;
   vo_options.matcher_options.require_symmetric_matches = true;
   vo_options.matcher_options.only_keep_best_matches = false;
   vo_options.matcher_options.num_best_matches = 0;
   vo_options.matcher_options.enforce_maximum_descriptor_distance = false;
   vo_options.matcher_options.maximum_descriptor_distance = 0.0;
-  vo_options.matcher_options.distance_metric = "SCALED_L2";
+  vo_options.matcher_options.distance_metric = "HAMMING";
   vo_options.matcher_options.threshold_image_distance = true;
-  vo_options.matcher_options.maximum_image_distance = 20;  // pixels.
+  vo_options.matcher_options.maximum_image_distance = 30;  // pixels.
 
   // RANSAC iterations chosen using ~10% outliers @ 99% chance to sample from
   // Table 4.3 of H&Z.
@@ -204,9 +204,9 @@ int main(int argc, char** argv) {
   vo_options.fundamental_matrix_ransac_options.minimum_num_inliers = 35;
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
-  vo_options.pnp_ransac_options.iterations = 100;
-  vo_options.pnp_ransac_options.acceptable_error = 4.0;
-  vo_options.pnp_ransac_options.minimum_num_inliers = 10;
+  vo_options.pnp_ransac_options.iterations = 10000;
+  vo_options.pnp_ransac_options.acceptable_error = 1.0;
+  vo_options.pnp_ransac_options.minimum_num_inliers = 100;
   vo_options.pnp_ransac_options.num_samples = 6;
 
   vo_options.perform_bundle_adjustment = false;
@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
   const int start = 2;
   capture.set(CV_CAP_PROP_POS_FRAMES, start);
 
-  const int skip = 5;
+  const int skip = 1;
   int num_frames = capture.get(CV_CAP_PROP_FRAME_COUNT);
   for (int frame_iterator = start + skip;
        frame_iterator < num_frames; frame_iterator += skip) {
@@ -287,8 +287,9 @@ int main(int argc, char** argv) {
     // Store this frame for next time.
     last_frame = frame;
 
-    // if (frame_iterator > 200)
-      // break;
+    printf("Iter: %d.\n", frame_iterator);
+    if (frame_iterator > 4)
+      break;
   }
   writer.release();
 

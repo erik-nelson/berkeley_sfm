@@ -216,6 +216,9 @@ Status KeyframeVisualOdometry::WriteTrajectoryToFile(
 
 Status KeyframeVisualOdometry::WriteMapToFile(
     const std::string& filename) const {
+  if (tracks_.empty() && frozen_landmarks_.empty())
+    return Status::Cancelled("No tracks or landmarks to write.");
+
   file::CsvWriter csv_writer(filename);
   if (!csv_writer.IsOpen())
     return Status::FailedPrecondition("Invalid filename.");
@@ -392,6 +395,7 @@ Status KeyframeVisualOdometry::InitializeSecondView(
     track->SetDescriptor(observation->Descriptor());
     tracks_.push_back(track->Index());
   }
+  printf("triangulated %d\n", triangulated_count);
 
   // Annotate tracks and features in the second frame.
   if (options_.draw_features) {
@@ -450,6 +454,10 @@ Status KeyframeVisualOdometry::UpdateFeatureTracks(
     }
   }
 
+  std::vector<Observation::Ptr> test;
+  view->MatchedObservations(&test);
+  printf("(1) have %lu matches here.\n", test.size());
+
   // Get a list of tracks that were not matched with.
   std::set<size_t> unmatched_track_inds;
   for (size_t ii = 0; ii < tracks_.size(); ++ii) {
@@ -476,7 +484,11 @@ Status KeyframeVisualOdometry::UpdateFeatureTracks(
     tracks_.erase(tracks_.begin() + *it);
   }
 
+  view->MatchedObservations(&test);
+  printf("(2) have %lu matches here.\n", test.size());
+
   if (is_keyframe) {
+    printf("Was a keyframe.\n");
     // Add all unmatched features as new tracks.
     current_keyframe_ = view_index;
 
@@ -491,6 +503,9 @@ Status KeyframeVisualOdometry::UpdateFeatureTracks(
     }
   }
 
+  view->MatchedObservations(&test);
+  printf("(3) have %lu matches here.\n", test.size());
+
   return Status::Ok();
 }
 
@@ -504,6 +519,7 @@ Status KeyframeVisualOdometry::EstimatePose(ViewIndex view_index) {
 
   std::vector<Observation::Ptr> matched_observations;
   view->MatchedObservations(&matched_observations);
+  printf("(4) at the top, had %lu matches\n", matched_observations.size());
 
   // Make sure the observations are only of triangulated landmarks.
   std::vector<Observation::Ptr> valid_observations;
@@ -513,7 +529,7 @@ Status KeyframeVisualOdometry::EstimatePose(ViewIndex view_index) {
       valid_observations.push_back(observation);
   }
   pnp_problem.SetData(valid_observations);
-  // printf("valid observations: %lu\n", valid_observations.size());
+  printf("valid observations: %lu\n", valid_observations.size());
 
   Ransac<Observation::Ptr, PnPRansacModel> pnp_solver;
   pnp_solver.SetOptions(options_.pnp_ransac_options);
@@ -569,7 +585,7 @@ Status KeyframeVisualOdometry::GetDescriptors(
                                               *descriptors)) {
     return Status::Cancelled("Failed to describe features.");
   }
-  // printf("got %lu descriptors\n", descriptors->size());
+  printf("got %lu descriptors\n", descriptors->size());
   return Status::Ok();
 }
 

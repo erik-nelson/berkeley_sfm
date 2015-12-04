@@ -253,8 +253,10 @@ int main(int argc, char** argv) {
   const int start = 2;
   capture.set(CV_CAP_PROP_POS_FRAMES, start);
 
-  const int skip = 1;
-  for (int frame_iterator = start + skip; ; frame_iterator += skip) {
+  const int skip = 5;
+  int num_frames = capture.get(CV_CAP_PROP_FRAME_COUNT);
+  for (int frame_iterator = start + skip;
+       frame_iterator < num_frames; frame_iterator += skip) {
     capture.set(CV_CAP_PROP_POS_FRAMES, frame_iterator);
 
     // Get the next frame.

@@ -78,12 +78,12 @@ class NaiveMatcher2D3D {
  private:
   DISALLOW_COPY_AND_ASSIGN(NaiveMatcher2D3D)
 
-  // Compute one-way matches.
-  // Note: this is essentially the function
-  // NaiveFeatureMatcher::ComputePutativeMatches but it has been adjusted
-  // slightly for this 2d-3d matcher.
+  // Compute one-way matches. Feature positions are provided so that the matches
+  // can be thresholded based on image space distance.
   void ComputeOneWayMatches(const std::vector<Descriptor>& descriptors1,
                             const std::vector<Descriptor>& descriptors2,
+                            const std::vector<Feature>& features1,
+                            const std::vector<Feature>& features2,
                             std::vector<LightFeatureMatch>& matches);
 
   // Compute symmetric matches.

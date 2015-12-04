@@ -57,6 +57,7 @@ bool NaiveMatcher2D3D::Match(
   }
 
   // Get descriptors from unincorporated observations in the view.
+  std::vector<Feature> features;
   std::vector<Descriptor> descriptors_2d;
   std::vector<size_t> observation_indices;
   std::vector<Observation::Ptr> observations = view->Observations();
@@ -64,17 +65,32 @@ bool NaiveMatcher2D3D::Match(
     CHECK_NOTNULL(observations[ii].get());
     if (!observations[ii]->IsIncorporated()) {
       descriptors_2d.push_back(observations[ii]->Descriptor());
+      features.push_back(observations[ii]->Feature());
       observation_indices.push_back(ii);
     }
   }
 
   // Get descriptors from landmarks.
+  std::vector<Feature> projected_features;
   std::vector<Descriptor> descriptors_3d;
   descriptors_3d.reserve(landmark_indices.size());
   for (size_t ii = 0; ii < landmark_indices.size(); ii++) {
-    Landmark::Ptr landmark = Landmark::GetLandmark(landmark_indices[ii]);
+    const Landmark::Ptr landmark = Landmark::GetLandmark(landmark_indices[ii]);
     CHECK_NOTNULL(landmark.get());
     descriptors_3d.push_back(landmark->Descriptor());
+
+    // Get the image space position of the landmark to threshold matches based
+    // on image space distance. If the landmark has not been observed at all,
+    // set a feature position to be at infinity such that the distance check will
+    // fail on this landmark.
+    if (!landmark->Observations().empty()) {
+      const Observation::Ptr observation = landmark->Observations().back();
+      CHECK_NOTNULL(observation.get());
+      projected_features.push_back(observation->Feature());
+    } else {
+      projected_features.push_back(Feature(std::numeric_limits<double>::max(),
+                                           std::numeric_limits<double>::max()));
+    }
   }
 
   // Normalize descriptors if required by the distance metric.
@@ -84,7 +100,11 @@ bool NaiveMatcher2D3D::Match(
 
   // Compute forward matches.
   std::vector<LightFeatureMatch> forward_matches;
-  ComputeOneWayMatches(descriptors_2d, descriptors_3d, forward_matches);
+  ComputeOneWayMatches(descriptors_2d,
+                       descriptors_3d,
+                       features,
+                       projected_features,
+                       forward_matches);
 
   if (forward_matches.size() < options_.min_num_feature_matches)
     return false;
@@ -92,7 +112,11 @@ bool NaiveMatcher2D3D::Match(
   // Compute reverse matches if needed.
   if (options_.require_symmetric_matches) {
     std::vector<LightFeatureMatch> reverse_matches;
-    ComputeOneWayMatches(descriptors_3d, descriptors_2d, reverse_matches);
+    ComputeOneWayMatches(descriptors_3d,
+                         descriptors_2d,
+                         projected_features,
+                         features,
+                         reverse_matches);
     ComputeSymmetricMatches(reverse_matches, forward_matches);
   }
 
@@ -120,31 +144,10 @@ bool NaiveMatcher2D3D::Match(
     const LandmarkIndex landmark_index =
         landmark_indices[forward_matches[ii].feature_index2_];
 
-    // Check that the features are close in image space by getting the location
-    // of the feature in the most recent frame that it was observed from.
-    if (options_.threshold_image_distance) {
-      const Landmark::Ptr& landmark = Landmark::GetLandmark(landmark_index);
-      CHECK_NOTNULL(landmark.get());
-      if (landmark->Observations().empty()) {
-        continue;
-      }
-
-      const Observation::Ptr& last_observation = landmark->Observations().back();
-      CHECK_NOTNULL(last_observation.get());
-      const Observation::Ptr this_observation =
-          view->Observations()[observation_index];
-
-      const Feature& old_feature = last_observation->Feature();
-      const Feature& new_feature = this_observation->Feature();
-      const double du = new_feature.u_ - old_feature.u_;
-      const double dv = new_feature.v_ - old_feature.v_;
-      if (std::sqrt(du*du + dv*dv) > options_.maximum_image_distance) {
-        continue;
-      }
-    }
 
     observations[observation_index]->SetMatchedLandmark(landmark_index);
   }
+  // printf("found %lu matches\n", num_features_out);
 
   return true;
 }
@@ -156,6 +159,8 @@ bool NaiveMatcher2D3D::Match(
 void NaiveMatcher2D3D::ComputeOneWayMatches(
      const std::vector<Descriptor>& descriptors1,
      const std::vector<Descriptor>& descriptors2,
+     const std::vector<Feature>& features1,
+     const std::vector<Feature>& features2,
      std::vector<LightFeatureMatch>& matches) {
   matches.clear();
 
@@ -171,11 +176,22 @@ void NaiveMatcher2D3D::ComputeOneWayMatches(
   for (size_t ii = 0; ii < descriptors1.size(); ++ii) {
     LightFeatureMatchList one_way_matches;
     for (size_t jj = 0; jj < descriptors2.size(); ++jj) {
-      double dist = distance(descriptors1[ii], descriptors2[jj]);
+      const double dist = distance(descriptors1[ii], descriptors2[jj]);
+      bool close_in_image_space = true;
+
+      // Check if the feature match is close enough in image space to be
+      // considered a match.
+      if (options_.threshold_image_distance) {
+        const double du = features1[ii].u_ - features2[jj].u_;
+        const double dv = features1[ii].v_ - features2[jj].v_;
+        if (std::sqrt(du*du + dv*dv) > options_.maximum_image_distance) {
+          close_in_image_space = false;
+        }
+      }
 
       // If max distance was not set above, distance.Max() will be infinity and
-      // this will always be true.
-      if (dist < distance.Max()) {
+      // this first check (dist < distance.Max()) will always be true.
+      if (dist < distance.Max() && close_in_image_space) {
         one_way_matches.emplace_back(ii, jj, dist);
       }
     }

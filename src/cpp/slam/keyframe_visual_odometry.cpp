@@ -95,7 +95,7 @@ Status KeyframeVisualOdometry::Update(const Image& image) {
   if (!status.ok()) return status;
 
   // Set the annotator's image.
-  if (options_.draw_tracks) {
+  if (options_.draw_tracks || options_.draw_features) {
     annotator_.SetImage(image);
   }
 
@@ -130,7 +130,9 @@ Status KeyframeVisualOdometry::Update(const Image& image) {
   }
 
   // Update feature tracks and add matched features to the view.
-  status = UpdateFeatureTracks(features, descriptors, new_view->Index(),
+  status = UpdateFeatureTracks(features,
+                               descriptors,
+                               new_view->Index(),
                                is_keyframe);
   if (!status.ok()) {
     View::DeleteMostRecentView();
@@ -145,19 +147,22 @@ Status KeyframeVisualOdometry::Update(const Image& image) {
     view_indices_.push_back(new_view->Index());
   }
 
-  if (is_keyframe) {
+  if (is_keyframe && options_.perform_bundle_adjustment) {
     // Bundle adjust views in the sliding window.
-    if (options_.perform_bundle_adjustment) {
-      BundleAdjuster bundle_adjuster;
-      if (!bundle_adjuster.Solve(options_.bundle_adjustment_options,
-                                 SlidingWindowViewIndices()))
-        return Status::Cancelled("Failed to perform bundle adjustment.");
-    }
+    BundleAdjuster bundle_adjuster;
+    if (!bundle_adjuster.Solve(options_.bundle_adjustment_options,
+                               SlidingWindowViewIndices()))
+      return Status::Cancelled("Failed to perform bundle adjustment.");
   }
 
-  // Annotate tracks.
+  // Annotate tracks and features.
+  if (options_.draw_features) {
+    annotator_.AnnotateFeatures(features);
+  }
   if (options_.draw_tracks) {
     annotator_.AnnotateTracks(tracks_);
+  }
+  if (options_.draw_tracks || options_.draw_features) {
     annotator_.Draw();
   }
 
@@ -271,7 +276,7 @@ void KeyframeVisualOdometry::InitializeFirstView(
   View::Ptr first_view = View::Create(first_camera);
   first_view->CreateAndAddObservations(features, descriptors);
 
-  // Annotate features only in the first frame.
+  // Annotate tracks only in the first frame.
   if (options_.draw_tracks) {
     annotator_.AnnotateFeatures(features);
     annotator_.Draw();
@@ -311,7 +316,7 @@ Status KeyframeVisualOdometry::InitializeSecondView(
   }
   options_.matcher_options.only_keep_best_matches = kTempOption;
 
-  CHECK(image_matches.size() == 1);
+  CHECK_EQ(1, image_matches.size());
   PairwiseImageMatch image_match = image_matches[0];
   FeatureMatchList feature_matches = image_match.feature_matches_;
 
@@ -347,8 +352,7 @@ Status KeyframeVisualOdometry::InitializeSecondView(
   }
 
   // If we got to here, we can initialize a second view.
-  const Pose initial_pose = first_view->Camera().Extrinsics().WorldToCamera();
-  CameraExtrinsics extrinsics(relative_pose * initial_pose);
+  CameraExtrinsics extrinsics(relative_pose);
 
   Camera camera2;
   camera2.SetExtrinsics(extrinsics);
@@ -361,21 +365,15 @@ Status KeyframeVisualOdometry::InitializeSecondView(
   int triangulated_count = 0;
   for (auto& observation : second_view->Observations()) {
     Landmark::Ptr track = Landmark::Create();
-    track->IncorporateObservation(observation);
-    track->SetDescriptor(observation->Descriptor());
-    tracks_.push_back(track->Index());
 
-    // If the same track was seen in the first view, triangulate it.
+    // If the same feature was seen in the first view, triangulate it.
     // TODO: This is pretty inefficient, even though we only do it once.
     bool found_matched_observation = false;
     for (const auto& feature_match : f_problem.Inliers()) {
       if (feature_match.feature2_ == observation->Feature()) {
         for (const auto& old_observation : first_view->Observations()) {
           if (feature_match.feature1_ == old_observation->Feature()) {
-            if (track->IncorporateObservation(old_observation)) {
-              CHECK(track->IsEstimated());
-              triangulated_count++;
-            }
+            track->IncorporateObservation(old_observation);
             found_matched_observation = true;
             break;
           }
@@ -383,11 +381,26 @@ Status KeyframeVisualOdometry::InitializeSecondView(
       }
       if (found_matched_observation) break;
     }
+
+    // Now add the observation from the second view.
+    if (track->IncorporateObservation(observation)) {
+      if (found_matched_observation) {
+        CHECK(track->IsEstimated());
+        triangulated_count++;
+      }
+    }
+    track->SetDescriptor(observation->Descriptor());
+    tracks_.push_back(track->Index());
   }
 
-  // Annotate tracks in the second frame.
+  // Annotate tracks and features in the second frame.
+  if (options_.draw_features) {
+    annotator_.AnnotateFeatures(features);
+  }
   if (options_.draw_tracks) {
     annotator_.AnnotateTracks(tracks_);
+  }
+  if (options_.draw_tracks || options_.draw_features) {
     annotator_.Draw();
   }
 
@@ -445,13 +458,18 @@ Status KeyframeVisualOdometry::UpdateFeatureTracks(
     }
   }
 
-  // The set of unobserved tracks is ordered, so iterate in reverse to remove.
+  // Remove any tracks that were not matched, and have not been seen in at least
+  // a few of the last sliding window views.
+  std::vector<ViewIndex> sliding_window = SlidingWindowViewIndices();
   std::set<size_t>::reverse_iterator it = unmatched_track_inds.rbegin();
   for (; it != unmatched_track_inds.rend(); ++it) {
-    // If the track was triangulated, store it for visualization (it will no
-    // longer be used for pose estimation).
     Landmark::Ptr track = Landmark::GetLandmark(tracks_[*it]);
     CHECK_NOTNULL(track.get());
+    if (track->SeenByAtLeastNViews(sliding_window, 1))
+      continue;
+
+    // If the track was triangulated, store it for visualization (it will no
+    // longer be used for pose estimation).
     if (track->IsEstimated())
       frozen_landmarks_.push_back(track->Index());
 
@@ -495,6 +513,7 @@ Status KeyframeVisualOdometry::EstimatePose(ViewIndex view_index) {
       valid_observations.push_back(observation);
   }
   pnp_problem.SetData(valid_observations);
+  // printf("valid observations: %lu\n", valid_observations.size());
 
   Ransac<Observation::Ptr, PnPRansacModel> pnp_solver;
   pnp_solver.SetOptions(options_.pnp_ransac_options);
@@ -550,6 +569,7 @@ Status KeyframeVisualOdometry::GetDescriptors(
                                               *descriptors)) {
     return Status::Cancelled("Failed to describe features.");
   }
+  // printf("got %lu descriptors\n", descriptors->size());
   return Status::Ok();
 }
 

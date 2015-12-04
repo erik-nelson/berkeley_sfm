@@ -54,9 +54,9 @@
 namespace bsfm {
 namespace drawing {
 
-// Annotate an image by drawing features as red circles on it.
+// Annotate an image by drawing features as green circles on it.
 void AnnotateFeatures(const FeatureList& features, Image* image,
-                      unsigned int radius = 3,
+                      unsigned int radius = 1,
                       unsigned int line_thickness = 2);
 
 // Draw features as red circles in an image.

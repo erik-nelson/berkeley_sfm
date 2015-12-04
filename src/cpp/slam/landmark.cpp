@@ -44,14 +44,11 @@
 
 namespace bsfm {
 
-namespace {
-const double kMinTriangulationAngle = D2R(2.0);
-}  //\namespace
-
 // Declaration of static member variables.
 std::unordered_map<LandmarkIndex, Landmark::Ptr> Landmark::landmark_registry_;
 LandmarkIndex Landmark::current_landmark_index_ = 0;
 unsigned int Landmark::required_observations_ = 2;
+double Landmark::min_triangulation_angle_ = 1e-4;
 
 // Factory method. Registers the landmark and newly created index in the
 // landmark registry so that they can be accessed from the static GetLandmark()
@@ -230,7 +227,7 @@ bool Landmark::IncorporateObservation(const Observation::Ptr& observation) {
   }
 
   // Make sure we aren't triangulating something collinear with our position.
-  if (1.0 / uncertainty < kMinTriangulationAngle) {
+  if (1.0 / uncertainty < min_triangulation_angle_) {
     // This observation is still fine, it's just collinear. We can store it, but
     // shouldn't update our position estimate.
     observation->SetIncorporatedLandmark(this->Index());
@@ -298,6 +295,17 @@ unsigned int Landmark::RequiredObservations() {
 // Set the minimum number of observations necessary to triangulate the landmark.
 void Landmark::SetRequiredObservations(unsigned int required_observations) {
   required_observations_ = required_observations;
+}
+
+// Return the minimum angle between observations necessary to triangulate a
+  // landmark.
+double Landmark::MinTriangulationAngle() {
+  return min_triangulation_angle_;
+}
+
+// Set the minimum angle required to triangulate a landmark.
+void Landmark::SetMinTriangulationAngle(double min_triangulation_angle) {
+  min_triangulation_angle_ = min_triangulation_angle;
 }
 
 // Private constructor enforces creation via factory method. This will be called

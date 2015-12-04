@@ -65,8 +65,8 @@ void AnnotateFeatures(const FeatureList& features, Image* image,
     cv_feature.x = feature.u_;
     cv_feature.y = feature.v_;
 
-    const cv::Scalar red(0, 0, 255);
-    cv::circle(cv_image, cv_feature, radius, red, line_thickness);
+    const cv::Scalar green(0, 255, 0);
+    cv::circle(cv_image, cv_feature, radius, green, line_thickness);
   }
 
   // Store the OpenCV mat in the image.

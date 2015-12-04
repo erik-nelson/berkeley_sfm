@@ -103,7 +103,7 @@ bool Triangulate(const FeatureList& features,
     uncertainty = 1.0 / angle;
   }
 
-  return true;;
+  return true;
 }
 
 // Triangulate the 3D position of a point from a 2D correspondence and two sets

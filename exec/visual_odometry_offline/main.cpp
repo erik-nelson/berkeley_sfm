@@ -62,7 +62,7 @@
 #include <util/status.h>
 #include <util/timer.h>
 
-// DEFINE_string(video_file, "visual_odometry_test.mp4",
+// DEFINE_string(video_file, "visual_odometry_test1.mp4",
 DEFINE_string(video_file, "../../../../Desktop/KITTI_datasets/KITTI2.mp4",
 // DEFINE_string(video_file, "KITTI2.mp4",
               "Name of the video file to perform visual odometry on.");
@@ -171,17 +171,17 @@ int main(int argc, char** argv) {
   VisualOdometryOptions vo_options;
   vo_options.feature_type = "FAST";
   vo_options.descriptor_type = "SIFT";
-  vo_options.sliding_window_length = 3;
+  vo_options.sliding_window_length = 1;
   vo_options.use_grid_filter = true;
-  vo_options.grid_rows = 4;
-  vo_options.grid_cols = 7;
-  vo_options.grid_min_num_features = 2048;
+  vo_options.grid_rows = 7;
+  vo_options.grid_cols = 4;
+  vo_options.grid_min_num_features = 1000;
 
-  vo_options.min_num_feature_tracks = 400;
+  vo_options.min_num_feature_tracks = 500;
   vo_options.num_observations_to_triangulate = 2;
   vo_options.min_keyframe_translation = 0.5;
   vo_options.min_keyframe_rotation = D2R(5.0);
-  vo_options.num_landmarks_to_initialize = 50;
+  vo_options.num_landmarks_to_initialize = 30;
 
   vo_options.draw_tracks = true;
 
@@ -195,7 +195,7 @@ int main(int argc, char** argv) {
   vo_options.matcher_options.maximum_descriptor_distance = 0.0;
   vo_options.matcher_options.distance_metric = "SCALED_L2";
   vo_options.matcher_options.threshold_image_distance = true;
-  vo_options.matcher_options.maximum_image_distance = 30;  // pixels.
+  vo_options.matcher_options.maximum_image_distance = 20;  // pixels.
 
   // RANSAC iterations chosen using ~10% outliers @ 99% chance to sample from
   // Table 4.3 of H&Z.
@@ -205,11 +205,11 @@ int main(int argc, char** argv) {
   vo_options.fundamental_matrix_ransac_options.num_samples = 8;
 
   vo_options.pnp_ransac_options.iterations = 100;
-  vo_options.pnp_ransac_options.acceptable_error = 1.0;
-  vo_options.pnp_ransac_options.minimum_num_inliers = 20;
+  vo_options.pnp_ransac_options.acceptable_error = 4.0;
+  vo_options.pnp_ransac_options.minimum_num_inliers = 10;
   vo_options.pnp_ransac_options.num_samples = 6;
 
-  vo_options.perform_bundle_adjustment = true;
+  vo_options.perform_bundle_adjustment = false;
   vo_options.bundle_adjustment_options.solver_type = "SPARSE_SCHUR";
   vo_options.bundle_adjustment_options.print_summary = false;
   vo_options.bundle_adjustment_options.print_progress = false;
@@ -250,7 +250,7 @@ int main(int argc, char** argv) {
   }
 
   // Skip several frames at the beginning to get a nice baseline.
-  const int start = 3;
+  const int start = 2;
   capture.set(CV_CAP_PROP_POS_FRAMES, start);
 
   const int skip = 1;
@@ -285,8 +285,8 @@ int main(int argc, char** argv) {
     // Store this frame for next time.
     last_frame = frame;
 
-    if (frame_iterator > 100)
-      break;
+    // if (frame_iterator > 200)
+      // break;
   }
   writer.release();
 

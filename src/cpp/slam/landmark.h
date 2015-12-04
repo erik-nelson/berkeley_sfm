@@ -136,14 +136,23 @@ class Landmark {
 
   // Given a set of views, return whether or not this landmark has been seen by
   // at least N of them.
-  bool SeenByAtLeastNViews(const std::vector<ViewIndex>& view_indices, unsigned int N);
+  bool SeenByAtLeastNViews(const std::vector<ViewIndex>& view_indices,
+                           unsigned int N);
 
-  // Return the minimum number of observations necessary to triangulate the landmark.
+  // Return the minimum number of observations necessary to triangulate a
+  // landmark.
   static unsigned int RequiredObservations();
 
   // Set the minimum number of observations necessary to triangulate the
   // landmark.
   static void SetRequiredObservations(unsigned int required_observations);
+
+  // Return the minimum angle between observations necessary to triangulate a
+  // landmark.
+  static double MinTriangulationAngle();
+
+  // Set the minimum angle required to triangulate a landmark.
+  static void SetMinTriangulationAngle(double min_triangulation_angle);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Landmark)
@@ -182,6 +191,9 @@ class Landmark {
   // The minimum number of observations needed for a landmark's position to be
   // triangulated. This can be changed online with 'SetRequiredObservations().
   static unsigned int required_observations_;
+
+  // The minimum angle required to triangulate a landmark from observations.
+  static double min_triangulation_angle_;
 };  //\class Landmark
 
 }  //\namespace bsfm

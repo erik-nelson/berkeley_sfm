@@ -87,7 +87,7 @@ struct FeatureMatcherOptions {
   // space. For 2D<-->3D matching, this will compare the image-space location of
   // the feature in the most recent view that it was observed from to its
   // current image-space position.
-  bool threshold_image_distance = true;
+  bool threshold_image_distance = false;
 
   // The maximum tolerable image space distance (pixels) that two features can
   // be from

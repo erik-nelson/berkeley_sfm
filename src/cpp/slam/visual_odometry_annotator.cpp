@@ -54,8 +54,8 @@ void VisualOdometryAnnotator::SetImage(const Image& image) {
 }
 
 void VisualOdometryAnnotator::AnnotateFeatures(const FeatureList& features) {
-  const int kRadius = 3;
-  const int kLineThickness = 1;
+  const int kRadius = 1;
+  const int kLineThickness = 2;
   drawing::AnnotateFeatures(features, image_.get(), kRadius, kLineThickness);
 }
 

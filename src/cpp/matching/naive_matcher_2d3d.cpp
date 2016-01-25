@@ -90,7 +90,6 @@ bool NaiveMatcher2D3D::Match(
     } else {
       projected_features.push_back(Feature(std::numeric_limits<double>::max(),
                                            std::numeric_limits<double>::max()));
-      printf("pushed back max...(landmark index: %d)\n", landmark->Index());
     }
   }
 

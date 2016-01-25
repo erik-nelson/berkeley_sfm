@@ -57,7 +57,11 @@ bool NaiveMatcher2D2D::MatchImagePair(
 
   // Compute forward (and reverse, if applicable) matches.
   LightFeatureMatchList light_feature_matches;
-  ComputePutativeMatches(descriptors1, descriptors2, light_feature_matches);
+  ComputePutativeMatches(descriptors1,
+                         descriptors2,
+                         image_index1,
+                         image_index2,
+                         light_feature_matches);
 
   // Check that we got enough matches here. If we didn't, reverse matches won't
   // help us.
@@ -67,7 +71,10 @@ bool NaiveMatcher2D2D::MatchImagePair(
 
   if (options_.require_symmetric_matches) {
     LightFeatureMatchList reverse_light_feature_matches;
-    ComputePutativeMatches(descriptors2, descriptors1,
+    ComputePutativeMatches(descriptors2,
+                           descriptors1,
+                           image_index2,
+                           image_index1,
                            reverse_light_feature_matches);
     SymmetricMatches(reverse_light_feature_matches, light_feature_matches);
   }
@@ -84,7 +91,7 @@ bool NaiveMatcher2D2D::MatchImagePair(
 
     // Return relevant matches in sorted order.
     std::partial_sort(light_feature_matches.begin(),
-                      light_feature_matches.begin() + num_features_out,
+                      light_feature_matches.begin() + num_features_out + 1,
                       light_feature_matches.end(),
                       LightFeatureMatch::SortByDistance);
   }
@@ -98,6 +105,7 @@ bool NaiveMatcher2D2D::MatchImagePair(
     const Feature& matched_feature2 =
         image_features_[image_index2][match.feature_index2_];
 
+#if 0
     // Check that the features are close in image space.
     if (options_.threshold_image_distance) {
       const double du = matched_feature1.u_ - matched_feature2.u_;
@@ -106,6 +114,7 @@ bool NaiveMatcher2D2D::MatchImagePair(
         continue;
       }
     }
+#endif
     image_match.feature_matches_.emplace_back(matched_feature1,
                                               matched_feature2);
 
@@ -119,8 +128,8 @@ bool NaiveMatcher2D2D::MatchImagePair(
 
 void NaiveMatcher2D2D::ComputePutativeMatches(
     const std::vector<Descriptor>& descriptors1,
-    const std::vector<Descriptor>& descriptors2,
-    std::vector<LightFeatureMatch>& putative_matches) {
+    const std::vector<Descriptor>& descriptors2, int image_index1,
+    int image_index2, std::vector<LightFeatureMatch>& putative_matches) {
   putative_matches.clear();
 
   // Get the singletone distance metric for descriptor comparison.
@@ -137,9 +146,21 @@ void NaiveMatcher2D2D::ComputePutativeMatches(
     for (size_t jj = 0; jj < descriptors2.size(); ++jj) {
       double dist = distance(descriptors1[ii], descriptors2[jj]);
 
+      // Check that the features are close in image space.
+      bool close_in_image_space = true;
+      const Feature& feature1 = image_features_[image_index1][ii];
+      const Feature& feature2 = image_features_[image_index2][jj];
+      if (options_.threshold_image_distance) {
+        const double du = feature1.u_ - feature2.u_;
+        const double dv = feature1.v_ - feature2.v_;
+        if (std::sqrt(du * du + dv * dv) > options_.maximum_image_distance) {
+          close_in_image_space = false;
+        }
+      }
+
       // If max distance was not set above, distance.Max() will be infinity and
-      // this will always be true.
-      if (dist < distance.Max()) {
+      // the first check will always be true (dist < distance.Max()).
+      if (dist < distance.Max() && close_in_image_space) {
         one_way_matches.emplace_back(ii, jj, dist);
       }
     }
@@ -157,7 +178,7 @@ void NaiveMatcher2D2D::ComputePutativeMatches(
     // matches for the Lowes ratio test, and about the best match if we are not
     // using Lowes ratio.
     std::partial_sort(one_way_matches.begin(),
-                      one_way_matches.begin() + 1,
+                      one_way_matches.begin() + 2,
                       one_way_matches.end(),
                       LightFeatureMatch::SortByDistance);
 

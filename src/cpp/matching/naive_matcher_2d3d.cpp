@@ -90,6 +90,7 @@ bool NaiveMatcher2D3D::Match(
     } else {
       projected_features.push_back(Feature(std::numeric_limits<double>::max(),
                                            std::numeric_limits<double>::max()));
+      printf("pushed back max...(landmark index: %d)\n", landmark->Index());
     }
   }
 
@@ -132,7 +133,7 @@ bool NaiveMatcher2D3D::Match(
 
     // Return relevant matches in sorted order.
     std::partial_sort(forward_matches.begin(),
-                      forward_matches.begin() + num_features_out,
+                      forward_matches.begin() + num_features_out + 1,
                       forward_matches.end(),
                       LightFeatureMatch::SortByDistance);
   }
@@ -144,10 +145,8 @@ bool NaiveMatcher2D3D::Match(
     const LandmarkIndex landmark_index =
         landmark_indices[forward_matches[ii].feature_index2_];
 
-
     observations[observation_index]->SetMatchedLandmark(landmark_index);
   }
-  printf("found %lu matches\n", num_features_out);
 
   return true;
 }
@@ -209,7 +208,7 @@ void NaiveMatcher2D3D::ComputeOneWayMatches(
     // matches for the Lowes ratio test, and only care about the lowest distance
     // match if we are not using Lowes ratio.
     std::partial_sort(one_way_matches.begin(),
-                      one_way_matches.begin() + 1,
+                      one_way_matches.begin() + 2,
                       one_way_matches.end(),
                       LightFeatureMatch::SortByDistance);
 

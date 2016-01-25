@@ -57,9 +57,7 @@ bool NaiveMatcher2D2D::MatchImagePair(
 
   // Compute forward (and reverse, if applicable) matches.
   LightFeatureMatchList light_feature_matches;
-  ComputePutativeMatches(descriptors1,
-                         descriptors2,
-                         light_feature_matches);
+  ComputePutativeMatches(descriptors1, descriptors2, light_feature_matches);
 
   // Check that we got enough matches here. If we didn't, reverse matches won't
   // help us.
@@ -69,10 +67,7 @@ bool NaiveMatcher2D2D::MatchImagePair(
 
   if (options_.require_symmetric_matches) {
     LightFeatureMatchList reverse_light_feature_matches;
-    ComputePutativeMatches(descriptors2,
-                           descriptors1,
-                           image_index2,
-                           image_index1,
+    ComputePutativeMatches(descriptors2, descriptors1,
                            reverse_light_feature_matches);
     SymmetricMatches(reverse_light_feature_matches, light_feature_matches);
   }

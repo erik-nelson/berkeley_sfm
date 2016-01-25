@@ -286,7 +286,7 @@ int main(int argc, char** argv) {
 
     // Store this frame for next time.
     last_frame = frame;
-
+ 
     printf("Iter: %d.\n", frame_iterator);
     if (frame_iterator > 4)
       break;
